@@ -1,0 +1,278 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Prefix field setters and selected replacement instructions; no text transformation runtime",
+  "facts": [
+    {
+      "id": "preprocessor_flag_compare_return",
+      "status": "verified",
+      "evidence": "replacement-gate-assembly",
+      "start": "0x69687c",
+      "end": "0x696881",
+      "observation": "入口比较 +0x58 的字节后返回；不能据空伪代码忽略这次比较。",
+      "scope": "选定机器指令及顺序；不是完整字符串、排序或模式执行证明",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x69687c: CMP byte ptr [EAX + 0x58], 0x0",
+        "0x696880: RET"
+      ],
+      "unknown": [
+        "执行语义 not_tested"
+      ]
+    },
+    {
+      "id": "replacement_reverse_loop",
+      "status": "verified",
+      "evidence": "replacement-core-assembly",
+      "start": "0x695d12",
+      "end": "0x695e99",
+      "observation": "开关和计数控制选定路径，从 Count-1 开始递减至 -1。",
+      "scope": "选定机器指令及顺序；不是完整字符串、排序或模式执行证明",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x695d12: CMP byte ptr [EAX + 0x58], 0x0",
+        "0x695d16: JZ 0x00695e99",
+        "0x695d2f: CALL 0x00696860",
+        "0x695d34: MOV EBX, EAX",
+        "0x695d36: DEC EBX",
+        "0x695d45: CALL 0x00696868",
+        "0x695e8f: DEC EBX",
+        "0x695e90: CMP EBX, -0x1",
+        "0x695e93: JNZ 0x00695d40"
+      ],
+      "unknown": [
+        "执行语义 not_tested"
+      ]
+    },
+    {
+      "id": "replacement_mode_guard",
+      "status": "verified",
+      "evidence": "replacement-core-assembly",
+      "start": "0x695d4c",
+      "end": "0x695d68",
+      "observation": "首字段为零时跳过；类型字段经无符号上限 4 检查后进入索引分派。",
+      "scope": "选定机器指令及顺序；不是完整字符串、排序或模式执行证明",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x695d4c: CMP dword ptr [ESI], 0x0",
+        "0x695d4f: JZ 0x00695e8f",
+        "0x695d55: MOV EAX, dword ptr [ESI + 0x8]",
+        "0x695d58: CMP EAX, 0x4",
+        "0x695d5b: JA 0x00695e8f",
+        "0x695d61: JMP dword ptr [EAX*0x4 + 0x695d68]"
+      ],
+      "unknown": [
+        "执行语义 not_tested"
+      ]
+    },
+    {
+      "id": "replacement_helper_lanes",
+      "status": "verified",
+      "evidence": "replacement-core-assembly",
+      "start": "0x695d8a",
+      "end": "0x695e8f",
+      "observation": "选定模式区域包含五个不同助手调用；各模式完整语义仍未知。",
+      "scope": "选定机器指令及顺序；不是完整字符串、排序或模式执行证明",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x695d8a: CALL 0x004e08f0",
+        "0x695da8: CALL 0x006675f8",
+        "0x695de7: CALL 0x00667978",
+        "0x695e03: CALL 0x00667828",
+        "0x695e7f: CALL 0x00667918"
+      ],
+      "unknown": [
+        "执行语义 not_tested"
+      ]
+    },
+    {
+      "id": "replacement_enable_store",
+      "status": "verified",
+      "evidence": "replacement-enable-assembly",
+      "start": "0x696670",
+      "end": "0x696674",
+      "observation": "启用助手将输入字节写入 +0x58 后返回。",
+      "scope": "选定机器指令及顺序；不是完整字符串、排序或模式执行证明",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x696670: MOV byte ptr [EAX + 0x58], DL",
+        "0x696673: RET"
+      ],
+      "unknown": [
+        "执行语义 not_tested"
+      ]
+    },
+    {
+      "id": "replacement_sort_callback",
+      "status": "verified",
+      "evidence": "replacement-sort-assembly",
+      "start": "0x696884",
+      "end": "0x696892",
+      "observation": "从 +0x34 取列表，传入回调地址，再调用排序候选助手。",
+      "scope": "选定机器指令及顺序；不是完整字符串、排序或模式执行证明",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x696884: MOV EDX, 0x694bdc",
+        "0x696889: MOV EAX, dword ptr [EAX + 0x34]",
+        "0x69688c: CALL 0x0043ba94",
+        "0x696891: RET"
+      ],
+      "unknown": [
+        "执行语义 not_tested"
+      ]
+    },
+    {
+      "id": "replacement_update_fields",
+      "status": "verified",
+      "evidence": "replacement-add-assembly",
+      "start": "0x696578",
+      "end": "0x6965b9",
+      "observation": "比较结果为零的路径更新三个字段后跳向尾部，不经过后面的排序调用。",
+      "scope": "选定机器指令及顺序；不是完整字符串、排序或模式执行证明",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x696578: CALL 0x00414b08",
+        "0x69657d: TEST EAX, EAX",
+        "0x69657f: JNZ 0x006965b9",
+        "0x69658d: CALL 0x00407460",
+        "0x69659b: ADD EAX, 0x4",
+        "0x6965a1: CALL 0x00407460",
+        "0x6965b2: MOV dword ptr [EAX + 0x8], EDX",
+        "0x6965b7: JMP 0x006965fd"
+      ],
+      "unknown": [
+        "执行语义 not_tested"
+      ]
+    },
+    {
+      "id": "replacement_insert_then_sort",
+      "status": "verified",
+      "evidence": "replacement-add-assembly",
+      "start": "0x6965c0",
+      "end": "0x6965fd",
+      "observation": "另一条分配及插入路径随后调用排序助手。",
+      "scope": "选定机器指令及顺序；不是完整字符串、排序或模式执行证明",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6965c8: CALL 0x00408784",
+        "0x6965e7: MOV dword ptr [ESI + 0x8], EAX",
+        "0x6965ef: CALL 0x0043b354",
+        "0x6965f6: CALL 0x00696884"
+      ],
+      "unknown": [
+        "执行语义 not_tested"
+      ]
+    },
+    {
+      "id": "replacement_reset_prefixes",
+      "status": "verified",
+      "evidence": "replacement-reset-assembly",
+      "start": "0x695cc6",
+      "end": "0x695cde",
+      "observation": "重置路径将两个前缀字段地址交给字符串赋值候选助手，并写开关字节 1。",
+      "scope": "选定机器指令及顺序；不是完整字符串、排序或模式执行证明",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x695cc6: LEA EAX, [EBX + 0x2c]",
+        "0x695ccb: CALL 0x00407460",
+        "0x695cd0: LEA EAX, [EBX + 0x30]",
+        "0x695cd5: CALL 0x00407460",
+        "0x695cda: MOV byte ptr [EBX + 0x58], 0x1"
+      ],
+      "unknown": [
+        "执行语义 not_tested"
+      ]
+    },
+    {
+      "id": "reader_init_prefixes_and_state",
+      "status": "verified",
+      "evidence": "reader-init-assembly",
+      "start": "0x694c25",
+      "end": "0x694c53",
+      "observation": "初始化对两个前缀字段传入零，再重置记录区并写开关字节 1。",
+      "scope": "选定机器指令及顺序；不是完整字符串、排序或模式执行证明",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x694c25: LEA EAX, [EBX + 0x2c]",
+        "0x694c28: XOR EDX, EDX",
+        "0x694c2a: CALL 0x00407460",
+        "0x694c2f: LEA EAX, [EBX + 0x30]",
+        "0x694c32: XOR EDX, EDX",
+        "0x694c34: CALL 0x00407460",
+        "0x694c3b: CALL 0x00695c90",
+        "0x694c4a: CALL 0x00404f60",
+        "0x694c4f: MOV byte ptr [EBX + 0x58], 0x1"
+      ],
+      "unknown": [
+        "执行语义 not_tested"
+      ]
+    },
+    {
+      "id": "prefix_setter_et",
+      "status": "verified",
+      "evidence": "replacement-dispatch-assembly",
+      "start": "0x6ba2e2",
+      "end": "0x6ba585",
+      "observation": "编号减法分派的一条路径解析首参数后，将结果赋给读取器 +0x2c。",
+      "scope": "选定机器指令及顺序；不是完整字符串、排序或模式执行证明",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6ba2e2: SUB EDI, 0x723f",
+        "0x6ba2ee: SUB EDI, 0x226",
+        "0x6ba2f4: JZ 0x006ba54c",
+        "0x6ba564: CALL 0x006be1d8",
+        "0x6ba574: MOV EAX, dword ptr [ESI + 0x120]",
+        "0x6ba57a: ADD EAX, 0x2c",
+        "0x6ba580: CALL 0x00407460"
+      ],
+      "unknown": [
+        "执行语义 not_tested"
+      ]
+    },
+    {
+      "id": "prefix_setter_nt",
+      "status": "verified",
+      "evidence": "replacement-dispatch-assembly",
+      "start": "0x6ba2e2",
+      "end": "0x6ba5c3",
+      "observation": "相邻编号路径解析首参数后，将结果赋给读取器 +0x30。",
+      "scope": "选定机器指令及顺序；不是完整字符串、排序或模式执行证明",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6ba2e2: SUB EDI, 0x723f",
+        "0x6ba2ee: SUB EDI, 0x226",
+        "0x6ba2fa: SUB EDI, 0x9",
+        "0x6ba2fd: JZ 0x006ba58a",
+        "0x6ba5a2: CALL 0x006be1d8",
+        "0x6ba5b2: MOV EAX, dword ptr [ESI + 0x120]",
+        "0x6ba5b8: ADD EAX, 0x30",
+        "0x6ba5be: CALL 0x00407460"
+      ],
+      "unknown": [
+        "执行语义 not_tested"
+      ]
+    }
+  ],
+  "inferred_contracts": [
+    {
+      "id": "prefix_setters",
+      "status": "inferred",
+      "meaning": "选定分派器中的 et/nt 编号路径分别写 FExceptText/FNoWordLineText；脚本对象作用域未知。"
+    },
+    {
+      "id": "replacement_order",
+      "status": "inferred",
+      "meaning": "选定路径反向迭代列表，新增项和已有项的排序路径不同；比较规则及稳定性未知。"
+    },
+    {
+      "id": "mode_semantics_unknown",
+      "status": "inferred",
+      "meaning": "五种模式使用不同助手；不统一成宿主字符串替换或正则表达式。"
+    },
+    {
+      "id": "prefix_reset",
+      "status": "inferred",
+      "meaning": "初始化及替换列表重置存在清空前缀的路径；实际执行顺序与入口可达性未验证。"
+    }
+  ]
+}

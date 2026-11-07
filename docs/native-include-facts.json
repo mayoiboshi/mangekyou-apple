@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "New include helper observations only; existing control/format/declaration evidence reused",
+  "facts": [
+    {
+      "id": "ordinary_include_mode",
+      "evidence": "include-loader-assembly",
+      "start": "0x69533a",
+      "end": "0x695357",
+      "observation": "Take substring starting at 4 after the three-character marker and call helper with zero mode.",
+      "anchors": [
+        "0x69533c: SUB ECX, 0x3",
+        "0x69533f: MOV EDX, 0x4",
+        "0x695347: CALL 0x00407ba0",
+        "0x69534d: XOR EDX, EDX",
+        "0x695352: CALL 0x00694ed4"
+      ],
+      "status": "verified",
+      "scope": "Selected static instructions; execution not tested",
+      "require_anchor_order": true,
+      "unknown": [
+        "Full source preprocessing and original execution not tested"
+      ]
+    },
+    {
+      "id": "bang_include_mode",
+      "evidence": "include-loader-assembly",
+      "start": "0x6953f7",
+      "end": "0x695447",
+      "observation": "The fourth UTF-16 unit is compared with !; take substring starting at 5, then call helper with mode one.",
+      "anchors": [
+        "0x6953f7: CMP word ptr [EAX + 0x6], 0x21",
+        "0x69542c: SUB ECX, 0x4",
+        "0x69542f: MOV EDX, 0x5",
+        "0x695437: CALL 0x00407ba0",
+        "0x69543d: MOV DL, 0x1",
+        "0x695442: CALL 0x00694ed4"
+      ],
+      "status": "verified",
+      "scope": "Selected static instructions; execution not tested",
+      "require_anchor_order": true,
+      "unknown": [
+        "Full source preprocessing and original execution not tested"
+      ]
+    }
+  ],
+  "inferred_contracts": [
+    {
+      "id": "include_candidate",
+      "status": "inferred",
+      "meaning": "Inline ordered expansion with ! loaded-path guard, selected file identity and preserved byte origins; no complete preprocessing claim"
+    }
+  ]
+}

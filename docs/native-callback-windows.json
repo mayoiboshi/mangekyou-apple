@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "status": "inferred",
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Selected RTTI-declared object-array entries; no callback invocation",
+  "windows": [
+    {
+      "name": "object-value-get",
+      "start": "0x69e5d0",
+      "end_exclusive": "0x69e60c"
+    },
+    {
+      "name": "object-array-grow",
+      "start": "0x69e764",
+      "end_exclusive": "0x69e9e8"
+    },
+    {
+      "name": "object-value-init",
+      "start": "0x69ea1c",
+      "end_exclusive": "0x69eb4c"
+    },
+    {
+      "name": "engine-initialize",
+      "start": "0x6be8e4",
+      "end_exclusive": "0x6bec6c"
+    },
+    {
+      "name": "create-event-bridge",
+      "start": "0x6bee50",
+      "end_exclusive": "0x6bef28"
+    },
+    {
+      "name": "load-event-bridge",
+      "start": "0x6bef28",
+      "end_exclusive": "0x6bef7c"
+    }
+  ]
+}

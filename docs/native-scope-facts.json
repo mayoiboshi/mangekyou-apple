@@ -1,0 +1,407 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Object scope and registry static evidence; no runtime or complete alias analysis",
+  "facts": [
+    {
+      "id": "scp_selector_chain",
+      "status": "verified",
+      "evidence": "generic-dispatch-assembly",
+      "start": "0x6afdeb",
+      "end": "0x6afe0c",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6afdeb: SUB EAX, 0x6b6c63",
+        "0x6afdf0: JZ 0x006b041f",
+        "0x6afdf6: SUB EAX, 0xf500",
+        "0x6afdfb: JZ 0x006b0285",
+        "0x6afe01: SUB EAX, 0x40210",
+        "0x6afe06: JZ 0x006b011e"
+      ],
+      "observation": "Three successive subtractions and zero branches select the reviewed scp entry on the admitted fallthrough.",
+      "scope": "Selected instructions and ordering only; no startup reachability or execution equivalence",
+      "unknown": [
+        "Original target execution not_tested"
+      ]
+    },
+    {
+      "id": "scope_clear_sixteen",
+      "status": "verified",
+      "evidence": "scope-clear-assembly",
+      "start": "0x6c101c",
+      "end": "0x6c102f",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6c101c: XOR EBX, EBX",
+        "0x6c101e: LEA EAX, [ESI + EBX*0x4 + 0xc]",
+        "0x6c1022: XOR EDX, EDX",
+        "0x6c1024: CALL 0x00407460",
+        "0x6c1029: INC EBX",
+        "0x6c102a: CMP EBX, 0x10",
+        "0x6c102d: JNZ 0x006c101e"
+      ],
+      "observation": "Clear sixteen four-byte string slots from instance+0xc using a zero source.",
+      "scope": "Selected instructions and ordering only; no startup reachability or execution equivalence",
+      "unknown": [
+        "Original target execution not_tested"
+      ]
+    },
+    {
+      "id": "scp_clears_before_fields",
+      "status": "verified",
+      "evidence": "generic-dispatch-assembly",
+      "start": "0x6b011e",
+      "end": "0x6b014f",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6b0121: MOV EAX, dword ptr [EAX + 0x118]",
+        "0x6b0127: CALL 0x006c1160",
+        "0x6b012c: CALL 0x006c1018",
+        "0x6b0136: CALL dword ptr [EDX + 0x14]",
+        "0x6b0139: SUB EAX, 0x2",
+        "0x6b013e: JL 0x006b1a8e",
+        "0x6b0144: INC EAX",
+        "0x6b0148: MOV dword ptr [EBP + -0x4c], 0x0"
+      ],
+      "observation": "Current-routine clear occurs before list Count determines iteration over argument slots.",
+      "scope": "Selected instructions and ordering only; no startup reachability or execution equivalence",
+      "unknown": [
+        "Original target execution not_tested"
+      ]
+    },
+    {
+      "id": "scp_preserves_slot_positions",
+      "status": "verified",
+      "evidence": "generic-dispatch-assembly",
+      "start": "0x6b014f",
+      "end": "0x6b0170",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6b0155: MOV EBX, dword ptr [EBP + -0x4c]",
+        "0x6b0158: INC EBX",
+        "0x6b0159: MOV EDX, EBX",
+        "0x6b0160: CALL dword ptr [ESI + 0xc]",
+        "0x6b0163: CMP dword ptr [EBP + 0xffffff08], 0x0",
+        "0x6b016a: JZ 0x006b01f5"
+      ],
+      "observation": "Read source argument at loop index plus one; zero pointers skip to increment without compacting the slot index.",
+      "scope": "Selected instructions and ordering only; no startup reachability or execution equivalence",
+      "unknown": [
+        "Original target execution not_tested"
+      ]
+    },
+    {
+      "id": "scp_accepted_tags",
+      "status": "verified",
+      "evidence": "generic-dispatch-assembly",
+      "start": "0x6b0180",
+      "end": "0x6b019d",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6b0180: MOV EDX, dword ptr [EBP + 0xffffff04]",
+        "0x6b0186: LEA ECX, [EBP + -0x20]",
+        "0x6b0189: MOV EAX, dword ptr [EBP + -0x50]",
+        "0x6b018c: CALL 0x006be1d8",
+        "0x6b0191: MOVZX EAX, byte ptr [EBP + -0x20]",
+        "0x6b0195: CMP AL, 0x2",
+        "0x6b0197: JZ 0x006b019d",
+        "0x6b0199: CMP AL, 0x1",
+        "0x6b019b: JNZ 0x006b01cf"
+      ],
+      "observation": "Evaluate in the selected context; tags two and one proceed to the scope write path, other tags branch away.",
+      "scope": "Selected instructions and ordering only; no startup reachability or execution equivalence",
+      "unknown": [
+        "Original target execution not_tested"
+      ]
+    },
+    {
+      "id": "scp_writes_evaluated_name",
+      "status": "verified",
+      "evidence": "generic-dispatch-assembly",
+      "start": "0x6b019d",
+      "end": "0x6b01cd",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6b01a0: MOV EAX, dword ptr [EAX + 0x118]",
+        "0x6b01a6: CALL 0x006c1160",
+        "0x6b01ab: MOV EDX, dword ptr [EBP + -0x4c]",
+        "0x6b01ae: LEA EAX, [EAX + EDX*0x4 + 0xc]",
+        "0x6b01b2: PUSH EAX",
+        "0x6b01b9: MOV EAX, dword ptr [EBP + -0x18]",
+        "0x6b01bc: CALL 0x0041493c",
+        "0x6b01c1: MOV EDX, dword ptr [EBP + 0xffffff00]",
+        "0x6b01c7: POP EAX",
+        "0x6b01c8: CALL 0x00407460"
+      ],
+      "observation": "Lower the computed string and assign it to current-routine+0xc+index*4; source spelling is not used directly.",
+      "scope": "Selected instructions and ordering only; no startup reachability or execution equivalence",
+      "unknown": [
+        "Original target execution not_tested"
+      ]
+    },
+    {
+      "id": "scp_argument_count_loop",
+      "status": "verified",
+      "evidence": "generic-dispatch-assembly",
+      "start": "0x6b01f5",
+      "end": "0x6b0201",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6b01f5: INC dword ptr [EBP + -0x4c]",
+        "0x6b01f8: DEC dword ptr [EBP + -0x58]",
+        "0x6b01fb: JNZ 0x006b014f"
+      ],
+      "observation": "Loop progress follows the list-derived count, with no sixteen-slot guard visible in this selected tail.",
+      "scope": "Selected instructions and ordering only; no startup reachability or execution equivalence",
+      "unknown": [
+        "Original target execution not_tested"
+      ]
+    },
+    {
+      "id": "scope_reader_nil_stop",
+      "status": "verified",
+      "evidence": "object-dispatch-assembly",
+      "start": "0x6aae72",
+      "end": "0x6aae8a",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6aae72: XOR ESI, ESI",
+        "0x6aae7a: CALL 0x006c1160",
+        "0x6aae7f: CMP dword ptr [EAX + ESI*0x4 + 0xc], 0x0",
+        "0x6aae84: JZ 0x006ab31a"
+      ],
+      "observation": "Object scope reader begins at zero and jumps out at the first null slot.",
+      "scope": "Selected instructions and ordering only; no startup reachability or execution equivalence",
+      "unknown": [
+        "Original target execution not_tested"
+      ]
+    },
+    {
+      "id": "scope_registry_lookup",
+      "status": "verified",
+      "evidence": "object-dispatch-assembly",
+      "start": "0x6aae8a",
+      "end": "0x6aaeb1",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6aae90: CALL 0x006c1160",
+        "0x6aae95: MOV EDX, dword ptr [EAX + ESI*0x4 + 0xc]",
+        "0x6aae99: MOV EAX, dword ptr [EBP + -0x1c]",
+        "0x6aae9c: MOV EAX, dword ptr [EAX + 0x11c]",
+        "0x6aaea2: CALL 0x0068adc8",
+        "0x6aaea7: MOV EDI, EAX",
+        "0x6aaea9: TEST EDI, EDI",
+        "0x6aaeab: JZ 0x006ab2cd"
+      ],
+      "observation": "Selected scope name enters the registry associated with the selected dispatch context; missing object follows a separate path.",
+      "scope": "Selected instructions and ordering only; no startup reachability or execution equivalence",
+      "unknown": [
+        "Original target execution not_tested"
+      ]
+    },
+    {
+      "id": "scope_dispatch_continues",
+      "status": "verified",
+      "evidence": "object-dispatch-assembly",
+      "start": "0x6ab2ac",
+      "end": "0x6ab31a",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6ab2ac: CMP byte ptr [EBP + -0x11], 0x0",
+        "0x6ab2b0: JNZ 0x006ab310",
+        "0x6ab310: INC ESI",
+        "0x6ab311: CMP ESI, 0x10",
+        "0x6ab314: JNZ 0x006aae74"
+      ],
+      "observation": "A nonzero handled byte jumps to scope-index increment, which continues the sixteen-slot loop.",
+      "scope": "Selected instructions and ordering only; no startup reachability or execution equivalence",
+      "unknown": [
+        "Original target execution not_tested"
+      ]
+    },
+    {
+      "id": "registry_name_guard",
+      "status": "verified",
+      "evidence": "registry-index-assembly",
+      "start": "0x68ad2d",
+      "end": "0x68ad42",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x68ad2d: MOV EAX, dword ptr [ESI + 0x10]",
+        "0x68ad30: CMP EAX, dword ptr [EBP + -0x10]",
+        "0x68ad33: JNZ 0x0068ad6c",
+        "0x68ad35: MOV EAX, dword ptr [ESI + 0x8]",
+        "0x68ad38: MOV EDX, dword ptr [EBP + -0x4]",
+        "0x68ad3b: CALL 0x00407b38",
+        "0x68ad40: JNZ 0x0068ad6c"
+      ],
+      "observation": "Hash-like field equality is followed by a string comparison call and immediate JNZ; equality is not decided by hash alone.",
+      "scope": "Selected instructions and ordering only; no startup reachability or execution equivalence",
+      "unknown": [
+        "Original target execution not_tested"
+      ]
+    },
+    {
+      "id": "name_equality_uses_flags",
+      "status": "verified",
+      "evidence": "name-equality-assembly",
+      "start": "0x407b38",
+      "end": "0x407b79",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x407b38: CMP EAX, EDX",
+        "0x407b3a: JZ 0x00407b78",
+        "0x407b3c: TEST EAX, EDX",
+        "0x407b3e: JZ 0x00407b6e",
+        "0x407b78: RET"
+      ],
+      "observation": "Identical input pointers branch directly to the helper return while equality flags remain available; EAX is not a normalized Boolean.",
+      "scope": "Selected instructions and ordering only; no startup reachability or execution equivalence",
+      "unknown": [
+        "Original target execution not_tested"
+      ]
+    },
+    {
+      "id": "registry_cache_and_fallback",
+      "status": "verified",
+      "evidence": "registry-get-assembly",
+      "start": "0x68ade1",
+      "end": "0x68ae27",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x68ade6: CALL 0x0041493c",
+        "0x68adeb: XOR ECX, ECX",
+        "0x68adf6: CALL 0x004e6ba0",
+        "0x68adfb: TEST EAX, EAX",
+        "0x68adfd: JZ 0x0068ae03",
+        "0x68adff: MOV EBX, EAX",
+        "0x68ae08: CALL 0x0068acc0",
+        "0x68ae0f: CMP ESI, -0x1",
+        "0x68ae14: XOR EBX, EBX",
+        "0x68ae20: CALL 0x0043b514",
+        "0x68ae25: MOV EBX, EAX"
+      ],
+      "observation": "Normalize the key, try cache with null default, then use index fallback and object-list retrieval; missing index yields zero candidate.",
+      "scope": "Selected instructions and ordering only; no startup reachability or execution equivalence",
+      "unknown": [
+        "Original target execution not_tested"
+      ]
+    },
+    {
+      "id": "registry_cache_after_match",
+      "status": "verified",
+      "evidence": "registry-index-assembly",
+      "start": "0x68ad42",
+      "end": "0x68ad70",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x68ad4f: CALL 0x0043b514",
+        "0x68ad54: MOV ECX, EAX",
+        "0x68ad59: MOV EAX, dword ptr [EAX + 0xa4]",
+        "0x68ad5f: MOV EDX, dword ptr [EBP + -0x4]",
+        "0x68ad62: CALL 0x004e6a10",
+        "0x68ad67: MOV dword ptr [EBP + -0xc], EBX",
+        "0x68ad6a: JMP 0x0068ad70"
+      ],
+      "observation": "After both guards pass, store object under the normalized key and preserve the matching index.",
+      "scope": "Selected instructions and ordering only; no startup reachability or execution equivalence",
+      "unknown": [
+        "Original target execution not_tested"
+      ]
+    },
+    {
+      "id": "registry_add_duplicate_guard",
+      "status": "verified",
+      "evidence": "registry-add-assembly",
+      "start": "0x68a0bd",
+      "end": "0x68a0e3",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x68a0bd: TEST EDI, EDI",
+        "0x68a0bf: JZ 0x0068a15e",
+        "0x68a0c5: MOV EDX, dword ptr [EDI + 0x4]",
+        "0x68a0ca: CALL 0x0068acc0",
+        "0x68a0cf: INC EAX",
+        "0x68a0d0: JNZ 0x0068a15e",
+        "0x68a0de: CALL 0x0043b354"
+      ],
+      "observation": "Selected add path appends only when a nonnull object lookup index equals minus one; overall symbol shadowing remains unknown.",
+      "scope": "Selected instructions and ordering only; no startup reachability or execution equivalence",
+      "unknown": [
+        "Original target execution not_tested"
+      ]
+    },
+    {
+      "id": "routine_index_bounds",
+      "status": "verified",
+      "evidence": "routine-get-assembly",
+      "start": "0x6c1ad6",
+      "end": "0x6c1af4",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6c1ad6: TEST ESI, ESI",
+        "0x6c1ad8: JL 0x006c1ae2",
+        "0x6c1add: CMP ESI, dword ptr [EAX + 0x8]",
+        "0x6c1ae0: JL 0x006c1ae7",
+        "0x6c1ae2: XOR EAX, EAX",
+        "0x6c1aec: CALL 0x0043b514",
+        "0x6c1af3: RET"
+      ],
+      "observation": "Routine index getter returns zero for negative/out-of-count indices and retrieves the selected container entry otherwise.",
+      "scope": "Selected instructions and ordering only; no startup reachability or execution equivalence",
+      "unknown": [
+        "Original target execution not_tested"
+      ]
+    }
+  ],
+  "inferred_contracts": [
+    {
+      "id": "scope_assignment_path",
+      "status": "inferred",
+      "basis": [
+        "scp_selector_chain",
+        "scope_clear_sixteen",
+        "scp_accepted_tags",
+        "scp_writes_evaluated_name",
+        "reports/p1/scope-metadata-report.json"
+      ],
+      "meaning": "scp clears routine scope then writes computed string/object names to their original positions; raw source rep is not an authenticated runtime object name.",
+      "actual_namespace_binding": "not_tested",
+      "call_inheritance": "not_tested"
+    },
+    {
+      "id": "scope_dispatch_path",
+      "status": "inferred",
+      "basis": [
+        "scope_reader_nil_stop",
+        "scope_dispatch_continues",
+        "scope_registry_lookup"
+      ],
+      "meaning": "Selected success path continues to the next scope slot, and the first null stops further dispatch; failures and callbacks may affect progression.",
+      "actual_command_delivery": "not_tested"
+    },
+    {
+      "id": "registry_equality_contract",
+      "status": "inferred",
+      "basis": [
+        "registry_name_guard",
+        "name_equality_uses_flags",
+        "registry_cache_and_fallback",
+        "LLVM registry return windows"
+      ],
+      "meaning": "Lookup combines normalization, cache, index scan, field guard and condition-flag string comparison; a C-style integer Boolean replacement is not verified.",
+      "full_comparator_semantics": "not_tested"
+    },
+    {
+      "id": "scope_extent_risk",
+      "status": "inferred",
+      "basis": [
+        "scp_argument_count_loop",
+        "scope_clear_sixteen",
+        "reports/p1/scope-metadata-report.json"
+      ],
+      "meaning": "The selected writer loop uses a list-derived bound while the declaration contains sixteen slots; values beyond that admitted range require rejection or further evidence, not memory-write emulation.",
+      "actual_out_of_bounds_execution": "not_tested"
+    }
+  ]
+}

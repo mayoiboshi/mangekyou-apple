@@ -1,0 +1,205 @@
+{
+  "schema_version": 1,
+  "status": "verified",
+  "scope": "Static queries; negative observations and undecodable regions remain explicit",
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "queries": [
+    {
+      "name": "alternative-pack-table-xrefs",
+      "operation": "xrefs",
+      "address": "0x715600"
+    },
+    {
+      "name": "ascii-lower-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x41493c"
+    },
+    {
+      "name": "command-id-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6aa43c"
+    },
+    {
+      "name": "comparison-helper",
+      "operation": "procedure_pseudo_code",
+      "address": "0x414b08"
+    },
+    {
+      "name": "data-pack-table-xrefs",
+      "operation": "xrefs",
+      "address": "0x715580"
+    },
+    {
+      "name": "decimal-helper",
+      "operation": "procedure_assembly",
+      "address": "0x4156e4"
+    },
+    {
+      "name": "expression-precedence",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69b684"
+    },
+    {
+      "name": "expression-tokenize",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69c600"
+    },
+    {
+      "name": "expression-transform",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69b418"
+    },
+    {
+      "name": "file-exists-helper",
+      "operation": "procedure_pseudo_code",
+      "address": "0x415fd8"
+    },
+    {
+      "name": "general-read-wrapper",
+      "operation": "procedure_pseudo_code",
+      "address": "0x4febf9"
+    },
+    {
+      "name": "integer-to-string",
+      "operation": "procedure_pseudo_code",
+      "address": "0x415790"
+    },
+    {
+      "name": "named-context-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6c12e0"
+    },
+    {
+      "name": "named-context-search",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c12e0"
+    },
+    {
+      "name": "pack-caller-ui",
+      "operation": "procedure_pseudo_code",
+      "address": "0x5d6901"
+    },
+    {
+      "name": "pack-enumeration",
+      "operation": "procedure_pseudo_code",
+      "address": "0x4ea388"
+    },
+    {
+      "name": "pack-init-xrefs",
+      "operation": "xrefs",
+      "address": "0x4ec10c"
+    },
+    {
+      "name": "pack-lookup",
+      "operation": "procedure_pseudo_code",
+      "address": "0x4ec52b"
+    },
+    {
+      "name": "pack-lookup2",
+      "operation": "procedure_pseudo_code",
+      "address": "0x4ec661"
+    },
+    {
+      "name": "pack-member-find",
+      "operation": "procedure_pseudo_code",
+      "address": "0x4ea57c"
+    },
+    {
+      "name": "pack-pair-incoming",
+      "operation": "xrefs",
+      "address": "0x4ea324"
+    },
+    {
+      "name": "pack-path-normalize",
+      "operation": "procedure_pseudo_code",
+      "address": "0x4ebeb4"
+    },
+    {
+      "name": "pack-query-loop",
+      "operation": "procedure_pseudo_code",
+      "address": "0x4ec5b0"
+    },
+    {
+      "name": "pack-reader-calls",
+      "operation": "xrefs",
+      "address": "0x4ec5ac"
+    },
+    {
+      "name": "pack-registry-instruction",
+      "operation": "inspect_native_instruction",
+      "address": "0x4ec1d1"
+    },
+    {
+      "name": "pack-registry-location",
+      "operation": "resolve_containing_procedure",
+      "address": "0x4ec1d1"
+    },
+    {
+      "name": "pack-select",
+      "operation": "procedure_pseudo_code",
+      "address": "0x4ec798"
+    },
+    {
+      "name": "pack-select-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x4ec798"
+    },
+    {
+      "name": "pack-suffix-xrefs",
+      "operation": "xrefs",
+      "address": "0x4ea538"
+    },
+    {
+      "name": "pack-suffix2-xrefs",
+      "operation": "xrefs",
+      "address": "0x4ea6f8"
+    },
+    {
+      "name": "pack-suffix3-xrefs",
+      "operation": "xrefs",
+      "address": "0x4ec444"
+    },
+    {
+      "name": "pack-suffix4-xrefs",
+      "operation": "xrefs",
+      "address": "0x5dae04"
+    },
+    {
+      "name": "path-comparison-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x414b08"
+    },
+    {
+      "name": "script-read-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x695152"
+    },
+    {
+      "name": "script-read-caller",
+      "operation": "procedure_pseudo_code",
+      "address": "0x695152"
+    },
+    {
+      "name": "second-pack-call",
+      "operation": "inspect_native_instruction",
+      "address": "0x6dda7a"
+    },
+    {
+      "name": "startup-pack-call",
+      "operation": "inspect_native_instruction",
+      "address": "0x6dccf2"
+    }
+  ],
+  "exploration_failures": [
+    {
+      "name": "pack-registry",
+      "status": "unsupported",
+      "reason": "invalid_request"
+    },
+    {
+      "name": "startup-pack-caller",
+      "status": "unsupported",
+      "reason": "invalid_request"
+    }
+  ]
+}

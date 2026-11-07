@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Bounded scalar construction and dimension binding; no target execution",
+  "queries": [
+    {
+      "name": "dimensions-assign",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69de68"
+    },
+    {
+      "name": "dimensions-assign-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69de68"
+    },
+    {
+      "name": "integer-constructor",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69dfb4"
+    },
+    {
+      "name": "integer-constructor-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69dfb4"
+    },
+    {
+      "name": "string-constructor",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69e150"
+    },
+    {
+      "name": "string-constructor-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69e150"
+    },
+    {
+      "name": "string-copy",
+      "operation": "procedure_pseudo_code",
+      "address": "0x407460"
+    },
+    {
+      "name": "string-copy-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x407460"
+    }
+  ]
+}

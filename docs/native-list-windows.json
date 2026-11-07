@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "windows": [
+    {
+      "name": "self-file-path",
+      "start": "0x6d1534",
+      "end_exclusive": "0x6d15b4"
+    },
+    {
+      "name": "path-create",
+      "start": "0x6a5378",
+      "end_exclusive": "0x6a53c0"
+    },
+    {
+      "name": "name-index",
+      "start": "0x43da78",
+      "end_exclusive": "0x43db18"
+    },
+    {
+      "name": "component-string",
+      "start": "0x43eb54",
+      "end_exclusive": "0x43eb88"
+    },
+    {
+      "name": "component-count",
+      "start": "0x43eb88",
+      "end_exclusive": "0x43eb8c"
+    },
+    {
+      "name": "component-clear",
+      "start": "0x43e968",
+      "end_exclusive": "0x43e9bc"
+    },
+    {
+      "name": "text-stream-wrapper",
+      "start": "0x43dc60",
+      "end_exclusive": "0x43dc6a"
+    },
+    {
+      "name": "text-stream-body",
+      "start": "0x43dc6c",
+      "end_exclusive": "0x43dd5e"
+    },
+    {
+      "name": "path-owner",
+      "start": "0x6be9ea",
+      "end_exclusive": "0x6bea1c"
+    }
+  ]
+}

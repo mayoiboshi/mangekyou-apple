@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Selected temporary-list encoding/comparison and substring helpers; no execution",
+  "facts": [
+    {
+      "id": "slash_word_scan",
+      "status": "verified",
+      "evidence": "slash-position-assembly",
+      "start": "0x407f1f",
+      "end": "0x407f49",
+      "anchors": [
+        "0x407f1f: MOV ECX, dword ptr [EDI + -0x4]",
+        "0x407f23: MOV EDX, dword ptr [ESI + -0x4]",
+        "0x407f26: DEC EDX",
+        "0x407f27: JS 0x00407f49",
+        "0x407f29: MOV AX, word ptr [ESI]",
+        "0x407f2c: ADD ESI, 0x2",
+        "0x407f2f: SUB ECX, EDX",
+        "0x407f31: JLE 0x00407f49",
+        "0x407f33: SCASW.REPNE ES:EDI",
+        "0x407f36: JNZ 0x00407f49",
+        "0x407f3e: CMPSW.REPE ES:EDI, ESI",
+        "0x407f43: JZ 0x00407f51",
+        "0x407f47: JMP 0x00407f33"
+      ],
+      "require_anchor_order": true,
+      "observation": "The helper scans UTF-16 words for the first word then compares remaining words, retrying later positions on mismatch.",
+      "scope": "Specified instructions only; original execution and locale behavior not_tested",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "slash_zero_or_position",
+      "status": "verified",
+      "evidence": "slash-position-assembly",
+      "start": "0x407f49",
+      "end": "0x407f5c",
+      "anchors": [
+        "0x407f49: POP EDX",
+        "0x407f4a: XOR EAX, EAX",
+        "0x407f4c: JMP 0x00407f58",
+        "0x407f4e: XOR EAX, EAX",
+        "0x407f50: RET",
+        "0x407f51: POP EDX",
+        "0x407f52: MOV EAX, EDI",
+        "0x407f54: SUB EAX, EDX",
+        "0x407f56: SHR EAX, 0x1",
+        "0x407f5b: RET"
+      ],
+      "require_anchor_order": true,
+      "observation": "The missing paths zero EAX; the found path subtracts the original text pointer from the post-first-word scan pointer and divides by two.",
+      "scope": "Specified instructions only; original execution and locale behavior not_tested",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "name_position_pointer_index",
+      "status": "verified",
+      "evidence": "name-position-assembly",
+      "start": "0x41deab",
+      "end": "0x41dedf",
+      "anchors": [
+        "0x41deab: PUSH EDI",
+        "0x41deaf: CALL 0x004074ec",
+        "0x41deb8: CALL 0x004074ec",
+        "0x41debd: MOV ECX, EBX",
+        "0x41debf: POP EDX",
+        "0x41dec0: CALL 0x00416b2c",
+        "0x41dec5: MOV EBX, EAX",
+        "0x41dec7: TEST EBX, EBX",
+        "0x41dec9: JZ 0x0041dedf",
+        "0x41dece: CALL 0x004074ec",
+        "0x41ded5: SUB ESI, EAX",
+        "0x41ded7: SAR ESI, 0x1",
+        "0x41dede: INC ESI"
+      ],
+      "require_anchor_order": true,
+      "observation": "The helper delegates to 0x416b2c and converts a nonzero returned pointer to a one-based word index; the delegate implementation and complete return remain unknown.",
+      "scope": "Specified instructions only; original execution and locale behavior not_tested",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    }
+  ],
+  "inferred_contracts": [
+    {
+      "id": "substring_filter_support",
+      "status": "inferred",
+      "basis": [
+        "slash_word_scan",
+        "slash_zero_or_position"
+      ],
+      "meaning": "The table filter helper performs a word substring search, so a positive occurrence anywhere can reject the whole pair; original execution remains not_tested"
+    },
+    {
+      "id": "name_position_wrapper",
+      "status": "inferred",
+      "basis": [
+        "name_position_pointer_index"
+      ],
+      "meaning": "Name splitting uses a one-based word-position wrapper; delegate and complete exception/return behavior remain unknown"
+    }
+  ]
+}

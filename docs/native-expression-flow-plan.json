@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "status": "inferred",
+  "scope": "Normal-flow analysis hypotheses; not native execution",
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "functions": [
+    {
+      "name": "precedence",
+      "start": "0x69b684",
+      "end_exclusive": "0x69b9de",
+      "cleanup_returns": [
+        "0x69b9cc"
+      ],
+      "return_targets": {
+        "0x69b9cc": "0x69b9d4"
+      },
+      "expects_value_return": true
+    },
+    {
+      "name": "tokenizer",
+      "start": "0x69c600",
+      "end_exclusive": "0x69ce94",
+      "cleanup_returns": [
+        "0x69ce83"
+      ],
+      "return_targets": {
+        "0x69ce83": "0x69ce8b"
+      },
+      "expects_value_return": true
+    },
+    {
+      "name": "reducer",
+      "start": "0x69b580",
+      "end_exclusive": "0x69b673",
+      "cleanup_returns": [
+        "0x69b664"
+      ],
+      "return_targets": {
+        "0x69b664": "0x69b66c"
+      },
+      "expects_value_return": false
+    }
+  ]
+}

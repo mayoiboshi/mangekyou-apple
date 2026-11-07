@@ -1,0 +1,267 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Selected replacement helpers and comparators only; no expression or regex runtime",
+  "queries": [
+    {
+      "name": "literal-wrapper",
+      "address": "0x4e08f0",
+      "operation": "procedure_pseudo_code"
+    },
+    {
+      "name": "literal-wrapper-assembly",
+      "address": "0x4e08f0",
+      "operation": "procedure_assembly"
+    },
+    {
+      "name": "match-list",
+      "address": "0x6675f8",
+      "operation": "procedure_pseudo_code"
+    },
+    {
+      "name": "match-list-assembly",
+      "address": "0x6675f8",
+      "operation": "procedure_assembly"
+    },
+    {
+      "name": "replacement-alias",
+      "address": "0x667978",
+      "operation": "procedure_pseudo_code"
+    },
+    {
+      "name": "replacement-alias-assembly",
+      "address": "0x667978",
+      "operation": "procedure_assembly"
+    },
+    {
+      "name": "split-list",
+      "address": "0x667828",
+      "operation": "procedure_pseudo_code"
+    },
+    {
+      "name": "split-list-assembly",
+      "address": "0x667828",
+      "operation": "procedure_assembly"
+    },
+    {
+      "name": "regex-wrapper",
+      "address": "0x667918",
+      "operation": "procedure_pseudo_code"
+    },
+    {
+      "name": "regex-wrapper-assembly",
+      "address": "0x667918",
+      "operation": "procedure_assembly"
+    },
+    {
+      "name": "sort-compare",
+      "address": "0x4149b4",
+      "operation": "procedure_pseudo_code"
+    },
+    {
+      "name": "sort-compare-assembly",
+      "address": "0x4149b4",
+      "operation": "procedure_assembly"
+    },
+    {
+      "name": "lookup-compare",
+      "address": "0x414b08",
+      "operation": "procedure_pseudo_code"
+    },
+    {
+      "name": "lookup-compare-assembly",
+      "address": "0x414b08",
+      "operation": "procedure_assembly"
+    },
+    {
+      "name": "matches-record",
+      "address": "0x665c28",
+      "operation": "procedure_pseudo_code"
+    },
+    {
+      "name": "matches-record-assembly",
+      "address": "0x665c28",
+      "operation": "procedure_assembly"
+    },
+    {
+      "name": "first-match-record",
+      "address": "0x665b4c",
+      "operation": "procedure_pseudo_code"
+    },
+    {
+      "name": "first-match-record-assembly",
+      "address": "0x665b4c",
+      "operation": "procedure_assembly"
+    },
+    {
+      "name": "replace-record",
+      "address": "0x665ce8",
+      "operation": "procedure_pseudo_code"
+    },
+    {
+      "name": "replace-record-assembly",
+      "address": "0x665ce8",
+      "operation": "procedure_assembly"
+    },
+    {
+      "name": "split-record",
+      "address": "0x665e74",
+      "operation": "procedure_pseudo_code"
+    },
+    {
+      "name": "split-record-assembly",
+      "address": "0x665e74",
+      "operation": "procedure_assembly"
+    },
+    {
+      "name": "literal-core",
+      "address": "0x41e80c",
+      "operation": "procedure_pseudo_code"
+    },
+    {
+      "name": "literal-core-assembly",
+      "address": "0x41e80c",
+      "operation": "procedure_assembly"
+    },
+    {
+      "name": "contains-test",
+      "address": "0x4e0880",
+      "operation": "procedure_pseudo_code"
+    },
+    {
+      "name": "contains-test-assembly",
+      "address": "0x4e0880",
+      "operation": "procedure_assembly"
+    },
+    {
+      "name": "regex-create",
+      "address": "0x6659d8",
+      "operation": "procedure_pseudo_code"
+    },
+    {
+      "name": "regex-create-assembly",
+      "address": "0x6659d8",
+      "operation": "procedure_assembly"
+    },
+    {
+      "name": "replace-default",
+      "address": "0x665cc0",
+      "operation": "procedure_pseudo_code"
+    },
+    {
+      "name": "replace-default-assembly",
+      "address": "0x665cc0",
+      "operation": "procedure_assembly"
+    },
+    {
+      "name": "split-array",
+      "address": "0x665d8c",
+      "operation": "procedure_pseudo_code"
+    },
+    {
+      "name": "split-array-assembly",
+      "address": "0x665d8c",
+      "operation": "procedure_assembly"
+    },
+    {
+      "name": "ascii-lower",
+      "address": "0x41493c",
+      "operation": "procedure_pseudo_code"
+    },
+    {
+      "name": "ascii-lower-assembly",
+      "address": "0x41493c",
+      "operation": "procedure_assembly"
+    },
+    {
+      "name": "windows-upper",
+      "address": "0x414c3c",
+      "operation": "procedure_pseudo_code"
+    },
+    {
+      "name": "windows-upper-assembly",
+      "address": "0x414c3c",
+      "operation": "procedure_assembly"
+    },
+    {
+      "name": "substring-position",
+      "address": "0x407f10",
+      "operation": "procedure_pseudo_code"
+    },
+    {
+      "name": "substring-position-assembly",
+      "address": "0x407f10",
+      "operation": "procedure_assembly"
+    },
+    {
+      "name": "regex-options",
+      "address": "0x665434",
+      "operation": "procedure_pseudo_code"
+    },
+    {
+      "name": "regex-options-assembly",
+      "address": "0x665434",
+      "operation": "procedure_assembly"
+    },
+    {
+      "name": "replace-forward",
+      "address": "0x665d60",
+      "operation": "procedure_pseudo_code"
+    },
+    {
+      "name": "replace-forward-assembly",
+      "address": "0x665d60",
+      "operation": "procedure_assembly"
+    },
+    {
+      "name": "engine-option-store",
+      "address": "0x6643e4",
+      "operation": "procedure_pseudo_code"
+    },
+    {
+      "name": "engine-option-store-assembly",
+      "address": "0x6643e4",
+      "operation": "procedure_assembly"
+    },
+    {
+      "name": "engine-compile",
+      "address": "0x662708",
+      "operation": "procedure_pseudo_code"
+    },
+    {
+      "name": "engine-compile-assembly",
+      "address": "0x662708",
+      "operation": "procedure_assembly"
+    },
+    {
+      "name": "engine-replace",
+      "address": "0x663cd0",
+      "operation": "procedure_pseudo_code"
+    },
+    {
+      "name": "engine-replace-assembly",
+      "address": "0x663cd0",
+      "operation": "procedure_assembly"
+    },
+    {
+      "name": "replacement-core",
+      "address": "0x695ce4",
+      "operation": "procedure_pseudo_code"
+    },
+    {
+      "name": "replacement-core-assembly",
+      "address": "0x695ce4",
+      "operation": "procedure_assembly"
+    },
+    {
+      "name": "replacement-dispatch",
+      "address": "0x6ba248",
+      "operation": "procedure_pseudo_code"
+    },
+    {
+      "name": "replacement-dispatch-assembly",
+      "address": "0x6ba248",
+      "operation": "procedure_assembly"
+    }
+  ]
+}

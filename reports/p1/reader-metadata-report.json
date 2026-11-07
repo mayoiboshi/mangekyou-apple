@@ -1,0 +1,1696 @@
+{
+  "schema_version": 1,
+  "dataset": "real",
+  "status": "inferred",
+  "scope": "Bounded PE32 metadata declarations, not live types, invocation or game compatibility",
+  "source_file": "美少女万華鏡４.exe",
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "classes": [
+    {
+      "status": "inferred",
+      "name": "TImoReader",
+      "vmt": "0x694198",
+      "instance_size": 172,
+      "parent_vmt": "0x4014c0",
+      "header_reference": {
+        "offset": 2700608,
+        "length": 88,
+        "sha256": "67da756cde1c939a89a00400ab2fac07a913235315147c9880fbf42a237a1cda"
+      },
+      "slots": [
+        {
+          "byte_offset": -4,
+          "target": "0x695ec4",
+          "raw_bytes_reference": {
+            "offset": 2700692,
+            "length": 4,
+            "sha256": "e2b736542934e6549b712cd35527bff520eb4ccaac682a80f483d7445062b620"
+          }
+        }
+      ],
+      "methods": [
+        {
+          "name": "Create",
+          "entry_address": "0x69446b",
+          "code_address": "0x694c74",
+          "flags_u16": 68,
+          "virtual_index_i16": -12,
+          "virtual_slot_match": "not_tested",
+          "slot_target": null,
+          "raw_bytes_reference": {
+            "offset": 2701419,
+            "length": 38,
+            "sha256": "87e948ab8abf5776219267d0ce60618dd3fb9646c0d0006a64919299e864e80a"
+          },
+          "descriptor_reference": {
+            "offset": 2701184,
+            "length": 8,
+            "sha256": "190df11ddecc3fdf8bf0d213d3f1d1924131a5dc4493303147992f6357a2cbf3"
+          },
+          "signature_tail": {
+            "status": "not_tested",
+            "length": 25,
+            "raw_bytes_reference": {
+              "offset": 2701432,
+              "length": 25,
+              "sha256": "7024cd522fa0d1d097d74e298cde6dbf87007a873266ee79b66abff2059a3e36"
+            },
+            "reason": "Method signature tail is outside this minimal probe"
+          },
+          "unknown_reason": null
+        },
+        {
+          "name": "Destroy",
+          "entry_address": "0x694491",
+          "code_address": "0x695ec4",
+          "flags_u16": 77,
+          "virtual_index_i16": -1,
+          "virtual_slot_match": "verified",
+          "slot_target": "0x695ec4",
+          "raw_bytes_reference": {
+            "offset": 2701457,
+            "length": 39,
+            "sha256": "f7801429b5717813c4906c180783f269800072a852f267d67528b73fb0c7d9ba"
+          },
+          "descriptor_reference": {
+            "offset": 2701192,
+            "length": 8,
+            "sha256": "bc6ca98dac8f3fd7fbe04b167f6189a0aff442b12ca6eca274c79d5f654f5c15"
+          },
+          "signature_tail": {
+            "status": "not_tested",
+            "length": 25,
+            "raw_bytes_reference": {
+              "offset": 2701471,
+              "length": 25,
+              "sha256": "7024cd522fa0d1d097d74e298cde6dbf87007a873266ee79b66abff2059a3e36"
+            },
+            "reason": "Method signature tail is outside this minimal probe"
+          },
+          "unknown_reason": null
+        },
+        {
+          "name": "Init",
+          "entry_address": "0x6944b8",
+          "code_address": "0x694be8",
+          "flags_u16": 66,
+          "virtual_index_i16": -12,
+          "virtual_slot_match": "not_tested",
+          "slot_target": null,
+          "raw_bytes_reference": {
+            "offset": 2701496,
+            "length": 36,
+            "sha256": "ef407dadf5dfe51d11e0dcc67ac6339f3da6040bca9a120625bc643d1c285034"
+          },
+          "descriptor_reference": {
+            "offset": 2701200,
+            "length": 8,
+            "sha256": "989c358663487f7011c6037ffe4300a8b04f7802ba87ba95f5f1cd3639c91c6d"
+          },
+          "signature_tail": {
+            "status": "not_tested",
+            "length": 25,
+            "raw_bytes_reference": {
+              "offset": 2701507,
+              "length": 25,
+              "sha256": "7024cd522fa0d1d097d74e298cde6dbf87007a873266ee79b66abff2059a3e36"
+            },
+            "reason": "Method signature tail is outside this minimal probe"
+          },
+          "unknown_reason": null
+        },
+        {
+          "name": "LoadScriptFile",
+          "entry_address": "0x6944dc",
+          "code_address": "0x69556c",
+          "flags_u16": 66,
+          "virtual_index_i16": -12,
+          "virtual_slot_match": "not_tested",
+          "slot_target": null,
+          "raw_bytes_reference": {
+            "offset": 2701532,
+            "length": 80,
+            "sha256": "ff82e0cf4553a7089fee372ce5a1337d5a30371f401e24e0c7a192a8be3820e1"
+          },
+          "descriptor_reference": {
+            "offset": 2701208,
+            "length": 8,
+            "sha256": "24b71c01fcd59e195126128ce5b295e619318011d17e8430670b1d76e4af68c1"
+          },
+          "signature_tail": {
+            "status": "not_tested",
+            "length": 59,
+            "raw_bytes_reference": {
+              "offset": 2701553,
+              "length": 59,
+              "sha256": "efab9dc8cb82465731334ca19554b044ed566e7196cd7133fdfd29ab355125c0"
+            },
+            "reason": "Method signature tail is outside this minimal probe"
+          },
+          "unknown_reason": null
+        },
+        {
+          "name": "ReadFunction",
+          "entry_address": "0x69452c",
+          "code_address": "0x695a7c",
+          "flags_u16": 66,
+          "virtual_index_i16": -12,
+          "virtual_slot_match": "not_tested",
+          "slot_target": null,
+          "raw_bytes_reference": {
+            "offset": 2701612,
+            "length": 73,
+            "sha256": "fceeb014cedbc3d286e19fa33e2c42c23d6e2769b403877fa04e08f5390b1e27"
+          },
+          "descriptor_reference": {
+            "offset": 2701216,
+            "length": 8,
+            "sha256": "5ae643b714748515cbd5157c21753ff75a12df1f068c8ed91677059b89924de3"
+          },
+          "signature_tail": {
+            "status": "not_tested",
+            "length": 54,
+            "raw_bytes_reference": {
+              "offset": 2701631,
+              "length": 54,
+              "sha256": "dd16d6d8685539f8e0970819a483874cb90929948037c653e52d953a2b4f58e0"
+            },
+            "reason": "Method signature tail is outside this minimal probe"
+          },
+          "unknown_reason": null
+        },
+        {
+          "name": "Go",
+          "entry_address": "0x694575",
+          "code_address": "0x695c34",
+          "flags_u16": 66,
+          "virtual_index_i16": -12,
+          "virtual_slot_match": "not_tested",
+          "slot_target": null,
+          "raw_bytes_reference": {
+            "offset": 2701685,
+            "length": 64,
+            "sha256": "102e78bcb1fcf7997d4a9a03923e9b960d2b21c68a8cfb8c64cded09a0092d1a"
+          },
+          "descriptor_reference": {
+            "offset": 2701224,
+            "length": 8,
+            "sha256": "1e35309ecdb21ed15db1a19eb19a641378a404e7c5118c503a4e35047e80851c"
+          },
+          "signature_tail": {
+            "status": "not_tested",
+            "length": 55,
+            "raw_bytes_reference": {
+              "offset": 2701694,
+              "length": 55,
+              "sha256": "20c7dfdd7052ec759a574467409c5e6d8ac17aee35f0e5d46c5af47f326befaa"
+            },
+            "reason": "Method signature tail is outside this minimal probe"
+          },
+          "unknown_reason": null
+        },
+        {
+          "name": "GoPosition",
+          "entry_address": "0x6945b5",
+          "code_address": "0x696134",
+          "flags_u16": 66,
+          "virtual_index_i16": -12,
+          "virtual_slot_match": "not_tested",
+          "slot_target": null,
+          "raw_bytes_reference": {
+            "offset": 2701749,
+            "length": 82,
+            "sha256": "a0ef3cfeb21f557239b845e1b74e9dc38e2e6a3be2cdc8c3f9d659f3304c2e30"
+          },
+          "descriptor_reference": {
+            "offset": 2701232,
+            "length": 8,
+            "sha256": "85c19f637d271722576bff6ae4ccbbf95e5da6db62c7cbac8fa429bcfdf04549"
+          },
+          "signature_tail": {
+            "status": "not_tested",
+            "length": 65,
+            "raw_bytes_reference": {
+              "offset": 2701766,
+              "length": 65,
+              "sha256": "0dde63703df95a4d4fd385e28373447944d4165e51776b8cd86359145c59b7bc"
+            },
+            "reason": "Method signature tail is outside this minimal probe"
+          },
+          "unknown_reason": null
+        },
+        {
+          "name": "InitReplace",
+          "entry_address": "0x694607",
+          "code_address": "0x695c90",
+          "flags_u16": 66,
+          "virtual_index_i16": -12,
+          "virtual_slot_match": "not_tested",
+          "slot_target": null,
+          "raw_bytes_reference": {
+            "offset": 2701831,
+            "length": 43,
+            "sha256": "78be11fa777827663f0e3a4eef015bea97346ce80efcb83c2f2db45ac6d251cf"
+          },
+          "descriptor_reference": {
+            "offset": 2701240,
+            "length": 8,
+            "sha256": "53741535929268b109d950a6a8df0ec7388ed4a2c901978e7eee16b9a1d7ba4f"
+          },
+          "signature_tail": {
+            "status": "not_tested",
+            "length": 25,
+            "raw_bytes_reference": {
+              "offset": 2701849,
+              "length": 25,
+              "sha256": "7024cd522fa0d1d097d74e298cde6dbf87007a873266ee79b66abff2059a3e36"
+            },
+            "reason": "Method signature tail is outside this minimal probe"
+          },
+          "unknown_reason": null
+        },
+        {
+          "name": "SortReplace",
+          "entry_address": "0x694632",
+          "code_address": "0x696884",
+          "flags_u16": 66,
+          "virtual_index_i16": -12,
+          "virtual_slot_match": "not_tested",
+          "slot_target": null,
+          "raw_bytes_reference": {
+            "offset": 2701874,
+            "length": 43,
+            "sha256": "925ee3f57cd13ea0f69dfe6c02e57a62f96f7b69f7a9c77252d26f43c68366a1"
+          },
+          "descriptor_reference": {
+            "offset": 2701248,
+            "length": 8,
+            "sha256": "9fdaa6185afa7eda1c9af79f9c2cedd419ba936a909ed6a22607f65517a4b403"
+          },
+          "signature_tail": {
+            "status": "not_tested",
+            "length": 25,
+            "raw_bytes_reference": {
+              "offset": 2701892,
+              "length": 25,
+              "sha256": "7024cd522fa0d1d097d74e298cde6dbf87007a873266ee79b66abff2059a3e36"
+            },
+            "reason": "Method signature tail is outside this minimal probe"
+          },
+          "unknown_reason": null
+        },
+        {
+          "name": "AddReplace",
+          "entry_address": "0x69465d",
+          "code_address": "0x696548",
+          "flags_u16": 66,
+          "virtual_index_i16": -12,
+          "virtual_slot_match": "not_tested",
+          "slot_target": null,
+          "raw_bytes_reference": {
+            "offset": 2701917,
+            "length": 77,
+            "sha256": "0bdbd90da8e2489f6c9650ce0e2fb4516bbdf92a6570aa467e82db1fa8f02adc"
+          },
+          "descriptor_reference": {
+            "offset": 2701256,
+            "length": 8,
+            "sha256": "a75b0dbf867424ff4695d9915c7b164d1d24f17541349c20d53bea7b25afe795"
+          },
+          "signature_tail": {
+            "status": "not_tested",
+            "length": 60,
+            "raw_bytes_reference": {
+              "offset": 2701934,
+              "length": 60,
+              "sha256": "de0f1e6928e50495419f3eb06800b548fdd5aba3f6bda81819db37ae87a0c745"
+            },
+            "reason": "Method signature tail is outside this minimal probe"
+          },
+          "unknown_reason": null
+        },
+        {
+          "name": "DeleteReplace",
+          "entry_address": "0x6946aa",
+          "code_address": "0x696608",
+          "flags_u16": 66,
+          "virtual_index_i16": -12,
+          "virtual_slot_match": "not_tested",
+          "slot_target": null,
+          "raw_bytes_reference": {
+            "offset": 2701994,
+            "length": 57,
+            "sha256": "ffce8139441b2003569f72934e0ae10a5152bc9cebd9480032576ba558357394"
+          },
+          "descriptor_reference": {
+            "offset": 2701264,
+            "length": 8,
+            "sha256": "bce9894d96a6a4945b4ca896cbfc1bd3850ca31c69087895cb500083a8582b66"
+          },
+          "signature_tail": {
+            "status": "not_tested",
+            "length": 37,
+            "raw_bytes_reference": {
+              "offset": 2702014,
+              "length": 37,
+              "sha256": "9c5b478155e43a4c082d8776754a871c44b707490fc20f5b7e81b700f2860b80"
+            },
+            "reason": "Method signature tail is outside this minimal probe"
+          },
+          "unknown_reason": null
+        },
+        {
+          "name": "EnableReplace",
+          "entry_address": "0x6946e3",
+          "code_address": "0x696670",
+          "flags_u16": 66,
+          "virtual_index_i16": -12,
+          "virtual_slot_match": "not_tested",
+          "slot_target": null,
+          "raw_bytes_reference": {
+            "offset": 2702051,
+            "length": 56,
+            "sha256": "a1540be795cafe5d4435f621f6aa88b173fb23217d9f75c1b90ca0135e8c8cc0"
+          },
+          "descriptor_reference": {
+            "offset": 2701272,
+            "length": 8,
+            "sha256": "a4eb3c771598f67ca7e1ea08f36b7dc605ccb124d8aa0e102d600aa8d59cebee"
+          },
+          "signature_tail": {
+            "status": "not_tested",
+            "length": 36,
+            "raw_bytes_reference": {
+              "offset": 2702071,
+              "length": 36,
+              "sha256": "23e9f36bc51d85e3028111929ba4ce08dd3074d22d01b3d300c21fb7efc114ee"
+            },
+            "reason": "Method signature tail is outside this minimal probe"
+          },
+          "unknown_reason": null
+        },
+        {
+          "name": "Reload",
+          "entry_address": "0x69471b",
+          "code_address": "0x6966ec",
+          "flags_u16": 66,
+          "virtual_index_i16": -12,
+          "virtual_slot_match": "not_tested",
+          "slot_target": null,
+          "raw_bytes_reference": {
+            "offset": 2702107,
+            "length": 38,
+            "sha256": "049972490c8eb1006c1ee520c6ee03836800ed94c17eaa4a344a5e1be2380886"
+          },
+          "descriptor_reference": {
+            "offset": 2701280,
+            "length": 8,
+            "sha256": "ef4b1bd5767dd2a517747fafa2ff65d16e78d62f1518a32cfb1663b9470cced8"
+          },
+          "signature_tail": {
+            "status": "not_tested",
+            "length": 25,
+            "raw_bytes_reference": {
+              "offset": 2702120,
+              "length": 25,
+              "sha256": "7024cd522fa0d1d097d74e298cde6dbf87007a873266ee79b66abff2059a3e36"
+            },
+            "reason": "Method signature tail is outside this minimal probe"
+          },
+          "unknown_reason": null
+        },
+        {
+          "name": "Previous",
+          "entry_address": "0x694741",
+          "code_address": "0x696674",
+          "flags_u16": 66,
+          "virtual_index_i16": -12,
+          "virtual_slot_match": "not_tested",
+          "slot_target": null,
+          "raw_bytes_reference": {
+            "offset": 2702145,
+            "length": 40,
+            "sha256": "a1a93e91e2d1a3b253da2a715efd44b5e837c4306dceae73ebfb8c7f408238bf"
+          },
+          "descriptor_reference": {
+            "offset": 2701288,
+            "length": 8,
+            "sha256": "04170d71e76821abd960452732e681f0546dc4dd980f335e3e67f0e7afa1bc4d"
+          },
+          "signature_tail": {
+            "status": "not_tested",
+            "length": 25,
+            "raw_bytes_reference": {
+              "offset": 2702160,
+              "length": 25,
+              "sha256": "7024cd522fa0d1d097d74e298cde6dbf87007a873266ee79b66abff2059a3e36"
+            },
+            "reason": "Method signature tail is outside this minimal probe"
+          },
+          "unknown_reason": null
+        },
+        {
+          "name": "EOF",
+          "entry_address": "0x694769",
+          "code_address": "0x696a64",
+          "flags_u16": 66,
+          "virtual_index_i16": -12,
+          "virtual_slot_match": "not_tested",
+          "slot_target": null,
+          "raw_bytes_reference": {
+            "offset": 2702185,
+            "length": 35,
+            "sha256": "82207c34998dc54b96ce7e57511701f47298ab5f6e6def04d66695602052399f"
+          },
+          "descriptor_reference": {
+            "offset": 2701296,
+            "length": 8,
+            "sha256": "61fd58bb395540bf93cbac76bd38cebedf0364d851c121ebceb23cae8b7701d3"
+          },
+          "signature_tail": {
+            "status": "not_tested",
+            "length": 25,
+            "raw_bytes_reference": {
+              "offset": 2702195,
+              "length": 25,
+              "sha256": "7186ba9b55e7743725a3c0c225506742d07efc95e962273a1411c9f08187dbb0"
+            },
+            "reason": "Method signature tail is outside this minimal probe"
+          },
+          "unknown_reason": null
+        },
+        {
+          "name": "ExcuteReplace",
+          "entry_address": "0x69478c",
+          "code_address": "0x696a8c",
+          "flags_u16": 66,
+          "virtual_index_i16": -12,
+          "virtual_slot_match": "not_tested",
+          "slot_target": null,
+          "raw_bytes_reference": {
+            "offset": 2702220,
+            "length": 67,
+            "sha256": "ad5289e91fc648ac2c9f4a032c8a9e2ab9d638beac0557f576a27ac3fdc42ce1"
+          },
+          "descriptor_reference": {
+            "offset": 2701304,
+            "length": 8,
+            "sha256": "197c06916728ee93dc7f017f2fa7318f8c2e7f1ca3456446bd3e119b3ede7e13"
+          },
+          "signature_tail": {
+            "status": "not_tested",
+            "length": 47,
+            "raw_bytes_reference": {
+              "offset": 2702240,
+              "length": 47,
+              "sha256": "4057efe094a15fc85fe047ba51b8cbfd0a9169d616f8a2a8f0b3c5e8ee5ad4c8"
+            },
+            "reason": "Method signature tail is outside this minimal probe"
+          },
+          "unknown_reason": null
+        },
+        {
+          "name": "GetLineState",
+          "entry_address": "0x6947cf",
+          "code_address": "0x695ef8",
+          "flags_u16": 66,
+          "virtual_index_i16": -12,
+          "virtual_slot_match": "not_tested",
+          "slot_target": null,
+          "raw_bytes_reference": {
+            "offset": 2702287,
+            "length": 55,
+            "sha256": "183af48a5b13afdd6ee2099e4236ba7cc82692b54145a7a1146b77c4cbe28186"
+          },
+          "descriptor_reference": {
+            "offset": 2701312,
+            "length": 8,
+            "sha256": "8838372acd07a77154aeab3b60c5fcd03d156316b62060780db7b478130249d3"
+          },
+          "signature_tail": {
+            "status": "not_tested",
+            "length": 36,
+            "raw_bytes_reference": {
+              "offset": 2702306,
+              "length": 36,
+              "sha256": "5512dfb7beb69b548a8f2847874c196fb23c95d1d1ecd99eff2c5d0a05f7e4cd"
+            },
+            "reason": "Method signature tail is outside this minimal probe"
+          },
+          "unknown_reason": null
+        },
+        {
+          "name": "GetLineState",
+          "entry_address": "0x694806",
+          "code_address": "0x6968cc",
+          "flags_u16": 66,
+          "virtual_index_i16": -12,
+          "virtual_slot_match": "not_tested",
+          "slot_target": null,
+          "raw_bytes_reference": {
+            "offset": 2702342,
+            "length": 88,
+            "sha256": "9c484df8107e8576e8de564cb085337fea9061522e055746b0db21137890b02a"
+          },
+          "descriptor_reference": {
+            "offset": 2701320,
+            "length": 8,
+            "sha256": "89d33f91ff7e52983092cf1b321e84aefc6481e68068a5ca558b13cc79e1691e"
+          },
+          "signature_tail": {
+            "status": "not_tested",
+            "length": 69,
+            "raw_bytes_reference": {
+              "offset": 2702361,
+              "length": 69,
+              "sha256": "843e0cfaed537605465945f9face366ced9bb72f5bb2c0e143c83ed6f9179d42"
+            },
+            "reason": "Method signature tail is outside this minimal probe"
+          },
+          "unknown_reason": null
+        },
+        {
+          "name": "GetFileToRel",
+          "entry_address": "0x69485e",
+          "code_address": "0x69675c",
+          "flags_u16": 66,
+          "virtual_index_i16": -12,
+          "virtual_slot_match": "not_tested",
+          "slot_target": null,
+          "raw_bytes_reference": {
+            "offset": 2702430,
+            "length": 93,
+            "sha256": "c3bcb0a37f2dd778a103eec785fe2bb7852bb488f02e01896e2622f3554bc914"
+          },
+          "descriptor_reference": {
+            "offset": 2701328,
+            "length": 8,
+            "sha256": "76a041790f535679988644525ae0be6a0a58412a3dbb4ded960da8d2ea95d584"
+          },
+          "signature_tail": {
+            "status": "not_tested",
+            "length": 74,
+            "raw_bytes_reference": {
+              "offset": 2702449,
+              "length": 74,
+              "sha256": "6440ef5b627bda21b586b2510465a6e58344344c0c58c3f0b6b26ad0363aa6b5"
+            },
+            "reason": "Method signature tail is outside this minimal probe"
+          },
+          "unknown_reason": null
+        },
+        {
+          "name": "GetRelToFileLine",
+          "entry_address": "0x6948bb",
+          "code_address": "0x696840",
+          "flags_u16": 66,
+          "virtual_index_i16": -12,
+          "virtual_slot_match": "not_tested",
+          "slot_target": null,
+          "raw_bytes_reference": {
+            "offset": 2702523,
+            "length": 59,
+            "sha256": "db68983d73b6cfdf27bd33166ee0eca5961d9b89b2a1b3ddcae426776f6a10cd"
+          },
+          "descriptor_reference": {
+            "offset": 2701336,
+            "length": 8,
+            "sha256": "cbddce9e47ea5a0a33935c2787348ec14814295a3f8e4f8e16959bd90b7daee5"
+          },
+          "signature_tail": {
+            "status": "not_tested",
+            "length": 36,
+            "raw_bytes_reference": {
+              "offset": 2702546,
+              "length": 36,
+              "sha256": "2f8d3884cb308f7858bc452bfc5410dea7214b76671675f7aa1da6220877701f"
+            },
+            "reason": "Method signature tail is outside this minimal probe"
+          },
+          "unknown_reason": null
+        },
+        {
+          "name": "GetLabelFile",
+          "entry_address": "0x6948f6",
+          "code_address": "0x696894",
+          "flags_u16": 66,
+          "virtual_index_i16": -12,
+          "virtual_slot_match": "not_tested",
+          "slot_target": null,
+          "raw_bytes_reference": {
+            "offset": 2702582,
+            "length": 66,
+            "sha256": "0644140878b870da38e962521fb250c105c85875acbe3684ca7c526ab9d21656"
+          },
+          "descriptor_reference": {
+            "offset": 2701344,
+            "length": 8,
+            "sha256": "2311153cb8c17ba4b68f9d77fd6168d5d8586c5b108cfc108d83296e72d0d706"
+          },
+          "signature_tail": {
+            "status": "not_tested",
+            "length": 47,
+            "raw_bytes_reference": {
+              "offset": 2702601,
+              "length": 47,
+              "sha256": "4057efe094a15fc85fe047ba51b8cbfd0a9169d616f8a2a8f0b3c5e8ee5ad4c8"
+            },
+            "reason": "Method signature tail is outside this minimal probe"
+          },
+          "unknown_reason": null
+        },
+        {
+          "name": "GetFile",
+          "entry_address": "0x694938",
+          "code_address": "0x6962f8",
+          "flags_u16": 66,
+          "virtual_index_i16": -12,
+          "virtual_slot_match": "not_tested",
+          "slot_target": null,
+          "raw_bytes_reference": {
+            "offset": 2702648,
+            "length": 50,
+            "sha256": "0b61030c2597e8d8a5212ae41bb9b58a88da27be2390f7f37fb7f1c3fdabb750"
+          },
+          "descriptor_reference": {
+            "offset": 2701352,
+            "length": 8,
+            "sha256": "18c2816722c58cb616cdd302af7654e4e6672874ad593bfb45f471e6acab2e00"
+          },
+          "signature_tail": {
+            "status": "not_tested",
+            "length": 36,
+            "raw_bytes_reference": {
+              "offset": 2702662,
+              "length": 36,
+              "sha256": "5512dfb7beb69b548a8f2847874c196fb23c95d1d1ecd99eff2c5d0a05f7e4cd"
+            },
+            "reason": "Method signature tail is outside this minimal probe"
+          },
+          "unknown_reason": null
+        },
+        {
+          "name": "GetLabel",
+          "entry_address": "0x69496a",
+          "code_address": "0x696180",
+          "flags_u16": 66,
+          "virtual_index_i16": -12,
+          "virtual_slot_match": "not_tested",
+          "slot_target": null,
+          "raw_bytes_reference": {
+            "offset": 2702698,
+            "length": 51,
+            "sha256": "b4f9ce54600b273c01a2f6aad2e3f495df52461d3cc2e20ccb7591755a56cb61"
+          },
+          "descriptor_reference": {
+            "offset": 2701360,
+            "length": 8,
+            "sha256": "545dd47e36607b2aa92ddede52f7a49a741052da7730bbab940a45f5b60cac08"
+          },
+          "signature_tail": {
+            "status": "not_tested",
+            "length": 36,
+            "raw_bytes_reference": {
+              "offset": 2702713,
+              "length": 36,
+              "sha256": "5512dfb7beb69b548a8f2847874c196fb23c95d1d1ecd99eff2c5d0a05f7e4cd"
+            },
+            "reason": "Method signature tail is outside this minimal probe"
+          },
+          "unknown_reason": null
+        },
+        {
+          "name": "GetRelLine",
+          "entry_address": "0x69499d",
+          "code_address": "0x6961bc",
+          "flags_u16": 66,
+          "virtual_index_i16": -12,
+          "virtual_slot_match": "not_tested",
+          "slot_target": null,
+          "raw_bytes_reference": {
+            "offset": 2702749,
+            "length": 42,
+            "sha256": "456a24d599a24d0ab63ccd191546eda2de0be0f905d76381d85e725eee786d31"
+          },
+          "descriptor_reference": {
+            "offset": 2701368,
+            "length": 8,
+            "sha256": "0c2c7e5368293348643cb768aef4f1b3cafb8f7ad4d4e5902657cb333f217e1e"
+          },
+          "signature_tail": {
+            "status": "not_tested",
+            "length": 25,
+            "raw_bytes_reference": {
+              "offset": 2702766,
+              "length": 25,
+              "sha256": "52a2740da8327e1af2559cfb42db49e6df4ace5ffd35131f854bf7f909225b53"
+            },
+            "reason": "Method signature tail is outside this minimal probe"
+          },
+          "unknown_reason": null
+        },
+        {
+          "name": "GetRelPos",
+          "entry_address": "0x6949c7",
+          "code_address": "0x6961e8",
+          "flags_u16": 66,
+          "virtual_index_i16": -12,
+          "virtual_slot_match": "not_tested",
+          "slot_target": null,
+          "raw_bytes_reference": {
+            "offset": 2702791,
+            "length": 41,
+            "sha256": "8cad94f118e53900605ed5754ecc478386051ccbca57e56dff40a335653751ad"
+          },
+          "descriptor_reference": {
+            "offset": 2701376,
+            "length": 8,
+            "sha256": "4574ab5ba0b406d736b1e3d84adbcb719e21a7142d4eda74137e7e3be2f097df"
+          },
+          "signature_tail": {
+            "status": "not_tested",
+            "length": 25,
+            "raw_bytes_reference": {
+              "offset": 2702807,
+              "length": 25,
+              "sha256": "52a2740da8327e1af2559cfb42db49e6df4ace5ffd35131f854bf7f909225b53"
+            },
+            "reason": "Method signature tail is outside this minimal probe"
+          },
+          "unknown_reason": null
+        },
+        {
+          "name": "SaveToStream",
+          "entry_address": "0x6949f0",
+          "code_address": "0x695750",
+          "flags_u16": 66,
+          "virtual_index_i16": -12,
+          "virtual_slot_match": "not_tested",
+          "slot_target": null,
+          "raw_bytes_reference": {
+            "offset": 2702832,
+            "length": 56,
+            "sha256": "2322feabd228366cc4edc3f423b713c449bfbf99059445858d15769a0d3d2c64"
+          },
+          "descriptor_reference": {
+            "offset": 2701384,
+            "length": 8,
+            "sha256": "75aca34b718eb323b6edd214af8f00c2e4ee6c65baaab4481059814bdf7afd54"
+          },
+          "signature_tail": {
+            "status": "not_tested",
+            "length": 37,
+            "raw_bytes_reference": {
+              "offset": 2702851,
+              "length": 37,
+              "sha256": "d21586e03c4514067606754929315f763724aba5c84f28a45cd54fc98820374a"
+            },
+            "reason": "Method signature tail is outside this minimal probe"
+          },
+          "unknown_reason": null
+        },
+        {
+          "name": "LoadFromStream",
+          "entry_address": "0x694a28",
+          "code_address": "0x6958ac",
+          "flags_u16": 66,
+          "virtual_index_i16": -12,
+          "virtual_slot_match": "not_tested",
+          "slot_target": null,
+          "raw_bytes_reference": {
+            "offset": 2702888,
+            "length": 58,
+            "sha256": "c384f93dd481b08fcedb2d2096f3f5d3672c4ad249dc429935e4a1fc0abb9df3"
+          },
+          "descriptor_reference": {
+            "offset": 2701392,
+            "length": 8,
+            "sha256": "0fa12e9b0c41dff0680dd4356b7b855e9ad7da8325743b967ad79f786331b306"
+          },
+          "signature_tail": {
+            "status": "not_tested",
+            "length": 37,
+            "raw_bytes_reference": {
+              "offset": 2702909,
+              "length": 37,
+              "sha256": "d21586e03c4514067606754929315f763724aba5c84f28a45cd54fc98820374a"
+            },
+            "reason": "Method signature tail is outside this minimal probe"
+          },
+          "unknown_reason": null
+        },
+        {
+          "name": "GetLabelIndex",
+          "entry_address": "0x694a62",
+          "code_address": "0x696094",
+          "flags_u16": 66,
+          "virtual_index_i16": -12,
+          "virtual_slot_match": "not_tested",
+          "slot_target": null,
+          "raw_bytes_reference": {
+            "offset": 2702946,
+            "length": 56,
+            "sha256": "91a870cad64961c98bc32bcf74520d9e855c25c29fe61e059f570e3df4c24757"
+          },
+          "descriptor_reference": {
+            "offset": 2701400,
+            "length": 8,
+            "sha256": "687ec70fef768fa61ce0164477e6bf13807ce03cc6400c06c5915f03f59e9671"
+          },
+          "signature_tail": {
+            "status": "not_tested",
+            "length": 36,
+            "raw_bytes_reference": {
+              "offset": 2702966,
+              "length": 36,
+              "sha256": "5b81eed3cb08938029410461923a499f599cf195c9cdb6790a98df4ed43b47b5"
+            },
+            "reason": "Method signature tail is outside this minimal probe"
+          },
+          "unknown_reason": null
+        }
+      ],
+      "fields": [
+        {
+          "name": "FOnLineStepEvent",
+          "offset": 8,
+          "flags_u8": 1,
+          "type_info": {
+            "status": "verified",
+            "kind_u8": 8,
+            "name": "TOnLineStepEvent",
+            "reference_cell": "0x693f10",
+            "type_info_address": "0x693f14",
+            "raw_bytes_reference": {
+              "offset": 2700052,
+              "length": 18,
+              "sha256": "c299dc1559f9abc94a43c9e26b0a8158d9bd54e85db0674302e41bea813437f6"
+            },
+            "type_semantics": "not_tested"
+          },
+          "attributes": {
+            "status": "verified",
+            "length": 2,
+            "raw_bytes_reference": {
+              "offset": 2700796,
+              "length": 2,
+              "sha256": "99be5efb88ca2013bd8e4eb035fd42d5245468fe9afa70d8ba9c1c419a48c4e8"
+            },
+            "unknown_reason": null
+          },
+          "raw_bytes_reference": {
+            "offset": 2700770,
+            "length": 28,
+            "sha256": "b8c4dbb005386959a4cda8970685ffff6e43263a07055aa989dcc5c802b99b7c"
+          }
+        },
+        {
+          "name": "buffer",
+          "offset": 16,
+          "flags_u8": 1,
+          "type_info": {
+            "status": "verified",
+            "kind_u8": 7,
+            "name": "TStringList",
+            "reference_cell": "0x433244",
+            "type_info_address": "0x433248",
+            "raw_bytes_reference": {
+              "offset": 206408,
+              "length": 13,
+              "sha256": "cdb89fc3b3a88c2f01288f54e06ff954e7e7574ee93035521820aece6ff4f99a"
+            },
+            "type_semantics": "not_tested"
+          },
+          "attributes": {
+            "status": "verified",
+            "length": 2,
+            "raw_bytes_reference": {
+              "offset": 2700814,
+              "length": 2,
+              "sha256": "99be5efb88ca2013bd8e4eb035fd42d5245468fe9afa70d8ba9c1c419a48c4e8"
+            },
+            "unknown_reason": null
+          },
+          "raw_bytes_reference": {
+            "offset": 2700798,
+            "length": 18,
+            "sha256": "e42b562a68623352d23b9e71a7cdf7442deba0d550af622eb60ca8f4c46e05bd"
+          }
+        },
+        {
+          "name": "LabelCount",
+          "offset": 20,
+          "flags_u8": 1,
+          "type_info": {
+            "status": "verified",
+            "kind_u8": 1,
+            "name": "Integer",
+            "reference_cell": "0x40109c",
+            "type_info_address": "0x4010a0",
+            "raw_bytes_reference": {
+              "offset": 1184,
+              "length": 9,
+              "sha256": "801ad41c64653550f533d6f1b1fa48fa4299cf26f0f08821e8fd4d8696d276cc"
+            },
+            "type_semantics": "not_tested"
+          },
+          "attributes": {
+            "status": "verified",
+            "length": 2,
+            "raw_bytes_reference": {
+              "offset": 2700836,
+              "length": 2,
+              "sha256": "99be5efb88ca2013bd8e4eb035fd42d5245468fe9afa70d8ba9c1c419a48c4e8"
+            },
+            "unknown_reason": null
+          },
+          "raw_bytes_reference": {
+            "offset": 2700816,
+            "length": 22,
+            "sha256": "7de1dea1cc4a03052d025bc7f4fb953a483f43926dfacd6969411c386d94651c"
+          }
+        },
+        {
+          "name": "LabelData",
+          "offset": 24,
+          "flags_u8": 1,
+          "type_info": {
+            "status": "verified",
+            "kind_u8": 17,
+            "name": ":TImoReader.:1",
+            "reference_cell": "0x694108",
+            "type_info_address": "0x69410c",
+            "raw_bytes_reference": {
+              "offset": 2700556,
+              "length": 16,
+              "sha256": "f1c0f36a10ebebd0e0fe3cb393589f37f9c1577d00419cba84a23a430113cd3e"
+            },
+            "type_semantics": "not_tested"
+          },
+          "attributes": {
+            "status": "verified",
+            "length": 2,
+            "raw_bytes_reference": {
+              "offset": 2700857,
+              "length": 2,
+              "sha256": "99be5efb88ca2013bd8e4eb035fd42d5245468fe9afa70d8ba9c1c419a48c4e8"
+            },
+            "unknown_reason": null
+          },
+          "raw_bytes_reference": {
+            "offset": 2700838,
+            "length": 21,
+            "sha256": "307d1a4b61bb18d3de66a0ff9fc4728036ee70ee4bd4e8bd79b1f05cef45e56d"
+          }
+        },
+        {
+          "name": "FLabelIndex",
+          "offset": 28,
+          "flags_u8": 1,
+          "type_info": {
+            "status": "verified",
+            "kind_u8": 1,
+            "name": "Integer",
+            "reference_cell": "0x40109c",
+            "type_info_address": "0x4010a0",
+            "raw_bytes_reference": {
+              "offset": 1184,
+              "length": 9,
+              "sha256": "801ad41c64653550f533d6f1b1fa48fa4299cf26f0f08821e8fd4d8696d276cc"
+            },
+            "type_semantics": "not_tested"
+          },
+          "attributes": {
+            "status": "verified",
+            "length": 2,
+            "raw_bytes_reference": {
+              "offset": 2700880,
+              "length": 2,
+              "sha256": "99be5efb88ca2013bd8e4eb035fd42d5245468fe9afa70d8ba9c1c419a48c4e8"
+            },
+            "unknown_reason": null
+          },
+          "raw_bytes_reference": {
+            "offset": 2700859,
+            "length": 23,
+            "sha256": "7bd5adaddf80fa532b7e4dc23d3917ec97ce9fc36359cbc2eb1d02a24a4ad16f"
+          }
+        },
+        {
+          "name": "FLabelLine",
+          "offset": 32,
+          "flags_u8": 1,
+          "type_info": {
+            "status": "verified",
+            "kind_u8": 1,
+            "name": "Integer",
+            "reference_cell": "0x40109c",
+            "type_info_address": "0x4010a0",
+            "raw_bytes_reference": {
+              "offset": 1184,
+              "length": 9,
+              "sha256": "801ad41c64653550f533d6f1b1fa48fa4299cf26f0f08821e8fd4d8696d276cc"
+            },
+            "type_semantics": "not_tested"
+          },
+          "attributes": {
+            "status": "verified",
+            "length": 2,
+            "raw_bytes_reference": {
+              "offset": 2700902,
+              "length": 2,
+              "sha256": "99be5efb88ca2013bd8e4eb035fd42d5245468fe9afa70d8ba9c1c419a48c4e8"
+            },
+            "unknown_reason": null
+          },
+          "raw_bytes_reference": {
+            "offset": 2700882,
+            "length": 22,
+            "sha256": "207a0688aa269762fea3e365c9d56a4821d38ef7455afd00a571c2b4d02a5858"
+          }
+        },
+        {
+          "name": "FFilename",
+          "offset": 36,
+          "flags_u8": 1,
+          "type_info": {
+            "status": "verified",
+            "kind_u8": 18,
+            "name": "string",
+            "reference_cell": "0x40126c",
+            "type_info_address": "0x401270",
+            "raw_bytes_reference": {
+              "offset": 1648,
+              "length": 8,
+              "sha256": "882c598a645d17832a7824779df8f543e3adea898ed6f431b130fcaba78abc61"
+            },
+            "type_semantics": "not_tested"
+          },
+          "attributes": {
+            "status": "verified",
+            "length": 2,
+            "raw_bytes_reference": {
+              "offset": 2700923,
+              "length": 2,
+              "sha256": "99be5efb88ca2013bd8e4eb035fd42d5245468fe9afa70d8ba9c1c419a48c4e8"
+            },
+            "unknown_reason": null
+          },
+          "raw_bytes_reference": {
+            "offset": 2700904,
+            "length": 21,
+            "sha256": "a1a399fc9e0189cfd11358ade7774cfc37782b43e7cce53f00aebb7c0f789f47"
+          }
+        },
+        {
+          "name": "FLabelName",
+          "offset": 40,
+          "flags_u8": 1,
+          "type_info": {
+            "status": "verified",
+            "kind_u8": 18,
+            "name": "string",
+            "reference_cell": "0x40126c",
+            "type_info_address": "0x401270",
+            "raw_bytes_reference": {
+              "offset": 1648,
+              "length": 8,
+              "sha256": "882c598a645d17832a7824779df8f543e3adea898ed6f431b130fcaba78abc61"
+            },
+            "type_semantics": "not_tested"
+          },
+          "attributes": {
+            "status": "verified",
+            "length": 2,
+            "raw_bytes_reference": {
+              "offset": 2700945,
+              "length": 2,
+              "sha256": "99be5efb88ca2013bd8e4eb035fd42d5245468fe9afa70d8ba9c1c419a48c4e8"
+            },
+            "unknown_reason": null
+          },
+          "raw_bytes_reference": {
+            "offset": 2700925,
+            "length": 22,
+            "sha256": "8b23c7c904b097c840ef054e5057eff0a2c6713ea6e096a0fce912fb8ecaf9c3"
+          }
+        },
+        {
+          "name": "FExceptText",
+          "offset": 44,
+          "flags_u8": 1,
+          "type_info": {
+            "status": "verified",
+            "kind_u8": 18,
+            "name": "string",
+            "reference_cell": "0x40126c",
+            "type_info_address": "0x401270",
+            "raw_bytes_reference": {
+              "offset": 1648,
+              "length": 8,
+              "sha256": "882c598a645d17832a7824779df8f543e3adea898ed6f431b130fcaba78abc61"
+            },
+            "type_semantics": "not_tested"
+          },
+          "attributes": {
+            "status": "verified",
+            "length": 2,
+            "raw_bytes_reference": {
+              "offset": 2700968,
+              "length": 2,
+              "sha256": "99be5efb88ca2013bd8e4eb035fd42d5245468fe9afa70d8ba9c1c419a48c4e8"
+            },
+            "unknown_reason": null
+          },
+          "raw_bytes_reference": {
+            "offset": 2700947,
+            "length": 23,
+            "sha256": "b509e27e821bfca226db1b151a7c19f2230cf014ad4f52ece0b3ed3101b37154"
+          }
+        },
+        {
+          "name": "FNoWordLineText",
+          "offset": 48,
+          "flags_u8": 1,
+          "type_info": {
+            "status": "verified",
+            "kind_u8": 18,
+            "name": "string",
+            "reference_cell": "0x40126c",
+            "type_info_address": "0x401270",
+            "raw_bytes_reference": {
+              "offset": 1648,
+              "length": 8,
+              "sha256": "882c598a645d17832a7824779df8f543e3adea898ed6f431b130fcaba78abc61"
+            },
+            "type_semantics": "not_tested"
+          },
+          "attributes": {
+            "status": "verified",
+            "length": 2,
+            "raw_bytes_reference": {
+              "offset": 2700995,
+              "length": 2,
+              "sha256": "99be5efb88ca2013bd8e4eb035fd42d5245468fe9afa70d8ba9c1c419a48c4e8"
+            },
+            "unknown_reason": null
+          },
+          "raw_bytes_reference": {
+            "offset": 2700970,
+            "length": 27,
+            "sha256": "ea185c1b1ca37a8b1ae38bd1c8507364a56dfe12f6fb943089475f7c2b78f80a"
+          }
+        },
+        {
+          "name": "FRepList",
+          "offset": 52,
+          "flags_u8": 1,
+          "type_info": {
+            "status": "verified",
+            "kind_u8": 7,
+            "name": "TList",
+            "reference_cell": "0x430c70",
+            "type_info_address": "0x430c74",
+            "raw_bytes_reference": {
+              "offset": 196724,
+              "length": 7,
+              "sha256": "f5695afb1ea377e290178810f16be1c617e96f3cae3759765436f456b6f8a223"
+            },
+            "type_semantics": "not_tested"
+          },
+          "attributes": {
+            "status": "verified",
+            "length": 2,
+            "raw_bytes_reference": {
+              "offset": 2701015,
+              "length": 2,
+              "sha256": "99be5efb88ca2013bd8e4eb035fd42d5245468fe9afa70d8ba9c1c419a48c4e8"
+            },
+            "unknown_reason": null
+          },
+          "raw_bytes_reference": {
+            "offset": 2700997,
+            "length": 20,
+            "sha256": "a61a3d838e86dc3883916472cdade66e99dd16bec9e6ff71b172336a99e56292"
+          }
+        },
+        {
+          "name": "AbsLine",
+          "offset": 56,
+          "flags_u8": 2,
+          "type_info": {
+            "status": "verified",
+            "kind_u8": 1,
+            "name": "Integer",
+            "reference_cell": "0x40109c",
+            "type_info_address": "0x4010a0",
+            "raw_bytes_reference": {
+              "offset": 1184,
+              "length": 9,
+              "sha256": "801ad41c64653550f533d6f1b1fa48fa4299cf26f0f08821e8fd4d8696d276cc"
+            },
+            "type_semantics": "not_tested"
+          },
+          "attributes": {
+            "status": "verified",
+            "length": 2,
+            "raw_bytes_reference": {
+              "offset": 2701034,
+              "length": 2,
+              "sha256": "99be5efb88ca2013bd8e4eb035fd42d5245468fe9afa70d8ba9c1c419a48c4e8"
+            },
+            "unknown_reason": null
+          },
+          "raw_bytes_reference": {
+            "offset": 2701017,
+            "length": 19,
+            "sha256": "f4f2e24c0bd80a73f63a820fa91dfcd876b66a6d87bd224285eb68bad49be540"
+          }
+        },
+        {
+          "name": "AbsPos",
+          "offset": 60,
+          "flags_u8": 2,
+          "type_info": {
+            "status": "verified",
+            "kind_u8": 1,
+            "name": "Integer",
+            "reference_cell": "0x40109c",
+            "type_info_address": "0x4010a0",
+            "raw_bytes_reference": {
+              "offset": 1184,
+              "length": 9,
+              "sha256": "801ad41c64653550f533d6f1b1fa48fa4299cf26f0f08821e8fd4d8696d276cc"
+            },
+            "type_semantics": "not_tested"
+          },
+          "attributes": {
+            "status": "verified",
+            "length": 2,
+            "raw_bytes_reference": {
+              "offset": 2701052,
+              "length": 2,
+              "sha256": "99be5efb88ca2013bd8e4eb035fd42d5245468fe9afa70d8ba9c1c419a48c4e8"
+            },
+            "unknown_reason": null
+          },
+          "raw_bytes_reference": {
+            "offset": 2701036,
+            "length": 18,
+            "sha256": "2b607f4929f1e9d21c116260612aa58613826705ea730c87c1c4bd290708af62"
+          }
+        },
+        {
+          "name": "PreAbsLine",
+          "offset": 64,
+          "flags_u8": 2,
+          "type_info": {
+            "status": "verified",
+            "kind_u8": 1,
+            "name": "Integer",
+            "reference_cell": "0x40109c",
+            "type_info_address": "0x4010a0",
+            "raw_bytes_reference": {
+              "offset": 1184,
+              "length": 9,
+              "sha256": "801ad41c64653550f533d6f1b1fa48fa4299cf26f0f08821e8fd4d8696d276cc"
+            },
+            "type_semantics": "not_tested"
+          },
+          "attributes": {
+            "status": "verified",
+            "length": 2,
+            "raw_bytes_reference": {
+              "offset": 2701074,
+              "length": 2,
+              "sha256": "99be5efb88ca2013bd8e4eb035fd42d5245468fe9afa70d8ba9c1c419a48c4e8"
+            },
+            "unknown_reason": null
+          },
+          "raw_bytes_reference": {
+            "offset": 2701054,
+            "length": 22,
+            "sha256": "4cba5996efd32af9b0171e913c79363c149e0948a57e08a8188620f2aeb21072"
+          }
+        },
+        {
+          "name": "PreAbsPos",
+          "offset": 68,
+          "flags_u8": 2,
+          "type_info": {
+            "status": "verified",
+            "kind_u8": 1,
+            "name": "Integer",
+            "reference_cell": "0x40109c",
+            "type_info_address": "0x4010a0",
+            "raw_bytes_reference": {
+              "offset": 1184,
+              "length": 9,
+              "sha256": "801ad41c64653550f533d6f1b1fa48fa4299cf26f0f08821e8fd4d8696d276cc"
+            },
+            "type_semantics": "not_tested"
+          },
+          "attributes": {
+            "status": "verified",
+            "length": 2,
+            "raw_bytes_reference": {
+              "offset": 2701095,
+              "length": 2,
+              "sha256": "99be5efb88ca2013bd8e4eb035fd42d5245468fe9afa70d8ba9c1c419a48c4e8"
+            },
+            "unknown_reason": null
+          },
+          "raw_bytes_reference": {
+            "offset": 2701076,
+            "length": 21,
+            "sha256": "3c3c8e51d085a0daba1445365d21b7da5d27033d71b4168dd62cecdd60717374"
+          }
+        },
+        {
+          "name": "PreFilename",
+          "offset": 72,
+          "flags_u8": 2,
+          "type_info": {
+            "status": "verified",
+            "kind_u8": 18,
+            "name": "string",
+            "reference_cell": "0x40126c",
+            "type_info_address": "0x401270",
+            "raw_bytes_reference": {
+              "offset": 1648,
+              "length": 8,
+              "sha256": "882c598a645d17832a7824779df8f543e3adea898ed6f431b130fcaba78abc61"
+            },
+            "type_semantics": "not_tested"
+          },
+          "attributes": {
+            "status": "verified",
+            "length": 2,
+            "raw_bytes_reference": {
+              "offset": 2701118,
+              "length": 2,
+              "sha256": "99be5efb88ca2013bd8e4eb035fd42d5245468fe9afa70d8ba9c1c419a48c4e8"
+            },
+            "unknown_reason": null
+          },
+          "raw_bytes_reference": {
+            "offset": 2701097,
+            "length": 23,
+            "sha256": "c8ac36e2da0ab62a3eb137fdf09eeb319c3f22a7bba72f05d4e66ee799891822"
+          }
+        },
+        {
+          "name": "data",
+          "offset": 76,
+          "flags_u8": 2,
+          "type_info": {
+            "status": "verified",
+            "kind_u8": 14,
+            "name": "TSRSaveData",
+            "reference_cell": "0x693fe8",
+            "type_info_address": "0x693fec",
+            "raw_bytes_reference": {
+              "offset": 2700268,
+              "length": 13,
+              "sha256": "4a6e615ee563889daeff392aa26cc23fbcef4bf07780154f72be5e10266111b4"
+            },
+            "type_semantics": "not_tested"
+          },
+          "attributes": {
+            "status": "verified",
+            "length": 2,
+            "raw_bytes_reference": {
+              "offset": 2701134,
+              "length": 2,
+              "sha256": "99be5efb88ca2013bd8e4eb035fd42d5245468fe9afa70d8ba9c1c419a48c4e8"
+            },
+            "unknown_reason": null
+          },
+          "raw_bytes_reference": {
+            "offset": 2701120,
+            "length": 16,
+            "sha256": "65ab74052891a39373ed59faddc66ec5281d00af710e0e25b4e43c1b820b4e85"
+          }
+        },
+        {
+          "name": "TempBuf",
+          "offset": 156,
+          "flags_u8": 2,
+          "type_info": {
+            "status": "verified",
+            "kind_u8": 18,
+            "name": "string",
+            "reference_cell": "0x40126c",
+            "type_info_address": "0x401270",
+            "raw_bytes_reference": {
+              "offset": 1648,
+              "length": 8,
+              "sha256": "882c598a645d17832a7824779df8f543e3adea898ed6f431b130fcaba78abc61"
+            },
+            "type_semantics": "not_tested"
+          },
+          "attributes": {
+            "status": "verified",
+            "length": 2,
+            "raw_bytes_reference": {
+              "offset": 2701153,
+              "length": 2,
+              "sha256": "99be5efb88ca2013bd8e4eb035fd42d5245468fe9afa70d8ba9c1c419a48c4e8"
+            },
+            "unknown_reason": null
+          },
+          "raw_bytes_reference": {
+            "offset": 2701136,
+            "length": 19,
+            "sha256": "c02c400edd8425f78b47a43411b54b518b55d2ff252f0a3e525c2356486414c3"
+          }
+        },
+        {
+          "name": "TempBufLength",
+          "offset": 160,
+          "flags_u8": 2,
+          "type_info": {
+            "status": "verified",
+            "kind_u8": 1,
+            "name": "Integer",
+            "reference_cell": "0x40109c",
+            "type_info_address": "0x4010a0",
+            "raw_bytes_reference": {
+              "offset": 1184,
+              "length": 9,
+              "sha256": "801ad41c64653550f533d6f1b1fa48fa4299cf26f0f08821e8fd4d8696d276cc"
+            },
+            "type_semantics": "not_tested"
+          },
+          "attributes": {
+            "status": "verified",
+            "length": 2,
+            "raw_bytes_reference": {
+              "offset": 2701178,
+              "length": 2,
+              "sha256": "99be5efb88ca2013bd8e4eb035fd42d5245468fe9afa70d8ba9c1c419a48c4e8"
+            },
+            "unknown_reason": null
+          },
+          "raw_bytes_reference": {
+            "offset": 2701155,
+            "length": 25,
+            "sha256": "c0e45fd86bdfaa1a183913279d91ab87b30295ee7ea4cf7d9f9224d38f4e1b04"
+          }
+        }
+      ],
+      "declaration_bytes_status": "verified",
+      "live_dispatch": "not_tested",
+      "complete_object_layout": "not_tested"
+    }
+  ],
+  "records": [
+    {
+      "status": "inferred",
+      "name": "TReplaceData",
+      "type_info_address": "0x693f7c",
+      "declared_size": 12,
+      "managed_fields": [
+        {
+          "offset": 0,
+          "type_info": {
+            "status": "verified",
+            "kind_u8": 18,
+            "name": "string",
+            "reference_cell": "0x40126c",
+            "type_info_address": "0x401270",
+            "raw_bytes_reference": {
+              "offset": 1648,
+              "length": 8,
+              "sha256": "882c598a645d17832a7824779df8f543e3adea898ed6f431b130fcaba78abc61"
+            },
+            "type_semantics": "not_tested"
+          },
+          "raw_bytes_reference": {
+            "offset": 2700178,
+            "length": 8,
+            "sha256": "61bdd2031abb14b97ad6a3e4e19d76f1b470b4733c642be16b1d9edec40ab7eb"
+          }
+        },
+        {
+          "offset": 4,
+          "type_info": {
+            "status": "verified",
+            "kind_u8": 18,
+            "name": "string",
+            "reference_cell": "0x40126c",
+            "type_info_address": "0x401270",
+            "raw_bytes_reference": {
+              "offset": 1648,
+              "length": 8,
+              "sha256": "882c598a645d17832a7824779df8f543e3adea898ed6f431b130fcaba78abc61"
+            },
+            "type_semantics": "not_tested"
+          },
+          "raw_bytes_reference": {
+            "offset": 2700186,
+            "length": 8,
+            "sha256": "2a9629d81e60e45a2da0cf4d0118aa532ec2f1f19291e1f4d0998530cbe97d55"
+          }
+        }
+      ],
+      "fields": [
+        {
+          "name": "SerchWord",
+          "offset": 0,
+          "flags_u8": 2,
+          "type_info": {
+            "status": "verified",
+            "kind_u8": 18,
+            "name": "string",
+            "reference_cell": "0x40126c",
+            "type_info_address": "0x401270",
+            "raw_bytes_reference": {
+              "offset": 1648,
+              "length": 8,
+              "sha256": "882c598a645d17832a7824779df8f543e3adea898ed6f431b130fcaba78abc61"
+            },
+            "type_semantics": "not_tested"
+          },
+          "attributes": {
+            "status": "verified",
+            "length": 2,
+            "raw_bytes_reference": {
+              "offset": 2700218,
+              "length": 2,
+              "sha256": "99be5efb88ca2013bd8e4eb035fd42d5245468fe9afa70d8ba9c1c419a48c4e8"
+            },
+            "unknown_reason": null
+          },
+          "raw_bytes_reference": {
+            "offset": 2700199,
+            "length": 21,
+            "sha256": "b70b173b4eb1e5db810772cd0d43d99d3d8482bb32884b1119f0fe23c9756ebd"
+          }
+        },
+        {
+          "name": "ReplaceWord",
+          "offset": 4,
+          "flags_u8": 2,
+          "type_info": {
+            "status": "verified",
+            "kind_u8": 18,
+            "name": "string",
+            "reference_cell": "0x40126c",
+            "type_info_address": "0x401270",
+            "raw_bytes_reference": {
+              "offset": 1648,
+              "length": 8,
+              "sha256": "882c598a645d17832a7824779df8f543e3adea898ed6f431b130fcaba78abc61"
+            },
+            "type_semantics": "not_tested"
+          },
+          "attributes": {
+            "status": "verified",
+            "length": 2,
+            "raw_bytes_reference": {
+              "offset": 2700241,
+              "length": 2,
+              "sha256": "99be5efb88ca2013bd8e4eb035fd42d5245468fe9afa70d8ba9c1c419a48c4e8"
+            },
+            "unknown_reason": null
+          },
+          "raw_bytes_reference": {
+            "offset": 2700220,
+            "length": 23,
+            "sha256": "6c0c6ea6232b0926da498074aac875aa3c59ccc3bcc17e019aac499e7ffe3e99"
+          }
+        },
+        {
+          "name": "_Type",
+          "offset": 8,
+          "flags_u8": 2,
+          "type_info": {
+            "status": "verified",
+            "kind_u8": 1,
+            "name": "Integer",
+            "reference_cell": "0x40109c",
+            "type_info_address": "0x4010a0",
+            "raw_bytes_reference": {
+              "offset": 1184,
+              "length": 9,
+              "sha256": "801ad41c64653550f533d6f1b1fa48fa4299cf26f0f08821e8fd4d8696d276cc"
+            },
+            "type_semantics": "not_tested"
+          },
+          "attributes": {
+            "status": "verified",
+            "length": 2,
+            "raw_bytes_reference": {
+              "offset": 2700258,
+              "length": 2,
+              "sha256": "99be5efb88ca2013bd8e4eb035fd42d5245468fe9afa70d8ba9c1c419a48c4e8"
+            },
+            "unknown_reason": null
+          },
+          "raw_bytes_reference": {
+            "offset": 2700243,
+            "length": 17,
+            "sha256": "b6a4d8744d4986b0861a8dfe9c4b9b6af949a6e1f648cb0ea715264aac8d2ef5"
+          }
+        }
+      ],
+      "header_reference": {
+        "offset": 2700156,
+        "length": 22,
+        "sha256": "2eb5e67c474e00fb50f67ddf08b52f7a87532be891fcd8909eadfb912a26c88f"
+      },
+      "extended_prefix": {
+        "value_u8": 0,
+        "meaning": "not_tested",
+        "raw_bytes_reference": {
+          "offset": 2700194,
+          "length": 5,
+          "sha256": "2c8781cf4ff5280129b190856ff431adae77be2294fc3ffdadf88105743fe667"
+        }
+      },
+      "declaration_bytes_status": "verified",
+      "initialization_and_serialization": "not_tested",
+      "extended_layout_scope": "Only the reviewed zero-prefix record variant"
+    }
+  ],
+  "errors": [],
+  "negative_probes": [],
+  "bytes_examined": 5405,
+  "read_budget": 1048576,
+  "source_file_bytes": 3915264,
+  "byte_count_scope": "Cumulative metadata reads including repeated hashing; source is read separately for its full digest",
+  "compiler_version": "not_tested",
+  "virtual_slot_mismatch_count": 0,
+  "uncompared_method_slot_count": 27,
+  "metadata_binding_coverage_status": "not_tested",
+  "method_slot_comparison_scope": "Only the explicit plan slots; entries without a comparison are not promoted to verified",
+  "omitted_field_type_count": 0,
+  "unsupported_attribute_count": 0,
+  "uninterpreted_method_signatures": 28,
+  "signature_semantics": "not_tested",
+  "runtime_development_ready": false,
+  "original_files_written": false,
+  "target_execution": "not_tested",
+  "external_game_data_uploads": false
+}

@@ -1,0 +1,2483 @@
+{
+  "schema_version": 1,
+  "dataset": "real",
+  "real_game_status": "inferred",
+  "evidence_status_values": [
+    "verified",
+    "inferred",
+    "unsupported",
+    "not_tested"
+  ],
+  "original_files_written": false,
+  "note": "directory identity and fourth-game edition require human confirmation",
+  "status": "unsupported",
+  "items": [
+    {
+      "path": "data0.pack/system/etc/debugskip.b",
+      "status": "unsupported",
+      "errors": [],
+      "format": "ABMP-candidate",
+      "sha256": "047f6280a7c279f295601c2c49afa7c159699d4e22f7a8a4c96da40665c6c5a9",
+      "unknown_reason": "no supported decoder; extension is not evidence",
+      "header_hex": "61626d70313200000000000000000000",
+      "container_version": "abmp12",
+      "signature_status": "verified",
+      "nested_decode_status": "not_tested"
+    },
+    {
+      "path": "data0.pack/system/etc/game.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "17898151e9c555a17c8841a91775e2e34dc762ce092b4b29f8d7e65130b5857c",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 120
+    },
+    {
+      "path": "data0.pack/system/etc/gui.u.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "4217e0f30fe2145fd81b1e58880b9bdc3aadc3c2065629c1c9c45d998febf62f",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 117
+    },
+    {
+      "path": "data0.pack/system/etc/message.u.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "6990e8ed745fd1f0b59a0eedfdc1c0db50f280c18a0063edc99fc9d7c7836f31",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 119
+    },
+    {
+      "path": "data0.pack/system/font/fontdata.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "96c4aebfe0301ffc825865ccf7e1b5a53e5f3f9bf9e1625c361d80649984a4c3",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 67
+    },
+    {
+      "path": "data0.pack/system/voice/voicedata.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "9bfbbc00e60c502266bfec9947c1146eb67d15e3fb2dbb614ccee2d1363706fa",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 25
+    },
+    {
+      "path": "data1.pack/音楽/01蓮華の曲.ogg",
+      "status": "verified",
+      "errors": [],
+      "format": "Ogg",
+      "sha256": "4c58124b8341bd0cadd780f7b7180a431999003b83ecf7e93945818f8f171e6c",
+      "signature_status": "verified",
+      "codec_status": "verified",
+      "media": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "vorbis",
+            "codec_type": "audio",
+            "sample_rate": "44100",
+            "channels": 2
+          }
+        ],
+        "format": {
+          "format_name": "ogg"
+        }
+      }
+    },
+    {
+      "path": "data1.pack/音楽/18楽しい曲.ogg",
+      "status": "verified",
+      "errors": [],
+      "format": "Ogg",
+      "sha256": "0eb0df8991ca29b7a36aaa45c54948442e62ac5eba54b90e8369a40fa44acdad",
+      "signature_status": "verified",
+      "codec_status": "verified",
+      "media": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "vorbis",
+            "codec_type": "audio",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ],
+        "format": {
+          "format_name": "ogg"
+        }
+      }
+    },
+    {
+      "path": "data2.pack/ボイス/dana0001.ogg",
+      "status": "verified",
+      "errors": [],
+      "format": "Ogg",
+      "sha256": "c500c97c82b702390ebaf28ebeb12cf91b1a8d8951d4e818945689665986bd5c",
+      "signature_status": "verified",
+      "codec_status": "verified",
+      "media": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "vorbis",
+            "codec_type": "audio",
+            "sample_rate": "44100",
+            "channels": 1
+          }
+        ],
+        "format": {
+          "format_name": "ogg"
+        }
+      }
+    },
+    {
+      "path": "data2.pack/ボイス/yuri0001.ogg",
+      "status": "verified",
+      "errors": [],
+      "format": "Ogg",
+      "sha256": "b892be4f99ba4edbf46f4c02292b9540c496965faa9930f4967c98bb0f8cd166",
+      "signature_status": "verified",
+      "codec_status": "verified",
+      "media": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "vorbis",
+            "codec_type": "audio",
+            "sample_rate": "44100",
+            "channels": 1
+          }
+        ],
+        "format": {
+          "format_name": "ogg"
+        }
+      }
+    },
+    {
+      "path": "data3.pack/画像/bg/bg_デパート内.png",
+      "status": "verified",
+      "errors": [],
+      "format": "DPNG",
+      "sha256": "17f20506cb2bb450f1b2f3dc4c47ac93977f2160bc77a298c5633bcf7164490e",
+      "width": 1280,
+      "height": 720,
+      "unknown_header": 1,
+      "tiles": [
+        {
+          "index": 0,
+          "byte_offset": 20,
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 88,
+          "length": 106181,
+          "unknown_fields": [
+            0,
+            0
+          ]
+        },
+        {
+          "index": 1,
+          "byte_offset": 106229,
+          "x": 0,
+          "y": 88,
+          "width": 1280,
+          "height": 88,
+          "length": 146327,
+          "unknown_fields": [
+            0,
+            0
+          ]
+        },
+        {
+          "index": 2,
+          "byte_offset": 252584,
+          "x": 0,
+          "y": 176,
+          "width": 1280,
+          "height": 88,
+          "length": 186784,
+          "unknown_fields": [
+            0,
+            0
+          ]
+        },
+        {
+          "index": 3,
+          "byte_offset": 439396,
+          "x": 0,
+          "y": 264,
+          "width": 1280,
+          "height": 96,
+          "length": 276669,
+          "unknown_fields": [
+            0,
+            0
+          ]
+        },
+        {
+          "index": 4,
+          "byte_offset": 716093,
+          "x": 0,
+          "y": 360,
+          "width": 1280,
+          "height": 88,
+          "length": 258687,
+          "unknown_fields": [
+            0,
+            0
+          ]
+        },
+        {
+          "index": 5,
+          "byte_offset": 974808,
+          "x": 0,
+          "y": 448,
+          "width": 1280,
+          "height": 88,
+          "length": 212770,
+          "unknown_fields": [
+            0,
+            0
+          ]
+        },
+        {
+          "index": 6,
+          "byte_offset": 1187606,
+          "x": 0,
+          "y": 536,
+          "width": 1280,
+          "height": 88,
+          "length": 168687,
+          "unknown_fields": [
+            0,
+            0
+          ]
+        },
+        {
+          "index": 7,
+          "byte_offset": 1356321,
+          "x": 0,
+          "y": 624,
+          "width": 1280,
+          "height": 96,
+          "length": 149852,
+          "unknown_fields": [
+            0,
+            0
+          ]
+        }
+      ],
+      "metadata_status": "verified",
+      "conversion_status": "not_tested",
+      "blend_semantics_status": "not_tested",
+      "upstream_conversion": {
+        "status": "verified",
+        "errors": [],
+        "resource_limits": {
+          "cpu_seconds": {
+            "status": "verified",
+            "value": 20
+          },
+          "data_bytes": {
+            "status": "unsupported",
+            "reason": "current limit exceeds maximum limit",
+            "fallback": "bounded input, index count, canvas pixels, CPU and wall time; no hard RSS cap"
+          },
+          "file_output_bytes": {
+            "status": "verified",
+            "value": 0
+          }
+        },
+        "upstream_commit": "531694715df21a9940578f4319d246ac8aa794de",
+        "width": 1280,
+        "height": 720,
+        "mode": "RGBA",
+        "alpha_extrema": [
+          225,
+          255
+        ],
+        "tile_count": 8,
+        "output_sha256": "8c556081608b2b929257e25350dd4296e2aa6cd5fa330ed5db8752210e804e31",
+        "rgba_sha256": "83c1555ec0967ad25b7e6b239d40da0513d03949c2eb562fea509517fd008d3d",
+        "blend_semantics_status": "not_tested",
+        "writes_performed": false
+      }
+    },
+    {
+      "path": "data3.pack/画像/bg/color_白.png",
+      "status": "verified",
+      "errors": [],
+      "format": "DPNG",
+      "sha256": "f367f2617668806504ae0ee370797a2adf39ba5afc72b78631bc249a09dcbbee",
+      "width": 1280,
+      "height": 720,
+      "unknown_header": 1,
+      "tiles": [
+        {
+          "index": 0,
+          "byte_offset": 20,
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 88,
+          "length": 588,
+          "unknown_fields": [
+            0,
+            0
+          ]
+        },
+        {
+          "index": 1,
+          "byte_offset": 636,
+          "x": 0,
+          "y": 88,
+          "width": 1280,
+          "height": 88,
+          "length": 588,
+          "unknown_fields": [
+            0,
+            0
+          ]
+        },
+        {
+          "index": 2,
+          "byte_offset": 1252,
+          "x": 0,
+          "y": 176,
+          "width": 1280,
+          "height": 88,
+          "length": 588,
+          "unknown_fields": [
+            0,
+            0
+          ]
+        },
+        {
+          "index": 3,
+          "byte_offset": 1868,
+          "x": 0,
+          "y": 264,
+          "width": 1280,
+          "height": 96,
+          "length": 634,
+          "unknown_fields": [
+            0,
+            0
+          ]
+        },
+        {
+          "index": 4,
+          "byte_offset": 2530,
+          "x": 0,
+          "y": 360,
+          "width": 1280,
+          "height": 88,
+          "length": 588,
+          "unknown_fields": [
+            0,
+            0
+          ]
+        },
+        {
+          "index": 5,
+          "byte_offset": 3146,
+          "x": 0,
+          "y": 448,
+          "width": 1280,
+          "height": 88,
+          "length": 588,
+          "unknown_fields": [
+            0,
+            0
+          ]
+        },
+        {
+          "index": 6,
+          "byte_offset": 3762,
+          "x": 0,
+          "y": 536,
+          "width": 1280,
+          "height": 88,
+          "length": 588,
+          "unknown_fields": [
+            0,
+            0
+          ]
+        },
+        {
+          "index": 7,
+          "byte_offset": 4378,
+          "x": 0,
+          "y": 624,
+          "width": 1280,
+          "height": 96,
+          "length": 634,
+          "unknown_fields": [
+            0,
+            0
+          ]
+        }
+      ],
+      "metadata_status": "verified",
+      "conversion_status": "not_tested",
+      "blend_semantics_status": "not_tested",
+      "upstream_conversion": {
+        "status": "verified",
+        "errors": [],
+        "resource_limits": {
+          "cpu_seconds": {
+            "status": "verified",
+            "value": 20
+          },
+          "data_bytes": {
+            "status": "unsupported",
+            "reason": "current limit exceeds maximum limit",
+            "fallback": "bounded input, index count, canvas pixels, CPU and wall time; no hard RSS cap"
+          },
+          "file_output_bytes": {
+            "status": "verified",
+            "value": 0
+          }
+        },
+        "upstream_commit": "531694715df21a9940578f4319d246ac8aa794de",
+        "width": 1280,
+        "height": 720,
+        "mode": "RGBA",
+        "alpha_extrema": [
+          255,
+          255
+        ],
+        "tile_count": 8,
+        "output_sha256": "96b42056c741fb8ae40129404627a84afda1ecf70438672d35a47bc630c4472c",
+        "rgba_sha256": "c1a278749cec50862b38ddd306291242df759ab458eaf3ba194604ac2756128a",
+        "blend_semantics_status": "not_tested",
+        "writes_performed": false
+      }
+    },
+    {
+      "path": "data3.pack/画像/effect/c_笑う夕摩変化.b",
+      "status": "unsupported",
+      "errors": [],
+      "format": "ABMP-candidate",
+      "sha256": "314b88ba61c071017ab1fc3494dc5e8eb4bfbbff03e040c6e8ab93b18465e1c5",
+      "unknown_reason": "no supported decoder; extension is not evidence",
+      "header_hex": "61626d70313200000000000000000000",
+      "container_version": "abmp12",
+      "signature_status": "verified",
+      "nested_decode_status": "not_tested"
+    },
+    {
+      "path": "data3.pack/画像/movie/t05@/ハイスピードカウパー有り/t05_kau_hs_15.ogv",
+      "status": "verified",
+      "errors": [],
+      "format": "Ogg",
+      "sha256": "c5ed018a624ceefeb296b4ec82ff2f819d7e9a13fa7748889d06c344319b39ec",
+      "signature_status": "verified",
+      "codec_status": "verified",
+      "media": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "theora",
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720
+          }
+        ],
+        "format": {
+          "format_name": "ogg"
+        }
+      }
+    },
+    {
+      "path": "data3.pack/画像/movie/雪(木なし).ogv",
+      "status": "verified",
+      "errors": [],
+      "format": "Ogg",
+      "sha256": "9dea12f23f234b6815e3fd72dfc643fb9f16813ea49f4b5bd4c7cde3a2aaa5f4",
+      "signature_status": "verified",
+      "codec_status": "verified",
+      "media": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "theora",
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720
+          }
+        ],
+        "format": {
+          "format_name": "ogg"
+        }
+      }
+    },
+    {
+      "path": "data4.pack/face/いちか_顔_制服_1_ギャグ01.png",
+      "status": "verified",
+      "errors": [],
+      "format": "DPNG",
+      "sha256": "b89b90935adcfd197979d6f154bb9f20af057b48d6ab2074008e061aa3ca374f",
+      "width": 300,
+      "height": 250,
+      "unknown_header": 1,
+      "tiles": [
+        {
+          "index": 0,
+          "byte_offset": 20,
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 24,
+          "length": 0,
+          "unknown_fields": [
+            1,
+            0
+          ]
+        },
+        {
+          "index": 1,
+          "byte_offset": 48,
+          "x": 112,
+          "y": 24,
+          "width": 80,
+          "height": 32,
+          "length": 1224,
+          "unknown_fields": [
+            1,
+            0
+          ]
+        },
+        {
+          "index": 2,
+          "byte_offset": 1300,
+          "x": 88,
+          "y": 56,
+          "width": 160,
+          "height": 32,
+          "length": 9157,
+          "unknown_fields": [
+            1,
+            0
+          ]
+        },
+        {
+          "index": 3,
+          "byte_offset": 10485,
+          "x": 64,
+          "y": 88,
+          "width": 192,
+          "height": 32,
+          "length": 13237,
+          "unknown_fields": [
+            1,
+            0
+          ]
+        },
+        {
+          "index": 4,
+          "byte_offset": 23750,
+          "x": 64,
+          "y": 120,
+          "width": 200,
+          "height": 32,
+          "length": 15231,
+          "unknown_fields": [
+            1,
+            0
+          ]
+        },
+        {
+          "index": 5,
+          "byte_offset": 39009,
+          "x": 64,
+          "y": 152,
+          "width": 192,
+          "height": 32,
+          "length": 11563,
+          "unknown_fields": [
+            1,
+            0
+          ]
+        },
+        {
+          "index": 6,
+          "byte_offset": 50600,
+          "x": 80,
+          "y": 184,
+          "width": 152,
+          "height": 32,
+          "length": 9377,
+          "unknown_fields": [
+            1,
+            0
+          ]
+        },
+        {
+          "index": 7,
+          "byte_offset": 60005,
+          "x": 48,
+          "y": 216,
+          "width": 184,
+          "height": 34,
+          "length": 10929,
+          "unknown_fields": [
+            1,
+            0
+          ]
+        }
+      ],
+      "metadata_status": "verified",
+      "conversion_status": "not_tested",
+      "blend_semantics_status": "not_tested",
+      "upstream_conversion": {
+        "status": "verified",
+        "errors": [],
+        "resource_limits": {
+          "cpu_seconds": {
+            "status": "verified",
+            "value": 20
+          },
+          "data_bytes": {
+            "status": "unsupported",
+            "reason": "current limit exceeds maximum limit",
+            "fallback": "bounded input, index count, canvas pixels, CPU and wall time; no hard RSS cap"
+          },
+          "file_output_bytes": {
+            "status": "verified",
+            "value": 0
+          }
+        },
+        "upstream_commit": "531694715df21a9940578f4319d246ac8aa794de",
+        "width": 300,
+        "height": 250,
+        "mode": "RGBA",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "tile_count": 8,
+        "output_sha256": "52244557be6f46e815b7ccc98ff3d42f19b5a0bc0ea828bd32be9046020986d3",
+        "rgba_sha256": "7c70970d548b967800e9ef57fea83c609b01be4d6c1da0ba05ff383e0a410398",
+        "blend_semantics_status": "not_tested",
+        "writes_performed": false
+      }
+    },
+    {
+      "path": "data4.pack/face/仲居_顔_旅館制服_1_困り01.png",
+      "status": "verified",
+      "errors": [],
+      "format": "DPNG",
+      "sha256": "e8cb60599dc6ab724e89f871bb6a46674a9f51fde718a07fc41d0703ffb8c528",
+      "width": 300,
+      "height": 250,
+      "unknown_header": 1,
+      "tiles": [
+        {
+          "index": 0,
+          "byte_offset": 20,
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 24,
+          "length": 0,
+          "unknown_fields": [
+            1,
+            0
+          ]
+        },
+        {
+          "index": 1,
+          "byte_offset": 48,
+          "x": 0,
+          "y": 24,
+          "width": 0,
+          "height": 32,
+          "length": 0,
+          "unknown_fields": [
+            1,
+            0
+          ]
+        },
+        {
+          "index": 2,
+          "byte_offset": 76,
+          "x": 88,
+          "y": 56,
+          "width": 112,
+          "height": 32,
+          "length": 3812,
+          "unknown_fields": [
+            1,
+            0
+          ]
+        },
+        {
+          "index": 3,
+          "byte_offset": 3916,
+          "x": 72,
+          "y": 88,
+          "width": 136,
+          "height": 32,
+          "length": 7483,
+          "unknown_fields": [
+            1,
+            0
+          ]
+        },
+        {
+          "index": 4,
+          "byte_offset": 11427,
+          "x": 72,
+          "y": 120,
+          "width": 136,
+          "height": 32,
+          "length": 8536,
+          "unknown_fields": [
+            1,
+            0
+          ]
+        },
+        {
+          "index": 5,
+          "byte_offset": 19991,
+          "x": 80,
+          "y": 152,
+          "width": 128,
+          "height": 32,
+          "length": 7361,
+          "unknown_fields": [
+            1,
+            0
+          ]
+        },
+        {
+          "index": 6,
+          "byte_offset": 27380,
+          "x": 80,
+          "y": 184,
+          "width": 120,
+          "height": 32,
+          "length": 4745,
+          "unknown_fields": [
+            1,
+            0
+          ]
+        },
+        {
+          "index": 7,
+          "byte_offset": 32153,
+          "x": 88,
+          "y": 216,
+          "width": 144,
+          "height": 34,
+          "length": 6507,
+          "unknown_fields": [
+            1,
+            0
+          ]
+        }
+      ],
+      "metadata_status": "verified",
+      "conversion_status": "not_tested",
+      "blend_semantics_status": "not_tested",
+      "upstream_conversion": {
+        "status": "verified",
+        "errors": [],
+        "resource_limits": {
+          "cpu_seconds": {
+            "status": "verified",
+            "value": 20
+          },
+          "data_bytes": {
+            "status": "unsupported",
+            "reason": "current limit exceeds maximum limit",
+            "fallback": "bounded input, index count, canvas pixels, CPU and wall time; no hard RSS cap"
+          },
+          "file_output_bytes": {
+            "status": "verified",
+            "value": 0
+          }
+        },
+        "upstream_commit": "531694715df21a9940578f4319d246ac8aa794de",
+        "width": 300,
+        "height": 250,
+        "mode": "RGBA",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "tile_count": 8,
+        "output_sha256": "2dc4d8c6178b9c281476631d0e66f7def0a3a22d87e8bfc89e88589f8da7a968",
+        "rgba_sha256": "40496a8a0800674d68a963d9ecb6a42308cc284d904d85fa16e7e5653ddb69d9",
+        "blend_semantics_status": "not_tested",
+        "writes_performed": false
+      }
+    },
+    {
+      "path": "data4.pack/立ち絵/motion/ext_basicset.b",
+      "status": "unsupported",
+      "errors": [],
+      "format": "ABMP-candidate",
+      "sha256": "bc57a36db245b73d43dd71bbb7ee41ca3fa79c2f68eefd70b121f51cd3399cdf",
+      "unknown_reason": "no supported decoder; extension is not evidence",
+      "header_hex": "61626d70313200000000000000000000",
+      "container_version": "abmp12",
+      "signature_status": "verified",
+      "nested_decode_status": "not_tested"
+    },
+    {
+      "path": "data4.pack/立ち絵/motion/motion_basicset.b",
+      "status": "unsupported",
+      "errors": [],
+      "format": "ABMP-candidate",
+      "sha256": "5b0f2bc31cc6b14311642df53590c1efd3edec3b6a032e13b90424ce70e99b03",
+      "unknown_reason": "no supported decoder; extension is not evidence",
+      "header_hex": "61626d70313200000000000000000000",
+      "container_version": "abmp12",
+      "signature_status": "verified",
+      "nested_decode_status": "not_tested"
+    },
+    {
+      "path": "data5.pack/fade/fade_3dsphere.b",
+      "status": "unsupported",
+      "errors": [],
+      "format": "ABMP-candidate",
+      "sha256": "dee6d4a974aee7ba800a7480eb2147ccdf372b83bbd54fb80c71142dc9db1df4",
+      "unknown_reason": "no supported decoder; extension is not evidence",
+      "header_hex": "61626d70313200000000000000000000",
+      "container_version": "abmp12",
+      "signature_status": "verified",
+      "nested_decode_status": "not_tested"
+    },
+    {
+      "path": "data5.pack/fade/クロス.png",
+      "status": "verified",
+      "errors": [],
+      "format": "DPNG",
+      "sha256": "a4d8b3e27c1d6f1d3c1169aaf01720db734f5cbd0f6fae3a2e6d148f9f58150b",
+      "width": 800,
+      "height": 600,
+      "unknown_header": 1,
+      "tiles": [
+        {
+          "index": 0,
+          "byte_offset": 20,
+          "x": 0,
+          "y": 0,
+          "width": 800,
+          "height": 72,
+          "length": 3885,
+          "unknown_fields": [
+            0,
+            0
+          ]
+        },
+        {
+          "index": 1,
+          "byte_offset": 3933,
+          "x": 0,
+          "y": 72,
+          "width": 800,
+          "height": 72,
+          "length": 4262,
+          "unknown_fields": [
+            0,
+            0
+          ]
+        },
+        {
+          "index": 2,
+          "byte_offset": 8223,
+          "x": 0,
+          "y": 144,
+          "width": 800,
+          "height": 80,
+          "length": 4709,
+          "unknown_fields": [
+            0,
+            0
+          ]
+        },
+        {
+          "index": 3,
+          "byte_offset": 12960,
+          "x": 0,
+          "y": 224,
+          "width": 800,
+          "height": 72,
+          "length": 4206,
+          "unknown_fields": [
+            0,
+            0
+          ]
+        },
+        {
+          "index": 4,
+          "byte_offset": 17194,
+          "x": 0,
+          "y": 296,
+          "width": 800,
+          "height": 72,
+          "length": 4205,
+          "unknown_fields": [
+            0,
+            0
+          ]
+        },
+        {
+          "index": 5,
+          "byte_offset": 21427,
+          "x": 0,
+          "y": 368,
+          "width": 800,
+          "height": 80,
+          "length": 4883,
+          "unknown_fields": [
+            0,
+            0
+          ]
+        },
+        {
+          "index": 6,
+          "byte_offset": 26338,
+          "x": 0,
+          "y": 448,
+          "width": 800,
+          "height": 72,
+          "length": 4430,
+          "unknown_fields": [
+            0,
+            0
+          ]
+        },
+        {
+          "index": 7,
+          "byte_offset": 30796,
+          "x": 0,
+          "y": 520,
+          "width": 800,
+          "height": 80,
+          "length": 5001,
+          "unknown_fields": [
+            0,
+            0
+          ]
+        }
+      ],
+      "metadata_status": "verified",
+      "conversion_status": "not_tested",
+      "blend_semantics_status": "not_tested",
+      "upstream_conversion": {
+        "status": "verified",
+        "errors": [],
+        "resource_limits": {
+          "cpu_seconds": {
+            "status": "verified",
+            "value": 20
+          },
+          "data_bytes": {
+            "status": "unsupported",
+            "reason": "current limit exceeds maximum limit",
+            "fallback": "bounded input, index count, canvas pixels, CPU and wall time; no hard RSS cap"
+          },
+          "file_output_bytes": {
+            "status": "verified",
+            "value": 0
+          }
+        },
+        "upstream_commit": "531694715df21a9940578f4319d246ac8aa794de",
+        "width": 800,
+        "height": 600,
+        "mode": "RGBA",
+        "alpha_extrema": [
+          240,
+          255
+        ],
+        "tile_count": 8,
+        "output_sha256": "bd33a82b58a8bfcb7482fa1d1145ab5656e90cabdc46b1790fd3415107dc259c",
+        "rgba_sha256": "03566d7b34bc45feb9d3781fb550d4c380e268ad271a0f663a32a11a0aab04e0",
+        "blend_semantics_status": "not_tested",
+        "writes_performed": false
+      }
+    },
+    {
+      "path": "data5.pack/fade/反射_縦.png",
+      "status": "verified",
+      "errors": [],
+      "format": "DPNG",
+      "sha256": "b7f16c277efe0d5a2f696de994edc1b60cf797808e945a15ed6596727c3869b7",
+      "width": 800,
+      "height": 600,
+      "unknown_header": 1,
+      "tiles": [
+        {
+          "index": 0,
+          "byte_offset": 20,
+          "x": 0,
+          "y": 0,
+          "width": 800,
+          "height": 72,
+          "length": 628,
+          "unknown_fields": [
+            0,
+            0
+          ]
+        },
+        {
+          "index": 1,
+          "byte_offset": 676,
+          "x": 0,
+          "y": 72,
+          "width": 800,
+          "height": 72,
+          "length": 722,
+          "unknown_fields": [
+            0,
+            0
+          ]
+        },
+        {
+          "index": 2,
+          "byte_offset": 1426,
+          "x": 0,
+          "y": 144,
+          "width": 800,
+          "height": 80,
+          "length": 792,
+          "unknown_fields": [
+            0,
+            0
+          ]
+        },
+        {
+          "index": 3,
+          "byte_offset": 2246,
+          "x": 0,
+          "y": 224,
+          "width": 800,
+          "height": 72,
+          "length": 639,
+          "unknown_fields": [
+            0,
+            0
+          ]
+        },
+        {
+          "index": 4,
+          "byte_offset": 2913,
+          "x": 0,
+          "y": 296,
+          "width": 800,
+          "height": 72,
+          "length": 617,
+          "unknown_fields": [
+            0,
+            0
+          ]
+        },
+        {
+          "index": 5,
+          "byte_offset": 3558,
+          "x": 0,
+          "y": 368,
+          "width": 800,
+          "height": 80,
+          "length": 787,
+          "unknown_fields": [
+            0,
+            0
+          ]
+        },
+        {
+          "index": 6,
+          "byte_offset": 4373,
+          "x": 0,
+          "y": 448,
+          "width": 800,
+          "height": 72,
+          "length": 715,
+          "unknown_fields": [
+            0,
+            0
+          ]
+        },
+        {
+          "index": 7,
+          "byte_offset": 5116,
+          "x": 0,
+          "y": 520,
+          "width": 800,
+          "height": 80,
+          "length": 699,
+          "unknown_fields": [
+            0,
+            0
+          ]
+        }
+      ],
+      "metadata_status": "verified",
+      "conversion_status": "not_tested",
+      "blend_semantics_status": "not_tested",
+      "upstream_conversion": {
+        "status": "verified",
+        "errors": [],
+        "resource_limits": {
+          "cpu_seconds": {
+            "status": "verified",
+            "value": 20
+          },
+          "data_bytes": {
+            "status": "unsupported",
+            "reason": "current limit exceeds maximum limit",
+            "fallback": "bounded input, index count, canvas pixels, CPU and wall time; no hard RSS cap"
+          },
+          "file_output_bytes": {
+            "status": "verified",
+            "value": 0
+          }
+        },
+        "upstream_commit": "531694715df21a9940578f4319d246ac8aa794de",
+        "width": 800,
+        "height": 600,
+        "mode": "RGBA",
+        "alpha_extrema": [
+          255,
+          255
+        ],
+        "tile_count": 8,
+        "output_sha256": "60fec34171b1d0958a8de8937c1607d6b5a4ab46accf6c08155891fc38b44abd",
+        "rgba_sha256": "e81fb45b3419c79e3d1febbdab3ca0b470239775e5421c04a18ddd269ceb08e2",
+        "blend_semantics_status": "not_tested",
+        "writes_performed": false
+      }
+    },
+    {
+      "path": "data5.pack/ボイス/extra_renk0052.ogg",
+      "status": "verified",
+      "errors": [],
+      "format": "Ogg",
+      "sha256": "0b5be367be00f3bfb3c5599e50bf7142d2bf3bdfc868b7ea243960d73946247e",
+      "signature_status": "verified",
+      "codec_status": "verified",
+      "media": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "vorbis",
+            "codec_type": "audio",
+            "sample_rate": "44100",
+            "channels": 2
+          }
+        ],
+        "format": {
+          "format_name": "ogg"
+        }
+      }
+    },
+    {
+      "path": "data5.pack/効果音/スイッチ.ogg",
+      "status": "verified",
+      "errors": [],
+      "format": "Ogg",
+      "sha256": "bdf17fcaade9077cac8bc5ea81aabf4dd95f7ff95341f5c61c3cf3e3554cea8b",
+      "signature_status": "verified",
+      "codec_status": "verified",
+      "media": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "vorbis",
+            "codec_type": "audio",
+            "sample_rate": "44100",
+            "channels": 1
+          }
+        ],
+        "format": {
+          "format_name": "ogg"
+        }
+      }
+    },
+    {
+      "path": "data6.pack/include/allclear.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "2e08d1f6000aef541797d008c05ac36f4dbebfb36cbac5615788e6fcc5b300a7",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 1
+    },
+    {
+      "path": "data6.pack/include/allset.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "ccfdbdbac249bb38113be9e99cb70d852b406ce2083f13f2da329f2bd9844172",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 28
+    },
+    {
+      "path": "data6.pack/include/dayend.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "0d791c9c6e585fe4dc9321024c0bed2027168e9978668b61f7ef8a5724dc22b7",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 27
+    },
+    {
+      "path": "data6.pack/include/dayend_nf.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "c0748e05b99dc67343afa6518cc185f6bb8a64abdd79040e869d491b599400dc",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 23
+    },
+    {
+      "path": "data6.pack/include/fileend.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "f65d62fb2b4c7bddde6adeff6002e601e6f45d6a7cd239a59084f211c17d3cbb",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 27
+    },
+    {
+      "path": "data6.pack/include/fileend_nf.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "7fa74c0d55df31ced9e290b33915551dc75cccbaab60473fb2f49d22e2600ac5",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 26
+    },
+    {
+      "path": "data6.pack/include/fileend_nfm.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "99e97fe6d721f4064d9f0b629287539206a7ad7886c0aa1e8054737ba6774eb1",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 25
+    },
+    {
+      "path": "data6.pack/include/fileend_nfmm.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "dca3bd3a667bbcac921e24b9ebd72d82c79e0424374839909c006d8c736eff8f",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 24
+    },
+    {
+      "path": "data6.pack/include/last1.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "3416f754db89accca5c7832232b2cfa7c588bb8a8fb099c7627bf17e0e20d589",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 27
+    },
+    {
+      "path": "data6.pack/include/last2.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "45d53323128673d2a11dc63f35d50b84496147547f0396d7f4bba47d0b3d6c5e",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 23
+    },
+    {
+      "path": "data6.pack/include/longend.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "d9cb57985f0e52f7664e37cd17ebc27550b267bae2fe1f22d594abdbf30cd566",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 27
+    },
+    {
+      "path": "data7.pack/avg/imoscripter_blendmodelist.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "cca88ac083cc94699005f72611e8220770aa2b311f402232f4613efe89cca1c8",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 16
+    },
+    {
+      "path": "data7.pack/avg/imoscripter_charaposlist.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 0
+    },
+    {
+      "path": "data7.pack/avg/imoscripter_extentionlist.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "1f67f5b3d1100f7d237b180da7e935e210c237a43b5f276d85123f8abb3d9fcf",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 1
+    },
+    {
+      "path": "data7.pack/avg/imoscripter_face_poslist.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 0
+    },
+    {
+      "path": "data7.pack/avg/imoscripter_face_repfile.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "9d4d4d984a89170835dc301523dd95b48714a7dca1fe15276ad29b1899edd0ed",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 4
+    },
+    {
+      "path": "data7.pack/avg/imoscripter_face_repid.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "4aaad4dfa1ea988f1158d17d78f993b919e43432b4dfc703b8bf1163f76f59e4",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 2
+    },
+    {
+      "path": "data7.pack/avg/imoscripter_fadeeventlist.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "01a35b3f9ff5ebff6e75d3fe137c8c28d497841aad5b13cca58e731ee8cfa305",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 61
+    },
+    {
+      "path": "data7.pack/avg/imoscripter_filterlist.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "7b9cc5f2c0144831a507177cdb069993942efc06c9259e587b115a5012a22ce0",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 9
+    },
+    {
+      "path": "data7.pack/avg/imoscripter_fontlist.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "a4361195cd8e338f8dac472e8be74b9c5ed962b97944a4c59498a35a35be7099",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 20
+    },
+    {
+      "path": "data7.pack/avg/imoscripter_generatorfilterlist.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "9b412cb30d2c96b2ea27efab0a0c72e4e57e83681b527233384b04476ed0bfc2",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 4
+    },
+    {
+      "path": "data7.pack/avg/imoscripter_gfadelist.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "eddaf6f0893a2b728ac74fcb345233106f8c445c8704cb1555611281d9754982",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 10
+    },
+    {
+      "path": "data7.pack/avg/imoscripter_gmodelist.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "f52e7ba1b344463ef59bd07dcb860635cb639ff537217b243081a8f8423e795e",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 14
+    },
+    {
+      "path": "data7.pack/avg/imoscripter_gtargetlist.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "eb492075e989c8f2e96dd790442193d45442db5f874714a0fc6ad15c46852db1",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 4
+    },
+    {
+      "path": "data7.pack/avg/imoscripter_imagefilterlist.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "d802e0ff4799e65040adb6dd9562b352e041513363be2ded2b248f1978f274e5",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 12
+    },
+    {
+      "path": "data7.pack/avg/imoscripter_movemodelist.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "4628b2812a00ed52de1e330f6b4cca32fdb723c65565708df360774a40ab3aa2",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 21
+    },
+    {
+      "path": "data7.pack/avg/imoscripter_namecolorlist.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 0
+    },
+    {
+      "path": "data7.pack/avg/imoscripter_reptextlist.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "d6c47f5126acc4c8e915b6b83a2774a6f06dadff36f7afb40a7e27323a04fa2b",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 4
+    },
+    {
+      "path": "data7.pack/avg/imoscripter_soundfilterlist.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "82548672e552db74609718541fcaa5e8c725f23f834b5cf515421bc9ef182be6",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 15
+    },
+    {
+      "path": "data7.pack/avg/imoscripter_template_camera.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "52697b6f7f83a61175f2ebfbc75d3f6dfa60b36a836002a116e56bd95a2ed7f1",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 8
+    },
+    {
+      "path": "data7.pack/avg/imoscripter_template_chara.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 0
+    },
+    {
+      "path": "data7.pack/avg/imoscripter_template_chara8e.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "8a55128b140077d4883fde1b896984629276fc43f2b480828baadda03a6e8f65",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 15
+    },
+    {
+      "path": "data7.pack/avg/imoscripter_template_face.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "f2a1636a2e530806e2414d92b194860599b04a6548715380a6fdcb5ba6bf9bcc",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 1
+    },
+    {
+      "path": "data7.pack/avg/imoscripter_template_format.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 0
+    },
+    {
+      "path": "data7.pack/avg/imoscripter_template_image.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "7bdf89fc29c9fdd597a3f332ee4c9ee1facd26b28741483a0bb698a048bc5fb2",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 12
+    },
+    {
+      "path": "data7.pack/avg/imoscripter_template_information.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 0
+    },
+    {
+      "path": "data7.pack/avg/imoscripter_template_message.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "c36383b169c1836763b01dc09b9df3d51f36ba686f40d038c60337bd505e3a4a",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 7
+    },
+    {
+      "path": "data7.pack/avg/imoscripter_template_music.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "b167ac2958eeab6df5370e7ba570d1fff60372aad4a00ac0548adb2bd08fab2f",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 6
+    },
+    {
+      "path": "data7.pack/avg/imoscripter_template_nametext.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "faf328cc83b0e2556a6fa737b136cd4ba4379924756db32cf5c3bd99c9b92ead",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 1
+    },
+    {
+      "path": "data7.pack/avg/imoscripter_template_sentence.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "ff1cd384086c1dd1e381dfb69bffc8e43039b1e9109eeae010f98e697b93614d",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 25
+    },
+    {
+      "path": "data7.pack/avg/imoscripter_template_sound.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "f2bd517fd95ff68d6e0b732ce61b5e704f462dcafbf28689a07cf90c692d5cbb",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 7
+    },
+    {
+      "path": "data7.pack/avg/imoscripter_texturefilterlist.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "ec5a3be5aaa5018f4999ec839dd1a913844f0d8ca66ab10a7ea2e2889b534e4e",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 6
+    },
+    {
+      "path": "data7.pack/avg/projectobjects.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "7a588081901327d51419dcc1b9f48ee017d3a17f3d8120fc9c0687e804f422ed",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 29
+    },
+    {
+      "path": "data7.pack/avg/projectsetting.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "8b0b8a8a66d1459aa0bf5c414bfe85fe220ddb8d3f98eddec019cb0e48afb98e",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 36
+    },
+    {
+      "path": "data7.pack/avg/sceneskip.b",
+      "status": "unsupported",
+      "errors": [],
+      "format": "ABMP-candidate",
+      "sha256": "0959bade470be4572ec7ad689b24859b0bd9528263108118dc26a3e9c564fe80",
+      "unknown_reason": "no supported decoder; extension is not evidence",
+      "header_hex": "61626d70313200000000000000000000",
+      "container_version": "abmp12",
+      "signature_status": "verified",
+      "nested_decode_status": "not_tested"
+    },
+    {
+      "path": "data7.pack/avg/setting.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "e6529391b05d5cb7841f6dc713bdbec51417f8ba1660e0a2826d11443a7532ad",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 211
+    },
+    {
+      "path": "data7.pack/avg/uppermenu/ゲームの終了_off.png",
+      "status": "verified",
+      "errors": [],
+      "format": "PNG",
+      "sha256": "71fe0dee333d9b6123550938f84a86951494779b421542e830a1041e31db2227",
+      "width": 128,
+      "height": 48,
+      "bit_depth": 8,
+      "png_color_type": 6,
+      "channels": 4,
+      "alpha_channel": true,
+      "metadata_status": "verified",
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "decode_status": "verified"
+    },
+    {
+      "path": "data7.pack/misc/sys_cancel.wav",
+      "status": "verified",
+      "errors": [],
+      "format": "WAVE",
+      "sha256": "aec28f026750b619ade2c5f40ab7566ee57e6c940e8abaa4a30d5cd61c8cd3ab",
+      "signature_status": "verified",
+      "codec_status": "verified",
+      "media": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "pcm_s16le",
+            "codec_type": "audio",
+            "sample_rate": "44100",
+            "channels": 2
+          }
+        ],
+        "format": {
+          "format_name": "wav"
+        }
+      }
+    },
+    {
+      "path": "data7.pack/misc/sys_onmouse.wav",
+      "status": "verified",
+      "errors": [],
+      "format": "WAVE",
+      "sha256": "906c7dff09398f13ca9eac3d64f6aa19b9a2f54b1b05cdf4f9cf93a17f071134",
+      "signature_status": "verified",
+      "codec_status": "verified",
+      "media": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "pcm_s16le",
+            "codec_type": "audio",
+            "sample_rate": "44100",
+            "channels": 2
+          }
+        ],
+        "format": {
+          "format_name": "wav"
+        }
+      }
+    },
+    {
+      "path": "data7.pack/misc/voicefiletonametable.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "ce46935f9271b0d7e317e7457846c77d4079f2f84f3239ba222ab1f478093ab6",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 7
+    },
+    {
+      "path": "data7.pack/script/albummode/list.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "19475f22102cf8f6c453f7b725ca41f708ed10cca1578eb082c94a233330c762",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 38
+    },
+    {
+      "path": "data7.pack/script/config/soundtest.ogg",
+      "status": "verified",
+      "errors": [],
+      "format": "Ogg",
+      "sha256": "e2b894389ffa44c1acc6a0ea17299a4eb20b48c5d73916e6d57c08e53fbee183",
+      "signature_status": "verified",
+      "codec_status": "verified",
+      "media": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "vorbis",
+            "codec_type": "audio",
+            "sample_rate": "44100",
+            "channels": 2
+          }
+        ],
+        "format": {
+          "format_name": "ogg"
+        }
+      }
+    },
+    {
+      "path": "data7.pack/script/config/valuedefault.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "e3a7d235cfeeed4c767ecebea05fbe36f2809cba343735365394e72f9fd378f3",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 76
+    },
+    {
+      "path": "data7.pack/script/log/barframe.png",
+      "status": "verified",
+      "errors": [],
+      "format": "PNG",
+      "sha256": "43d64db54792aa4450fc8cf6811c2f4f514ae0aa3692a388fec47859e9877429",
+      "width": 34,
+      "height": 550,
+      "bit_depth": 8,
+      "png_color_type": 2,
+      "channels": 3,
+      "alpha_channel": false,
+      "metadata_status": "verified",
+      "mode": "RGB",
+      "alpha_extrema": [
+        255,
+        255
+      ],
+      "decode_status": "verified"
+    },
+    {
+      "path": "data7.pack/script/makerlogo/omegastar.ogv",
+      "status": "verified",
+      "errors": [],
+      "format": "Ogg",
+      "sha256": "625776718ddb6f924876016ca263485f4681036df38703fc5e8120ec2dab17e7",
+      "signature_status": "verified",
+      "codec_status": "verified",
+      "media": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "data"
+          },
+          {
+            "codec_name": "theora",
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720
+          },
+          {
+            "codec_name": "vorbis",
+            "codec_type": "audio",
+            "sample_rate": "44100",
+            "channels": 2
+          }
+        ],
+        "format": {
+          "format_name": "ogg"
+        }
+      }
+    },
+    {
+      "path": "data7.pack/script/memorymode/list.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "e0e1919d66cfbca6660658ba134acec56d773717b9019fd5b9a65b821edebf0b",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 17
+    },
+    {
+      "path": "data7.pack/script/saveload/black.b",
+      "status": "unsupported",
+      "errors": [],
+      "format": "ABMP-candidate",
+      "sha256": "1c77971ab0c6952b111e0109919b93d4461fe8d9e623edf646845c3c82bc0606",
+      "unknown_reason": "no supported decoder; extension is not evidence",
+      "header_hex": "61626d70313200000000000000000000",
+      "container_version": "abmp12",
+      "signature_status": "verified",
+      "nested_decode_status": "not_tested"
+    },
+    {
+      "path": "data7.pack/script/soundmode/list.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "d1c0394bd4b85dfcd13af4328bcf3895cda1a9ef51f1333697d255d2b84bab30",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 27
+    },
+    {
+      "path": "data8.pack/1.01パッチ用フォルダ.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 0
+    },
+    {
+      "path": "data8.pack/avg/imoscripter_blendmodelist.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "19996f7f6abffa96db07aae6fbace9751994f9cff03cd9be770302536ae5e6a5",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 16
+    },
+    {
+      "path": "data8.pack/avg/imoscripter_charaposlist.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "b3d510ef04275ca8e698e5b3cbb0ece3949ef9252f0cdc839e9ee347409a2209",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 0
+    },
+    {
+      "path": "data8.pack/avg/imoscripter_extentionlist.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "7d62461947e78c994336d7ad3dd0e29f4536e8afdf983c7dd6062db9250db777",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 1
+    },
+    {
+      "path": "data8.pack/avg/imoscripter_face_poslist.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "b3d510ef04275ca8e698e5b3cbb0ece3949ef9252f0cdc839e9ee347409a2209",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 0
+    },
+    {
+      "path": "data8.pack/avg/imoscripter_face_repfile.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "0d9a00c2a9668ead031256859f40ea61c25202aeee75e46af4198e5a32cfe784",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 4
+    },
+    {
+      "path": "data8.pack/avg/imoscripter_face_repid.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "f37270a5fa62ecd367079ae14bd376efb28ab9e07b5635f14f31c9952f64d763",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 2
+    },
+    {
+      "path": "data8.pack/avg/imoscripter_fadeeventlist.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "ef9d6491a85ee804b1489f3dd674ff7af3a572824c2edf8960559f742886aa55",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 61
+    },
+    {
+      "path": "data8.pack/avg/imoscripter_filterlist.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "7b9cc5f2c0144831a507177cdb069993942efc06c9259e587b115a5012a22ce0",
+      "encoding": "cp932",
+      "encoding_status": "inferred",
+      "text_role": "Unknown",
+      "line_count": 9
+    },
+    {
+      "path": "data8.pack/avg/imoscripter_fontlist.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "df15f5f8376e5954383192d9a950c3ac5bf2103218853624daaf7ef518a09fc1",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 20
+    },
+    {
+      "path": "data8.pack/avg/imoscripter_generatorfilterlist.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "3f7fee91e9c4aab38955bdac864c54dc1e1ff88e77133f248e244574974d38c2",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 4
+    },
+    {
+      "path": "data8.pack/avg/imoscripter_gfadelist.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "b44caab262aca703cf3a63c2c4982efa0ee4f3db4adbff4894c7e4a340bf8530",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 10
+    },
+    {
+      "path": "data8.pack/avg/imoscripter_gmodelist.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "02b43d3206bc7dda58095c44033f3ac01fadab2abf295fdbce64ce15374465b2",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 14
+    },
+    {
+      "path": "data8.pack/avg/imoscripter_gtargetlist.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "eeb98ea3dbe1f25e743dbb4752b53ef7c36e4189bcec9ee8dec4bbd96ee644a7",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 4
+    },
+    {
+      "path": "data8.pack/avg/imoscripter_imagefilterlist.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "210a71811b69bf5dec0bb3e8527fc526c5817a9292e373afb3b226d59293b1fb",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 12
+    },
+    {
+      "path": "data8.pack/avg/imoscripter_movemodelist.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "0b162a2d76877a6bba68a97623abf55e3d2192141507b4376405fc2b31e6b332",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 21
+    },
+    {
+      "path": "data8.pack/avg/imoscripter_namecolorlist.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "b3d510ef04275ca8e698e5b3cbb0ece3949ef9252f0cdc839e9ee347409a2209",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 0
+    },
+    {
+      "path": "data8.pack/avg/imoscripter_reptextlist.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "b06cbc7e0227bb96ee2d21fdb07878aa0dc2a09a9b41d74414ede66d26997c0f",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 4
+    },
+    {
+      "path": "data8.pack/avg/imoscripter_soundfilterlist.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "dbcad425bfc44da71dee5f4c7fbb1e092883694879d97c2d0071e921ee575145",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 15
+    },
+    {
+      "path": "data8.pack/avg/imoscripter_template_camera.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "31dec6daec1c1e7153f7977e84b9126ec6c42412ad411f00b6fb542eb01a4450",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 8
+    },
+    {
+      "path": "data8.pack/avg/imoscripter_template_chara.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "b3d510ef04275ca8e698e5b3cbb0ece3949ef9252f0cdc839e9ee347409a2209",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 0
+    },
+    {
+      "path": "data8.pack/avg/imoscripter_template_chara8e.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "ab8faa5813767091b1558ce531eb7e72b0b1543aacee4e348b5c7562a906cf89",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 15
+    },
+    {
+      "path": "data8.pack/avg/imoscripter_template_face.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "a82d4372b181f59cec3e7a72fdab016af564fcf49096dbd3bbd05a7f65e7e3bd",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 1
+    },
+    {
+      "path": "data8.pack/avg/imoscripter_template_format.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "b3d510ef04275ca8e698e5b3cbb0ece3949ef9252f0cdc839e9ee347409a2209",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 0
+    },
+    {
+      "path": "data8.pack/avg/imoscripter_template_image.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "090cd42f9c14a0ec840bf463b8f475629f4cb355dc5f62a62362e111cc5b3490",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 12
+    },
+    {
+      "path": "data8.pack/avg/imoscripter_template_information.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "b3d510ef04275ca8e698e5b3cbb0ece3949ef9252f0cdc839e9ee347409a2209",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 0
+    },
+    {
+      "path": "data8.pack/avg/imoscripter_template_message.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "a933d3151353b4bee61f8673e7d0c4fcdd9e1e30b45772f3d7cf760696c41581",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 7
+    },
+    {
+      "path": "data8.pack/avg/imoscripter_template_music.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "1e35a58ef4e06933cc8aa04c93cfac0f9b5421bf6080c1891abca04d93e65dae",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 6
+    },
+    {
+      "path": "data8.pack/avg/imoscripter_template_nametext.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "7cee9b973b1d9806651f7a675789f33e1039c14a03727bea92fe72dd38bb5c30",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 1
+    },
+    {
+      "path": "data8.pack/avg/imoscripter_template_sentence.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "36b3b51ca641cf3b300e00593c65efab7028ad75be858bb6350b0b22277249f5",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 25
+    },
+    {
+      "path": "data8.pack/avg/imoscripter_template_sound.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "f97926c8184d6305111c5c37a29568da50be66dd03fc2350c6812e0ab7c8cc04",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 7
+    },
+    {
+      "path": "data8.pack/avg/imoscripter_texturefilterlist.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "d14ee5c2204a300b2b358dbf5a339784ee1747bc5d02ab14b639accc3b6de08e",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 6
+    },
+    {
+      "path": "data8.pack/avg/projectobjects.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "2aee900d89160ebe842dddf08fcd53a52bc03b5d21cf08c44fe810ccb3d00c5f",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 29
+    },
+    {
+      "path": "data8.pack/avg/projectsetting.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "8ed803222e7169d548457d67a686e706f5278863782461a7b171941b297da4f5",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 36
+    },
+    {
+      "path": "data8.pack/avg/sceneskip.b",
+      "status": "unsupported",
+      "errors": [],
+      "format": "ABMP-candidate",
+      "sha256": "0959bade470be4572ec7ad689b24859b0bd9528263108118dc26a3e9c564fe80",
+      "unknown_reason": "no supported decoder; extension is not evidence",
+      "header_hex": "61626d70313200000000000000000000",
+      "container_version": "abmp12",
+      "signature_status": "verified",
+      "nested_decode_status": "not_tested"
+    },
+    {
+      "path": "data8.pack/avg/setting.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "8d8290affcd24b69d56bfdc2858e5edf9cf76ab7a37d2cfd076c60fd16149363",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 211
+    },
+    {
+      "path": "data8.pack/avg/uppermenu/ゲームの終了_off.png",
+      "status": "verified",
+      "errors": [],
+      "format": "PNG",
+      "sha256": "71fe0dee333d9b6123550938f84a86951494779b421542e830a1041e31db2227",
+      "width": 128,
+      "height": 48,
+      "bit_depth": 8,
+      "png_color_type": 6,
+      "channels": 4,
+      "alpha_channel": true,
+      "metadata_status": "verified",
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "decode_status": "verified"
+    },
+    {
+      "path": "data8.pack/avg/window/windowframe_full.b",
+      "status": "unsupported",
+      "errors": [],
+      "format": "ABMP-candidate",
+      "sha256": "4b8c83118bbeee2e040b2c7ffab4d4704d134a373faa28e936b930207020a5c8",
+      "unknown_reason": "no supported decoder; extension is not evidence",
+      "header_hex": "61626d70313200000000000000000000",
+      "container_version": "abmp12",
+      "signature_status": "verified",
+      "nested_decode_status": "not_tested"
+    },
+    {
+      "path": "data8.pack/avg/window/ロード_help.png",
+      "status": "verified",
+      "errors": [],
+      "format": "PNG",
+      "sha256": "f5598d2b4d56e4afde626879861950984c41cfd91ef5b8ff431cb4e0588e8f0d",
+      "width": 82,
+      "height": 19,
+      "bit_depth": 8,
+      "png_color_type": 6,
+      "channels": 4,
+      "alpha_channel": true,
+      "metadata_status": "verified",
+      "mode": "RGBA",
+      "alpha_extrema": [
+        102,
+        255
+      ],
+      "decode_status": "verified"
+    },
+    {
+      "path": "data8.pack/misc/voicefiletonametable.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "10e502eaf1d8758455c00b284dc5efda2be6cfa95ecd0f33ce8c61468f12a89d",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 7
+    },
+    {
+      "path": "data8.pack/script/albummode/list.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "217fa8f539a4ecda0865861c16e2c6c215818f8068c5be906fe8c76742a37d07",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 38
+    },
+    {
+      "path": "data8.pack/script/config/valuedefault.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "21f64f5ddcc770f7f20133ae01d704012ad64c6d0b09af46310c7882d53bd849",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 76
+    },
+    {
+      "path": "data8.pack/script/memorymode/list.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "377bf11a58cb30ae6c9c9ce649a23f37aa684fbc87905214f8e5ca50c6e9b1ae",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 17
+    },
+    {
+      "path": "data8.pack/script/soundmode/list.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "aff7b6f16060f5130120c94952127c4a05cfded5b4a08ad63cd9bb89c21ec3d9",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 27
+    },
+    {
+      "path": "data8.pack/system/etc/game.txt",
+      "status": "verified",
+      "errors": [],
+      "format": "Text",
+      "sha256": "6a8cef98af452ed67e85df7dc57ebcb2d79c20b5897a37bc336b8db7ac5fe8da",
+      "encoding": "utf-16",
+      "encoding_status": "verified",
+      "text_role": "Unknown",
+      "line_count": 120
+    }
+  ],
+  "errors": [],
+  "error_count": 0,
+  "errors_by_category": {},
+  "unknown_count": 9,
+  "missing_reason": null,
+  "inventory_errors": [],
+  "format_counts": {
+    "ABMP-candidate": 9,
+    "Text": 96,
+    "Ogg": 10,
+    "DPNG": 6,
+    "PNG": 4,
+    "WAVE": 2
+  },
+  "sample_selection": {
+    "selected": 410,
+    "decoded_bytes": 20280560,
+    "errors": 0,
+    "policy": "All .s/.txt and first/smallest bounded candidates per asset extension per archive; installer excluded; biased sample, not full asset validation"
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "profile": "experimental_static_contracts_v1",
+  "status": "inferred",
+  "original_engine_equivalence": "not_tested",
+  "automatic_game_startup": "unsupported",
+  "scope": "Explicit single-file execution probe; unavailable behavior stops with source reference",
+  "contracts": [
+    {
+      "id": "source_and_fields",
+      "status": "inferred",
+      "basis": ["docs/24-subp-field-grouping-and-prefix-bindings.md", "tools/qlie_lex.py", "reports/p1/native-script-report.json.lexical_crosscheck"],
+      "implemented": "CP932, BOM-marked UTF-8/UTF-16; original byte spans; quoted backslashes; signed grouping counter; physical source order",
+      "local_crosscheck_status": "verified",
+      "scope": "379 existing copies agree with the independent project parser; complete engine grammar remains not_tested"
+    },
+    {
+      "id": "scalar_storage",
+      "status": "inferred",
+      "basis": ["reports/p1/native-report.json:variable_category_selectors", "reports/p1/native-variable-report.json:lookup_order_category_3_2_1"],
+      "implemented": "Two-field var/gvar/svar,int,name; optional leading # is retained in identity; current local then global then system dictionary lookup",
+      "initialization": "Candidate zero initialization, not proven original scalar constructor behavior",
+      "lifetime": "Candidate fresh callee locals and shared global/system dictionaries",
+      "native_storage_objects_permissions_aliases_and_persistence": "not_tested"
+    },
+    {
+      "id": "scalar_expressions",
+      "status": "inferred",
+      "basis": ["docs/16-expression-structure.md", "docs/17-scalar-formats-and-empty-fields.md", "docs/18-assignment-storage-and-index-evidence.md", "docs/20-rtti-context-layout-and-logical-rules.md"],
+      "implemented": "Reviewed precedence groups; bounded integer literals; non-overflow integer arithmetic, comparisons and bitwise operators; eager exact-one logical operands; sole root assignment returns one",
+      "unsupported": ["updates", "indexed/object access", "nested assignment", "string operators/coercions", "floating point", "shifts", "unknown unary operators", "overflow"],
+      "error_policy": "Atomic instruction commit and stop is a new-runtime policy; original rollback remains not_tested"
+    },
+    {
+      "id": "control_and_calls",
+      "status": "inferred",
+      "basis": ["docs/21-declared-states-and-control-flow.md", "docs/29-frame-scope-initialization-and-return.md"],
+      "implemented": "Restricted if/exact-one + zero-argument then/else/end; same-file unique literal sub/jmp; zero-argument ret preserves caller frame",
+      "skips": "Each skipped source span is reported with digest, record count and record kinds; skipped code is not reported as executed",
+      "unsupported": ["loops/case execution", "call operands beyond the first", "cross-file binding", "subp/subr", "named returns", "root return", "jumps across control scopes", "duplicate targets"],
+      "native_call_ABI_and_full_variable_lifecycle": "not_tested"
+    },
+    {
+      "id": "noncommands_and_media",
+      "status": "unsupported",
+      "basis": ["docs/22-reader-state-dispatch-and-coverage.md", "docs/23-prefix-configuration-and-replacement-evidence.md"],
+      "behavior": "Only BOM/layout/empty/label records advance in this probe. Text, comment candidates, includes, line tags, macro/settings and sound identifiers stop; no sequential dialogue playback fallback.",
+      "complete_preprocessing_and_playback": "not_tested"
+    }
+  ],
+  "tests": "native/Tests/MangekyouCoreTests/ScriptTests.swift",
+  "implementation": ["native/Sources/MangekyouCore/ScriptSource.swift", "native/Sources/MangekyouCore/ScriptDocument.swift", "native/Sources/MangekyouCore/ScriptExpression.swift", "native/Sources/MangekyouCore/ScriptMachine.swift"],
+  "original_files_written": false,
+  "commercial_assets_bundled": false
+}

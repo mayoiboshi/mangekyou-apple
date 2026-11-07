@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Bounded declaration dimension and scalar element investigation; no target execution",
+  "queries": [
+    {
+      "name": "storage-add",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69a5c4"
+    },
+    {
+      "name": "storage-add-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69a5c4"
+    },
+    {
+      "name": "local-add",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6a01bc"
+    },
+    {
+      "name": "local-add-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6a01bc"
+    },
+    {
+      "name": "declare",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69d048"
+    },
+    {
+      "name": "declare-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69d048"
+    },
+    {
+      "name": "element-index",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69dd30"
+    },
+    {
+      "name": "element-index-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69dd30"
+    },
+    {
+      "name": "element-read",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69dcf0"
+    },
+    {
+      "name": "element-read-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69dcf0"
+    },
+    {
+      "name": "string-result",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69d35c"
+    },
+    {
+      "name": "string-result-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69d35c"
+    },
+    {
+      "name": "base-constructor",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69dc18"
+    },
+    {
+      "name": "base-constructor-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69dc18"
+    },
+    {
+      "name": "integer-read-coverage",
+      "operation": "resolve_containing_procedure",
+      "address": "0x69dff4"
+    },
+    {
+      "name": "integer-write-coverage",
+      "operation": "resolve_containing_procedure",
+      "address": "0x69e104"
+    },
+    {
+      "name": "integer-allocate-coverage",
+      "operation": "resolve_containing_procedure",
+      "address": "0x69e0c0"
+    },
+    {
+      "name": "string-read-coverage",
+      "operation": "resolve_containing_procedure",
+      "address": "0x69e190"
+    },
+    {
+      "name": "string-write-coverage",
+      "operation": "resolve_containing_procedure",
+      "address": "0x69e2dc"
+    },
+    {
+      "name": "string-allocate-coverage",
+      "operation": "resolve_containing_procedure",
+      "address": "0x69e290"
+    },
+    {
+      "name": "dimensions-set",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69ddec"
+    },
+    {
+      "name": "dimensions-set-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69ddec"
+    },
+    {
+      "name": "element-base-check",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69dddc"
+    },
+    {
+      "name": "element-base-check-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69dddc"
+    },
+    {
+      "name": "name-index",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69fb64"
+    },
+    {
+      "name": "name-index-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69fb64"
+    },
+    {
+      "name": "index-evaluate",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69f900"
+    },
+    {
+      "name": "index-evaluate-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69f900"
+    }
+  ]
+}

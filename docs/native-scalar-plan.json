@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "scope": "Round 6 bounded static scalar helper evidence; original code is never executed",
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "queries": [
+    {
+      "name": "addition-candidate-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69a948"
+    },
+    {
+      "name": "addition-candidate",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69a948"
+    },
+    {
+      "name": "dispatch-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6af4f8"
+    },
+    {
+      "name": "expression-core",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69bab4"
+    },
+    {
+      "name": "integer-core-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x404ffc"
+    },
+    {
+      "name": "integer-core",
+      "operation": "procedure_pseudo_code",
+      "address": "0x404ffc"
+    },
+    {
+      "name": "integer-default",
+      "operation": "procedure_pseudo_code",
+      "address": "0x415a90"
+    },
+    {
+      "name": "integer-try-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x415aa8"
+    },
+    {
+      "name": "integer-try",
+      "operation": "procedure_pseudo_code",
+      "address": "0x415aa8"
+    },
+    {
+      "name": "quoted-atom-strip",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69a1a0"
+    },
+    {
+      "name": "scalar-preflight-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69daac"
+    },
+    {
+      "name": "scalar-preflight",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69daac"
+    },
+    {
+      "name": "value-resolver-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69af88"
+    },
+    {
+      "name": "value-resolver",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69af88"
+    }
+  ]
+}

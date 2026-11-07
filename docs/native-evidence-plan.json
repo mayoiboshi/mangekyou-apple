@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "status": "verified",
+  "scope": "Selectors observed in one P0-matching supplied EXE; not applicable to arbitrary builds",
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "queries": [
+    {
+      "name": "command-id-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6aa43c"
+    },
+    {
+      "name": "command-id",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6aa43c"
+    },
+    {
+      "name": "context-top",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c149c"
+    },
+    {
+      "name": "control-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6bb02c"
+    },
+    {
+      "name": "control-dispatch",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6bb02c"
+    },
+    {
+      "name": "dispatch-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6af4f8"
+    },
+    {
+      "name": "dispatch",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6af4f8"
+    },
+    {
+      "name": "expression-core",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69bab4"
+    },
+    {
+      "name": "expression-eval",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6be1d8"
+    },
+    {
+      "name": "global-bank",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69f278"
+    },
+    {
+      "name": "loop-top",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c1a40"
+    },
+    {
+      "name": "script-caller",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6aacf8"
+    },
+    {
+      "name": "secondary-dispatch",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6b70d8"
+    },
+    {
+      "name": "string-normalize",
+      "operation": "procedure_pseudo_code",
+      "address": "0x41493c"
+    },
+    {
+      "name": "system-bank",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69f3a0"
+    },
+    {
+      "name": "variable-create-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69d048"
+    },
+    {
+      "name": "variable-create",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69d048"
+    }
+  ]
+}

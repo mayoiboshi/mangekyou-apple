@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Selected missing small table/RTL entries; boundaries inferred",
+  "windows": [
+    {
+      "name": "table-init",
+      "start": "0x68f2f0",
+      "end_exclusive": "0x68f308"
+    },
+    {
+      "name": "table-property",
+      "start": "0x68f2a0",
+      "end_exclusive": "0x68f2f0"
+    },
+    {
+      "name": "index-name",
+      "start": "0x43da78",
+      "end_exclusive": "0x43db40"
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "routine_vmt": "0x6a802c",
+  "scope_offset": 12,
+  "scope_slots": 16,
+  "scope_bytes": 64,
+  "state_offset": 76,
+  "selector_id": "0x706373",
+  "selector_steps": [
+    {
+      "address": "0x6afdeb",
+      "subtract": "0x6b6c63",
+      "zero_target": "0x6b041f"
+    },
+    {
+      "address": "0x6afdf6",
+      "subtract": "0xf500",
+      "zero_target": "0x6b0285"
+    },
+    {
+      "address": "0x6afe01",
+      "subtract": "0x40210",
+      "zero_target": "0x6b011e"
+    }
+  ],
+  "accepted_tag_compares": [
+    {
+      "address": "0x6b0195",
+      "tag": 2
+    },
+    {
+      "address": "0x6b0199",
+      "tag": 1
+    }
+  ],
+  "value_type_cell": "0x696bec",
+  "comparison_call": "0x68ad3b",
+  "comparison_target": "0x407b38",
+  "object_dispatch": {
+    "guard": "0x6aaeb1",
+    "table": "0x6aaec5",
+    "maximum_type": 40,
+    "type_index": 14,
+    "case": "0x6ab121",
+    "call": "0x6ab12a",
+    "handler": "0x6ba248"
+  }
+}

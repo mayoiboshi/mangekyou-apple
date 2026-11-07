@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Single dimension storage evidence; no original execution",
+  "facts": [
+    {
+      "id": "dimension_setter_stores_four_counts",
+      "status": "verified",
+      "evidence": "dimensions-assign-assembly",
+      "start": "0x69de6e",
+      "end": "0x69de80",
+      "observation": "维度设置保存四个计数字段。",
+      "scope": "Selected static instructions only; original execution not tested",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x69de6e: MOV dword ptr [ESI + 0x20], EDX",
+        "0x69de71: MOV dword ptr [ESI + 0x24], ECX",
+        "0x69de77: MOV dword ptr [ESI + 0x28], EAX",
+        "0x69de7d: MOV dword ptr [ESI + 0x2c], EAX"
+      ],
+      "unknown": [
+        "Full original execution and object lifetime not tested"
+      ]
+    },
+    {
+      "id": "dimension_product_reaches_allocation_slot",
+      "status": "verified",
+      "evidence": "dimensions-assign-assembly",
+      "start": "0x69de87",
+      "end": "0x69de9d",
+      "observation": "四个维度相乘，再经虚表加四调用。",
+      "scope": "Selected static instructions only; original execution not tested",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x69de87: MOV EDX, dword ptr [ESI + 0x20]",
+        "0x69de8a: IMUL EDX, dword ptr [ESI + 0x24]",
+        "0x69de8e: IMUL EDX, dword ptr [ESI + 0x28]",
+        "0x69de92: IMUL EDX, dword ptr [ESI + 0x2c]",
+        "0x69de9a: CALL dword ptr [ECX + 0x4]"
+      ],
+      "unknown": [
+        "Full original execution and object lifetime not tested"
+      ]
+    },
+    {
+      "id": "string_constructor_selects_tag_one",
+      "status": "verified",
+      "evidence": "string-constructor-assembly",
+      "start": "0x69e162",
+      "end": "0x69e173",
+      "observation": "字符串构造器的所列压栈参数包含 tag 一，并进入公共构造器。",
+      "scope": "Selected static instructions only; original execution not tested",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x69e162: PUSH 0x0",
+        "0x69e164: PUSH 0x0",
+        "0x69e166: PUSH 0x1",
+        "0x69e168: PUSH 0x0",
+        "0x69e16e: CALL 0x0069dc18"
+      ],
+      "unknown": [
+        "Full original execution and object lifetime not tested"
+      ]
+    }
+  ],
+  "inferred_contracts": [
+    {
+      "id": "single_dimension_candidate",
+      "status": "inferred",
+      "meaning": "Missing dimensions clamp to one; first coordinate selects an array element; no string character indexing is implied"
+    }
+  ]
+}

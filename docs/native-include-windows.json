@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "windows": [
+    {
+      "name": "include-mode-helper",
+      "start": "0x694ed4",
+      "end_exclusive": "0x69506c"
+    },
+    {
+      "name": "include-loaded-lookup",
+      "start": "0x694cc0",
+      "end_exclusive": "0x694d4c"
+    },
+    {
+      "name": "line-comment-filter",
+      "start": "0x694d4c",
+      "end_exclusive": "0x694ed4"
+    }
+  ]
+}

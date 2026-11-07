@@ -1,0 +1,1070 @@
+{
+  "schema_version": 1,
+  "dataset": "real",
+  "status": "inferred",
+  "scope": "Static storage/assignment/index observations and scoped interpretations; no engine or target execution",
+  "source_file": "美少女万華鏡４.exe",
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "queries": [
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_ed9059ee9eabe6af5326854129e81eb0d4c1556f219256103b4478fd641189dc",
+      "operation": "procedure_assembly",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "7360d628ee48d37898a4ae6b81f3a461f5f1ff6682c2f181669dc7c885df95e1",
+      "output_characters": 1409,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "assign-assembly",
+      "address": "0x69b260"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_05c67575ef3f4bd49891988c1497eb037520f3d344923ee413f547cc7f4fd6e9",
+      "operation": "procedure_assembly",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "dbbf807a4092d24f254f8c7f0cc5d5e438a3337a1115969dbcf126afc52d2318",
+      "output_characters": 3817,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "assign-store-assembly",
+      "address": "0x69d400"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_c042e8ae883b75249378fc6b277c9ac48bd74aa427f703a76148dde0d9318b11",
+      "operation": "procedure_pseudo_code",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "97bd5ca96eb4bca9301e5e4f5c0653e4d673a811858657345ec5df0ba98abf6e",
+      "output_characters": 2484,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "assign-store",
+      "address": "0x69d400"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_50c7853614373c6d680617e2bdd36c4fb37f16cdc646284ffe5e7c8d847098c3",
+      "operation": "procedure_pseudo_code",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "441f8744935704de89686862989412305308bbd850504e0db3da7cc5128a338d",
+      "output_characters": 716,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "assign",
+      "address": "0x69b260"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_493c1897debe70820f8f44241e72a10ba4a4199496fc822f14fa9a6a66759762",
+      "operation": "procedure_pseudo_code",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "8f48e7e8ac41bf385707150e59646770abec80f326115589bf0369b61f777f1e",
+      "output_characters": 298,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "context-lookup",
+      "address": "0x6a0520"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_18f1a5e4f0946db7dea0e217d55393e5187400bd933208dff82b672b25fd8869",
+      "operation": "procedure_pseudo_code",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "03075b1477589fca277a2d5a989eeeea472cab7ae28f28c475ce33b41996c3d0",
+      "output_characters": 450,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "context-read",
+      "address": "0x6a0220"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_614f3911e3b0744e341c5dda8158e9d83c68c96f9b1f98af932f69ada9da46d7",
+      "operation": "procedure_pseudo_code",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "958f9e96f034f56539707ccf0908f24b4a076739999e58de5deadab73665efe7",
+      "output_characters": 245,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "context-select",
+      "address": "0x6a0264"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_8179706c6bc36979ec1b6aa850643403ca5b6dce7bd503db93e4c4c3964adcb7",
+      "operation": "procedure_assembly",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "a592e71951b50367bc352c11ee8a100aa07e25f128ef589836fd92a87df2c9a2",
+      "output_characters": 380,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "element-index-assembly",
+      "address": "0x69dd30"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_d97eae18ac7ff76b071c0a769fdb588b51b18b1e3d2e1aef969039c0f1262a38",
+      "operation": "procedure_pseudo_code",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "69c7b8d5258780ad6bd5847ec5fea64456cc3b203b3f8645c060a96837447417",
+      "output_characters": 223,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "element-index",
+      "address": "0x69dd30"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_be3ca23de3f0bda94a99e413ed474a7f636d1e1dd9d8b1e69ba79f5e79103dc5",
+      "operation": "procedure_assembly",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "108941d7bd8d5d823476635aaccd906e908482f7f796600003487d758b2c1e76",
+      "output_characters": 779,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "element-read-assembly",
+      "address": "0x69dcf0"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_9d50cf264b15fc08a66adbb3950f633fef3354bf3d6c1334590540ff33a33852",
+      "operation": "procedure_pseudo_code",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "dc6f5c0a1a6367e257a249f7021235551b410452f9eaddeb53885f0a95479ed8",
+      "output_characters": 397,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "element-read",
+      "address": "0x69dcf0"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_2473a43985079b30eacc55c2616c50dd3f7bae626c54c13203108b92683a7f30",
+      "operation": "procedure_assembly",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "a41b47ac67447ec285b8888a401b3726f5fac52ac4840a04358cd52e620c9c49",
+      "output_characters": 779,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "element-write-assembly",
+      "address": "0x69dea4"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_23bb7fa249196dd4a6fcb5a9798465b501100cbc648745cd4fa8e776ec8b1a1c",
+      "operation": "procedure_pseudo_code",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "0eb9cbce2eb3b0522cfd269df4f565db789a54e9cbce0f4df7142259e9796cda",
+      "output_characters": 399,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "element-write",
+      "address": "0x69dea4"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_577805258076dbbe94c3730a4a69bff58005b3ed365fcfd3f3b90aa55c7a261f",
+      "operation": "procedure_assembly",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "0932ff7c68e058ee399ce6ac7e76d5524484dc514f31651a7e7d004e8d6d4886",
+      "output_characters": 23797,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "expression-core-assembly",
+      "address": "0x69bab4"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_1e901272d0d3a5581bb49c1a5b9630e95018b1ee5d2244be7c3e5f9a0a44a252",
+      "operation": "procedure_assembly",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "7abb0babca02780d72713f4ef306b64c5e49f17b5ccca162c19900f83c268408",
+      "output_characters": 5482,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "index-evaluate-assembly",
+      "address": "0x69f900"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_53d276811696657e2236df32ab8795496fdf7264ebab61fb014f9dd5abc8a9db",
+      "operation": "procedure_pseudo_code",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "86d183dbffec6f9f88de72b4c807c8a3f64d1820fafbe3d4a8c22810ac35267c",
+      "output_characters": 3441,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "index-evaluate",
+      "address": "0x69f900"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_1b5c39226f5bd89d8d574b2d06f252aa7dda705b3cea4f2e4d90c0b6c8dc03d0",
+      "operation": "procedure_assembly",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "57a546a4aeb8b80287eec7356d69aa084f52c439ede6bde8d067cc44d6bbe53a",
+      "output_characters": 582,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "integer64-default-assembly",
+      "address": "0x415b0c"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_cc62d5fc08eefd2e2e3587404ba3811feb1d4310646bc14e0f2053b4b3b31ab2",
+      "operation": "procedure_pseudo_code",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "ae31c1beb226e94c9fc31f9e67b318414d140615c37dcb187d2714375bc9399b",
+      "output_characters": 262,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "integer64-default",
+      "address": "0x415b0c"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_f72e3d489a81e493323fe8d57915dcc5934fd90d1db360e70bfd04c347e23622",
+      "operation": "procedure_assembly",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "531b5cbd9ea604151e2db65fc382d52eae4bd195f67c39b78c102de01a8fd441",
+      "output_characters": 4892,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "name-index-assembly",
+      "address": "0x69fb64"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_029bfcb397fe93216a07b2dbeeadf0307ec372f101e70b70a86d9d581675c935",
+      "operation": "procedure_pseudo_code",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "f1daa6cbadba7831d492d77a0d43d5140d2444cddbcc3744282c60f62a0cd7b9",
+      "output_characters": 3217,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "name-index",
+      "address": "0x69fb64"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_145832f3ef712eb9a59d0681e946b66665b35584c83efa88483973a086763434",
+      "operation": "procedure_assembly",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "f2161791731829850ce38f3c4a593787aab297581ce002f829ee593df137ce35",
+      "output_characters": 2279,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "name-lookup-assembly",
+      "address": "0x69f3b0"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_2b8a233993775d5dedf6e2269483bd48ee808c29f669138a2546c9b05ff7b66d",
+      "operation": "procedure_pseudo_code",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "82cbd5e7befc75b4a8cc21d498e4a294853be9c8dc05aa9b2132d7c27b6a6c7a",
+      "output_characters": 786,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "name-lookup-core",
+      "address": "0x41493c"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_03b1116fc9281c4292b2627b544441142f667af4d3efda9c1ac45c1b7ac48c6d",
+      "operation": "procedure_pseudo_code",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "e6d3540e6ca64ac52c7fd7ed1b33f04281b7f75ac27aaad35e10f2dde001e9ec",
+      "output_characters": 1631,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "name-lookup",
+      "address": "0x69f3b0"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_4391d133601bbf9545c6a3acd34d616d9121e00b2773cdcec3ba05bbab423433",
+      "operation": "procedure_assembly",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "993b37698df8cee031a65f9f9e19444d2e4f694bbd701e473051ef9669504c03",
+      "output_characters": 2917,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "name-search-assembly",
+      "address": "0x69e444"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_9b0356ede2163b973e9fab21e5fe89d174fffcc4c3672989ac396ab69c49d2aa",
+      "operation": "procedure_pseudo_code",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "6bc1e216bee7c63006a6d85a6e65e43173c85b10c8938711e8df5710356e7bae",
+      "output_characters": 1587,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "name-search",
+      "address": "0x69e444"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_4f047cbb9a8b1a1e3ff248504065821fcb51b21f9e86ad006f420e1b7435e71d",
+      "operation": "procedure_pseudo_code",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "a26dc1e9e460613e4d35040fc58b211e80602d19850933a68dc93a710485827a",
+      "output_characters": 147,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "store-category1",
+      "address": "0x69f3a0"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_4fb904566e173e78b3df6153fdbde006685912addb431e7072c9201742f1de01",
+      "operation": "procedure_pseudo_code",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "aa7f51a63144620fc03890f688e08eeceb95205345297a3b481ca390c791a0af",
+      "output_characters": 152,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "store-category2",
+      "address": "0x69f278"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_7a0349ed7b1745709dfe53df85b8a2f238bcb051458a1d439d19642aa79044bd",
+      "operation": "procedure_assembly",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "94f0f98c428b446efbf56dfd5e8089bb43416d691ac1925dc49b2b5a88a26132",
+      "output_characters": 3074,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "store-read-assembly",
+      "address": "0x69f4a4"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_05efea2d9c142e60e6931e5aeac2b46d0ce40e611801dfa5b43326d4bbf72ac3",
+      "operation": "procedure_pseudo_code",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "683d0fe1361b74436f1415ce66c303c28351a2cbe6b6ecae97587a6b733f9d33",
+      "output_characters": 2330,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "store-read",
+      "address": "0x69f4a4"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_d22dbc1e3a9f8c0cf993f776684f542cb8040d745cb8fe284866e5a86fe6fc07",
+      "operation": "procedure_assembly",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "872fb1204a1667460395c337cf1dd97e801b898ae0de99e94ba6c415a22b25c5",
+      "output_characters": 3224,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "store-write-assembly",
+      "address": "0x69f6ec"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_f3f6ab991402a4d1bb7d682e92edca1f9b0ff3c671d29e63924ddc67c40bf719",
+      "operation": "procedure_pseudo_code",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "b243beb2ed8ea6f0b41712e3122800ea71d0d22eef67795cf1f9dd71462a01bc",
+      "output_characters": 2063,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "store-write",
+      "address": "0x69f6ec"
+    }
+  ],
+  "machine_facts": [
+    {
+      "id": "assignment_requires_unresolved_target",
+      "status": "verified",
+      "observation": "赋值帮助函数要求目标字段非零、tag 为 3，拒绝双引号开头；数字首字符路径另调用不同的转换帮助函数。",
+      "scope": "仅列出的静态机器指令，不是原程序执行结果",
+      "unknown": [
+        "执行路径和完整状态契约未验证"
+      ],
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_ed9059ee9eabe6af5326854129e81eb0d4c1556f219256103b4478fd641189dc",
+      "evidence_name": "assign-assembly",
+      "matched_line_numbers": [
+        11,
+        13,
+        17,
+        32,
+        33,
+        35
+      ],
+      "missing_anchor_count": 0,
+      "execution_semantics": "not_tested",
+      "address_range": {
+        "start": "0x69b272",
+        "end_exclusive": "0x69b2bd"
+      },
+      "raw_bytes_reference": {
+        "offset": 2729586,
+        "length": 75,
+        "sha256": "4bf1ae1a2e3835fc71abfa5a30f7a3874e42c4dd53391a62807ead23460b6049"
+      }
+    },
+    {
+      "id": "assignment_success_pushes_numeric_one",
+      "status": "verified",
+      "observation": "此赋值路径先解析一个操作数，再调用赋值帮助函数；成功后构造 tag 0、数值 1 的描述符并压回表达式栈。",
+      "scope": "仅列出的静态机器指令，不是原程序执行结果",
+      "unknown": [
+        "执行路径和完整状态契约未验证"
+      ],
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_577805258076dbbe94c3730a4a69bff58005b3ed365fcfd3f3b90aa55c7a261f",
+      "evidence_name": "expression-core-assembly",
+      "matched_line_numbers": [
+        585,
+        591,
+        592,
+        594,
+        595,
+        601
+      ],
+      "missing_anchor_count": 0,
+      "execution_semantics": "not_tested",
+      "address_range": {
+        "start": "0x69c2ef",
+        "end_exclusive": "0x69c33d"
+      },
+      "raw_bytes_reference": {
+        "offset": 2733807,
+        "length": 78,
+        "sha256": "dab26ad1ce0c2813696d8b15dbebd4444d99367e9f2ca73e117c316aa40958f9"
+      }
+    },
+    {
+      "id": "lookup_order_category_3_2_1",
+      "status": "verified",
+      "observation": "依次查询上下文、类别 2 存储、类别 1 存储；每层用 -1 判断未找到，并分别写出类别 3、2、1。",
+      "scope": "仅列出的静态机器指令，不是原程序执行结果",
+      "unknown": [
+        "执行路径和完整状态契约未验证"
+      ],
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_145832f3ef712eb9a59d0681e946b66665b35584c83efa88483973a086763434",
+      "evidence_name": "name-lookup-assembly",
+      "matched_line_numbers": [
+        41,
+        42,
+        44,
+        50,
+        56,
+        62,
+        68
+      ],
+      "missing_anchor_count": 0,
+      "execution_semantics": "not_tested",
+      "address_range": {
+        "start": "0x69f422",
+        "end_exclusive": "0x69f478"
+      },
+      "raw_bytes_reference": {
+        "offset": 2746402,
+        "length": 86,
+        "sha256": "99ed511b05ea6e23fc151c2a4e92a9f18eda7f80f0a7a1dfa93f30d96ba51c4b"
+      }
+    },
+    {
+      "id": "read_permission_bit",
+      "status": "verified",
+      "observation": "读取路径在未请求旁路时检查对象 +0x2c 的位 1。",
+      "scope": "仅列出的静态机器指令，不是原程序执行结果",
+      "unknown": [
+        "执行路径和完整状态契约未验证"
+      ],
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_7a0349ed7b1745709dfe53df85b8a2f238bcb051458a1d439d19642aa79044bd",
+      "evidence_name": "store-read-assembly",
+      "matched_line_numbers": [
+        34,
+        36
+      ],
+      "missing_anchor_count": 0,
+      "execution_semantics": "not_tested",
+      "address_range": {
+        "start": "0x69f4f8",
+        "end_exclusive": "0x69f504"
+      },
+      "raw_bytes_reference": {
+        "offset": 2746616,
+        "length": 12,
+        "sha256": "f385be910b0965b17b89947ac20a0ac67f63a63c452ef1c1674f64ebbcf01cec"
+      }
+    },
+    {
+      "id": "write_permission_bit",
+      "status": "verified",
+      "observation": "写入路径在未请求旁路时检查对象 +0x2c 的位 2。",
+      "scope": "仅列出的静态机器指令，不是原程序执行结果",
+      "unknown": [
+        "执行路径和完整状态契约未验证"
+      ],
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_d22dbc1e3a9f8c0cf993f776684f542cb8040d745cb8fe284866e5a86fe6fc07",
+      "evidence_name": "store-write-assembly",
+      "matched_line_numbers": [
+        43,
+        45
+      ],
+      "missing_anchor_count": 0,
+      "execution_semantics": "not_tested",
+      "address_range": {
+        "start": "0x69f765",
+        "end_exclusive": "0x69f771"
+      },
+      "raw_bytes_reference": {
+        "offset": 2747237,
+        "length": 12,
+        "sha256": "28db37d8932211d6d89091653159525442deb481d90f7050ee8b3ae8193a1e35"
+      }
+    },
+    {
+      "id": "write_copies_then_selects_declared_tag",
+      "status": "verified",
+      "observation": "写入前复制描述符，并以目标对象 +0x10 的字节替换其 tag；不能据此假定宿主语言的默认转换。",
+      "scope": "仅列出的静态机器指令，不是原程序执行结果",
+      "unknown": [
+        "执行路径和完整状态契约未验证"
+      ],
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_d22dbc1e3a9f8c0cf993f776684f542cb8040d745cb8fe284866e5a86fe6fc07",
+      "evidence_name": "store-write-assembly",
+      "matched_line_numbers": [
+        64,
+        66,
+        67,
+        69
+      ],
+      "missing_anchor_count": 0,
+      "execution_semantics": "not_tested",
+      "address_range": {
+        "start": "0x69f79d",
+        "end_exclusive": "0x69f7bd"
+      },
+      "raw_bytes_reference": {
+        "offset": 2747293,
+        "length": 32,
+        "sha256": "a52b0702ce7db00f951e6fabc5c288ee1f10acf21dc122dff52b3ce5c9db8ce0"
+      }
+    },
+    {
+      "id": "index_list_clamps_to_four_and_visits_reverse",
+      "status": "verified",
+      "observation": "此下标路径按逗号拆分，数量上限为 4，按 count-1-i 取项并逐项调用表达式核心。",
+      "scope": "仅列出的静态机器指令，不是原程序执行结果",
+      "unknown": [
+        "执行路径和完整状态契约未验证"
+      ],
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_1e901272d0d3a5581bb49c1a5b9630e95018b1ee5d2244be7c3e5f9a0a44a252",
+      "evidence_name": "index-evaluate-assembly",
+      "matched_line_numbers": [
+        122,
+        130,
+        132,
+        146,
+        147,
+        156
+      ],
+      "missing_anchor_count": 0,
+      "execution_semantics": "not_tested",
+      "address_range": {
+        "start": "0x69fa67",
+        "end_exclusive": "0x69fae1"
+      },
+      "raw_bytes_reference": {
+        "offset": 2748007,
+        "length": 122,
+        "sha256": "20a15246e205e86d3e779abbfc75a97b0ae4b2ea0369a506e0d61e083e7e0156"
+      }
+    },
+    {
+      "id": "flatten_uses_three_stored_strides",
+      "status": "verified",
+      "observation": "线性下标以 32 位乘加组合基值与对象 +0x34、+0x38、+0x3c 三个步长；维度顺序名称尚未确认。",
+      "scope": "仅列出的静态机器指令，不是原程序执行结果",
+      "unknown": [
+        "执行路径和完整状态契约未验证"
+      ],
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_8179706c6bc36979ec1b6aa850643403ca5b6dce7bd503db93e4c4c3964adcb7",
+      "evidence_name": "element-index-assembly",
+      "matched_line_numbers": [
+        3,
+        6,
+        9,
+        11
+      ],
+      "missing_anchor_count": 0,
+      "execution_semantics": "not_tested",
+      "address_range": {
+        "start": "0x69dd33",
+        "end_exclusive": "0x69dd4d"
+      },
+      "raw_bytes_reference": {
+        "offset": 2740531,
+        "length": 26,
+        "sha256": "35118834fca97b1ea8b42b8b1a719e30d2c82eb9b2ce1185f0e6648f861c252d"
+      }
+    },
+    {
+      "id": "element_read_linear_bounds_and_virtual_slot",
+      "status": "verified",
+      "observation": "读取元素先要求线性结果非负且小于对象 +0x14，再经虚表 +8 调用。",
+      "scope": "仅列出的静态机器指令，不是原程序执行结果",
+      "unknown": [
+        "执行路径和完整状态契约未验证"
+      ],
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_be3ca23de3f0bda94a99e413ed474a7f636d1e1dd9d8b1e69ba79f5e79103dc5",
+      "evidence_name": "element-read-assembly",
+      "matched_line_numbers": [
+        13,
+        15,
+        16,
+        22
+      ],
+      "missing_anchor_count": 0,
+      "execution_semantics": "not_tested",
+      "address_range": {
+        "start": "0x69dd06",
+        "end_exclusive": "0x69dd23"
+      },
+      "raw_bytes_reference": {
+        "offset": 2740486,
+        "length": 29,
+        "sha256": "4f5b2254f00c6e4d5609970eddaca39ed0f4c9ea0f3b076091be51cb97f4f58d"
+      }
+    },
+    {
+      "id": "element_write_linear_bounds_and_virtual_slot",
+      "status": "verified",
+      "observation": "写入元素使用同一线性计算和总长度边界，再经虚表 +0xc 调用。",
+      "scope": "仅列出的静态机器指令，不是原程序执行结果",
+      "unknown": [
+        "执行路径和完整状态契约未验证"
+      ],
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_2473a43985079b30eacc55c2616c50dd3f7bae626c54c13203108b92683a7f30",
+      "evidence_name": "element-write-assembly",
+      "matched_line_numbers": [
+        13,
+        15,
+        16,
+        22
+      ],
+      "missing_anchor_count": 0,
+      "execution_semantics": "not_tested",
+      "address_range": {
+        "start": "0x69deba",
+        "end_exclusive": "0x69ded7"
+      },
+      "raw_bytes_reference": {
+        "offset": 2740922,
+        "length": 29,
+        "sha256": "4f48ce8704898c30ab346635d60d71cfae8329a442fa6ff94bd551c9dacc97b3"
+      }
+    },
+    {
+      "id": "read-tail_return_load",
+      "status": "verified",
+      "scope": "Tail instruction bytes and independent linear observation only",
+      "evidence_id": "local-llvm:3ebad8981916147ad3d0537ff654c54577b303df0b6789b084f0e265feaf539d",
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "raw_bytes_reference": {
+        "offset": 2746845,
+        "length": 4,
+        "sha256": "aba85fa432b89b04ac03d39a3e76ddfbdc501d0d3c8b7c9b62bd2a08dbcdc52f"
+      },
+      "observation": "清理后尾部将栈中字段装入 EAX；Ghidra 基线未覆盖这个续接，不能用其 void 结论设计接口。",
+      "normal_flow_mapping": "inferred",
+      "execution_semantics": "not_tested"
+    },
+    {
+      "id": "write-tail_return_load",
+      "status": "verified",
+      "scope": "Tail instruction bytes and independent linear observation only",
+      "evidence_id": "local-llvm:b928383f3a814f16f11b43b60bffbe5309f46f239558b481de95c6935ac1a9d0",
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "raw_bytes_reference": {
+        "offset": 2747450,
+        "length": 4,
+        "sha256": "bee77805a310a34f9964bfbbd0bff897c5fa2e6343a5b50467026b549fa1b6af"
+      },
+      "observation": "清理后尾部将栈中字段装入 EAX；Ghidra 基线未覆盖这个续接，不能用其 void 结论设计接口。",
+      "normal_flow_mapping": "inferred",
+      "execution_semantics": "not_tested"
+    },
+    {
+      "id": "assign-store-tail_return_load",
+      "status": "verified",
+      "scope": "Tail instruction bytes and independent linear observation only",
+      "evidence_id": "local-llvm:5982bee132f2e6637f29728088d75cf1cb71567a018a90400d1cc37bc3265560",
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "raw_bytes_reference": {
+        "offset": 2738553,
+        "length": 4,
+        "sha256": "affb9b7932bad984ecdf12d9d3fd027714765822d5fcc4306e3a7d32856466bc"
+      },
+      "observation": "清理后尾部将栈中字段装入 EAX；Ghidra 基线未覆盖这个续接，不能用其 void 结论设计接口。",
+      "normal_flow_mapping": "inferred",
+      "execution_semantics": "not_tested"
+    },
+    {
+      "id": "name-search-tail_return_load",
+      "status": "verified",
+      "scope": "Tail instruction bytes and independent linear observation only",
+      "evidence_id": "local-llvm:bafe7d0db8357f15f7e76071ec697514821b3582bc2bd599c42f139846df8904",
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "raw_bytes_reference": {
+        "offset": 2742611,
+        "length": 3,
+        "sha256": "c59cd05e48921d247dfe9dccf64635e8cb529aa4ccf122fa638279a4230846cf"
+      },
+      "observation": "清理后尾部将栈中字段装入 EAX；Ghidra 基线未覆盖这个续接，不能用其 void 结论设计接口。",
+      "normal_flow_mapping": "inferred",
+      "execution_semantics": "not_tested"
+    }
+  ],
+  "failed_facts": 0,
+  "tail_windows": [
+    {
+      "name": "read-tail",
+      "evidence_id": "local-llvm:3ebad8981916147ad3d0537ff654c54577b303df0b6789b084f0e265feaf539d",
+      "address_range": {
+        "start": "0x69f5d5",
+        "end_exclusive": "0x69f5f0"
+      },
+      "boundary_status": "inferred",
+      "decode_coverage_status": "verified",
+      "unknown_instruction_addresses": []
+    },
+    {
+      "name": "write-tail",
+      "evidence_id": "local-llvm:b928383f3a814f16f11b43b60bffbe5309f46f239558b481de95c6935ac1a9d0",
+      "address_range": {
+        "start": "0x69f832",
+        "end_exclusive": "0x69f850"
+      },
+      "boundary_status": "inferred",
+      "decode_coverage_status": "unsupported",
+      "unknown_instruction_addresses": [
+        "0x69f84d"
+      ]
+    },
+    {
+      "name": "assign-store-tail",
+      "evidence_id": "local-llvm:5982bee132f2e6637f29728088d75cf1cb71567a018a90400d1cc37bc3265560",
+      "address_range": {
+        "start": "0x69d571",
+        "end_exclusive": "0x69d58c"
+      },
+      "boundary_status": "inferred",
+      "decode_coverage_status": "verified",
+      "unknown_instruction_addresses": []
+    },
+    {
+      "name": "name-search-tail",
+      "evidence_id": "local-llvm:bafe7d0db8357f15f7e76071ec697514821b3582bc2bd599c42f139846df8904",
+      "address_range": {
+        "start": "0x69e54b",
+        "end_exclusive": "0x69e564"
+      },
+      "boundary_status": "inferred",
+      "decode_coverage_status": "verified",
+      "unknown_instruction_addresses": []
+    },
+    {
+      "name": "name-index-tail",
+      "evidence_id": "local-llvm:87e24d7e0e30d41567b3585ffcb210051ac0cfa098707fc0ba9a524b8cf60356",
+      "address_range": {
+        "start": "0x69fd43",
+        "end_exclusive": "0x69fd54"
+      },
+      "boundary_status": "inferred",
+      "decode_coverage_status": "verified",
+      "unknown_instruction_addresses": []
+    },
+    {
+      "name": "name-lookup-tail",
+      "evidence_id": "local-llvm:eff7c15d3b044be365569ad24678551ba44ed37d03bf4690dc8620f05515c405",
+      "address_range": {
+        "start": "0x69f493",
+        "end_exclusive": "0x69f4a4"
+      },
+      "boundary_status": "inferred",
+      "decode_coverage_status": "verified",
+      "unknown_instruction_addresses": []
+    },
+    {
+      "name": "index-evaluate-tail",
+      "evidence_id": "local-llvm:b329f948fc70e445c4c7b9aeffde3d72f37f1270af06d7ab2f9729e90b6aa166",
+      "address_range": {
+        "start": "0x69fb19",
+        "end_exclusive": "0x69fb34"
+      },
+      "boundary_status": "inferred",
+      "decode_coverage_status": "unsupported",
+      "unknown_instruction_addresses": [
+        "0x69fb2c",
+        "0x69fb2e"
+      ]
+    }
+  ],
+  "linear_window_coverage_status": "unsupported",
+  "window_unknown_reason": "Selected windows extend beyond recovered returns; undecodable bytes are retained, not asserted executable",
+  "independent_collection": {
+    "status": "verified",
+    "source_report": "private/p1-round7/native-reproduced/collection-report.json",
+    "sha256": "7b9bcb1f31363701ff14b9be909a219c85d9c68a18f3b985da00b1a8f44861e3"
+  },
+  "inferred_contracts": [
+    {
+      "id": "scope_search",
+      "status": "inferred",
+      "meaning": "Current context, then category 2, then category 1; field getters allow alternate pointers before fallback"
+    },
+    {
+      "id": "assignment_result",
+      "status": "inferred",
+      "meaning": "Successful assignment yields numeric 1 on this reduction path, rather than propagating the right value"
+    },
+    {
+      "id": "typed_storage",
+      "status": "inferred",
+      "meaning": "Stored declaration tag selects which cached field the value object consumes; full object and ownership contracts remain unknown"
+    },
+    {
+      "id": "index_coordinates",
+      "status": "inferred",
+      "meaning": "Up to four reversed items reach stride arithmetic; source coordinate order and per-dimension validation remain unresolved"
+    },
+    {
+      "id": "name_normalization",
+      "status": "inferred",
+      "meaning": "Lookup can call ASCII A-Z normalization in a UTF-16 branch; Unicode casefold and other encoding branches are not established"
+    }
+  ],
+  "unresolved": [
+    "Declaration destruction and shadowing lifetimes",
+    "Call/return context creation and restore",
+    "Name cache invalidation and duplicate definitions",
+    "Per-dimension array bounds, rank and overflow behavior",
+    "Virtual value implementations and object reference ownership",
+    "Error propagation and save serialization"
+  ],
+  "execution_semantics": "not_tested",
+  "runtime_development_ready": false,
+  "original_files_written": false,
+  "external_game_data_uploads": false
+}

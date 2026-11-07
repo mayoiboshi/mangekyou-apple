@@ -1,0 +1,438 @@
+{
+  "schema_version": 1,
+  "status": "verified",
+  "dataset": "synthetic",
+  "real_game_status": "not_tested",
+  "upstream_commit": "531694715df21a9940578f4319d246ac8aa794de",
+  "python": "3.13.15",
+  "machine": "arm64",
+  "checks": [
+    {
+      "name": "v31_parser_targeted_index_and_plain_payload",
+      "status": "verified",
+      "scope": "synthetic",
+      "detail": {
+        "entries": 1,
+        "encryption_method": 0,
+        "compressed": false,
+        "complete_valid_archive": false,
+        "qkey_hash_metadata_validated": false
+      }
+    },
+    {
+      "name": "dpng_disjoint_rgba_tiles_exact_pixels",
+      "status": "verified",
+      "scope": "synthetic",
+      "detail": {
+        "width": 4,
+        "height": 2,
+        "rgba_sha256": "18baad2a405f426ce5418ced23cc353e52faa85ae7cdb5533b2d7a61879cb6a0",
+        "alpha_values": [
+          0,
+          128,
+          255
+        ],
+        "overlap_blending": "not_tested"
+      }
+    },
+    {
+      "name": "dpng_overlap_implementation_characterization",
+      "status": "verified",
+      "scope": "synthetic",
+      "detail": {
+        "observed_rgba": [
+          0,
+          0,
+          255,
+          128
+        ],
+        "implementation": "tile replacement",
+        "original_engine_agreement": "not_tested"
+      }
+    },
+    {
+      "name": "bpe_nonempty_identity_dictionary",
+      "status": "verified",
+      "scope": "synthetic",
+      "detail": {
+        "decoded_bytes": 13,
+        "dictionary": "identity literals only"
+      }
+    },
+    {
+      "name": "isolated_read_only_adapter",
+      "status": "verified",
+      "scope": "synthetic",
+      "detail": {
+        "index_worker": {
+          "status": "verified",
+          "errors": [],
+          "resource_limits": {
+            "cpu_seconds": {
+              "status": "verified",
+              "value": 20
+            },
+            "data_bytes": {
+              "status": "unsupported",
+              "reason": "current limit exceeds maximum limit",
+              "fallback": "bounded input, index count, canvas pixels, CPU and wall time; no hard RSS cap"
+            },
+            "file_output_bytes": {
+              "status": "verified",
+              "value": 0
+            }
+          },
+          "upstream_commit": "531694715df21a9940578f4319d246ac8aa794de",
+          "version": "FilePackVer3.1",
+          "entries": [
+            {
+              "index": 0,
+              "name": "sample.bin",
+              "offset": 0,
+              "compressed_size": 21,
+              "original_size": 21,
+              "compressed": false,
+              "encryption_method": 0,
+              "hash_value": 204881214,
+              "content_status": "not_tested"
+            }
+          ],
+          "total_declared_output_bytes": 21,
+          "payload_decode_status": "not_tested",
+          "key_signature_status": "not_tested",
+          "writes_performed": false
+        },
+        "dpng_worker": {
+          "status": "verified",
+          "errors": [],
+          "resource_limits": {
+            "cpu_seconds": {
+              "status": "verified",
+              "value": 20
+            },
+            "data_bytes": {
+              "status": "unsupported",
+              "reason": "current limit exceeds maximum limit",
+              "fallback": "bounded input, index count, canvas pixels, CPU and wall time; no hard RSS cap"
+            },
+            "file_output_bytes": {
+              "status": "verified",
+              "value": 0
+            }
+          },
+          "upstream_commit": "531694715df21a9940578f4319d246ac8aa794de",
+          "width": 4,
+          "height": 2,
+          "mode": "RGBA",
+          "alpha_extrema": [
+            0,
+            255
+          ],
+          "tile_count": 2,
+          "output_sha256": "530cfd0fee142b26f3b1f48eb68cd66bb6e0b1947e534afcfe8f9615c11ae5aa",
+          "rgba_sha256": "18baad2a405f426ce5418ced23cc353e52faa85ae7cdb5533b2d7a61879cb6a0",
+          "blend_semantics_status": "not_tested",
+          "writes_performed": false
+        }
+      }
+    },
+    {
+      "name": "scanner_synthetic_input_integrity",
+      "status": "verified",
+      "scope": "synthetic",
+      "detail": {
+        "input_files_sha256_unchanged": true
+      }
+    },
+    {
+      "name": "synthetic_script_lexical_structure",
+      "status": "verified",
+      "scope": "synthetic",
+      "detail": {
+        "records": 9,
+        "physical_order": "verified",
+        "dialogue_accuracy_on_real_game": "not_tested",
+        "execution_semantics": "unsupported"
+      }
+    },
+    {
+      "name": "upstream_unittest_suite",
+      "status": "verified",
+      "scope": "upstream_synthetic_and_mock_tests",
+      "tests_run": 34,
+      "skipped": 8,
+      "passed": 26,
+      "log": "test_abdata14 (test_abmp.AbmpTests.test_abdata14) ... ok\ntest_abimgdat14_15_and_absnddat12 (test_abmp.AbmpTests.test_abimgdat14_15_and_absnddat12) ... ok\ntest_abmp10_11_12 (test_abmp.AbmpTests.test_abmp10_11_12) ... ok\ntest_abmp7 (test_abmp.AbmpTests.test_abmp7) ... ok\ntest_b_container_writes_original_and_members (test_abmp.AbmpTests.test_b_container_writes_original_and_members) ... ok\ntest_empty_absnddat12_trailer (test_abmp.AbmpTests.test_empty_absnddat12_trailer) ... ok\ntest_imoavi_frames_are_expanded (test_abmp.AbmpTests.test_imoavi_frames_are_expanded) ... ok\ntest_nested_output_cannot_collide_with_archive_path (test_abmp.AbmpTests.test_nested_output_cannot_collide_with_archive_path) ... ok\ntest_nested_path_traversal_is_rejected (test_abmp.AbmpTests.test_nested_path_traversal_is_rejected) ... ok\ntest_extracts_qlie_key_from_tform_resource (test_exe_key.ExecutableKeyTests.test_extracts_qlie_key_from_tform_resource) ... ok\ntest_finds_key_in_sibling_executable (test_exe_key.ExecutableKeyTests.test_finds_key_in_sibling_executable) ... ok\ntest_drain_respects_limit (test_gui_runtime.EventPumpTests.test_drain_respects_limit) ... ok\ntest_extraction_runs_in_separate_process (test_gui_runtime.EventPumpTests.test_extraction_runs_in_separate_process) ... skipped 'external QLIE fixture is unavailable'\ntest_logging_is_session_only (test_gui_runtime.EventPumpTests.test_logging_is_session_only) ... ok\ntest_primary_button_switches_to_stop_and_cancels (test_gui_runtime.EventPumpTests.test_primary_button_switches_to_stop_and_cancels) ... skipped 'external QLIE fixture is unavailable'\ntest_tk_event_loop_remains_responsive_during_validation (test_gui_runtime.EventPumpTests.test_tk_event_loop_remains_responsive_during_validation) ... skipped 'external QLIE fixture is unavailable'\ntest_warning_replaces_info_when_ui_log_is_full (test_gui_runtime.EventPumpTests.test_warning_replaces_info_when_ui_log_is_full) ... ok\ntest_dpng_is_converted_to_standard_png (test_qlie.QlieArchiveTests.test_dpng_is_converted_to_standard_png) ... ok\ntest_empty_compressed_payload_is_accepted (test_qlie.QlieArchiveTests.test_empty_compressed_payload_is_accepted) ... ok\ntest_executable_key_is_only_used_by_v30 (test_qlie.QlieArchiveTests.test_executable_key_is_only_used_by_v30) ... ok\ntest_invalid_ogg_signature_is_rejected (test_qlie.QlieArchiveTests.test_invalid_ogg_signature_is_rejected) ... ok\ntest_large_mapped_archive_uses_process_pool (test_qlie.QlieArchiveTests.test_large_mapped_archive_uses_process_pool) ... skipped 'external QLIE fixture is unavailable'\ntest_process_pool_stop_is_cooperative (test_qlie.QlieArchiveTests.test_process_pool_stop_is_cooperative) ... skipped 'external QLIE fixture is unavailable'\ntest_standard_media_signatures_are_validated (test_qlie.QlieArchiveTests.test_standard_media_signatures_are_validated) ... ok\ntest_stop_keeps_completed_files_and_removes_partial_files (test_qlie.QlieArchiveTests.test_stop_keeps_completed_files_and_removes_partial_files) ... ok\ntest_v1_and_v2_payload_decryption (test_qlie.QlieArchiveTests.test_v1_and_v2_payload_decryption) ... ok\ntest_v1_layout_and_extraction (test_qlie.QlieArchiveTests.test_v1_layout_and_extraction) ... skipped 'external QLIE fixture is unavailable'\ntest_v2_layout_and_extraction (test_qlie.QlieArchiveTests.test_v2_layout_and_extraction) ... ok\ntest_v30_data_decryption_uses_decrypted_name_bytes (test_qlie.QlieArchiveTests.test_v30_data_decryption_uses_decrypted_name_bytes) ... ok\ntest_v30_embedded_key_is_loaded_with_executable_only (test_qlie.QlieArchiveTests.test_v30_embedded_key_is_loaded_with_executable_only) ... ok\ntest_v30_hash_seed_layouts (test_qlie.QlieArchiveTests.test_v30_hash_seed_layouts) ... ok\ntest_v30_index (test_qlie.QlieArchiveTests.test_v30_index) ... skipped 'external QLIE fixture is unavailable'\ntest_v31_extraction (test_qlie.QlieArchiveTests.test_v31_extraction) ... skipped 'external QLIE fixture is unavailable'\ntest_validated_file_commits_before_later_failure (test_qlie.QlieArchiveTests.test_validated_file_commits_before_later_failure) ... ok\n\n----------------------------------------------------------------------\nRan 34 tests in 0.074s\n\nOK (skipped=8)\n",
+      "real_game_tests": "not_tested"
+    }
+  ],
+  "synthetic_script_ir": {
+    "source_file": "sample.s",
+    "sha256": "de631062371059b7c8535d6bffdb6a063d67f2ba9d71a586dc18699422176db0",
+    "status": "inferred",
+    "errors": [],
+    "records": [
+      {
+        "source_file": "sample.s",
+        "byte_offset": 0,
+        "byte_length": 17,
+        "line_number": 1,
+        "line_count": 1,
+        "record_type": "include_candidate",
+        "raw_bytes_reference": {
+          "source_sha256": "de631062371059b7c8535d6bffdb6a063d67f2ba9d71a586dc18699422176db0",
+          "offset": 0,
+          "length": 17,
+          "sha256": "1344a5e319f1fdf2b846471612ec5f4f1b72f76ddbb12afe3244ff7a13ce141f"
+        },
+        "decoded_text": "@@@avg\\header.s\r\n",
+        "text_redacted": false,
+        "decoded_text_sha256": "1344a5e319f1fdf2b846471612ec5f4f1b72f76ddbb12afe3244ff7a13ce141f",
+        "token": null,
+        "operands": [
+          {
+            "value": "avg\\header.s",
+            "sha256": "bae2b406fe1295e1d54980a310a36e370ee0ceb8d7650e215a670e29ad2be2fb"
+          }
+        ],
+        "confidence": "inferred",
+        "unknown_reason": "include execution / resolution unverified",
+        "literal_references": [
+          "avg/header.s"
+        ]
+      },
+      {
+        "source_file": "sample.s",
+        "byte_offset": 17,
+        "byte_length": 9,
+        "line_number": 2,
+        "line_count": 1,
+        "record_type": "label_candidate",
+        "raw_bytes_reference": {
+          "source_sha256": "de631062371059b7c8535d6bffdb6a063d67f2ba9d71a586dc18699422176db0",
+          "offset": 17,
+          "length": 9,
+          "sha256": "f1e6fbdeb00477b970f74f48d4ce478cc56705edbaf7bb5d00dcc1d24e3b0758"
+        },
+        "decoded_text": "@@start\r\n",
+        "text_redacted": false,
+        "decoded_text_sha256": "f1e6fbdeb00477b970f74f48d4ce478cc56705edbaf7bb5d00dcc1d24e3b0758",
+        "token": null,
+        "operands": [
+          {
+            "value": "start",
+            "sha256": "cced28c6dc3f99c2396a5eaad732bf6b28142335892b1cd0e6af6cdb53f5ccfa"
+          }
+        ],
+        "confidence": "inferred",
+        "unknown_reason": "label scope unverified",
+        "literal_references": []
+      },
+      {
+        "source_file": "sample.s",
+        "byte_offset": 26,
+        "byte_length": 12,
+        "line_number": 3,
+        "line_count": 1,
+        "record_type": "name_candidate",
+        "raw_bytes_reference": {
+          "source_sha256": "de631062371059b7c8535d6bffdb6a063d67f2ba9d71a586dc18699422176db0",
+          "offset": 26,
+          "length": 12,
+          "sha256": "32434c5dea6c79b12a1942121c42e6351102547abaafb41e8f0f483d794092a4"
+        },
+        "decoded_text": "【調査者】\r\n",
+        "text_redacted": false,
+        "decoded_text_sha256": "5bb6d4ada4ce464fea7013cab12f16c807671d638755d425f5b614fd4d26bd9b",
+        "token": null,
+        "operands": [],
+        "confidence": "inferred",
+        "unknown_reason": "association with following dialogue unverified",
+        "literal_references": []
+      },
+      {
+        "source_file": "sample.s",
+        "byte_offset": 38,
+        "byte_length": 45,
+        "line_number": 4,
+        "line_count": 1,
+        "record_type": "text_candidate",
+        "raw_bytes_reference": {
+          "source_sha256": "de631062371059b7c8535d6bffdb6a063d67f2ba9d71a586dc18699422176db0",
+          "offset": 38,
+          "length": 45,
+          "sha256": "809f35de7358569f4505ab641dcda8bef18d2a3d81c386ee4edaa3c4a86b00ff"
+        },
+        "decoded_text": "合成テストです。[n]実ゲームではありません。\r\n",
+        "text_redacted": false,
+        "decoded_text_sha256": "b146fb10064f0af5647335934e33cd6d31e7748a1c081966bdab07654452c3ea",
+        "token": null,
+        "operands": [],
+        "confidence": "inferred",
+        "unknown_reason": "dialogue vs macro text unverified",
+        "literal_references": []
+      },
+      {
+        "source_file": "sample.s",
+        "byte_offset": 83,
+        "byte_length": 23,
+        "line_number": 5,
+        "line_count": 1,
+        "record_type": "line_tag",
+        "raw_bytes_reference": {
+          "source_sha256": "de631062371059b7c8535d6bffdb6a063d67f2ba9d71a586dc18699422176db0",
+          "offset": 83,
+          "length": 23,
+          "sha256": "1c595a4bfbce67391e84e8313a0e4449157db9dcacd057338d34151ad00d7b84"
+        },
+        "decoded_text": "^opaque,\"image.png\",7\r\n",
+        "text_redacted": false,
+        "decoded_text_sha256": "1c595a4bfbce67391e84e8313a0e4449157db9dcacd057338d34151ad00d7b84",
+        "token": "opaque",
+        "operands": [
+          {
+            "value": "\"image.png\"",
+            "sha256": "a8a19728bb6060c33d6f20e9d36d79015c98ced1bd268a924acc88871d456ee1"
+          },
+          {
+            "value": "7",
+            "sha256": "7902699be42c8a8e46fbbb4501726517e86b22c56a189f7625a6da49081b2451"
+          }
+        ],
+        "confidence": "inferred",
+        "unknown_reason": "unknown command semantics; operands are lexical only",
+        "literal_references": [
+          "image.png"
+        ]
+      },
+      {
+        "source_file": "sample.s",
+        "byte_offset": 106,
+        "byte_length": 13,
+        "line_number": 6,
+        "line_count": 1,
+        "record_type": "sound_candidate",
+        "raw_bytes_reference": {
+          "source_sha256": "de631062371059b7c8535d6bffdb6a063d67f2ba9d71a586dc18699422176db0",
+          "offset": 106,
+          "length": 13,
+          "sha256": "dee4077e8e28c9a42fce64b95bbeb14760b32f625364537d3a14ecadf56c5a30"
+        },
+        "decoded_text": "％voice.ogg\r\n",
+        "text_redacted": false,
+        "decoded_text_sha256": "3973904bfc3bffd3c2c38dcee36ca7b32fa3ab7d5028ffed7b170842f6a7cf40",
+        "token": null,
+        "operands": [
+          {
+            "value": "voice.ogg",
+            "sha256": "c428257d312b8f00cc4f9f2b0db09f7d3388b050f9496ab7127e63664a6e5ea5"
+          }
+        ],
+        "confidence": "inferred",
+        "unknown_reason": "sound role and filename mapping unverified",
+        "literal_references": [
+          "voice.ogg"
+        ]
+      },
+      {
+        "source_file": "sample.s",
+        "byte_offset": 119,
+        "byte_length": 21,
+        "line_number": 7,
+        "line_count": 1,
+        "record_type": "command",
+        "raw_bytes_reference": {
+          "source_sha256": "de631062371059b7c8535d6bffdb6a063d67f2ba9d71a586dc18699422176db0",
+          "offset": 119,
+          "length": 21,
+          "sha256": "743ef29c1f67c4216be822f4b93d0ba18c5011f3de83b344a6df816a23f4102f"
+        },
+        "decoded_text": "\\unknown,label:next\r\n",
+        "text_redacted": false,
+        "decoded_text_sha256": "743ef29c1f67c4216be822f4b93d0ba18c5011f3de83b344a6df816a23f4102f",
+        "token": "unknown",
+        "operands": [
+          {
+            "value": "label:next",
+            "sha256": "8a1227339f86c82197941d36d4a889e5e31f5a066b517f3ccf70d13896b77f3a"
+          }
+        ],
+        "confidence": "inferred",
+        "unknown_reason": "unknown command semantics; operands are lexical only",
+        "literal_references": []
+      },
+      {
+        "source_file": "sample.s",
+        "byte_offset": 140,
+        "byte_length": 23,
+        "line_number": 8,
+        "line_count": 1,
+        "record_type": "line_tag",
+        "raw_bytes_reference": {
+          "source_sha256": "de631062371059b7c8535d6bffdb6a063d67f2ba9d71a586dc18699422176db0",
+          "offset": 140,
+          "length": 23,
+          "sha256": "af96c50f2c34733d9c61f29f3544507c50f31115874a12dc2963c10adcbb9882"
+        },
+        "decoded_text": "^select,\"進む\",\"戻る\"\r\n",
+        "text_redacted": false,
+        "decoded_text_sha256": "1da26df389b7ab9e93ca5117e696adb1747aa65d781053093218e54bdc0c7c03",
+        "token": "select",
+        "operands": [
+          {
+            "value": "\"進む\"",
+            "sha256": "c4580627d183473c74e5fa5cc74935f55f48398ec18545af0fae68dbb0bd70b8"
+          },
+          {
+            "value": "\"戻る\"",
+            "sha256": "7fb931689396ea9276110804156dbd08fcb6a857bdc645498cc003f92ccfc5e2"
+          }
+        ],
+        "confidence": "inferred",
+        "unknown_reason": "unknown command semantics; operands are lexical only",
+        "literal_references": []
+      },
+      {
+        "source_file": "sample.s",
+        "byte_offset": 163,
+        "byte_length": 8,
+        "line_number": 9,
+        "line_count": 1,
+        "record_type": "label_candidate",
+        "raw_bytes_reference": {
+          "source_sha256": "de631062371059b7c8535d6bffdb6a063d67f2ba9d71a586dc18699422176db0",
+          "offset": 163,
+          "length": 8,
+          "sha256": "3dae29657abba438ce3bd77134f944fa4ae5c49e9445fa22930906826cc55704"
+        },
+        "decoded_text": "@@next\r\n",
+        "text_redacted": false,
+        "decoded_text_sha256": "3dae29657abba438ce3bd77134f944fa4ae5c49e9445fa22930906826cc55704",
+        "token": null,
+        "operands": [
+          {
+            "value": "next",
+            "sha256": "c6c1c9a9c8543f1e4cd980064cf1625eeb61a90703b2464fff039f21682508b3"
+          }
+        ],
+        "confidence": "inferred",
+        "unknown_reason": "label scope unverified",
+        "literal_references": []
+      }
+    ],
+    "levels": {
+      "dialogue_extraction": "not_tested",
+      "physical_order": "verified",
+      "control_structure": "unsupported",
+      "execution_semantics": "unsupported"
+    },
+    "encoding": "cp932",
+    "encoding_status": "inferred",
+    "bom_size": 0,
+    "format_version": null,
+    "version_status": "not_tested",
+    "physical_line_count": 9,
+    "unknown_record_count": 9
+  },
+  "msg_tool_scope": "Python verification only; see msg-build.json and script-report.json for Rust build and real extraction cross-check"
+}

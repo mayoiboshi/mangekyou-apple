@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Second call field and selected file/label reader path; target never executed",
+  "queries": [
+    {
+      "name": "shared-call-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6b70d8"
+    },
+    {
+      "name": "module-jump",
+      "operation": "procedure_pseudo_code",
+      "address": "0x695c34"
+    },
+    {
+      "name": "module-jump-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x695c34"
+    },
+    {
+      "name": "module-load",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69556c"
+    },
+    {
+      "name": "module-load-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69556c"
+    },
+    {
+      "name": "label-position",
+      "operation": "procedure_pseudo_code",
+      "address": "0x696134"
+    },
+    {
+      "name": "label-position-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x696134"
+    },
+    {
+      "name": "target-normalize",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c06f0"
+    },
+    {
+      "name": "target-normalize-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6c06f0"
+    }
+  ]
+}

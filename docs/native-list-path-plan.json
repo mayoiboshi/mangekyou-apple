@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Selected self-file-path helper chain; static only",
+  "queries": [
+    {
+      "name": "reader-current-key",
+      "operation": "procedure_pseudo_code",
+      "address": "0x696180"
+    },
+    {
+      "name": "reader-current-key-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x696180"
+    },
+    {
+      "name": "reader-source-name",
+      "operation": "procedure_pseudo_code",
+      "address": "0x696894"
+    },
+    {
+      "name": "reader-source-name-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x696894"
+    },
+    {
+      "name": "extract-directory",
+      "operation": "procedure_pseudo_code",
+      "address": "0x4163bc"
+    },
+    {
+      "name": "extract-directory-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x4163bc"
+    }
+  ]
+}

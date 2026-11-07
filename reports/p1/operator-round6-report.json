@@ -1,0 +1,338 @@
+{
+  "schema_version": 1,
+  "dataset": "real",
+  "status": "inferred",
+  "source_file": "美少女万華鏡４.exe",
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Literal tag bytes verified; symbol mapping and reduction/precedence interpretation remain hypotheses",
+  "entries": [
+    {
+      "symbol": "==",
+      "literal_va": "0x69cea0",
+      "tag": "*0",
+      "literal_status": "verified",
+      "mapping_status": "inferred",
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "raw_bytes_reference": {
+        "offset": 2736800,
+        "length": 6,
+        "sha256": "62b5138a0efe70aa76e7f3c34bd7dae0c3c5a95a0980d5ebfe09cfbd0d4131b4"
+      },
+      "operation_semantics": "not_tested"
+    },
+    {
+      "symbol": "!=",
+      "literal_va": "0x69ceb4",
+      "tag": "*1",
+      "literal_status": "verified",
+      "mapping_status": "inferred",
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "raw_bytes_reference": {
+        "offset": 2736820,
+        "length": 6,
+        "sha256": "9f5fe761f08ad332809c306a9805c7ede09829d49300c9c42d41f107350d2586"
+      },
+      "operation_semantics": "not_tested"
+    },
+    {
+      "symbol": "<=",
+      "literal_va": "0x69cec8",
+      "tag": "*4",
+      "literal_status": "verified",
+      "mapping_status": "inferred",
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "raw_bytes_reference": {
+        "offset": 2736840,
+        "length": 6,
+        "sha256": "1d392fab730b753d629d8633d822636fb34b64bfea8cddcf913fd6f076bc5e61"
+      },
+      "operation_semantics": "not_tested"
+    },
+    {
+      "symbol": ">=",
+      "literal_va": "0x69cedc",
+      "tag": "*5",
+      "literal_status": "verified",
+      "mapping_status": "inferred",
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "raw_bytes_reference": {
+        "offset": 2736860,
+        "length": 6,
+        "sha256": "a714bd80c82645fd322dd43f001a59e459c352be92e8adf160c5ffb969aef81b"
+      },
+      "operation_semantics": "not_tested"
+    },
+    {
+      "symbol": "&&",
+      "literal_va": "0x69cef0",
+      "tag": "*6",
+      "literal_status": "verified",
+      "mapping_status": "inferred",
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "raw_bytes_reference": {
+        "offset": 2736880,
+        "length": 6,
+        "sha256": "854df13a7858d1cc042c17226b4445754dec1692e1795d84d4bf37bd51b6a784"
+      },
+      "operation_semantics": "not_tested"
+    },
+    {
+      "symbol": "||",
+      "literal_va": "0x69cf04",
+      "tag": "*7",
+      "literal_status": "verified",
+      "mapping_status": "inferred",
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "raw_bytes_reference": {
+        "offset": 2736900,
+        "length": 6,
+        "sha256": "639c2d46e7dcd129dc1a2e893120b4570b5ac9d69ab17a7a8052a27b65d4413f"
+      },
+      "operation_semantics": "not_tested"
+    },
+    {
+      "symbol": ">>",
+      "literal_va": "0x69cf18",
+      "tag": "*3",
+      "literal_status": "verified",
+      "mapping_status": "inferred",
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "raw_bytes_reference": {
+        "offset": 2736920,
+        "length": 6,
+        "sha256": "aba381969ad3abd8d0225d8d2037ee275344c38d22c56808b349296b7ff7c699"
+      },
+      "operation_semantics": "not_tested"
+    },
+    {
+      "symbol": "<<",
+      "literal_va": "0x69cf2c",
+      "tag": "*2",
+      "literal_status": "verified",
+      "mapping_status": "inferred",
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "raw_bytes_reference": {
+        "offset": 2736940,
+        "length": 6,
+        "sha256": "2088aa0ad1089ae415164eac80f19f773d0099dbba37529056add6a8a772403b"
+      },
+      "operation_semantics": "not_tested"
+    },
+    {
+      "symbol": ">",
+      "literal_va": "0x69cf40",
+      "tag": "*i",
+      "literal_status": "verified",
+      "mapping_status": "inferred",
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "raw_bytes_reference": {
+        "offset": 2736960,
+        "length": 6,
+        "sha256": "93976344b42e58ea043812eb839561e995f08ac03160b313697dd4c5930860b7"
+      },
+      "operation_semantics": "not_tested"
+    },
+    {
+      "symbol": "<",
+      "literal_va": "0x69cf54",
+      "tag": "*j",
+      "literal_status": "verified",
+      "mapping_status": "inferred",
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "raw_bytes_reference": {
+        "offset": 2736980,
+        "length": 6,
+        "sha256": "71d26ef9d9cf37f2a04aeda9aa0f41056149b75355f4571a0834045e29d4e2d9"
+      },
+      "operation_semantics": "not_tested"
+    },
+    {
+      "symbol": "+",
+      "literal_va": "0x69cf68",
+      "tag": "*8",
+      "literal_status": "verified",
+      "mapping_status": "inferred",
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "raw_bytes_reference": {
+        "offset": 2737000,
+        "length": 6,
+        "sha256": "5b27b15245889bfaeb4cb48dad702298f47a76eeaa6ced584ceb18065dbc8c32"
+      },
+      "operation_semantics": "not_tested"
+    },
+    {
+      "symbol": "-",
+      "literal_va": "0x69cf7c",
+      "tag": "*9",
+      "literal_status": "verified",
+      "mapping_status": "inferred",
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "raw_bytes_reference": {
+        "offset": 2737020,
+        "length": 6,
+        "sha256": "942e20b824e534bdaa8b1a4c233f2fb7fec2e36064885326695a6e54aec4fcea"
+      },
+      "operation_semantics": "not_tested"
+    },
+    {
+      "symbol": "*",
+      "literal_va": "0x69cf90",
+      "tag": "*a",
+      "literal_status": "verified",
+      "mapping_status": "inferred",
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "raw_bytes_reference": {
+        "offset": 2737040,
+        "length": 6,
+        "sha256": "3c57e7bf4ab8d5bba7f583428e7bfa05be3ba56e20f586a7555de157a1e531f5"
+      },
+      "operation_semantics": "not_tested"
+    },
+    {
+      "symbol": "/",
+      "literal_va": "0x69cfa4",
+      "tag": "*b",
+      "literal_status": "verified",
+      "mapping_status": "inferred",
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "raw_bytes_reference": {
+        "offset": 2737060,
+        "length": 6,
+        "sha256": "bf130f56b1c7c3df55948765bce74620dd853b5fd89faaa60178d0a9e1527026"
+      },
+      "operation_semantics": "not_tested"
+    },
+    {
+      "symbol": "%",
+      "literal_va": "0x69cfb8",
+      "tag": "*c",
+      "literal_status": "verified",
+      "mapping_status": "inferred",
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "raw_bytes_reference": {
+        "offset": 2737080,
+        "length": 6,
+        "sha256": "27cd55fdbc8ce67f78993290fc1ffe16fccd84f313bcb4c2b774d30900d76641"
+      },
+      "operation_semantics": "not_tested"
+    },
+    {
+      "symbol": "^",
+      "literal_va": "0x69cfcc",
+      "tag": "*d",
+      "literal_status": "verified",
+      "mapping_status": "inferred",
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "raw_bytes_reference": {
+        "offset": 2737100,
+        "length": 6,
+        "sha256": "61042c02dc1056dc2f913a8e6dea43e43f709dc1b2dead03d63a83ae2918a8ba"
+      },
+      "operation_semantics": "not_tested"
+    },
+    {
+      "symbol": "&",
+      "literal_va": "0x69cfe0",
+      "tag": "*e",
+      "literal_status": "verified",
+      "mapping_status": "inferred",
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "raw_bytes_reference": {
+        "offset": 2737120,
+        "length": 6,
+        "sha256": "94b69c78907a65f2d02d72b89ea8ec55060d721e394ed158922a9fab4d2bfc7e"
+      },
+      "operation_semantics": "not_tested"
+    },
+    {
+      "symbol": "|",
+      "literal_va": "0x69cff4",
+      "tag": "*f",
+      "literal_status": "verified",
+      "mapping_status": "inferred",
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "raw_bytes_reference": {
+        "offset": 2737140,
+        "length": 6,
+        "sha256": "405d327ba72fc2ceca79489f4e645ec07a5c4cf88683823b577323443e01561e"
+      },
+      "operation_semantics": "not_tested"
+    },
+    {
+      "symbol": "=",
+      "literal_va": "0x69d008",
+      "tag": "*h",
+      "literal_status": "verified",
+      "mapping_status": "inferred",
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "raw_bytes_reference": {
+        "offset": 2737160,
+        "length": 6,
+        "sha256": "50cbf9dcf60ec0e4319573db377120a1319cb208e2df4a459177b1d68dff1cc2"
+      },
+      "operation_semantics": "not_tested"
+    }
+  ],
+  "reduction_groups_high_to_low": [
+    [
+      "*",
+      "/",
+      "%"
+    ],
+    [
+      "+",
+      "-"
+    ],
+    [
+      "<<",
+      ">>"
+    ],
+    [
+      "^",
+      "&",
+      "|"
+    ],
+    [
+      "==",
+      "!=",
+      "<=",
+      ">=",
+      ">",
+      "<"
+    ],
+    [
+      "&&",
+      "||"
+    ],
+    [
+      "="
+    ]
+  ],
+  "associativity": "Hypothesis: left-to-right within each pass",
+  "original_evidence": "private/p1-round3/native-reproduced/expression-precedence.json",
+  "flow_model_evidence": "reports/p1/expression-flow-report.json",
+  "tokenizer_evidence_id": "ev_b9a9cb811d8e7778fdad31b06d3f6e9a744deb3b24081e2f653aaca06794a70c",
+  "precedence_evidence_id": "ev_a4158675e558ccf27983d46d61ffba6b0ea6013d2a5f4a140ed5bf0b4601b841",
+  "integer_width_and_coercion": "not_tested",
+  "logical_short_circuit": "not_tested",
+  "original_files_written": false
+}

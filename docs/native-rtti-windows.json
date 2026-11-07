@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "status": "inferred",
+  "scope": "RTTI-derived entry windows; ends are bounded review limits, not function-body assertions",
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "windows": [
+    {
+      "name": "thread-add",
+      "start": "0x6c11d4",
+      "end_exclusive": "0x6c1249"
+    },
+    {
+      "name": "routine-add",
+      "start": "0x6c1074",
+      "end_exclusive": "0x6c10e9"
+    },
+    {
+      "name": "routine-destroy",
+      "start": "0x6c145c",
+      "end_exclusive": "0x6c1488"
+    },
+    {
+      "name": "block-destroy",
+      "start": "0x6c0d8c",
+      "end_exclusive": "0x6c0db1"
+    },
+    {
+      "name": "abstract-add-stub",
+      "start": "0x6a7a0c",
+      "end_exclusive": "0x6a7a11"
+    },
+    {
+      "name": "routine-init",
+      "start": "0x6c14b4",
+      "end_exclusive": "0x6c1514"
+    },
+    {
+      "name": "block-init",
+      "start": "0x6c0db4",
+      "end_exclusive": "0x6c0df0"
+    }
+  ]
+}

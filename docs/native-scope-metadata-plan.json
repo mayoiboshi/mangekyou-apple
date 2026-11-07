@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Routine scope and return value declarations only",
+  "classes": [
+    {
+      "name": "TScriptRoutine",
+      "vmt": "0x6a802c",
+      "slots": 0
+    }
+  ],
+  "records": [
+    {
+      "name": "TReturnValue",
+      "type_info": "0x696c58",
+      "fields_count_address": "0x696c77"
+    }
+  ],
+  "negative_class_seeds": []
+}

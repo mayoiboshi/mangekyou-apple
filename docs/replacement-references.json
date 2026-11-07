@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "status": "inferred",
+  "accessed": "2026-11-07",
+  "scope": "Documentation comparison only; no vendor implementation embedded",
+  "sources": [
+    {
+      "title": "TRegEx current public declaration; different backend",
+      "url": "https://docwiki.embarcadero.com/Libraries/Athens/en/System.RegularExpressions.TRegEx",
+      "observed_revision": 733332
+    },
+    {
+      "title": "TRegExOption documentation; not authenticated for this binary",
+      "url": "https://docwiki.embarcadero.com/Libraries/Athens/en/System.RegularExpressions.TRegExOption",
+      "observed_revision": null
+    },
+    {
+      "title": "CharUpperBuffW platform API",
+      "url": "https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-charupperbuffw",
+      "observed_update": "2024-02-22"
+    }
+  ],
+  "observed_binary_component": {
+    "name": "TSkRegExp",
+    "source_version": "not_tested",
+    "reuse_license": "not_tested",
+    "implementation_reused": false
+  }
+}

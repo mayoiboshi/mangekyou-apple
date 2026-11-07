@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "status": "inferred",
+  "scope": "Format documentation only; current binary layout validated separately, no vendor code embedded",
+  "accessed": "2026-11-07",
+  "sources": [
+    {
+      "title": "Delphi internal formats, PE32 object/VMT layout",
+      "url": "https://docwiki.embarcadero.com/RADStudio/Sydney/en/Internal_Data_Formats_(Delphi)",
+      "observed_revision": null
+    },
+    {
+      "title": "TVmtMethodEntry",
+      "url": "https://docwiki.embarcadero.com/Libraries/Athens/en/System.TypInfo.TVmtMethodEntry",
+      "observed_revision": 199413
+    },
+    {
+      "title": "TVmtMethodExEntry",
+      "url": "https://docwiki.embarcadero.com/Libraries/Athens/en/System.TypInfo.TVmtMethodExEntry",
+      "observed_revision": 199415
+    },
+    {
+      "title": "TVmtFieldTable",
+      "url": "https://docwiki.embarcadero.com/Libraries/Athens/en/System.TypInfo.TVmtFieldTable",
+      "observed_revision": 199412
+    },
+    {
+      "title": "TFieldExEntry",
+      "url": "https://docwiki.embarcadero.com/Libraries/Athens/en/System.TypInfo.TFieldExEntry",
+      "observed_revision": 199394
+    },
+    {
+      "title": "TRecordTypeField",
+      "url": "https://docwiki.embarcadero.com/Libraries/Athens/en/System.TypInfo.TRecordTypeField",
+      "observed_revision": 199407
+    },
+    {
+      "title": "TManagedField",
+      "url": "https://docwiki.embarcadero.com/Libraries/Athens/en/System.TypInfo.TManagedField",
+      "observed_revision": 199400
+    },
+    {
+      "title": "TAttrData",
+      "url": "https://docwiki.embarcadero.com/Libraries/Athens/en/System.TypInfo.TAttrData",
+      "observed_revision": 199392
+    },
+    {
+      "title": "TTypeData enumeration header",
+      "url": "https://docwiki.embarcadero.com/Libraries/Athens/en/System.TypInfo.TTypeData",
+      "observed_revision": 316431
+    },
+    {
+      "title": "TMethod Code/Data fields",
+      "url": "https://docwiki.embarcadero.com/Libraries/Athens/en/System.TMethod",
+      "observed_revision": 625148
+    },
+    {
+      "title": "TTypeKind declaration order",
+      "url": "https://docwiki.embarcadero.com/Libraries/Athens/en/System.TypInfo.TTypeKind",
+      "observed_revision": 287066
+    }
+  ],
+  "compiler_version": "not_tested",
+  "implementation_reuse": false
+}

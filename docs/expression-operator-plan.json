@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Literal tag bytes verified separately from semantic interpretation",
+  "entries": [
+    {
+      "symbol": "==",
+      "literal_va": "0x69cea0",
+      "tag": "*0"
+    },
+    {
+      "symbol": "!=",
+      "literal_va": "0x69ceb4",
+      "tag": "*1"
+    },
+    {
+      "symbol": "<=",
+      "literal_va": "0x69cec8",
+      "tag": "*4"
+    },
+    {
+      "symbol": ">=",
+      "literal_va": "0x69cedc",
+      "tag": "*5"
+    },
+    {
+      "symbol": "&&",
+      "literal_va": "0x69cef0",
+      "tag": "*6"
+    },
+    {
+      "symbol": "||",
+      "literal_va": "0x69cf04",
+      "tag": "*7"
+    },
+    {
+      "symbol": ">>",
+      "literal_va": "0x69cf18",
+      "tag": "*3"
+    },
+    {
+      "symbol": "<<",
+      "literal_va": "0x69cf2c",
+      "tag": "*2"
+    },
+    {
+      "symbol": ">",
+      "literal_va": "0x69cf40",
+      "tag": "*i"
+    },
+    {
+      "symbol": "<",
+      "literal_va": "0x69cf54",
+      "tag": "*j"
+    },
+    {
+      "symbol": "+",
+      "literal_va": "0x69cf68",
+      "tag": "*8"
+    },
+    {
+      "symbol": "-",
+      "literal_va": "0x69cf7c",
+      "tag": "*9"
+    },
+    {
+      "symbol": "*",
+      "literal_va": "0x69cf90",
+      "tag": "*a"
+    },
+    {
+      "symbol": "/",
+      "literal_va": "0x69cfa4",
+      "tag": "*b"
+    },
+    {
+      "symbol": "%",
+      "literal_va": "0x69cfb8",
+      "tag": "*c"
+    },
+    {
+      "symbol": "^",
+      "literal_va": "0x69cfcc",
+      "tag": "*d"
+    },
+    {
+      "symbol": "&",
+      "literal_va": "0x69cfe0",
+      "tag": "*e"
+    },
+    {
+      "symbol": "|",
+      "literal_va": "0x69cff4",
+      "tag": "*f"
+    },
+    {
+      "symbol": "=",
+      "literal_va": "0x69d008",
+      "tag": "*h"
+    }
+  ]
+}

@@ -1,0 +1,552 @@
+{
+  "schema_version": 1,
+  "dataset": "real",
+  "status": "inferred",
+  "scope": "Second call field and selected file/label reader path; target never executed",
+  "source_file": "美少女万華鏡４.exe",
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "queries": [
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_5922536b6c284af1346dad9d15a9e52b8dadf09db111e402cbef654e3c823f67",
+      "operation": "procedure_assembly",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "f8ace317984327158dbaa33fbc8fbb8486d837fa2b8d2f16485af331dbf3de06",
+      "output_characters": 23038,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "shared-call-assembly",
+      "address": "0x6b70d8"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_e74a9cee737cf08856551be4ce4968d4341fe6752007a9ce4503aa4b981af4e3",
+      "operation": "procedure_pseudo_code",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "5e92545a8ec57e7cbbc05a82e722b375285770e23b28695c1a5af56f700d314f",
+      "output_characters": 341,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "module-jump",
+      "address": "0x695c34"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_b986e4532e882bd45bdc5fc24de6d64b5e582c87587dacb55a230169f5f618ed",
+      "operation": "procedure_assembly",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "8207dd9b6f9ca4dd9cac08d664e65a8ff30b5f220b982179e57197486df55e8c",
+      "output_characters": 678,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "module-jump-assembly",
+      "address": "0x695c34"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_453cf594b44096d8a87e700dc10bad6d3ede33df8cb26494719740e6f077cbbf",
+      "operation": "procedure_pseudo_code",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "338ccc56578b60a311e2ade609a2ce08ee59b0657993710abb91b447ac888d21",
+      "output_characters": 2149,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "module-load",
+      "address": "0x69556c"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_2de37c67b883f5a7ce587aa9848789ebb08f1b305ac2966f3d4f2c2d21d59173",
+      "operation": "procedure_assembly",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "575547916d28ce58028dac1d0999bd5f7aad238e7350ed11e95d50e25c0d40d8",
+      "output_characters": 3405,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "module-load-assembly",
+      "address": "0x69556c"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_d83b7cf46839df1b5f4c2ace6e650587fd7b8e7a2e921143bc19f89f07a83d28",
+      "operation": "procedure_pseudo_code",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "121ed47c655defeb206b582c2b5317373c5d1df8d02c6aa4bd8b3c3cbe3a8e1b",
+      "output_characters": 442,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "label-position",
+      "address": "0x696134"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_1d258dc1586c3da9431dec3f3009ac05b984f20ac6e50319d42d46ce9a468eea",
+      "operation": "procedure_assembly",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "a37813b20f877e433180140cbd82a93d775f31c8e7b22366436a968b2ba864ef",
+      "output_characters": 869,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "label-position-assembly",
+      "address": "0x696134"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_466ffeb46aebf47c6d17f31415b3baaf77cd10f7ef88e4b40caa0c10b7355e43",
+      "operation": "procedure_pseudo_code",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "18e87931834e26d3a9d795a9029bbe0234bca11a3747d7b3add7d646b8e2087b",
+      "output_characters": 1725,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "target-normalize",
+      "address": "0x6c06f0"
+    },
+    {
+      "status": "verified",
+      "scope": "Provider observation, not recovered source or execution semantics",
+      "evidence_id": "ev_4fd6de88f8b7b8084a8570467fcd3b066302ea233d94243111b895df9d967f44",
+      "operation": "procedure_assembly",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "profile_digest": "e1ad533d4cc0333c2136fe0894217de2d61feea098240326e78633f9e4ddcbf9",
+      "output_sha256": "7af297f53d6ed705c0560472510de2cf293cd9fad22279a424b43fb38ca865c6",
+      "output_characters": 2442,
+      "semantics": "not_tested",
+      "observation_support": "verified",
+      "name": "target-normalize-assembly",
+      "address": "0x6c06f0"
+    }
+  ],
+  "observations": [
+    {
+      "id": "second_field_read",
+      "status": "verified",
+      "require_anchor_order": true,
+      "observation": "Read field index two, lowercase it, compare with the self literal and branch immediately on equality.",
+      "scope": "Selected instructions only; full file preprocessing, conversion and execution not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ],
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_5922536b6c284af1346dad9d15a9e52b8dadf09db111e402cbef654e3c823f67",
+      "evidence_name": "shared-call-assembly",
+      "matched_line_numbers": [
+        446,
+        447,
+        448,
+        449,
+        450,
+        451,
+        452,
+        453,
+        454,
+        455,
+        456,
+        457
+      ],
+      "missing_anchor_count": 0,
+      "execution_semantics": "not_tested",
+      "anchor_order_status": "verified",
+      "address_range": {
+        "start": "0x6b76d8",
+        "end_exclusive": "0x6b770d"
+      },
+      "raw_bytes_reference": {
+        "source_file": "美少女万華鏡４.exe",
+        "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "offset": 2845400,
+        "length": 53,
+        "sha256": "01d2fce68220c5bef234b0a29420a8b6da745a2083aa0a0dec2cb6fa45cc80f0"
+      }
+    },
+    {
+      "id": "self_or_nil_default",
+      "status": "verified",
+      "require_anchor_order": true,
+      "observation": "A zero field pointer follows the same self-selection branch; raw empty-field construction remains outside this fact.",
+      "scope": "Selected instructions only; full file preprocessing, conversion and execution not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ],
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_5922536b6c284af1346dad9d15a9e52b8dadf09db111e402cbef654e3c823f67",
+      "evidence_name": "shared-call-assembly",
+      "matched_line_numbers": [
+        458,
+        459,
+        460,
+        461,
+        462,
+        463,
+        464,
+        465,
+        466,
+        467,
+        468
+      ],
+      "missing_anchor_count": 0,
+      "execution_semantics": "not_tested",
+      "anchor_order_status": "verified",
+      "address_range": {
+        "start": "0x6b770d",
+        "end_exclusive": "0x6b7737"
+      },
+      "raw_bytes_reference": {
+        "source_file": "美少女万華鏡４.exe",
+        "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "offset": 2845453,
+        "length": 42,
+        "sha256": "4a6fe82b88ea8339a28afefb7511f6d9da74d5682d8b23b780c2bd5ee2501ddf"
+      }
+    },
+    {
+      "id": "file_value_conversion",
+      "status": "verified",
+      "require_anchor_order": true,
+      "observation": "A non-self/nonzero second field is evaluated and a selected value field is passed to the conversion helper.",
+      "scope": "Selected instructions only; full file preprocessing, conversion and execution not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ],
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_5922536b6c284af1346dad9d15a9e52b8dadf09db111e402cbef654e3c823f67",
+      "evidence_name": "shared-call-assembly",
+      "matched_line_numbers": [
+        469,
+        470,
+        471,
+        472,
+        473,
+        474,
+        475,
+        476,
+        477,
+        478,
+        479,
+        480,
+        481,
+        482,
+        483,
+        484,
+        485,
+        486
+      ],
+      "missing_anchor_count": 0,
+      "execution_semantics": "not_tested",
+      "anchor_order_status": "verified",
+      "address_range": {
+        "start": "0x6b7737",
+        "end_exclusive": "0x6b7775"
+      },
+      "raw_bytes_reference": {
+        "source_file": "美少女万華鏡４.exe",
+        "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "offset": 2845495,
+        "length": 62,
+        "sha256": "11fae3e025871fc72d67caaee14fc42af963cd960fc53e8b80148c0e5bc86bbf"
+      }
+    },
+    {
+      "id": "reader_receives_file_and_label",
+      "status": "verified",
+      "require_anchor_order": true,
+      "observation": "The reader call receives the selected file value in EDX and normalized target in ECX; AL gates success.",
+      "scope": "Selected instructions only; full file preprocessing, conversion and execution not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ],
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_5922536b6c284af1346dad9d15a9e52b8dadf09db111e402cbef654e3c823f67",
+      "evidence_name": "shared-call-assembly",
+      "matched_line_numbers": [
+        487,
+        488,
+        489,
+        490,
+        491,
+        492,
+        493
+      ],
+      "missing_anchor_count": 0,
+      "execution_semantics": "not_tested",
+      "anchor_order_status": "verified",
+      "address_range": {
+        "start": "0x6b7775",
+        "end_exclusive": "0x6b778d"
+      },
+      "raw_bytes_reference": {
+        "source_file": "美少女万華鏡４.exe",
+        "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "offset": 2845557,
+        "length": 24,
+        "sha256": "59fd5f094a1d73bbec5b9d219d002eeb0b8ac0f1f5eb0932a3d1382e12d31f6c"
+      }
+    },
+    {
+      "id": "reader_self_load_gate",
+      "status": "verified",
+      "require_anchor_order": true,
+      "observation": "The wrapper compares the selected file to self; another file invokes the load helper with CL one, and zero AL skips the label call.",
+      "scope": "Selected instructions only; full file preprocessing, conversion and execution not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ],
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_b986e4532e882bd45bdc5fc24de6d64b5e582c87587dacb55a230169f5f618ed",
+      "evidence_name": "module-jump-assembly",
+      "matched_line_numbers": [
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ],
+      "missing_anchor_count": 0,
+      "execution_semantics": "not_tested",
+      "anchor_order_status": "verified",
+      "address_range": {
+        "start": "0x695c40",
+        "end_exclusive": "0x695c5f"
+      },
+      "raw_bytes_reference": {
+        "source_file": "美少女万華鏡４.exe",
+        "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "offset": 2707520,
+        "length": 31,
+        "sha256": "6db92a25cc6ffd48db0e0f7fcf963ef0a3d5d5c8bdde0cf625a0c08c58a03aab"
+      }
+    },
+    {
+      "id": "reader_label_call",
+      "status": "verified",
+      "require_anchor_order": true,
+      "observation": "The label-position helper receives the saved target, zero offset and a pushed zero argument.",
+      "scope": "Selected instructions only; full file preprocessing, conversion and execution not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ],
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_b986e4532e882bd45bdc5fc24de6d64b5e582c87587dacb55a230169f5f618ed",
+      "evidence_name": "module-jump-assembly",
+      "matched_line_numbers": [
+        20,
+        21,
+        22,
+        23,
+        24,
+        25
+      ],
+      "missing_anchor_count": 0,
+      "execution_semantics": "not_tested",
+      "anchor_order_status": "verified",
+      "address_range": {
+        "start": "0x695c5f",
+        "end_exclusive": "0x695c6e"
+      },
+      "raw_bytes_reference": {
+        "source_file": "美少女万華鏡４.exe",
+        "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "offset": 2707551,
+        "length": 15,
+        "sha256": "f603a4252c32a921b5ac22d4db1f06655c2b928c4f3be90bb92d835ddf715a4a"
+      }
+    },
+    {
+      "id": "loaded_name_assignment",
+      "status": "verified",
+      "require_anchor_order": true,
+      "observation": "The selected load success path updates the reader string at +24 from the requested file value.",
+      "scope": "Selected instructions only; full file preprocessing, conversion and execution not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ],
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_2de37c67b883f5a7ce587aa9848789ebb08f1b305ac2966f3d4f2c2d21d59173",
+      "evidence_name": "module-load-assembly",
+      "matched_line_numbers": [
+        98,
+        99,
+        100,
+        101,
+        102
+      ],
+      "missing_anchor_count": 0,
+      "execution_semantics": "not_tested",
+      "anchor_order_status": "verified",
+      "address_range": {
+        "start": "0x69569f",
+        "end_exclusive": "0x6956b2"
+      },
+      "raw_bytes_reference": {
+        "source_file": "美少女万華鏡４.exe",
+        "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "offset": 2706079,
+        "length": 19,
+        "sha256": "bcda6600597f36c95dda92fc5a345b616399cfe23b48eab709b622cf2faaed67"
+      }
+    },
+    {
+      "id": "label_index_and_read",
+      "status": "verified",
+      "require_anchor_order": true,
+      "observation": "Failed index -1 skips position writes; found index sets reader index/offset fields and calls the line reader.",
+      "scope": "Selected instructions only; full file preprocessing, conversion and execution not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ],
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_1d258dc1586c3da9431dec3f3009ac05b984f20ac6e50319d42d46ce9a468eea",
+      "evidence_name": "label-position-assembly",
+      "matched_line_numbers": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26
+      ],
+      "missing_anchor_count": 0,
+      "execution_semantics": "not_tested",
+      "anchor_order_status": "verified",
+      "address_range": {
+        "start": "0x696142",
+        "end_exclusive": "0x696173"
+      },
+      "raw_bytes_reference": {
+        "source_file": "美少女万華鏡４.exe",
+        "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "offset": 2708802,
+        "length": 49,
+        "sha256": "9e40120941c814d9b3e5f069c90dc9e1e50bd473d5bc7dd8b8b8d92c06ec16de"
+      }
+    }
+  ],
+  "errors": 0,
+  "original_authenticity": "not_tested",
+  "original_program_execution": "not_tested",
+  "runtime_development_ready": false,
+  "full_game_compatibility": "not_tested",
+  "raw_evidence_directory": "private/p1-round22/native-reproduced",
+  "original_files_written": false,
+  "external_game_data_uploads": false,
+  "limitations": [
+    "Ghidra 的 Delphi 寄存器约定、参数类型与返回值恢复不可靠；汇编优先。",
+    "发现函数和路径不能证明原始发行版身份、实际加载优先级或完整行为。",
+    "没有运行原引擎或原生游戏运行时；时序、分支、存档一致性尚未验证。"
+  ],
+  "inferred_contracts": [
+    {
+      "id": "explicit_module_binding",
+      "status": "inferred",
+      "basis": [
+        "second_field_read",
+        "self_or_nil_default",
+        "file_value_conversion",
+        "reader_receives_file_and_label",
+        "reader_self_load_gate",
+        "reader_label_call"
+      ],
+      "meaning": "Field two selects a file before the target label is positioned. This does not identify the package winner or recover all file/value conversion rules.",
+      "preprocessing": "not_tested",
+      "original_execution": "not_tested"
+    },
+    {
+      "id": "load_success_name_state",
+      "status": "inferred",
+      "basis": [
+        "loaded_name_assignment",
+        "label_index_and_read"
+      ],
+      "meaning": "Selected load and positioning paths maintain filename/index/offset state; full successful return and include semantics remain unproven.",
+      "default_body_completeness": "not_tested"
+    }
+  ],
+  "default_function_coverage_status": "not_tested",
+  "default_function_lookup_scope": "Selected resolve/inspect results only; no completeness claim about underlying function bodies",
+  "default_body_completeness": "not_tested",
+  "default_function_gaps": [],
+  "historical_failed_lookups": [],
+  "execution_semantics": "not_tested",
+  "independent_collection": {
+    "status": "verified",
+    "scope": "Query observations and cleanup only, not underlying function coverage",
+    "manifest_sha256": "0918e64b4ec04aa432a9fa179564fff0bd3ea10e79dd3bbdc2ea6abc478497f1"
+  }
+}

@@ -1,0 +1,3565 @@
+{
+  "schema_version": 1,
+  "dataset": "real",
+  "status": "inferred",
+  "scope": "All operand fields of cal/if/for/case in preserved text variants; candidate trees, no execution",
+  "files": 379,
+  "expression_fields": 8130,
+  "node_count": 37322,
+  "status_counts": {
+    "inferred": 8128,
+    "unsupported": 2
+  },
+  "grammar_coverage_status": "unsupported",
+  "unknown_reasons": {
+    "missing_or_unverified_prefix_operand": 2
+  },
+  "command_field_counts": {
+    "cal": 4761,
+    "if": 2137,
+    "for": 1107,
+    "case": 125
+  },
+  "excluded_command_counts": {
+    "svar": 117,
+    "then": 2121,
+    "end": 2639,
+    "sub": 1804,
+    "go": 95,
+    "scp": 6014,
+    "d": 194,
+    "e": 720,
+    "ret": 1912,
+    "srct": 78,
+    "p": 883,
+    "?p": 81,
+    "thrd": 34,
+    "wait": 13,
+    "clk": 87,
+    "jmp": 450,
+    "r": 6,
+    "lk": 112,
+    "i": 289,
+    "c": 99,
+    "var": 1437,
+    "v": 2101,
+    "?sr": 38,
+    "vexs": 118,
+    "gvar": 752,
+    "eve": 4,
+    "?v": 1695,
+    "stid": 124,
+    "tz": 6,
+    "zero": 94,
+    "del": 671,
+    "draw": 34,
+    "ad": 40,
+    "?c": 169,
+    "?s": 148,
+    "a": 563,
+    "n2": 20,
+    "else": 357,
+    "tef": 4,
+    "rep": 80,
+    "fexs": 44,
+    "derr": 26,
+    "?g": 52,
+    "s": 42,
+    "?skp": 22,
+    "l": 946,
+    "vtn": 435,
+    "tf": 24,
+    "sc": 18,
+    "ost": 2,
+    "?tt": 10,
+    "?nt": 6,
+    "brk": 24,
+    "fdi": 80,
+    "stop": 41,
+    "play": 151,
+    "?ver": 26,
+    "ddlg": 8,
+    "bsub": 10,
+    "trim": 4,
+    "garr": 44,
+    "?sc": 2,
+    "fo": 54,
+    "t": 6,
+    "cc": 47,
+    "fmt": 148,
+    "o": 218,
+    "mc": 39,
+    "m": 78,
+    "?lkc": 28,
+    "lkc": 38,
+    "mge": 8,
+    "swe": 14,
+    "?mrd": 10,
+    "cnt": 17,
+    "ui": 274,
+    "skip": 46,
+    "?gs": 12,
+    "exv": 20,
+    "?lk": 34,
+    "ts": 167,
+    "mi": 36,
+    "in": 62,
+    "out": 56,
+    "lim": 2,
+    "pp": 4,
+    "ss": 2,
+    "vget": 4,
+    "div": 90,
+    "vset": 4,
+    "pos": 34,
+    "cfe": 12,
+    "dthm": 2,
+    "efn": 10,
+    "ap": 14,
+    "gbc": 25,
+    "init": 2,
+    "of": 408,
+    "?n": 64,
+    "sort": 72,
+    "brep": 18,
+    "comb": 60,
+    "cpy": 14,
+    "asn": 36,
+    "pri": 4,
+    "mm": 26,
+    "col": 16,
+    "bm": 10,
+    "g": 12,
+    "g2": 10,
+    "dc": 22,
+    "?i": 2,
+    "bpos": 22,
+    "alg2": 18,
+    "ps": 20,
+    "li": 524,
+    "?e": 8,
+    "p4": 28,
+    "?p4": 2,
+    "midx": 4,
+    "sk": 10,
+    "?k2": 12,
+    "?mcw": 2,
+    "?ap": 2,
+    "?m": 2,
+    "?mt": 2,
+    "?tmg": 4,
+    "?tp": 4,
+    "?tda": 4,
+    "skp": 4,
+    "et": 4,
+    "nt": 4,
+    "subp": 4,
+    "copy": 6,
+    "prm": 2,
+    "swap": 8,
+    "pan": 16,
+    "?dc": 2,
+    "exr": 10,
+    "?r": 2,
+    "exop": 4,
+    "as": 6,
+    "kwe": 7,
+    "ns": 11,
+    "?t": 2,
+    "tmg": 6,
+    "?mc": 2,
+    "?l": 4,
+    "p2": 22,
+    "fdm": 4,
+    "fdp": 4,
+    "bg": 6,
+    "dskp": 4,
+    "ans": 69,
+    "rnd": 4,
+    "dd": 28,
+    "gsf": 14,
+    "stf": 10,
+    "lff": 10,
+    "ls": 790,
+    "tab": 435,
+    "sp": 359,
+    "ds": 8,
+    "us": 443,
+    "tsub": 8,
+    "?cv": 2,
+    "?cvv": 4,
+    "?cvm": 7,
+    "vtv": 12,
+    "vtm": 10,
+    "fn2": 4,
+    "fst2": 4,
+    "faa2": 4,
+    "fsc2": 4,
+    "?fn": 2,
+    "?faa": 2,
+    "?fst": 2,
+    "?fsc": 2,
+    "nsw": 3,
+    "kwl": 6,
+    "kwb": 3,
+    "?gd": 6,
+    "sw": 2,
+    "zenc": 2,
+    "?fcs": 6,
+    "gcd": 2,
+    "fsha": 2,
+    "glpk": 2,
+    "?fs": 4,
+    "?fdm": 2,
+    "?blt": 6,
+    "?fps": 2,
+    "?sb": 2,
+    "?cs": 2,
+    "?gim": 2,
+    "?sfs": 2,
+    "info": 78,
+    "sl": 14,
+    "alg": 4,
+    "gsc": 15,
+    "k2": 29,
+    "ck": 50,
+    "?wh": 2,
+    "?mp": 6,
+    "dbrk": 7,
+    "l2": 24,
+    "mv": 35,
+    "vt": 25,
+    "fs": 2,
+    "smr": 2,
+    "il": 4,
+    "ma2": 6,
+    "ms": 4,
+    "mtw": 4,
+    "mcw": 4,
+    "f": 2,
+    "cvm": 6,
+    "?us": 8,
+    "cvv": 2,
+    "?il": 2,
+    "?ma": 2,
+    "?ms": 2,
+    "?mtw": 2,
+    "?in": 2,
+    "?vi": 10,
+    "vi": 8,
+    "swp": 2,
+    "?mw": 4,
+    "?swp": 2,
+    "sarr": 8,
+    "anc": 10,
+    "max": 2,
+    "?mv": 1,
+    "?o": 1,
+    "sr": 2,
+    "bmat": 4,
+    "?ck": 4,
+    "?sk": 8,
+    "?vtv": 2,
+    "efe": 2,
+    "mp": 2
+  },
+  "empty_expression_records": [
+    {
+      "source_file": "data7.pack/avg/avgsystem_autoselect.s",
+      "source_sha256": "22cba96295fc658b36e4a15432bfa30bac0eb16e5721807e37eb346f4697aa56",
+      "command": "for",
+      "byte_offset": 420,
+      "byte_length": 4,
+      "status": "not_tested",
+      "reason": "No expression field; no default expression invented"
+    },
+    {
+      "source_file": "data7.pack/avg/include_route.s",
+      "source_sha256": "5871a8c1d967c23f1e6ffefb4de2ba6cf7d22d5488b44887e874f814d73bb4f5",
+      "command": "for",
+      "byte_offset": 6080,
+      "byte_length": 4,
+      "status": "not_tested",
+      "reason": "No expression field; no default expression invented"
+    },
+    {
+      "source_file": "data7.pack/avg/include_route.s",
+      "source_sha256": "5871a8c1d967c23f1e6ffefb4de2ba6cf7d22d5488b44887e874f814d73bb4f5",
+      "command": "for",
+      "byte_offset": 8369,
+      "byte_length": 4,
+      "status": "not_tested",
+      "reason": "No expression field; no default expression invented"
+    },
+    {
+      "source_file": "data7.pack/avg/include_route.s",
+      "source_sha256": "5871a8c1d967c23f1e6ffefb4de2ba6cf7d22d5488b44887e874f814d73bb4f5",
+      "command": "for",
+      "byte_offset": 14470,
+      "byte_length": 4,
+      "status": "not_tested",
+      "reason": "No expression field; no default expression invented"
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_autoselect.s",
+      "source_sha256": "58a4a6733fda24d0c9ffea1c4ea012f0eb4327886a648b564e5d58821cc18d5c",
+      "command": "for",
+      "byte_offset": 842,
+      "byte_length": 8,
+      "status": "not_tested",
+      "reason": "No expression field; no default expression invented"
+    },
+    {
+      "source_file": "data8.pack/avg/include_route.s",
+      "source_sha256": "a44cdd6c1e82ca633f499f64748700140d54a5844777acfd183ccc36eac261c2",
+      "command": "for",
+      "byte_offset": 12150,
+      "byte_length": 8,
+      "status": "not_tested",
+      "reason": "No expression field; no default expression invented"
+    },
+    {
+      "source_file": "data8.pack/avg/include_route.s",
+      "source_sha256": "a44cdd6c1e82ca633f499f64748700140d54a5844777acfd183ccc36eac261c2",
+      "command": "for",
+      "byte_offset": 16728,
+      "byte_length": 8,
+      "status": "not_tested",
+      "reason": "No expression field; no default expression invented"
+    },
+    {
+      "source_file": "data8.pack/avg/include_route.s",
+      "source_sha256": "a44cdd6c1e82ca633f499f64748700140d54a5844777acfd183ccc36eac261c2",
+      "command": "for",
+      "byte_offset": 28926,
+      "byte_length": 8,
+      "status": "not_tested",
+      "reason": "No expression field; no default expression invented"
+    }
+  ],
+  "per_file": [
+    {
+      "source_file": "data0.pack/startup.s",
+      "expression_fields": 4,
+      "status_counts": {
+        "inferred": 4
+      }
+    },
+    {
+      "source_file": "data0.pack/sysstartup.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data0.pack/system/etc/game.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data0.pack/system/etc/gui.u.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data0.pack/system/etc/message.u.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data0.pack/system/font/fontdata.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data0.pack/system/voice/voicedata.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/include/allclear.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/include/allset.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/include/dayend.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/include/dayend_nf.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/include/fileend.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/include/fileend_nf.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/include/fileend_nfm.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/include/fileend_nfmm.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/include/last1.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/include/last2.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/include/longend.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/ed_movie.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/root.s",
+      "expression_fields": 13,
+      "status_counts": {
+        "inferred": 13
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/scenereplay.s",
+      "expression_fields": 3,
+      "status_counts": {
+        "inferred": 3
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/select.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t00op_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t01_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t01_02@.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t01_03.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t02_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t02_02@.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t02_03.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t03_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t04_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t04_02@.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t04_03.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t05_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t05_02@.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t05_03.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t06_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t07_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t07_02@.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t07_03.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t08_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t08_02@.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t08_03.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t09_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t09_02@.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t09_03.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t10_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t11_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t12_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t12_02@.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t12_03.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t13_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t13_02@.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t13_03.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t14_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t14_02@.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t14_03.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t15_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t16_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t16_02@.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t16_03.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t17_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t17_02@.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t17_03.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t18_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t18_01b@.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t18_02@.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t18_03.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t19a_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t19a_02@.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t19a_03.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t19b_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t19b_02@.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t19b_03.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t19c_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t20a_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t21_01omake@.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/ted99_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem.s",
+      "expression_fields": 32,
+      "status_counts": {
+        "inferred": 32
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_abmpmovie.s",
+      "expression_fields": 59,
+      "status_counts": {
+        "inferred": 59
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_autoselect.s",
+      "expression_fields": 24,
+      "status_counts": {
+        "inferred": 24
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_custom.s",
+      "expression_fields": 61,
+      "status_counts": {
+        "inferred": 61
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_logjump.s",
+      "expression_fields": 22,
+      "status_counts": {
+        "inferred": 22
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_movie.s",
+      "expression_fields": 33,
+      "status_counts": {
+        "inferred": 33
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_rewind.s",
+      "expression_fields": 89,
+      "status_counts": {
+        "inferred": 89
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_route.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_sceneskip.s",
+      "expression_fields": 68,
+      "status_counts": {
+        "inferred": 68
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_select.s",
+      "expression_fields": 28,
+      "status_counts": {
+        "inferred": 28
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_value.s",
+      "expression_fields": 5,
+      "status_counts": {
+        "inferred": 5
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/footer.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/header.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/header_replay.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter.s",
+      "expression_fields": 58,
+      "status_counts": {
+        "inferred": 58
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_base.s",
+      "expression_fields": 90,
+      "status_counts": {
+        "inferred": 90
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_blendmodelist.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_camera.s",
+      "expression_fields": 100,
+      "status_counts": {
+        "inferred": 100
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_chara.s",
+      "expression_fields": 213,
+      "status_counts": {
+        "inferred": 213
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_chara8e.s",
+      "expression_fields": 267,
+      "status_counts": {
+        "inferred": 267
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_charaposlist.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_custom.s",
+      "expression_fields": 359,
+      "status_counts": {
+        "inferred": 359
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_extentionlist.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_face.s",
+      "expression_fields": 168,
+      "status_counts": {
+        "inferred": 168
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_face_poslist.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_face_repfile.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_face_repid.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_fadeeventlist.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_filterlist.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_fontlist.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_format.s",
+      "expression_fields": 211,
+      "status_counts": {
+        "inferred": 211
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_generatorfilterlist.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_gfadelist.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_gmodelist.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_gtargetlist.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_image.s",
+      "expression_fields": 155,
+      "status_counts": {
+        "inferred": 155
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_imagefilterlist.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_include.s",
+      "expression_fields": 16,
+      "status_counts": {
+        "inferred": 16
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_indexlist.s",
+      "expression_fields": 12,
+      "status_counts": {
+        "inferred": 12
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_information.s",
+      "expression_fields": 157,
+      "status_counts": {
+        "inferred": 157
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_message.s",
+      "expression_fields": 169,
+      "status_counts": {
+        "inferred": 169
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_movemodelist.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_music.s",
+      "expression_fields": 133,
+      "status_counts": {
+        "inferred": 133
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_namecolorlist.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_nametext.s",
+      "expression_fields": 130,
+      "status_counts": {
+        "inferred": 130
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_reptextlist.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_sentence.s",
+      "expression_fields": 109,
+      "status_counts": {
+        "inferred": 109
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_sound.s",
+      "expression_fields": 98,
+      "status_counts": {
+        "inferred": 97,
+        "unsupported": 1
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_soundfilterlist.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_camera.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_chara.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_chara8e.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_face.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_format.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_image.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_information.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_message.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_music.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_nametext.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_sentence.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_sound.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_texturefilterlist.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/include_route.s",
+      "expression_fields": 181,
+      "status_counts": {
+        "inferred": 181
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/prebranch.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/preselect.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/projectobjects.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/projectsetting.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/select/layout_select.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/setting.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/uppermenu/layout.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/uppermenu/main.s",
+      "expression_fields": 8,
+      "status_counts": {
+        "inferred": 8
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/window/layout_window.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/misc/mgmisc.s",
+      "expression_fields": 43,
+      "status_counts": {
+        "inferred": 43
+      }
+    },
+    {
+      "source_file": "data7.pack/misc/misc.s",
+      "expression_fields": 132,
+      "status_counts": {
+        "inferred": 132
+      }
+    },
+    {
+      "source_file": "data7.pack/misc/misc_systeminfo.s",
+      "expression_fields": 48,
+      "status_counts": {
+        "inferred": 48
+      }
+    },
+    {
+      "source_file": "data7.pack/misc/value.s",
+      "expression_fields": 22,
+      "status_counts": {
+        "inferred": 22
+      }
+    },
+    {
+      "source_file": "data7.pack/misc/voicefiletonametable.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/script/albummode/layout.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/script/albummode/layout_view.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/script/albummode/list.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/script/albummode/main.s",
+      "expression_fields": 26,
+      "status_counts": {
+        "inferred": 26
+      }
+    },
+    {
+      "source_file": "data7.pack/script/albummode/viewfunction.s",
+      "expression_fields": 81,
+      "status_counts": {
+        "inferred": 81
+      }
+    },
+    {
+      "source_file": "data7.pack/script/caution/main.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/script/config/layout.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/script/config/main.s",
+      "expression_fields": 56,
+      "status_counts": {
+        "inferred": 56
+      }
+    },
+    {
+      "source_file": "data7.pack/script/config/value.s",
+      "expression_fields": 58,
+      "status_counts": {
+        "inferred": 58
+      }
+    },
+    {
+      "source_file": "data7.pack/script/config/valuedefault.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/script/dialog/layout_message.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/script/dialog/layout_yesno.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/script/dialog/main.s",
+      "expression_fields": 23,
+      "status_counts": {
+        "inferred": 23
+      }
+    },
+    {
+      "source_file": "data7.pack/script/exceptionbackup/main.s",
+      "expression_fields": 3,
+      "status_counts": {
+        "inferred": 3
+      }
+    },
+    {
+      "source_file": "data7.pack/script/log/layout.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/script/log/main.s",
+      "expression_fields": 115,
+      "status_counts": {
+        "inferred": 115
+      }
+    },
+    {
+      "source_file": "data7.pack/script/log/__layout.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/script/log/__main.s",
+      "expression_fields": 61,
+      "status_counts": {
+        "inferred": 61
+      }
+    },
+    {
+      "source_file": "data7.pack/script/makerlogo/main.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/script/memorymode/layout.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/script/memorymode/list.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/script/memorymode/main.s",
+      "expression_fields": 29,
+      "status_counts": {
+        "inferred": 29
+      }
+    },
+    {
+      "source_file": "data7.pack/script/memorymode/replayfunction.s",
+      "expression_fields": 30,
+      "status_counts": {
+        "inferred": 30
+      }
+    },
+    {
+      "source_file": "data7.pack/script/quit/main.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data7.pack/script/reset/main.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data7.pack/script/saveload/common.s",
+      "expression_fields": 11,
+      "status_counts": {
+        "inferred": 11
+      }
+    },
+    {
+      "source_file": "data7.pack/script/saveload/layout_load.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/script/saveload/layout_save.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/script/saveload/main_load.s",
+      "expression_fields": 49,
+      "status_counts": {
+        "inferred": 49
+      }
+    },
+    {
+      "source_file": "data7.pack/script/saveload/main_quickload.s",
+      "expression_fields": 7,
+      "status_counts": {
+        "inferred": 7
+      }
+    },
+    {
+      "source_file": "data7.pack/script/saveload/main_quicksave.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data7.pack/script/saveload/main_save.s",
+      "expression_fields": 42,
+      "status_counts": {
+        "inferred": 42
+      }
+    },
+    {
+      "source_file": "data7.pack/script/sequence/onload.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data7.pack/script/sequence/onquit.s",
+      "expression_fields": 3,
+      "status_counts": {
+        "inferred": 3
+      }
+    },
+    {
+      "source_file": "data7.pack/script/sequence/onreset.s",
+      "expression_fields": 3,
+      "status_counts": {
+        "inferred": 3
+      }
+    },
+    {
+      "source_file": "data7.pack/script/soundmode/layout.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/script/soundmode/list.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/script/soundmode/main.s",
+      "expression_fields": 79,
+      "status_counts": {
+        "inferred": 79
+      }
+    },
+    {
+      "source_file": "data7.pack/script/title/layout01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/script/title/layout02.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/script/title/layout_select01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/script/title/layout_select02.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/script/title/main.s",
+      "expression_fields": 39,
+      "status_counts": {
+        "inferred": 39
+      }
+    },
+    {
+      "source_file": "data7.pack/script/unlock/unlock.s",
+      "expression_fields": 15,
+      "status_counts": {
+        "inferred": 15
+      }
+    },
+    {
+      "source_file": "data7.pack/script/view/layout.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data7.pack/script/view/main.s",
+      "expression_fields": 25,
+      "status_counts": {
+        "inferred": 25
+      }
+    },
+    {
+      "source_file": "data8.pack/1.01パッチ用フォルダ.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem.s",
+      "expression_fields": 32,
+      "status_counts": {
+        "inferred": 32
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_abmpmovie.s",
+      "expression_fields": 59,
+      "status_counts": {
+        "inferred": 59
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_autoselect.s",
+      "expression_fields": 24,
+      "status_counts": {
+        "inferred": 24
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_custom.s",
+      "expression_fields": 61,
+      "status_counts": {
+        "inferred": 61
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_logjump.s",
+      "expression_fields": 22,
+      "status_counts": {
+        "inferred": 22
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_movie.s",
+      "expression_fields": 33,
+      "status_counts": {
+        "inferred": 33
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_rewind.s",
+      "expression_fields": 89,
+      "status_counts": {
+        "inferred": 89
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_route.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_sceneskip.s",
+      "expression_fields": 68,
+      "status_counts": {
+        "inferred": 68
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_select.s",
+      "expression_fields": 28,
+      "status_counts": {
+        "inferred": 28
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_value.s",
+      "expression_fields": 5,
+      "status_counts": {
+        "inferred": 5
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/footer.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/header.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/header_replay.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter.s",
+      "expression_fields": 58,
+      "status_counts": {
+        "inferred": 58
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_base.s",
+      "expression_fields": 90,
+      "status_counts": {
+        "inferred": 90
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_blendmodelist.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_camera.s",
+      "expression_fields": 100,
+      "status_counts": {
+        "inferred": 100
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_chara.s",
+      "expression_fields": 213,
+      "status_counts": {
+        "inferred": 213
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_chara8e.s",
+      "expression_fields": 268,
+      "status_counts": {
+        "inferred": 268
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_charaposlist.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_custom.s",
+      "expression_fields": 359,
+      "status_counts": {
+        "inferred": 359
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_extentionlist.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_face.s",
+      "expression_fields": 168,
+      "status_counts": {
+        "inferred": 168
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_face_poslist.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_face_repfile.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_face_repid.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_fadeeventlist.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_filterlist.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_fontlist.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_format.s",
+      "expression_fields": 211,
+      "status_counts": {
+        "inferred": 211
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_generatorfilterlist.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_gfadelist.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_gmodelist.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_gtargetlist.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_image.s",
+      "expression_fields": 158,
+      "status_counts": {
+        "inferred": 158
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_imagefilterlist.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_include.s",
+      "expression_fields": 16,
+      "status_counts": {
+        "inferred": 16
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_indexlist.s",
+      "expression_fields": 12,
+      "status_counts": {
+        "inferred": 12
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_information.s",
+      "expression_fields": 157,
+      "status_counts": {
+        "inferred": 157
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_message.s",
+      "expression_fields": 169,
+      "status_counts": {
+        "inferred": 169
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_movemodelist.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_music.s",
+      "expression_fields": 133,
+      "status_counts": {
+        "inferred": 133
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_namecolorlist.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_nametext.s",
+      "expression_fields": 130,
+      "status_counts": {
+        "inferred": 130
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_reptextlist.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_sentence.s",
+      "expression_fields": 109,
+      "status_counts": {
+        "inferred": 109
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_sound.s",
+      "expression_fields": 113,
+      "status_counts": {
+        "inferred": 112,
+        "unsupported": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_soundfilterlist.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_camera.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_chara.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_chara8e.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_face.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_format.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_image.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_information.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_message.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_music.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_nametext.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_sentence.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_sound.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_texturefilterlist.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/include_route.s",
+      "expression_fields": 181,
+      "status_counts": {
+        "inferred": 181
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/prebranch.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/preselect.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/projectobjects.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/projectsetting.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/select/layout_select.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/setting.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/uppermenu/layout.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/uppermenu/main.s",
+      "expression_fields": 8,
+      "status_counts": {
+        "inferred": 8
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/window/layout_window.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/misc/mgmisc.s",
+      "expression_fields": 43,
+      "status_counts": {
+        "inferred": 43
+      }
+    },
+    {
+      "source_file": "data8.pack/misc/misc.s",
+      "expression_fields": 132,
+      "status_counts": {
+        "inferred": 132
+      }
+    },
+    {
+      "source_file": "data8.pack/misc/misc_systeminfo.s",
+      "expression_fields": 48,
+      "status_counts": {
+        "inferred": 48
+      }
+    },
+    {
+      "source_file": "data8.pack/misc/value.s",
+      "expression_fields": 22,
+      "status_counts": {
+        "inferred": 22
+      }
+    },
+    {
+      "source_file": "data8.pack/misc/voicefiletonametable.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t00op_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t01_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t01_02@.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t01_03.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t02_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t02_02@.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t02_03.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t03_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t04_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t04_02@.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t04_03.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t05_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t05_02@.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t05_03.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t06_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t07_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t07_02@.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t07_03.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t08_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t08_02@.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t08_03.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t09_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t09_02@.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t09_03.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t10_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t11_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t12_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t12_02@.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t12_03.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t13_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t13_02@.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t13_03.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t14_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t14_02@.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t14_03.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t15_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t16_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t16_02@.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t16_03.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t17_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t17_02@.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t17_03.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t18_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t18_01b@.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t18_02@.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t18_03.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t19a_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t19a_02@.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t19a_03.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t19b_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t19b_02@.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t19b_03.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t19c_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t20a_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t21_01omake@.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/ted99_01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/script/albummode/layout.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/script/albummode/layout_view.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/script/albummode/list.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/script/albummode/main.s",
+      "expression_fields": 26,
+      "status_counts": {
+        "inferred": 26
+      }
+    },
+    {
+      "source_file": "data8.pack/script/albummode/viewfunction.s",
+      "expression_fields": 81,
+      "status_counts": {
+        "inferred": 81
+      }
+    },
+    {
+      "source_file": "data8.pack/script/caution/main.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/script/config/layout.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/script/config/main.s",
+      "expression_fields": 56,
+      "status_counts": {
+        "inferred": 56
+      }
+    },
+    {
+      "source_file": "data8.pack/script/config/value.s",
+      "expression_fields": 58,
+      "status_counts": {
+        "inferred": 58
+      }
+    },
+    {
+      "source_file": "data8.pack/script/config/valuedefault.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/script/dialog/layout_message.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/script/dialog/layout_yesno.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/script/dialog/main.s",
+      "expression_fields": 23,
+      "status_counts": {
+        "inferred": 23
+      }
+    },
+    {
+      "source_file": "data8.pack/script/log/layout.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/script/log/main.s",
+      "expression_fields": 115,
+      "status_counts": {
+        "inferred": 115
+      }
+    },
+    {
+      "source_file": "data8.pack/script/makerlogo/main.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/script/memorymode/layout.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/script/memorymode/list.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/script/memorymode/main.s",
+      "expression_fields": 29,
+      "status_counts": {
+        "inferred": 29
+      }
+    },
+    {
+      "source_file": "data8.pack/script/memorymode/replayfunction.s",
+      "expression_fields": 30,
+      "status_counts": {
+        "inferred": 30
+      }
+    },
+    {
+      "source_file": "data8.pack/script/quit/main.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/script/reset/main.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/script/saveload/common.s",
+      "expression_fields": 11,
+      "status_counts": {
+        "inferred": 11
+      }
+    },
+    {
+      "source_file": "data8.pack/script/saveload/layout_load.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/script/saveload/layout_save.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/script/saveload/main_load.s",
+      "expression_fields": 49,
+      "status_counts": {
+        "inferred": 49
+      }
+    },
+    {
+      "source_file": "data8.pack/script/saveload/main_quickload.s",
+      "expression_fields": 7,
+      "status_counts": {
+        "inferred": 7
+      }
+    },
+    {
+      "source_file": "data8.pack/script/saveload/main_quicksave.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/script/saveload/main_save.s",
+      "expression_fields": 42,
+      "status_counts": {
+        "inferred": 42
+      }
+    },
+    {
+      "source_file": "data8.pack/script/sequence/onload.s",
+      "expression_fields": 1,
+      "status_counts": {
+        "inferred": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/script/sequence/onquit.s",
+      "expression_fields": 3,
+      "status_counts": {
+        "inferred": 3
+      }
+    },
+    {
+      "source_file": "data8.pack/script/sequence/onreset.s",
+      "expression_fields": 3,
+      "status_counts": {
+        "inferred": 3
+      }
+    },
+    {
+      "source_file": "data8.pack/script/soundmode/layout.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/script/soundmode/list.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/script/soundmode/main.s",
+      "expression_fields": 79,
+      "status_counts": {
+        "inferred": 79
+      }
+    },
+    {
+      "source_file": "data8.pack/script/title/layout01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/script/title/layout02.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/script/title/layout_select01.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/script/title/layout_select02.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/script/title/main.s",
+      "expression_fields": 39,
+      "status_counts": {
+        "inferred": 39
+      }
+    },
+    {
+      "source_file": "data8.pack/script/unlock/unlock.s",
+      "expression_fields": 15,
+      "status_counts": {
+        "inferred": 15
+      }
+    },
+    {
+      "source_file": "data8.pack/script/view/layout.s",
+      "expression_fields": 0,
+      "status_counts": {}
+    },
+    {
+      "source_file": "data8.pack/script/view/main.s",
+      "expression_fields": 25,
+      "status_counts": {
+        "inferred": 25
+      }
+    },
+    {
+      "source_file": "data8.pack/system/etc/game.txt",
+      "expression_fields": 0,
+      "status_counts": {}
+    }
+  ],
+  "examples": [
+    {
+      "source_file": "data0.pack/startup.s",
+      "source_sha256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1",
+      "byte_offset": 102,
+      "byte_length": 42,
+      "raw_bytes_reference": {
+        "offset": 102,
+        "length": 42,
+        "sha256": "8277e83c3e8ae0c282ae3ea75213e93d6b91061517b9faeb510762c81eef3a23"
+      },
+      "command": "cal",
+      "operand_index": 0,
+      "record_byte_offset": 92,
+      "status": "inferred",
+      "execution_semantics": "not_tested",
+      "ast": {
+        "kind": "binary_candidate",
+        "start": 0,
+        "end": 21,
+        "depth": 3,
+        "confidence": "inferred",
+        "semantic_status": "not_tested",
+        "operator": "=",
+        "source_file": "data0.pack/startup.s",
+        "source_sha256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1",
+        "byte_offset": 102,
+        "byte_length": 42,
+        "raw_bytes_reference": {
+          "offset": 102,
+          "length": 42,
+          "sha256": "8277e83c3e8ae0c282ae3ea75213e93d6b91061517b9faeb510762c81eef3a23"
+        },
+        "children": [
+          {
+            "kind": "identifier_candidate",
+            "start": 0,
+            "end": 9,
+            "depth": 1,
+            "confidence": "inferred",
+            "semantic_status": "not_tested",
+            "source_file": "data0.pack/startup.s",
+            "source_sha256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1",
+            "byte_offset": 102,
+            "byte_length": 18,
+            "raw_bytes_reference": {
+              "offset": 102,
+              "length": 18,
+              "sha256": "2c7757f0b7ec58f4989ba97385c36f2451a7908127008d0ff76b71e760ccfb76"
+            },
+            "decoded_atom_sha256": "cbfc81c3d0d79eda6ce792a735dabfd1eff28d68ce72f6e5dc081c32b20de1a3",
+            "children": []
+          },
+          {
+            "kind": "binary_candidate",
+            "start": 10,
+            "end": 21,
+            "depth": 2,
+            "confidence": "inferred",
+            "semantic_status": "not_tested",
+            "operator": "+",
+            "source_file": "data0.pack/startup.s",
+            "source_sha256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1",
+            "byte_offset": 122,
+            "byte_length": 22,
+            "raw_bytes_reference": {
+              "offset": 122,
+              "length": 22,
+              "sha256": "06f1d6cd315f2586a9c490727ca81ce90f19f279106d35f9fadd85c5b6531116"
+            },
+            "children": [
+              {
+                "kind": "identifier_candidate",
+                "start": 10,
+                "end": 19,
+                "depth": 1,
+                "confidence": "inferred",
+                "semantic_status": "not_tested",
+                "source_file": "data0.pack/startup.s",
+                "source_sha256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1",
+                "byte_offset": 122,
+                "byte_length": 18,
+                "raw_bytes_reference": {
+                  "offset": 122,
+                  "length": 18,
+                  "sha256": "2c7757f0b7ec58f4989ba97385c36f2451a7908127008d0ff76b71e760ccfb76"
+                },
+                "decoded_atom_sha256": "cbfc81c3d0d79eda6ce792a735dabfd1eff28d68ce72f6e5dc081c32b20de1a3",
+                "children": []
+              },
+              {
+                "kind": "number_literal_candidate",
+                "start": 20,
+                "end": 21,
+                "depth": 1,
+                "confidence": "inferred",
+                "semantic_status": "not_tested",
+                "source_file": "data0.pack/startup.s",
+                "source_sha256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1",
+                "byte_offset": 142,
+                "byte_length": 2,
+                "raw_bytes_reference": {
+                  "offset": 142,
+                  "length": 2,
+                  "sha256": "e79e418e48623569d75e2a7b09ae88ed9b77b126a445b9ff9dc6989a08efa079"
+                },
+                "decoded_atom_sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "source_file": "data0.pack/startup.s",
+      "source_sha256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1",
+      "byte_offset": 158,
+      "byte_length": 36,
+      "raw_bytes_reference": {
+        "offset": 158,
+        "length": 36,
+        "sha256": "123e22fd7f7d7e32baacdafd2dc6412c17218ec6f594a0f659d7d85052af3bff"
+      },
+      "command": "if",
+      "operand_index": 0,
+      "record_byte_offset": 150,
+      "status": "inferred",
+      "execution_semantics": "not_tested",
+      "ast": {
+        "kind": "binary_candidate",
+        "start": 0,
+        "end": 18,
+        "depth": 2,
+        "confidence": "inferred",
+        "semantic_status": "not_tested",
+        "operator": ">",
+        "source_file": "data0.pack/startup.s",
+        "source_sha256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1",
+        "byte_offset": 158,
+        "byte_length": 36,
+        "raw_bytes_reference": {
+          "offset": 158,
+          "length": 36,
+          "sha256": "123e22fd7f7d7e32baacdafd2dc6412c17218ec6f594a0f659d7d85052af3bff"
+        },
+        "children": [
+          {
+            "kind": "identifier_candidate",
+            "start": 0,
+            "end": 9,
+            "depth": 1,
+            "confidence": "inferred",
+            "semantic_status": "not_tested",
+            "source_file": "data0.pack/startup.s",
+            "source_sha256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1",
+            "byte_offset": 158,
+            "byte_length": 18,
+            "raw_bytes_reference": {
+              "offset": 158,
+              "length": 18,
+              "sha256": "2c7757f0b7ec58f4989ba97385c36f2451a7908127008d0ff76b71e760ccfb76"
+            },
+            "decoded_atom_sha256": "cbfc81c3d0d79eda6ce792a735dabfd1eff28d68ce72f6e5dc081c32b20de1a3",
+            "children": []
+          },
+          {
+            "kind": "number_literal_candidate",
+            "start": 10,
+            "end": 18,
+            "depth": 1,
+            "confidence": "inferred",
+            "semantic_status": "not_tested",
+            "source_file": "data0.pack/startup.s",
+            "source_sha256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1",
+            "byte_offset": 178,
+            "byte_length": 16,
+            "raw_bytes_reference": {
+              "offset": 178,
+              "length": 16,
+              "sha256": "b0c8c8638a12cc14338e87c7bc6b37ed080c8483527208ac4f06143eb0f450ce"
+            },
+            "decoded_atom_sha256": "eb3a1ab3081d922349724fd647f775f655d612c56aa3cc30ce22c2e27f74a5b8",
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "source_file": "data0.pack/startup.s",
+      "source_sha256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1",
+      "byte_offset": 222,
+      "byte_length": 36,
+      "raw_bytes_reference": {
+        "offset": 222,
+        "length": 36,
+        "sha256": "92eb5deaa8b727e072cf1a264d51eb553c7e7446ac209ff227f547ce577a0764"
+      },
+      "command": "cal",
+      "operand_index": 0,
+      "record_byte_offset": 212,
+      "status": "inferred",
+      "execution_semantics": "not_tested",
+      "ast": {
+        "kind": "binary_candidate",
+        "start": 0,
+        "end": 18,
+        "depth": 2,
+        "confidence": "inferred",
+        "semantic_status": "not_tested",
+        "operator": "=",
+        "source_file": "data0.pack/startup.s",
+        "source_sha256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1",
+        "byte_offset": 222,
+        "byte_length": 36,
+        "raw_bytes_reference": {
+          "offset": 222,
+          "length": 36,
+          "sha256": "92eb5deaa8b727e072cf1a264d51eb553c7e7446ac209ff227f547ce577a0764"
+        },
+        "children": [
+          {
+            "kind": "identifier_candidate",
+            "start": 0,
+            "end": 9,
+            "depth": 1,
+            "confidence": "inferred",
+            "semantic_status": "not_tested",
+            "source_file": "data0.pack/startup.s",
+            "source_sha256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1",
+            "byte_offset": 222,
+            "byte_length": 18,
+            "raw_bytes_reference": {
+              "offset": 222,
+              "length": 18,
+              "sha256": "2c7757f0b7ec58f4989ba97385c36f2451a7908127008d0ff76b71e760ccfb76"
+            },
+            "decoded_atom_sha256": "cbfc81c3d0d79eda6ce792a735dabfd1eff28d68ce72f6e5dc081c32b20de1a3",
+            "children": []
+          },
+          {
+            "kind": "number_literal_candidate",
+            "start": 10,
+            "end": 18,
+            "depth": 1,
+            "confidence": "inferred",
+            "semantic_status": "not_tested",
+            "source_file": "data0.pack/startup.s",
+            "source_sha256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1",
+            "byte_offset": 242,
+            "byte_length": 16,
+            "raw_bytes_reference": {
+              "offset": 242,
+              "length": 16,
+              "sha256": "b0c8c8638a12cc14338e87c7bc6b37ed080c8483527208ac4f06143eb0f450ce"
+            },
+            "decoded_atom_sha256": "eb3a1ab3081d922349724fd647f775f655d612c56aa3cc30ce22c2e27f74a5b8",
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "source_file": "data0.pack/startup.s",
+      "source_sha256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1",
+      "byte_offset": 334,
+      "byte_length": 38,
+      "raw_bytes_reference": {
+        "offset": 334,
+        "length": 38,
+        "sha256": "ae06a884a94ff070eb28c5407bfe259ae7ddc46b2c8fea09610560d335fb8856"
+      },
+      "command": "cal",
+      "operand_index": 0,
+      "record_byte_offset": 324,
+      "status": "inferred",
+      "execution_semantics": "not_tested",
+      "ast": {
+        "kind": "binary_candidate",
+        "start": 0,
+        "end": 19,
+        "depth": 2,
+        "confidence": "inferred",
+        "semantic_status": "not_tested",
+        "operator": "=",
+        "source_file": "data0.pack/startup.s",
+        "source_sha256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1",
+        "byte_offset": 334,
+        "byte_length": 38,
+        "raw_bytes_reference": {
+          "offset": 334,
+          "length": 38,
+          "sha256": "ae06a884a94ff070eb28c5407bfe259ae7ddc46b2c8fea09610560d335fb8856"
+        },
+        "children": [
+          {
+            "kind": "identifier_candidate",
+            "start": 0,
+            "end": 16,
+            "depth": 1,
+            "confidence": "inferred",
+            "semantic_status": "not_tested",
+            "source_file": "data0.pack/startup.s",
+            "source_sha256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1",
+            "byte_offset": 334,
+            "byte_length": 32,
+            "raw_bytes_reference": {
+              "offset": 334,
+              "length": 32,
+              "sha256": "4e7eef55da89ddf3ccfe024d8f1792e2fcc5973a4872380541f5cc017106baf3"
+            },
+            "decoded_atom_sha256": "43da1d7b32fc2e87fe53ba076e0301036cb5852ea4377f99b58bc8805363a59c",
+            "children": []
+          },
+          {
+            "kind": "string_literal_candidate",
+            "start": 17,
+            "end": 19,
+            "depth": 1,
+            "confidence": "inferred",
+            "semantic_status": "not_tested",
+            "source_file": "data0.pack/startup.s",
+            "source_sha256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1",
+            "byte_offset": 368,
+            "byte_length": 4,
+            "raw_bytes_reference": {
+              "offset": 368,
+              "length": 4,
+              "sha256": "6e586cbee3390ce73582f487f39ed8139079194c26c5fed5f748ec2adf236c4d"
+            },
+            "decoded_atom_sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "source_file": "data0.pack/sysstartup.s",
+      "source_sha256": "46e460168ff4d5bae70e1c13be00882e518087d9b7d2021f6401c4ff0474104d",
+      "byte_offset": 3154,
+      "byte_length": 30,
+      "raw_bytes_reference": {
+        "offset": 3154,
+        "length": 30,
+        "sha256": "1acaa5c41ccf1ad2229fe41d0e63b4c7a5c6ed04f1e56e7708bd0e65a044d7a2"
+      },
+      "command": "if",
+      "operand_index": 0,
+      "record_byte_offset": 3146,
+      "status": "inferred",
+      "execution_semantics": "not_tested",
+      "ast": {
+        "kind": "binary_candidate",
+        "start": 0,
+        "end": 15,
+        "depth": 3,
+        "confidence": "inferred",
+        "semantic_status": "not_tested",
+        "operator": "!=",
+        "source_file": "data0.pack/sysstartup.s",
+        "source_sha256": "46e460168ff4d5bae70e1c13be00882e518087d9b7d2021f6401c4ff0474104d",
+        "byte_offset": 3154,
+        "byte_length": 30,
+        "raw_bytes_reference": {
+          "offset": 3154,
+          "length": 30,
+          "sha256": "1acaa5c41ccf1ad2229fe41d0e63b4c7a5c6ed04f1e56e7708bd0e65a044d7a2"
+        },
+        "children": [
+          {
+            "kind": "index_candidate",
+            "start": 0,
+            "end": 12,
+            "depth": 2,
+            "confidence": "inferred",
+            "semantic_status": "not_tested",
+            "source_file": "data0.pack/sysstartup.s",
+            "source_sha256": "46e460168ff4d5bae70e1c13be00882e518087d9b7d2021f6401c4ff0474104d",
+            "byte_offset": 3154,
+            "byte_length": 24,
+            "raw_bytes_reference": {
+              "offset": 3154,
+              "length": 24,
+              "sha256": "1fdb846e7435add2d618f72840c98a211bfca0ae623d3e046e7800228a477b6d"
+            },
+            "children": [
+              {
+                "kind": "identifier_candidate",
+                "start": 0,
+                "end": 9,
+                "depth": 1,
+                "confidence": "inferred",
+                "semantic_status": "not_tested",
+                "source_file": "data0.pack/sysstartup.s",
+                "source_sha256": "46e460168ff4d5bae70e1c13be00882e518087d9b7d2021f6401c4ff0474104d",
+                "byte_offset": 3154,
+                "byte_length": 18,
+                "raw_bytes_reference": {
+                  "offset": 3154,
+                  "length": 18,
+                  "sha256": "01a5f06f6db1b646dab4d3bc83133664586a233885f888df75ea09ad6c7bd0d8"
+                },
+                "decoded_atom_sha256": "648d5e0a2520d80691eb2fd12aa7940c48748a2d5dc52b496eb2f31991b378a9",
+                "children": []
+              },
+              {
+                "kind": "number_literal_candidate",
+                "start": 10,
+                "end": 11,
+                "depth": 1,
+                "confidence": "inferred",
+                "semantic_status": "not_tested",
+                "source_file": "data0.pack/sysstartup.s",
+                "source_sha256": "46e460168ff4d5bae70e1c13be00882e518087d9b7d2021f6401c4ff0474104d",
+                "byte_offset": 3174,
+                "byte_length": 2,
+                "raw_bytes_reference": {
+                  "offset": 3174,
+                  "length": 2,
+                  "sha256": "e4f60d0aa6d7f3d3b6a6494b1c861b99f649c6f9ec51abaf201b20f297327c95"
+                },
+                "decoded_atom_sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+                "children": []
+              }
+            ]
+          },
+          {
+            "kind": "number_literal_candidate",
+            "start": 14,
+            "end": 15,
+            "depth": 1,
+            "confidence": "inferred",
+            "semantic_status": "not_tested",
+            "source_file": "data0.pack/sysstartup.s",
+            "source_sha256": "46e460168ff4d5bae70e1c13be00882e518087d9b7d2021f6401c4ff0474104d",
+            "byte_offset": 3182,
+            "byte_length": 2,
+            "raw_bytes_reference": {
+              "offset": 3182,
+              "length": 2,
+              "sha256": "e4f60d0aa6d7f3d3b6a6494b1c861b99f649c6f9ec51abaf201b20f297327c95"
+            },
+            "decoded_atom_sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/root.s",
+      "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+      "byte_offset": 7790,
+      "byte_length": 32,
+      "raw_bytes_reference": {
+        "offset": 7790,
+        "length": 32,
+        "sha256": "74d47a61a1beff1977bbfec9f023ae394a345bf497f7f6cf558daada74d28379"
+      },
+      "command": "if",
+      "operand_index": 0,
+      "record_byte_offset": 7782,
+      "status": "inferred",
+      "execution_semantics": "not_tested",
+      "ast": {
+        "kind": "binary_candidate",
+        "start": 0,
+        "end": 16,
+        "depth": 2,
+        "confidence": "inferred",
+        "semantic_status": "not_tested",
+        "operator": "==",
+        "source_file": "data6.pack/scenario/root.s",
+        "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+        "byte_offset": 7790,
+        "byte_length": 32,
+        "raw_bytes_reference": {
+          "offset": 7790,
+          "length": 32,
+          "sha256": "74d47a61a1beff1977bbfec9f023ae394a345bf497f7f6cf558daada74d28379"
+        },
+        "children": [
+          {
+            "kind": "identifier_candidate",
+            "start": 0,
+            "end": 13,
+            "depth": 1,
+            "confidence": "inferred",
+            "semantic_status": "not_tested",
+            "source_file": "data6.pack/scenario/root.s",
+            "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+            "byte_offset": 7790,
+            "byte_length": 26,
+            "raw_bytes_reference": {
+              "offset": 7790,
+              "length": 26,
+              "sha256": "6c25a7bf5c800eec8ecfeb99987480d8b8888c95a54f4d15ba958eaa419b4f64"
+            },
+            "decoded_atom_sha256": "1d71ae7e3c91f86dfc6228addf97a116f08280ade75a2337726544855bbff1ce",
+            "children": []
+          },
+          {
+            "kind": "number_literal_candidate",
+            "start": 15,
+            "end": 16,
+            "depth": 1,
+            "confidence": "inferred",
+            "semantic_status": "not_tested",
+            "source_file": "data6.pack/scenario/root.s",
+            "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+            "byte_offset": 7820,
+            "byte_length": 2,
+            "raw_bytes_reference": {
+              "offset": 7820,
+              "length": 2,
+              "sha256": "e79e418e48623569d75e2a7b09ae88ed9b77b126a445b9ff9dc6989a08efa079"
+            },
+            "decoded_atom_sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/root.s",
+      "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+      "byte_offset": 8578,
+      "byte_length": 28,
+      "raw_bytes_reference": {
+        "offset": 8578,
+        "length": 28,
+        "sha256": "ab9f3129ac22c5c912e770f99e861dfc5a09a58bae3589b5e3d90f64cd7d68c9"
+      },
+      "command": "cal",
+      "operand_index": 0,
+      "record_byte_offset": 8568,
+      "status": "inferred",
+      "execution_semantics": "not_tested",
+      "ast": {
+        "kind": "binary_candidate",
+        "start": 0,
+        "end": 14,
+        "depth": 2,
+        "confidence": "inferred",
+        "semantic_status": "not_tested",
+        "operator": "=",
+        "source_file": "data6.pack/scenario/root.s",
+        "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+        "byte_offset": 8578,
+        "byte_length": 28,
+        "raw_bytes_reference": {
+          "offset": 8578,
+          "length": 28,
+          "sha256": "ab9f3129ac22c5c912e770f99e861dfc5a09a58bae3589b5e3d90f64cd7d68c9"
+        },
+        "children": [
+          {
+            "kind": "identifier_candidate",
+            "start": 0,
+            "end": 12,
+            "depth": 1,
+            "confidence": "inferred",
+            "semantic_status": "not_tested",
+            "source_file": "data6.pack/scenario/root.s",
+            "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+            "byte_offset": 8578,
+            "byte_length": 24,
+            "raw_bytes_reference": {
+              "offset": 8578,
+              "length": 24,
+              "sha256": "133cf63c94bd28321c2a32c4216c7be74625eb2faebb4ad3f1b57c74519b35a0"
+            },
+            "decoded_atom_sha256": "8e1c804684b871ab9136908bf0dd67dc4bac403685e9dd3e6bd1b6e9ed538428",
+            "children": []
+          },
+          {
+            "kind": "number_literal_candidate",
+            "start": 13,
+            "end": 14,
+            "depth": 1,
+            "confidence": "inferred",
+            "semantic_status": "not_tested",
+            "source_file": "data6.pack/scenario/root.s",
+            "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+            "byte_offset": 8604,
+            "byte_length": 2,
+            "raw_bytes_reference": {
+              "offset": 8604,
+              "length": 2,
+              "sha256": "e79e418e48623569d75e2a7b09ae88ed9b77b126a445b9ff9dc6989a08efa079"
+            },
+            "decoded_atom_sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/root.s",
+      "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+      "byte_offset": 8620,
+      "byte_length": 26,
+      "raw_bytes_reference": {
+        "offset": 8620,
+        "length": 26,
+        "sha256": "3744b71e967f593726f6b04c4c5ab05f412fe789fa0d6f127aa5f0c621cf40e4"
+      },
+      "command": "cal",
+      "operand_index": 0,
+      "record_byte_offset": 8610,
+      "status": "inferred",
+      "execution_semantics": "not_tested",
+      "ast": {
+        "kind": "binary_candidate",
+        "start": 0,
+        "end": 13,
+        "depth": 2,
+        "confidence": "inferred",
+        "semantic_status": "not_tested",
+        "operator": "=",
+        "source_file": "data6.pack/scenario/root.s",
+        "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+        "byte_offset": 8620,
+        "byte_length": 26,
+        "raw_bytes_reference": {
+          "offset": 8620,
+          "length": 26,
+          "sha256": "3744b71e967f593726f6b04c4c5ab05f412fe789fa0d6f127aa5f0c621cf40e4"
+        },
+        "children": [
+          {
+            "kind": "identifier_candidate",
+            "start": 0,
+            "end": 11,
+            "depth": 1,
+            "confidence": "inferred",
+            "semantic_status": "not_tested",
+            "source_file": "data6.pack/scenario/root.s",
+            "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+            "byte_offset": 8620,
+            "byte_length": 22,
+            "raw_bytes_reference": {
+              "offset": 8620,
+              "length": 22,
+              "sha256": "cafb423896f5c2c4ef22559d38fd7e78f8bba7e8b62f61d32c0c7adb8cc37535"
+            },
+            "decoded_atom_sha256": "a4196dfaa8b6e158c434922fe037ececa45e03ef51c3b0dc2896641f3edcc4a2",
+            "children": []
+          },
+          {
+            "kind": "number_literal_candidate",
+            "start": 12,
+            "end": 13,
+            "depth": 1,
+            "confidence": "inferred",
+            "semantic_status": "not_tested",
+            "source_file": "data6.pack/scenario/root.s",
+            "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+            "byte_offset": 8644,
+            "byte_length": 2,
+            "raw_bytes_reference": {
+              "offset": 8644,
+              "length": 2,
+              "sha256": "e79e418e48623569d75e2a7b09ae88ed9b77b126a445b9ff9dc6989a08efa079"
+            },
+            "decoded_atom_sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/root.s",
+      "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+      "byte_offset": 9132,
+      "byte_length": 32,
+      "raw_bytes_reference": {
+        "offset": 9132,
+        "length": 32,
+        "sha256": "74d47a61a1beff1977bbfec9f023ae394a345bf497f7f6cf558daada74d28379"
+      },
+      "command": "if",
+      "operand_index": 0,
+      "record_byte_offset": 9124,
+      "status": "inferred",
+      "execution_semantics": "not_tested",
+      "ast": {
+        "kind": "binary_candidate",
+        "start": 0,
+        "end": 16,
+        "depth": 2,
+        "confidence": "inferred",
+        "semantic_status": "not_tested",
+        "operator": "==",
+        "source_file": "data6.pack/scenario/root.s",
+        "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+        "byte_offset": 9132,
+        "byte_length": 32,
+        "raw_bytes_reference": {
+          "offset": 9132,
+          "length": 32,
+          "sha256": "74d47a61a1beff1977bbfec9f023ae394a345bf497f7f6cf558daada74d28379"
+        },
+        "children": [
+          {
+            "kind": "identifier_candidate",
+            "start": 0,
+            "end": 13,
+            "depth": 1,
+            "confidence": "inferred",
+            "semantic_status": "not_tested",
+            "source_file": "data6.pack/scenario/root.s",
+            "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+            "byte_offset": 9132,
+            "byte_length": 26,
+            "raw_bytes_reference": {
+              "offset": 9132,
+              "length": 26,
+              "sha256": "6c25a7bf5c800eec8ecfeb99987480d8b8888c95a54f4d15ba958eaa419b4f64"
+            },
+            "decoded_atom_sha256": "1d71ae7e3c91f86dfc6228addf97a116f08280ade75a2337726544855bbff1ce",
+            "children": []
+          },
+          {
+            "kind": "number_literal_candidate",
+            "start": 15,
+            "end": 16,
+            "depth": 1,
+            "confidence": "inferred",
+            "semantic_status": "not_tested",
+            "source_file": "data6.pack/scenario/root.s",
+            "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+            "byte_offset": 9162,
+            "byte_length": 2,
+            "raw_bytes_reference": {
+              "offset": 9162,
+              "length": 2,
+              "sha256": "e79e418e48623569d75e2a7b09ae88ed9b77b126a445b9ff9dc6989a08efa079"
+            },
+            "decoded_atom_sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/root.s",
+      "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+      "byte_offset": 9928,
+      "byte_length": 28,
+      "raw_bytes_reference": {
+        "offset": 9928,
+        "length": 28,
+        "sha256": "585a1c681c02815e49c09b043010878e5cbfa06f86cacd8241f30b02ef774fb8"
+      },
+      "command": "cal",
+      "operand_index": 0,
+      "record_byte_offset": 9918,
+      "status": "inferred",
+      "execution_semantics": "not_tested",
+      "ast": {
+        "kind": "binary_candidate",
+        "start": 0,
+        "end": 14,
+        "depth": 2,
+        "confidence": "inferred",
+        "semantic_status": "not_tested",
+        "operator": "=",
+        "source_file": "data6.pack/scenario/root.s",
+        "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+        "byte_offset": 9928,
+        "byte_length": 28,
+        "raw_bytes_reference": {
+          "offset": 9928,
+          "length": 28,
+          "sha256": "585a1c681c02815e49c09b043010878e5cbfa06f86cacd8241f30b02ef774fb8"
+        },
+        "children": [
+          {
+            "kind": "identifier_candidate",
+            "start": 0,
+            "end": 12,
+            "depth": 1,
+            "confidence": "inferred",
+            "semantic_status": "not_tested",
+            "source_file": "data6.pack/scenario/root.s",
+            "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+            "byte_offset": 9928,
+            "byte_length": 24,
+            "raw_bytes_reference": {
+              "offset": 9928,
+              "length": 24,
+              "sha256": "50733fae2c9f87decf976f4f743b32834d3b88fb304a09346def46e269abea29"
+            },
+            "decoded_atom_sha256": "3fd38f5017267c286683a7ec275aff1cc548faedfe3374b1100f79eecb4252c8",
+            "children": []
+          },
+          {
+            "kind": "number_literal_candidate",
+            "start": 13,
+            "end": 14,
+            "depth": 1,
+            "confidence": "inferred",
+            "semantic_status": "not_tested",
+            "source_file": "data6.pack/scenario/root.s",
+            "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+            "byte_offset": 9954,
+            "byte_length": 2,
+            "raw_bytes_reference": {
+              "offset": 9954,
+              "length": 2,
+              "sha256": "e79e418e48623569d75e2a7b09ae88ed9b77b126a445b9ff9dc6989a08efa079"
+            },
+            "decoded_atom_sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/root.s",
+      "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+      "byte_offset": 9970,
+      "byte_length": 26,
+      "raw_bytes_reference": {
+        "offset": 9970,
+        "length": 26,
+        "sha256": "3744b71e967f593726f6b04c4c5ab05f412fe789fa0d6f127aa5f0c621cf40e4"
+      },
+      "command": "cal",
+      "operand_index": 0,
+      "record_byte_offset": 9960,
+      "status": "inferred",
+      "execution_semantics": "not_tested",
+      "ast": {
+        "kind": "binary_candidate",
+        "start": 0,
+        "end": 13,
+        "depth": 2,
+        "confidence": "inferred",
+        "semantic_status": "not_tested",
+        "operator": "=",
+        "source_file": "data6.pack/scenario/root.s",
+        "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+        "byte_offset": 9970,
+        "byte_length": 26,
+        "raw_bytes_reference": {
+          "offset": 9970,
+          "length": 26,
+          "sha256": "3744b71e967f593726f6b04c4c5ab05f412fe789fa0d6f127aa5f0c621cf40e4"
+        },
+        "children": [
+          {
+            "kind": "identifier_candidate",
+            "start": 0,
+            "end": 11,
+            "depth": 1,
+            "confidence": "inferred",
+            "semantic_status": "not_tested",
+            "source_file": "data6.pack/scenario/root.s",
+            "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+            "byte_offset": 9970,
+            "byte_length": 22,
+            "raw_bytes_reference": {
+              "offset": 9970,
+              "length": 22,
+              "sha256": "cafb423896f5c2c4ef22559d38fd7e78f8bba7e8b62f61d32c0c7adb8cc37535"
+            },
+            "decoded_atom_sha256": "a4196dfaa8b6e158c434922fe037ececa45e03ef51c3b0dc2896641f3edcc4a2",
+            "children": []
+          },
+          {
+            "kind": "number_literal_candidate",
+            "start": 12,
+            "end": 13,
+            "depth": 1,
+            "confidence": "inferred",
+            "semantic_status": "not_tested",
+            "source_file": "data6.pack/scenario/root.s",
+            "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+            "byte_offset": 9994,
+            "byte_length": 2,
+            "raw_bytes_reference": {
+              "offset": 9994,
+              "length": 2,
+              "sha256": "e79e418e48623569d75e2a7b09ae88ed9b77b126a445b9ff9dc6989a08efa079"
+            },
+            "decoded_atom_sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/root.s",
+      "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+      "byte_offset": 10796,
+      "byte_length": 32,
+      "raw_bytes_reference": {
+        "offset": 10796,
+        "length": 32,
+        "sha256": "74d47a61a1beff1977bbfec9f023ae394a345bf497f7f6cf558daada74d28379"
+      },
+      "command": "if",
+      "operand_index": 0,
+      "record_byte_offset": 10788,
+      "status": "inferred",
+      "execution_semantics": "not_tested",
+      "ast": {
+        "kind": "binary_candidate",
+        "start": 0,
+        "end": 16,
+        "depth": 2,
+        "confidence": "inferred",
+        "semantic_status": "not_tested",
+        "operator": "==",
+        "source_file": "data6.pack/scenario/root.s",
+        "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+        "byte_offset": 10796,
+        "byte_length": 32,
+        "raw_bytes_reference": {
+          "offset": 10796,
+          "length": 32,
+          "sha256": "74d47a61a1beff1977bbfec9f023ae394a345bf497f7f6cf558daada74d28379"
+        },
+        "children": [
+          {
+            "kind": "identifier_candidate",
+            "start": 0,
+            "end": 13,
+            "depth": 1,
+            "confidence": "inferred",
+            "semantic_status": "not_tested",
+            "source_file": "data6.pack/scenario/root.s",
+            "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+            "byte_offset": 10796,
+            "byte_length": 26,
+            "raw_bytes_reference": {
+              "offset": 10796,
+              "length": 26,
+              "sha256": "6c25a7bf5c800eec8ecfeb99987480d8b8888c95a54f4d15ba958eaa419b4f64"
+            },
+            "decoded_atom_sha256": "1d71ae7e3c91f86dfc6228addf97a116f08280ade75a2337726544855bbff1ce",
+            "children": []
+          },
+          {
+            "kind": "number_literal_candidate",
+            "start": 15,
+            "end": 16,
+            "depth": 1,
+            "confidence": "inferred",
+            "semantic_status": "not_tested",
+            "source_file": "data6.pack/scenario/root.s",
+            "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+            "byte_offset": 10826,
+            "byte_length": 2,
+            "raw_bytes_reference": {
+              "offset": 10826,
+              "length": 2,
+              "sha256": "e79e418e48623569d75e2a7b09ae88ed9b77b126a445b9ff9dc6989a08efa079"
+            },
+            "decoded_atom_sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+            "children": []
+          }
+        ]
+      }
+    }
+  ],
+  "unsupported_examples": [
+    {
+      "source_file": "data7.pack/avg/imoscripter_sound.s",
+      "source_sha256": "ffbf30f25a9ecabc3fb7198b23cfff734588f46d3533c7ee8416828a34e11aec",
+      "byte_offset": 2276,
+      "byte_length": 0,
+      "raw_bytes_reference": {
+        "offset": 2276,
+        "length": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "command": "cal",
+      "operand_index": 2,
+      "record_byte_offset": 2206,
+      "status": "unsupported",
+      "unknown_reason": "missing_or_unverified_prefix_operand",
+      "error_char_offset": 0,
+      "error_byte_offset": 2276,
+      "execution_semantics": "not_tested",
+      "ast": null
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_sound.s",
+      "source_sha256": "daf40e209bf971d646bb50073419a8ab3591ff4d40f76c784dc7cccfad238d67",
+      "byte_offset": 4590,
+      "byte_length": 0,
+      "raw_bytes_reference": {
+        "offset": 4590,
+        "length": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "command": "cal",
+      "operand_index": 2,
+      "record_byte_offset": 4450,
+      "status": "unsupported",
+      "unknown_reason": "missing_or_unverified_prefix_operand",
+      "error_char_offset": 0,
+      "error_byte_offset": 4590,
+      "execution_semantics": "not_tested",
+      "ast": null
+    }
+  ],
+  "private_ast_directory": "private/p1-round6/ast",
+  "operator_evidence": "reports/p1/operator-round6-report.json",
+  "execution_semantics": "not_tested",
+  "limits": {
+    "field_characters": 8192,
+    "tokens": 1024,
+    "tree_depth": 64,
+    "global_nodes": 100000,
+    "fields": 20000
+  },
+  "original_files_written": false,
+  "external_game_data_uploads": false,
+  "source_reference_audit_status": "verified"
+}

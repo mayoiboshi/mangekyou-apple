@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Variable-existence command and lookup; static only",
+  "queries": [
+    {
+      "name": "variable-exists",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69ea44"
+    },
+    {
+      "name": "variable-exists-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69ea44"
+    },
+    {
+      "name": "command-dispatch",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6af4f8"
+    },
+    {
+      "name": "command-dispatch-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6af4f8"
+    },
+    {
+      "name": "resource-path",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6a5880"
+    },
+    {
+      "name": "resource-path-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6a5880"
+    },
+    {
+      "name": "list-name-value",
+      "operation": "procedure_pseudo_code",
+      "address": "0x43d934"
+    },
+    {
+      "name": "list-name-value-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x43d934"
+    },
+    {
+      "name": "component-slot-c-coverage",
+      "operation": "resolve_containing_procedure",
+      "address": "0x43eb54"
+    },
+    {
+      "name": "component-slot-14-coverage",
+      "operation": "resolve_containing_procedure",
+      "address": "0x43eb88"
+    },
+    {
+      "name": "component-slot-44-coverage",
+      "operation": "resolve_containing_procedure",
+      "address": "0x43e968"
+    },
+    {
+      "name": "component-slot-70-coverage",
+      "operation": "resolve_containing_procedure",
+      "address": "0x43dc60"
+    },
+    {
+      "name": "self-file-path-coverage",
+      "operation": "resolve_containing_procedure",
+      "address": "0x6d1534"
+    },
+    {
+      "name": "path-create-coverage",
+      "operation": "resolve_containing_procedure",
+      "address": "0x6a5378"
+    },
+    {
+      "name": "name-index-coverage",
+      "operation": "resolve_containing_procedure",
+      "address": "0x43da78"
+    },
+    {
+      "name": "set-text",
+      "operation": "procedure_pseudo_code",
+      "address": "0x43e0dc"
+    },
+    {
+      "name": "set-text-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x43e0dc"
+    }
+  ]
+}

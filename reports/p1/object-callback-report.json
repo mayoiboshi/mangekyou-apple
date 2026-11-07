@@ -1,0 +1,256 @@
+{
+  "status": "inferred",
+  "scope": "Pinned static declaration and callback byte checks only",
+  "event_layout": {
+    "status": "inferred",
+    "declaration_bytes_status": "verified",
+    "pointer_bytes": 4,
+    "declared_bytes": 32,
+    "fields": [
+      {
+        "name": "ObjectCreate",
+        "code_offset": 0,
+        "data_offset": 4,
+        "declared_type": "TValueArrayObjectEvent",
+        "raw_bytes_reference": {
+          "offset": 2715618,
+          "length": 24,
+          "sha256": "fb39c7a1385b4d71a48c3fe57a298057265628fdd53ab8d9072d379844e2aa01"
+        }
+      },
+      {
+        "name": "ObjectDestroy",
+        "code_offset": 8,
+        "data_offset": 12,
+        "declared_type": "TValueArrayObjectEvent",
+        "raw_bytes_reference": {
+          "offset": 2715642,
+          "length": 25,
+          "sha256": "132ea95e037e0096cc2f303c22078eda5e0c4f55075c572b47683c65ad723163"
+        }
+      },
+      {
+        "name": "ObjectSave",
+        "code_offset": 16,
+        "data_offset": 20,
+        "declared_type": "TValueArrayStreamEvent",
+        "raw_bytes_reference": {
+          "offset": 2715667,
+          "length": 22,
+          "sha256": "29c9a4084a225498aa5bb681b249caed9bf373cbf5f06fb27daa453f8b86c0da"
+        }
+      },
+      {
+        "name": "ObjectLoad",
+        "code_offset": 24,
+        "data_offset": 28,
+        "declared_type": "TValueArrayStreamEvent",
+        "raw_bytes_reference": {
+          "offset": 2715689,
+          "length": 22,
+          "sha256": "0e8a3e000aa5e43af8cfe6c577b2022eb9bcd1e6594cac5cbe302fe7d9b2947e"
+        }
+      }
+    ],
+    "method_signature": "not_tested",
+    "runtime_invocation": "not_tested"
+  },
+  "initializer_binding": {
+    "status": "inferred",
+    "instruction_bytes_status": "verified",
+    "events": [
+      {
+        "name": "ObjectCreate",
+        "target": "0x6bee50",
+        "data_source": "ESI",
+        "code_offset": 0,
+        "data_offset": 4,
+        "raw_bytes_reference": {
+          "offset": 2875194,
+          "length": 10,
+          "sha256": "aa7858da4ea3c0e610655205b9a3351fbf547fe8480a8da1b800286f7baf6f19"
+        }
+      },
+      {
+        "name": "ObjectDestroy",
+        "target": "0x6bee38",
+        "data_source": "ESI",
+        "code_offset": 8,
+        "data_offset": 12,
+        "raw_bytes_reference": {
+          "offset": 2875204,
+          "length": 10,
+          "sha256": "077a5cc19f92b6a60cc00c417db60a96407e85245594a14c213a0bcd63e401a3"
+        }
+      },
+      {
+        "name": "ObjectSave",
+        "target": "0x6bef7c",
+        "data_source": "ESI",
+        "code_offset": 16,
+        "data_offset": 20,
+        "raw_bytes_reference": {
+          "offset": 2875214,
+          "length": 10,
+          "sha256": "c556a6ebaffba2f477528991c92226b2184973e0a34fc6f8993786990800049a"
+        }
+      },
+      {
+        "name": "ObjectLoad",
+        "target": "0x6bef28",
+        "data_source": "ESI",
+        "code_offset": 24,
+        "data_offset": 28,
+        "raw_bytes_reference": {
+          "offset": 2875224,
+          "length": 10,
+          "sha256": "303e6e63939fa3c597b671fde113a9e836237b9e85411c3a2bf7ffd3b1ae993f"
+        }
+      }
+    ],
+    "owner_identity": "not_tested",
+    "scope": "Four interleaved EBP-relative code/data stores; static binding only"
+  },
+  "factory_calls": [
+    {
+      "event": "ObjectCreate",
+      "status": "verified",
+      "call_address": "0x6bee67",
+      "target": "0x6befa8",
+      "raw_bytes_reference": {
+        "offset": 2876007,
+        "length": 5,
+        "sha256": "7d3c40a6fcce47c7b56d2e6208b7fa5af0420b5e9cb74a3303b78a31317d663d"
+      },
+      "scope": "Direct E8 instruction bytes only"
+    },
+    {
+      "event": "ObjectLoad",
+      "status": "verified",
+      "call_address": "0x6bef41",
+      "target": "0x6befa8",
+      "raw_bytes_reference": {
+        "offset": 2876225,
+        "length": 5,
+        "sha256": "39433c5b44760232579b0a3a2b7d8fa565e36f4972fa527ab3b5468d57321ed3"
+      },
+      "scope": "Direct E8 instruction bytes only"
+    }
+  ],
+  "value_type_declaration": {
+    "status": "verified",
+    "kind_u8": 3,
+    "name": "TScriptValueType",
+    "reference_cell": "0x696bec",
+    "type_info_address": "0x696bf0",
+    "raw_bytes_reference": {
+      "offset": 2711536,
+      "length": 18,
+      "sha256": "609ef062359d96b36e64473aa96a9b08875c233d634d7fb03658225bb1062b5c"
+    },
+    "type_semantics": "not_tested",
+    "enum_header": {
+      "status": "inferred",
+      "ordinal_type_u8": 1,
+      "minimum_i32": 0,
+      "maximum_i32": 4,
+      "base_type_cell": "0x696bec",
+      "header_reference": {
+        "offset": 2711554,
+        "length": 13,
+        "sha256": "637ccd7a0bdb98a2200216a68243ce85aa86e69faa150eb24b03798059c0e38c"
+      },
+      "members": [
+        {
+          "value": 0,
+          "name": "vtInteger",
+          "raw_bytes_reference": {
+            "offset": 2711567,
+            "length": 10,
+            "sha256": "2db2cbd599929a2ce0179f2b119374dfd4caa7b26d76f1a0e73abb54da139dd6"
+          }
+        },
+        {
+          "value": 1,
+          "name": "vtString",
+          "raw_bytes_reference": {
+            "offset": 2711577,
+            "length": 9,
+            "sha256": "8344761d8c738fe1dfc84e909a74786c886ef51b12e825b013962fd4c0073bc1"
+          }
+        },
+        {
+          "value": 2,
+          "name": "vtObject",
+          "raw_bytes_reference": {
+            "offset": 2711586,
+            "length": 9,
+            "sha256": "46772297762c9f4a4aec953e21d322982eac029531378465369f086898ab72c4"
+          }
+        },
+        {
+          "value": 3,
+          "name": "vtUnKnown",
+          "raw_bytes_reference": {
+            "offset": 2711595,
+            "length": 10,
+            "sha256": "cd01ecaf9a850d4701da32573f2b71b07960cd6e6c35402475d5ba43e0d92ab8"
+          }
+        },
+        {
+          "value": 4,
+          "name": "vtError",
+          "raw_bytes_reference": {
+            "offset": 2711605,
+            "length": 8,
+            "sha256": "d6574e077b708b70d4af7a7bae55d0d950eb7c2c4c3e0de227cb59e95ba728c1"
+          }
+        }
+      ],
+      "declaration_bytes_status": "verified",
+      "execution_semantics": "not_tested",
+      "scope": "Only bounded self-base enum declarations; no state-machine behavior inferred from names"
+    }
+  },
+  "parameter_symbols": [
+    {
+      "status": "verified",
+      "symbol": "ParamInt",
+      "raw_bytes_reference": {
+        "offset": 2846756,
+        "length": 18,
+        "sha256": "805d9ad773814a2bf32e4af4600ca193e4a388dce9ea654d8e9150540965115a"
+      }
+    },
+    {
+      "status": "verified",
+      "symbol": "ParamStr",
+      "raw_bytes_reference": {
+        "offset": 2846808,
+        "length": 18,
+        "sha256": "a3b938101ae717d53a09b492e22718eb3f5aa22f309b72f9f75bcc9f520c4d12"
+      }
+    }
+  ],
+  "creation_callback_link": "inferred",
+  "namespace_shadowing": "not_tested",
+  "runtime_argument_conversion": "not_tested",
+  "native_xref_completeness": "unsupported",
+  "unknowns": [
+    "No callback execution observed",
+    "Full method ABI and dynamic callback reassignment unknown",
+    "Selected growth-path guard reads word at descriptor+0x52; reason unknown",
+    "Expression structure does not predict actual value tag",
+    "Static chain does not prove startup reachability or namespace ownership"
+  ],
+  "schema_version": 1,
+  "dataset": "real",
+  "source_file": "美少女万華鏡４.exe",
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "bytes_read": 812,
+  "errors": [],
+  "original_files_written": false,
+  "target_execution": "not_tested",
+  "external_game_data_uploads": false,
+  "source_sha256_after": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5"
+}

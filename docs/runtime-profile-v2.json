@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "profile": "experimental_static_contracts_v2",
+  "status": "inferred",
+  "original_engine_equivalence": "not_tested",
+  "basis_profile": "docs/runtime-profile-v1.json",
+  "scope": "Extends the scalar/if subset with explicitly pinned module sources; not a full QLIE runtime",
+  "module_contracts": [
+    {
+      "id": "second_call_field",
+      "status": "inferred",
+      "basis": ["reports/p1/module-native-report.json:second_field_read", "reports/p1/module-native-report.json:reader_receives_file_and_label", "reports/p1/module-native-report.json:reader_self_load_gate"],
+      "implemented": "sub accepts a literal target and optional file selector; omitted selector, unquoted self and string-valued self remain in current module; non-self string result resolves through the host-supplied catalog",
+      "unsupported": ["extra argument slots", "numeric/object-to-file coercion", "mutating selectors", "raw empty field to nil mapping", "dynamic target labels", "cross-module jmp/go"],
+      "original_conversion_and_error_behavior": "not_tested"
+    },
+    {
+      "id": "source_catalog",
+      "status": "inferred",
+      "implemented": "Every source is bound by logical path, relative physical file and SHA-256; all variants retained; differing bytes require an explicit source choice",
+      "identical_aliases": "Deterministic source provenance choice only, not proof of native mount precedence or reload behavior",
+      "physical_archive_access": "unsupported",
+      "original_package_winner": "not_tested"
+    },
+    {
+      "id": "cross_file_frames",
+      "status": "inferred",
+      "basis": ["docs/29-frame-scope-initialization-and-return.md", "reports/p1/module-native-report.json:label_index_and_read"],
+      "implemented": "A new candidate frame retains caller program snapshot and next record; zero-argument ret restores that source and caller frame",
+      "source_policy": "Immutable pinned snapshots within a run; no writes to imported files",
+      "preprocessing": "Includes in a catalog-loaded program are rejected; complete native include/line/macro pipeline is not recovered",
+      "native_frame_ABI_variable_lifecycle_and_reload_semantics": "not_tested"
+    },
+    {
+      "id": "path_identity",
+      "status": "inferred",
+      "implemented": "Logical Windows separators map to slash; ASCII case folds only; Data keys preserve Unicode scalar distinctions; unsafe paths and symlinks rejected",
+      "unicode_normalization_equivalence": "not_tested"
+    }
+  ],
+  "limits": {
+    "catalog_entries": 2000,
+    "cached_modules": 512,
+    "snapshot_bytes": 134217728,
+    "source_bytes_per_file": 16777216,
+    "call_frames": 64,
+    "default_steps": 10000
+  },
+  "real_validation": "reports/p1/module-execution-report.json",
+  "owned_tests": "native/Tests/MangekyouCoreTests/ModuleTests.swift",
+  "unchanged_limits": "Integer-only scalar declarations, object/table behavior, ordinary text, media, animation and saves remain outside supported execution",
+  "original_files_written": false,
+  "commercial_assets_bundled": false
+}

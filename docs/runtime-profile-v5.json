@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "profile": "experimental_static_contracts_v5",
+  "status": "inferred",
+  "basis_profile": "docs/runtime-profile-v4.json",
+  "original_engine_equivalence": "not_tested",
+  "scope": "Prior bounded array/table/module subset plus string-list load/query and variable-category lookup",
+  "basis": ["reports/p1/list-native-report.json", "reports/p1/list-helper-native-report.json", "reports/p1/list-path-native-report.json", "reports/p1/list-binding-report.json"],
+  "contracts": [
+    {"id": "list_object", "status": "inferred", "implemented": "Distinct empty list object, scope selection, pinned text load, CR/LF/CRLF lines. No double-slash filter or percent-marker conversion.", "unsupported": ["complete list mutation API", "sorting", "object array/alias/destruction semantics"]},
+    {"id": "list_name_value", "status": "inferred", "implemented": "First name match, first equals separator, no trimming, empty value uses query defaults. ASCII case fold only. A non-ASCII name encountered before a match stops with a resource byte reference; all rows remain stored and classified.", "nameCount": "Distinct ASCII names in the bounded model", "unresolvedNameCount": "Number of non-ASCII name rows, not guessed equivalent names", "windows_locale_equivalence": "not_tested"},
+    {"id": "list_query_integer", "status": "inferred", "implemented": "Found value uses a zero-default integer-cache candidate, unlike table numeric fallback. Outside reviewed numeric range/syntax stops. Missing/empty value uses saved defaults.", "full_64_bit_conversion": "unsupported", "auxiliary_result_flags": "not_tested"},
+    {"id": "vexs", "status": "inferred", "implemented": "Bare variable name lookup returns current local/global/system category 3/2/1 or missing 0 in global ResultInt. ResultStr is preserved.", "unsupported": ["indexed/quoted name mapping", "native ABI and complete state flags"]},
+    {"id": "resource_lookup", "status": "inferred", "implemented": "For l, try catalog logical directory of current pinned script, then literal logical name. Different-byte variants still need explicit selection, even if a later candidate is unique.", "unsupported": ["configured native search prefixes", "Windows absolute/filesystem expansion", "full preprocessing/source-origin semantics", "direct PACK payload access"]}
+  ],
+  "limits": {"combined_table_list_handles": 512, "list_source_bytes_each": 1048576, "list_lines_each": 10000, "list_line_utf8_bytes_each": 8192, "list_source_bytes_total": 8388608, "list_lines_total": 50000},
+  "unchanged_limits": "Scalar, array, catalog, expression, table and snapshot limits remain as in prior profiles and current source",
+  "owned_tests": "native/Tests/MangekyouCoreTests/ListTests.swift",
+  "real_validation": "reports/p1/list-execution-report.json",
+  "full_game_compatibility": "not_tested",
+  "original_files_written": false,
+  "commercial_assets_bundled": false
+}

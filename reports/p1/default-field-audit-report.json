@@ -1,0 +1,588 @@
+{
+  "schema_version": 1,
+  "status": "inferred",
+  "dataset": "real",
+  "scope": "Omitted field conditional static projection only; no value evaluator or runtime execution",
+  "source_file": "美少女万華鏡４.exe",
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "source_sha256_after": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "native_binding_checks": {
+    "status": "verified",
+    "scope": "Fixed loads, direct parser call, class/slots and return declaration bytes only",
+    "minimum_load_reference": {
+      "offset": 2793940,
+      "length": 5,
+      "sha256": "c7d67971f0bd3577da02bc85580125fe5e312c399531b4c6754e93e203384979"
+    },
+    "mode_index_reference": {
+      "offset": 2856954,
+      "length": 5,
+      "sha256": "3b915f9fa826c0a2f4ea2dc40ee0ad61737c8f9675dfbee6eb8e754634527846"
+    },
+    "split_call": {
+      "status": "verified",
+      "call_address": "0x6aade0",
+      "target": "0x699fd0",
+      "raw_bytes_reference": {
+        "offset": 2793952,
+        "length": 5,
+        "sha256": "65a6a3ff77178c64ce2b3dd3b4d157ceb736d2e4757b3a11d599cc2a45c62408"
+      },
+      "scope": "Direct E8 instruction bytes only"
+    },
+    "slots": [
+      {
+        "offset": 12,
+        "target": "0x43eb54",
+        "raw_bytes_reference": {
+          "offset": 205148,
+          "length": 4,
+          "sha256": "dc1cf9453fea5c2811d69a324bbd0328504d5aa73813407ba51697d339335df9"
+        }
+      },
+      {
+        "offset": 20,
+        "target": "0x43eb88",
+        "raw_bytes_reference": {
+          "offset": 205156,
+          "length": 4,
+          "sha256": "9600e459252bbff78cad3b0d73edfe03a511f5a77daa01d848bc4139781c64fa"
+        }
+      },
+      {
+        "offset": 56,
+        "target": "0x43e8bc",
+        "raw_bytes_reference": {
+          "offset": 205192,
+          "length": 4,
+          "sha256": "289e03982ef57fce17b793a782923c0154c31a0b2bec1f51c0d9a85aadd45f31"
+        }
+      },
+      {
+        "offset": 60,
+        "target": "0x43e8cc",
+        "raw_bytes_reference": {
+          "offset": 205196,
+          "length": 4,
+          "sha256": "cd2c62b95301c781260723c6c6a459eaf208142764d794c285470a4380b5f077"
+        }
+      },
+      {
+        "offset": 152,
+        "target": "0x43ec84",
+        "raw_bytes_reference": {
+          "offset": 205288,
+          "length": 4,
+          "sha256": "1b3a2587cb7bce5eeab2eb38cb13833b201045fe17e75e9b9646b68195474ac5"
+        }
+      }
+    ],
+    "count_getter_reference": {
+      "offset": 253832,
+      "length": 4,
+      "sha256": "f08bd60f2cb7f0d2f33d8700ac080aa995e18d3dd7d12fa4fcecaa3133360afc"
+    },
+    "return_record": {
+      "status": "inferred",
+      "name": "TReturnValue",
+      "type_info_address": "0x696c58",
+      "declared_size": 12,
+      "managed_fields": [
+        {
+          "offset": 8,
+          "type_info": {
+            "status": "verified",
+            "kind_u8": 18,
+            "name": "string",
+            "reference_cell": "0x40126c",
+            "type_info_address": "0x401270",
+            "raw_bytes_reference": {
+              "offset": 1648,
+              "length": 8,
+              "sha256": "882c598a645d17832a7824779df8f543e3adea898ed6f431b130fcaba78abc61"
+            },
+            "type_semantics": "not_tested"
+          },
+          "raw_bytes_reference": {
+            "offset": 2711662,
+            "length": 8,
+            "sha256": "a3e47a68d0bc0348858c5dee4171641b8143029650c8f0c4f6fc7bed979db871"
+          }
+        }
+      ],
+      "fields": [
+        {
+          "name": "ValueType",
+          "offset": 0,
+          "flags_u8": 2,
+          "type_info": {
+            "status": "verified",
+            "kind_u8": 3,
+            "name": "TScriptValueType",
+            "reference_cell": "0x696bec",
+            "type_info_address": "0x696bf0",
+            "raw_bytes_reference": {
+              "offset": 2711536,
+              "length": 18,
+              "sha256": "609ef062359d96b36e64473aa96a9b08875c233d634d7fb03658225bb1062b5c"
+            },
+            "type_semantics": "not_tested",
+            "enum_header": {
+              "status": "inferred",
+              "ordinal_type_u8": 1,
+              "minimum_i32": 0,
+              "maximum_i32": 4,
+              "base_type_cell": "0x696bec",
+              "header_reference": {
+                "offset": 2711554,
+                "length": 13,
+                "sha256": "637ccd7a0bdb98a2200216a68243ce85aa86e69faa150eb24b03798059c0e38c"
+              },
+              "members": [
+                {
+                  "value": 0,
+                  "name": "vtInteger",
+                  "raw_bytes_reference": {
+                    "offset": 2711567,
+                    "length": 10,
+                    "sha256": "2db2cbd599929a2ce0179f2b119374dfd4caa7b26d76f1a0e73abb54da139dd6"
+                  }
+                },
+                {
+                  "value": 1,
+                  "name": "vtString",
+                  "raw_bytes_reference": {
+                    "offset": 2711577,
+                    "length": 9,
+                    "sha256": "8344761d8c738fe1dfc84e909a74786c886ef51b12e825b013962fd4c0073bc1"
+                  }
+                },
+                {
+                  "value": 2,
+                  "name": "vtObject",
+                  "raw_bytes_reference": {
+                    "offset": 2711586,
+                    "length": 9,
+                    "sha256": "46772297762c9f4a4aec953e21d322982eac029531378465369f086898ab72c4"
+                  }
+                },
+                {
+                  "value": 3,
+                  "name": "vtUnKnown",
+                  "raw_bytes_reference": {
+                    "offset": 2711595,
+                    "length": 10,
+                    "sha256": "cd01ecaf9a850d4701da32573f2b71b07960cd6e6c35402475d5ba43e0d92ab8"
+                  }
+                },
+                {
+                  "value": 4,
+                  "name": "vtError",
+                  "raw_bytes_reference": {
+                    "offset": 2711605,
+                    "length": 8,
+                    "sha256": "d6574e077b708b70d4af7a7bae55d0d950eb7c2c4c3e0de227cb59e95ba728c1"
+                  }
+                }
+              ],
+              "declaration_bytes_status": "verified",
+              "execution_semantics": "not_tested",
+              "scope": "Only bounded self-base enum declarations; no state-machine behavior inferred from names"
+            }
+          },
+          "attributes": {
+            "status": "verified",
+            "length": 2,
+            "raw_bytes_reference": {
+              "offset": 2711694,
+              "length": 2,
+              "sha256": "99be5efb88ca2013bd8e4eb035fd42d5245468fe9afa70d8ba9c1c419a48c4e8"
+            },
+            "unknown_reason": null
+          },
+          "raw_bytes_reference": {
+            "offset": 2711675,
+            "length": 21,
+            "sha256": "22c827977edf422855f7243f3e8a922f2c17823868b88b9bf38af0e8d7fbc792"
+          }
+        },
+        {
+          "name": "IntValue",
+          "offset": 4,
+          "flags_u8": 2,
+          "type_info": {
+            "status": "verified",
+            "kind_u8": 1,
+            "name": "Integer",
+            "reference_cell": "0x40109c",
+            "type_info_address": "0x4010a0",
+            "raw_bytes_reference": {
+              "offset": 1184,
+              "length": 9,
+              "sha256": "801ad41c64653550f533d6f1b1fa48fa4299cf26f0f08821e8fd4d8696d276cc"
+            },
+            "type_semantics": "not_tested"
+          },
+          "attributes": {
+            "status": "verified",
+            "length": 2,
+            "raw_bytes_reference": {
+              "offset": 2711714,
+              "length": 2,
+              "sha256": "99be5efb88ca2013bd8e4eb035fd42d5245468fe9afa70d8ba9c1c419a48c4e8"
+            },
+            "unknown_reason": null
+          },
+          "raw_bytes_reference": {
+            "offset": 2711696,
+            "length": 20,
+            "sha256": "a08c455d650cc933975f4c841e6523232e1f02ac0710e1b98307b0bb3aeff65a"
+          }
+        },
+        {
+          "name": "StrValue",
+          "offset": 8,
+          "flags_u8": 2,
+          "type_info": {
+            "status": "verified",
+            "kind_u8": 18,
+            "name": "string",
+            "reference_cell": "0x40126c",
+            "type_info_address": "0x401270",
+            "raw_bytes_reference": {
+              "offset": 1648,
+              "length": 8,
+              "sha256": "882c598a645d17832a7824779df8f543e3adea898ed6f431b130fcaba78abc61"
+            },
+            "type_semantics": "not_tested"
+          },
+          "attributes": {
+            "status": "verified",
+            "length": 2,
+            "raw_bytes_reference": {
+              "offset": 2711734,
+              "length": 2,
+              "sha256": "99be5efb88ca2013bd8e4eb035fd42d5245468fe9afa70d8ba9c1c419a48c4e8"
+            },
+            "unknown_reason": null
+          },
+          "raw_bytes_reference": {
+            "offset": 2711716,
+            "length": 20,
+            "sha256": "1a99a508cc7d44df29c4ad250045c82f90b2a985143aefdae2325ccb0a7649f9"
+          }
+        }
+      ],
+      "header_reference": {
+        "offset": 2711640,
+        "length": 22,
+        "sha256": "7febdc77020d47aa1a84ebed8a3e9aaebdcb778e3dc8e072c15a95dd7c76da0c"
+      },
+      "extended_prefix": {
+        "value_u8": 0,
+        "meaning": "not_tested",
+        "raw_bytes_reference": {
+          "offset": 2711670,
+          "length": 5,
+          "sha256": "2c8781cf4ff5280129b190856ff431adae77be2294fc3ffdadf88105743fe667"
+        }
+      },
+      "declaration_bytes_status": "verified",
+      "initialization_and_serialization": "not_tested",
+      "extended_layout_scope": "Only the reviewed zero-prefix record variant"
+    },
+    "complete_ABI": "not_tested"
+  },
+  "native_report": "reports/p1/default-field-native-report.json",
+  "native_report_sha256": "b5aae8c911cc591c83fa549fccd1ebd74abc68e6340272d5c69eff3bec2ec0fa",
+  "physical_corpus_files": 379,
+  "all_versions_preserved": true,
+  "a_spelling_candidates": 563,
+  "selected_candidate_count": 6,
+  "selected_candidates": [
+    {
+      "source_file": "data7.pack/avg/imoscripter.s",
+      "source_sha256": "41f89de607c51abec25b18d85fccbe4b1206966d000083f562a0b06c90a014d5",
+      "byte_offset": 5332,
+      "byte_length": 8,
+      "raw_bytes_reference": {
+        "source_sha256": "41f89de607c51abec25b18d85fccbe4b1206966d000083f562a0b06c90a014d5",
+        "offset": 5332,
+        "length": 8,
+        "sha256": "32d3789dd616c4c4d1a148a2d8c6de04a73cd96d8d6e29ed46c6e0825f075b26"
+      },
+      "lexical_arity": 2,
+      "selector_reference": {
+        "source_file": "data7.pack/avg/imoscripter.s",
+        "source_sha256": "41f89de607c51abec25b18d85fccbe4b1206966d000083f562a0b06c90a014d5",
+        "byte_offset": 5323,
+        "byte_length": 8,
+        "raw_bytes_reference": {
+          "source_sha256": "41f89de607c51abec25b18d85fccbe4b1206966d000083f562a0b06c90a014d5",
+          "offset": 5323,
+          "length": 8,
+          "sha256": "ef078e88f3e3fa22438791bfdb3262e8bb73e0693e9a0a330d9cc0645d33cdb0"
+        }
+      },
+      "projection": {
+        "status": "inferred",
+        "source_field_count": 3,
+        "minimum_count": 9,
+        "wanted_index": 3,
+        "list_count_candidate": 9,
+        "runtime_reachability": "not_tested",
+        "original_execution_equivalence": "not_tested",
+        "origin": "appended_null_candidate",
+        "value_conversion": "inferred",
+        "converted_value_candidate": {
+          "tag_name": "vtInteger",
+          "integer": 0,
+          "string_shape": "null_pointer"
+        },
+        "scope": "Only the observed null-pointer branch after minimum-count padding"
+      },
+      "namespace_binding": "not_tested",
+      "actual_registration": "not_tested"
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_include.s",
+      "source_sha256": "6ba9009a0b7d086e291a3a0cae91c0fa8e23e20e582db6cdf2413e5081436f03",
+      "byte_offset": 90,
+      "byte_length": 43,
+      "raw_bytes_reference": {
+        "source_sha256": "6ba9009a0b7d086e291a3a0cae91c0fa8e23e20e582db6cdf2413e5081436f03",
+        "offset": 90,
+        "length": 43,
+        "sha256": "56573ecbb7b8b6332c02e55d1fc4adfa7bfd4fd2d4443a015e846aaecb23d72e"
+      },
+      "lexical_arity": 2,
+      "selector_reference": {
+        "source_file": "data7.pack/avg/imoscripter_include.s",
+        "source_sha256": "6ba9009a0b7d086e291a3a0cae91c0fa8e23e20e582db6cdf2413e5081436f03",
+        "byte_offset": 81,
+        "byte_length": 8,
+        "raw_bytes_reference": {
+          "source_sha256": "6ba9009a0b7d086e291a3a0cae91c0fa8e23e20e582db6cdf2413e5081436f03",
+          "offset": 81,
+          "length": 8,
+          "sha256": "ef078e88f3e3fa22438791bfdb3262e8bb73e0693e9a0a330d9cc0645d33cdb0"
+        }
+      },
+      "projection": {
+        "status": "inferred",
+        "source_field_count": 3,
+        "minimum_count": 9,
+        "wanted_index": 3,
+        "list_count_candidate": 9,
+        "runtime_reachability": "not_tested",
+        "original_execution_equivalence": "not_tested",
+        "origin": "appended_null_candidate",
+        "value_conversion": "inferred",
+        "converted_value_candidate": {
+          "tag_name": "vtInteger",
+          "integer": 0,
+          "string_shape": "null_pointer"
+        },
+        "scope": "Only the observed null-pointer branch after minimum-count padding"
+      },
+      "namespace_binding": "not_tested",
+      "actual_registration": "not_tested"
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_indexlist.s",
+      "source_sha256": "9ebf7496279cc4a0b9cd4741f08b4b0c0251f132bd0d7f949480a7e8edb19724",
+      "byte_offset": 146,
+      "byte_length": 43,
+      "raw_bytes_reference": {
+        "source_sha256": "9ebf7496279cc4a0b9cd4741f08b4b0c0251f132bd0d7f949480a7e8edb19724",
+        "offset": 146,
+        "length": 43,
+        "sha256": "b7c94d92a3f2799cf9d80bdc6edb578ac522ecadb3cfb7360dd7b36ec46e40c6"
+      },
+      "lexical_arity": 2,
+      "selector_reference": {
+        "source_file": "data7.pack/avg/imoscripter_indexlist.s",
+        "source_sha256": "9ebf7496279cc4a0b9cd4741f08b4b0c0251f132bd0d7f949480a7e8edb19724",
+        "byte_offset": 137,
+        "byte_length": 8,
+        "raw_bytes_reference": {
+          "source_sha256": "9ebf7496279cc4a0b9cd4741f08b4b0c0251f132bd0d7f949480a7e8edb19724",
+          "offset": 137,
+          "length": 8,
+          "sha256": "ef078e88f3e3fa22438791bfdb3262e8bb73e0693e9a0a330d9cc0645d33cdb0"
+        }
+      },
+      "projection": {
+        "status": "inferred",
+        "source_field_count": 3,
+        "minimum_count": 9,
+        "wanted_index": 3,
+        "list_count_candidate": 9,
+        "runtime_reachability": "not_tested",
+        "original_execution_equivalence": "not_tested",
+        "origin": "appended_null_candidate",
+        "value_conversion": "inferred",
+        "converted_value_candidate": {
+          "tag_name": "vtInteger",
+          "integer": 0,
+          "string_shape": "null_pointer"
+        },
+        "scope": "Only the observed null-pointer branch after minimum-count padding"
+      },
+      "namespace_binding": "not_tested",
+      "actual_registration": "not_tested"
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter.s",
+      "source_sha256": "9f8305af1f749c253d60afd646a8adc13881cf41e4a102c090e98e127fa871c9",
+      "byte_offset": 10628,
+      "byte_length": 16,
+      "raw_bytes_reference": {
+        "source_sha256": "9f8305af1f749c253d60afd646a8adc13881cf41e4a102c090e98e127fa871c9",
+        "offset": 10628,
+        "length": 16,
+        "sha256": "8c8e152c2c2834cc81cf236e1fbf3ba4d4c4df97754a6aed48c6111965e0a822"
+      },
+      "lexical_arity": 2,
+      "selector_reference": {
+        "source_file": "data8.pack/avg/imoscripter.s",
+        "source_sha256": "9f8305af1f749c253d60afd646a8adc13881cf41e4a102c090e98e127fa871c9",
+        "byte_offset": 10610,
+        "byte_length": 16,
+        "raw_bytes_reference": {
+          "source_sha256": "9f8305af1f749c253d60afd646a8adc13881cf41e4a102c090e98e127fa871c9",
+          "offset": 10610,
+          "length": 16,
+          "sha256": "d012cad1f33a6e4abca34f02a7c324dd542bad3cc72b0e2228f22354eb374392"
+        }
+      },
+      "projection": {
+        "status": "inferred",
+        "source_field_count": 3,
+        "minimum_count": 9,
+        "wanted_index": 3,
+        "list_count_candidate": 9,
+        "runtime_reachability": "not_tested",
+        "original_execution_equivalence": "not_tested",
+        "origin": "appended_null_candidate",
+        "value_conversion": "inferred",
+        "converted_value_candidate": {
+          "tag_name": "vtInteger",
+          "integer": 0,
+          "string_shape": "null_pointer"
+        },
+        "scope": "Only the observed null-pointer branch after minimum-count padding"
+      },
+      "namespace_binding": "not_tested",
+      "actual_registration": "not_tested"
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_include.s",
+      "source_sha256": "b259969aa535f02a71c883853f0f6767188a8767d6dfea819a6da6713ef20bc7",
+      "byte_offset": 182,
+      "byte_length": 86,
+      "raw_bytes_reference": {
+        "source_sha256": "b259969aa535f02a71c883853f0f6767188a8767d6dfea819a6da6713ef20bc7",
+        "offset": 182,
+        "length": 86,
+        "sha256": "e5ab744489105c97ae0170c90f8403fde05540949394b83960099b655829ae4d"
+      },
+      "lexical_arity": 2,
+      "selector_reference": {
+        "source_file": "data8.pack/avg/imoscripter_include.s",
+        "source_sha256": "b259969aa535f02a71c883853f0f6767188a8767d6dfea819a6da6713ef20bc7",
+        "byte_offset": 164,
+        "byte_length": 16,
+        "raw_bytes_reference": {
+          "source_sha256": "b259969aa535f02a71c883853f0f6767188a8767d6dfea819a6da6713ef20bc7",
+          "offset": 164,
+          "length": 16,
+          "sha256": "d012cad1f33a6e4abca34f02a7c324dd542bad3cc72b0e2228f22354eb374392"
+        }
+      },
+      "projection": {
+        "status": "inferred",
+        "source_field_count": 3,
+        "minimum_count": 9,
+        "wanted_index": 3,
+        "list_count_candidate": 9,
+        "runtime_reachability": "not_tested",
+        "original_execution_equivalence": "not_tested",
+        "origin": "appended_null_candidate",
+        "value_conversion": "inferred",
+        "converted_value_candidate": {
+          "tag_name": "vtInteger",
+          "integer": 0,
+          "string_shape": "null_pointer"
+        },
+        "scope": "Only the observed null-pointer branch after minimum-count padding"
+      },
+      "namespace_binding": "not_tested",
+      "actual_registration": "not_tested"
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_indexlist.s",
+      "source_sha256": "d9650781e6bc9960659b97a310fd8b517bb57f64cab58f6d572e8825b69b546b",
+      "byte_offset": 294,
+      "byte_length": 86,
+      "raw_bytes_reference": {
+        "source_sha256": "d9650781e6bc9960659b97a310fd8b517bb57f64cab58f6d572e8825b69b546b",
+        "offset": 294,
+        "length": 86,
+        "sha256": "1b1c6875f57fbddc43c7b147c75d01a14255b8b571152359644b17ec752c4fc5"
+      },
+      "lexical_arity": 2,
+      "selector_reference": {
+        "source_file": "data8.pack/avg/imoscripter_indexlist.s",
+        "source_sha256": "d9650781e6bc9960659b97a310fd8b517bb57f64cab58f6d572e8825b69b546b",
+        "byte_offset": 276,
+        "byte_length": 16,
+        "raw_bytes_reference": {
+          "source_sha256": "d9650781e6bc9960659b97a310fd8b517bb57f64cab58f6d572e8825b69b546b",
+          "offset": 276,
+          "length": 16,
+          "sha256": "d012cad1f33a6e4abca34f02a7c324dd542bad3cc72b0e2228f22354eb374392"
+        }
+      },
+      "projection": {
+        "status": "inferred",
+        "source_field_count": 3,
+        "minimum_count": 9,
+        "wanted_index": 3,
+        "list_count_candidate": 9,
+        "runtime_reachability": "not_tested",
+        "original_execution_equivalence": "not_tested",
+        "origin": "appended_null_candidate",
+        "value_conversion": "inferred",
+        "converted_value_candidate": {
+          "tag_name": "vtInteger",
+          "integer": 0,
+          "string_shape": "null_pointer"
+        },
+        "scope": "Only the observed null-pointer branch after minimum-count padding"
+      },
+      "namespace_binding": "not_tested",
+      "actual_registration": "not_tested"
+    }
+  ],
+  "origin_counts": {
+    "appended_null_candidate": 6
+  },
+  "skipped_candidates": {
+    "count": 557,
+    "status": "not_tested",
+    "reason": "No same-line literal rep selector hint; namespace not inferred"
+  },
+  "omitted_mode_status": "inferred",
+  "namespace_binding": "not_tested",
+  "actual_registration": "not_tested",
+  "replacement_execution": "not_tested",
+  "original_files_written": false,
+  "external_game_data_uploads": false,
+  "preconditions": [
+    "Reviewed source command segment reaches the selected parser and rep handler",
+    "List creation, padding and retrieval complete normally without mutation or callback failure",
+    "No preprocessing or dynamic object binding changes the candidate before dispatch"
+  ],
+  "runtime_development_ready": false
+}

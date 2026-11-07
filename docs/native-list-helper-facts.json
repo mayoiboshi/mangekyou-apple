@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "List and self-path static evidence; no target execution",
+  "facts": [
+    {
+      "id": "vexs_command_selector",
+      "status": "verified",
+      "evidence": "command-dispatch-assembly",
+      "start": "0x6b1344",
+      "end": "0x6b1354",
+      "observation": "Command selector 0x73786576 takes the existence branch.",
+      "scope": "Selected static instructions only; not original execution equivalence",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6b1347: CMP EAX, 0x73786576",
+        "0x6b134e: JZ 0x006b1554"
+      ],
+      "unknown": [
+        "Original execution and complete lifetime not tested"
+      ]
+    },
+    {
+      "id": "vexs_raw_name_and_category_result",
+      "status": "verified",
+      "evidence": "command-dispatch-assembly",
+      "start": "0x6b1554",
+      "end": "0x6b15b1",
+      "observation": "Raw field one reaches lookup; current frame count minus one supplies context, and the returned low byte is forwarded as ResultInt.",
+      "scope": "Selected static instructions only; not original execution equivalence",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6b155a: MOV EDX, 0x1",
+        "0x6b1564: CALL dword ptr [EBX + 0xc]",
+        "0x6b1577: CALL 0x006c1ac8",
+        "0x6b157e: DEC ECX",
+        "0x6b1589: CALL 0x0069ea44",
+        "0x6b159e: MOVZX EAX, BL",
+        "0x6b15ac: CALL 0x006be294"
+      ],
+      "unknown": [
+        "Original execution and complete lifetime not tested"
+      ]
+    },
+    {
+      "id": "exists_returns_output_byte",
+      "status": "verified",
+      "evidence": "variable-exists-assembly",
+      "start": "0x69ea44",
+      "end": "0x69ea5d",
+      "observation": "The lookup wrapper returns a zero-extended output byte, rather than the decompiler apparent unconditional one.",
+      "scope": "Selected static instructions only; not original execution equivalence",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x69ea48: PUSH ESP",
+        "0x69ea4d: PUSH EBX",
+        "0x69ea4e: PUSH 0x1",
+        "0x69ea50: CALL 0x0069f3b0",
+        "0x69ea55: MOVZX EAX, byte ptr [ESP]"
+      ],
+      "unknown": [
+        "Original execution and complete lifetime not tested"
+      ]
+    },
+    {
+      "id": "get_value_uses_virtual_name_lookup",
+      "status": "verified",
+      "evidence": "list-name-value-assembly",
+      "start": "0x43d95f",
+      "end": "0x43d9db",
+      "observation": "The name/value getter uses virtual name lookup before taking a suffix of the selected string.",
+      "scope": "Selected static instructions only; not original execution equivalence",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x43d966: CALL dword ptr [ECX + 0x58]",
+        "0x43d978: CALL dword ptr [EBX + 0xc]",
+        "0x43d9b2: CALL 0x00407ba0"
+      ],
+      "unknown": [
+        "Original execution and complete lifetime not tested"
+      ]
+    },
+    {
+      "id": "path_self_callback",
+      "status": "verified",
+      "evidence": "resource-path-assembly",
+      "start": "0x6a58d6",
+      "end": "0x6a58e6",
+      "observation": "When the callback slot is nonzero, the selected resolver invokes self-file-path output.",
+      "scope": "Selected static instructions only; not original execution equivalence",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6a58d6: CMP word ptr [EBX + 0x1a], 0x0",
+        "0x6a58db: JZ 0x006a58e6",
+        "0x6a58e0: MOV EAX, dword ptr [EBX + 0x1c]",
+        "0x6a58e3: CALL dword ptr [EBX + 0x18]"
+      ],
+      "unknown": [
+        "Original execution and complete lifetime not tested"
+      ]
+    },
+    {
+      "id": "path_self_candidate_then_literal",
+      "status": "verified",
+      "evidence": "resource-path-assembly",
+      "start": "0x6a58f0",
+      "end": "0x6a595e",
+      "observation": "Resolver first tests a concatenated self-directory candidate; if absent it expands and tests the literal name.",
+      "scope": "Selected static instructions only; not original execution equivalence",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6a5903: CALL 0x00407934",
+        "0x6a5911: CALL 0x006a5480",
+        "0x6a591c: CALL dword ptr [EBX + 0x8]",
+        "0x6a592e: CMP dword ptr [EBP + -0x8], 0x0",
+        "0x6a5941: CALL 0x006a5480",
+        "0x6a594c: CALL dword ptr [EBX + 0x8]"
+      ],
+      "unknown": [
+        "Original execution and complete lifetime not tested"
+      ]
+    },
+    {
+      "id": "standard_text_line_separators",
+      "status": "verified",
+      "evidence": "set-text-assembly",
+      "start": "0x43e149",
+      "end": "0x43e195",
+      "observation": "The selected standard-line-break branch stops at NUL/LF/CR, adds a line, then consumes CR and optional LF.",
+      "scope": "Selected static instructions only; not original execution equivalence",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x43e149: MOVZX EAX, word ptr [EBX]",
+        "0x43e151: SUB AX, 0xa",
+        "0x43e157: SUB AX, 0x3",
+        "0x43e17a: CALL dword ptr [ECX + 0x38]",
+        "0x43e17d: CMP word ptr [EBX], 0xd",
+        "0x43e186: CMP word ptr [EBX], 0xa"
+      ],
+      "unknown": [
+        "Original execution and complete lifetime not tested"
+      ]
+    }
+  ],
+  "inferred_contracts": [
+    {
+      "id": "list_and_path_candidate",
+      "status": "inferred",
+      "meaning": "Bounded ASCII lookup and self-directory resource candidate; Windows locale, full search prefixes, preprocessing and execution equivalence untested"
+    }
+  ]
+}

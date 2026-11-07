@@ -1,0 +1,640 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Selected table text encoding, locale comparison and ordinary-constructor initialization; no target execution",
+  "facts": [
+    {
+      "id": "encoding_nil_priority",
+      "status": "verified",
+      "evidence": "encoding-select-assembly",
+      "start": "0x4219c9",
+      "end": "0x421a45",
+      "anchors": [
+        "0x4219c9: CMP dword ptr [EBX], 0x0",
+        "0x4219cc: JNZ 0x00421a5b",
+        "0x4219d2: CALL 0x00422540",
+        "0x4219dc: CALL dword ptr [ECX + 0x18]",
+        "0x4219e4: CALL 0x0042194c",
+        "0x4219eb: JZ 0x004219f6",
+        "0x4219ed: CALL 0x00422540",
+        "0x4219f2: MOV dword ptr [EBX], EAX",
+        "0x4219f6: CALL 0x00421910",
+        "0x421a00: CALL dword ptr [ECX + 0x18]",
+        "0x421a08: CALL 0x0042194c",
+        "0x421a0f: JZ 0x00421a1a",
+        "0x421a11: CALL 0x00421910",
+        "0x421a16: MOV dword ptr [EBX], EAX",
+        "0x421a1a: CALL 0x0042257c",
+        "0x421a24: CALL dword ptr [ECX + 0x18]",
+        "0x421a2c: CALL 0x0042194c",
+        "0x421a33: JZ 0x00421a3e",
+        "0x421a35: CALL 0x0042257c",
+        "0x421a3a: MOV dword ptr [EBX], EAX",
+        "0x421a3e: CALL 0x0042245c",
+        "0x421a43: MOV dword ptr [EBX], EAX"
+      ],
+      "require_anchor_order": true,
+      "observation": "Null incoming encoding selects three preamble candidates in order and then the default getter; each match stores the selected object.",
+      "scope": "Selected instruction facts only; original execution and complete exception ABI not_tested",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "preamble_length_cache",
+      "status": "verified",
+      "evidence": "encoding-select-assembly",
+      "start": "0x421a45",
+      "end": "0x421a7d",
+      "anchors": [
+        "0x421a48: MOV EAX, dword ptr [EBX]",
+        "0x421a4c: CALL dword ptr [ECX + 0x18]",
+        "0x421a52: CALL 0x00408c80",
+        "0x421a57: MOV ESI, EAX",
+        "0x421a59: JMP 0x00421a7d",
+        "0x421a62: CALL dword ptr [ECX + 0x18]",
+        "0x421a6a: CALL 0x0042194c",
+        "0x421a71: JZ 0x00421a7d",
+        "0x421a76: CALL 0x00408c80",
+        "0x421a7b: MOV ESI, EAX"
+      ],
+      "require_anchor_order": true,
+      "observation": "Selected or supplied encoding supplies a preamble length cached in ESI; full successful return is outside the default body.",
+      "scope": "Selected instruction facts only; original execution and complete exception ABI not_tested",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "prefix_size_and_bytes",
+      "status": "verified",
+      "evidence": "prefix-check-assembly",
+      "start": "0x421957",
+      "end": "0x4219a6",
+      "anchors": [
+        "0x421957: MOV byte ptr [EBP + -0x1], 0x1",
+        "0x42196b: CMP EBX, EAX",
+        "0x42196d: JL 0x00421998",
+        "0x421978: TEST EDX, EDX",
+        "0x42197a: JLE 0x0042199c",
+        "0x42197c: MOV EAX, 0x1",
+        "0x421981: MOVZX ECX, byte ptr [EDI + EAX*0x1 + -0x1]",
+        "0x421986: CMP CL, byte ptr [ESI + EAX*0x1 + -0x1]",
+        "0x42198a: JZ 0x00421992",
+        "0x42198c: MOV byte ptr [EBP + -0x1], 0x0",
+        "0x421992: INC EAX",
+        "0x421993: DEC EDX",
+        "0x421994: JNZ 0x00421981",
+        "0x421998: MOV byte ptr [EBP + -0x1], 0x0",
+        "0x42199c: MOVZX EAX, byte ptr [EBP + -0x1]",
+        "0x4219a5: RET"
+      ],
+      "require_anchor_order": true,
+      "observation": "The helper rejects a shorter buffer and compares prefix bytes in order; mismatch clears the result and returns it in EAX.",
+      "scope": "Selected instruction facts only; original execution and complete exception ABI not_tested",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "default_zero_codepage",
+      "status": "verified",
+      "evidence": "default-encoding-assembly",
+      "start": "0x42245e",
+      "end": "0x422479",
+      "anchors": [
+        "0x42245e: CMP dword ptr [0x00712fd0], 0x0",
+        "0x422465: JNZ 0x00422494",
+        "0x422467: PUSH 0x0",
+        "0x422469: PUSH 0x0",
+        "0x42246b: XOR ECX, ECX",
+        "0x42246d: MOV DL, 0x1",
+        "0x42246f: MOV EAX, [0x00413de0]",
+        "0x422474: CALL 0x00422678"
+      ],
+      "require_anchor_order": true,
+      "observation": "When the cached default is zero, construct the selected class with ECX zero and two pushed zeros.",
+      "scope": "Selected instruction facts only; original execution and complete exception ABI not_tested",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "mbcs_field_arguments",
+      "status": "verified",
+      "evidence": "mbcs-create-assembly",
+      "start": "0x422690",
+      "end": "0x4226ac",
+      "anchors": [
+        "0x422690: MOV dword ptr [ESI + 0xc], ECX",
+        "0x422693: MOV EAX, dword ptr [EBP + 0xc]",
+        "0x422696: MOV dword ptr [ESI + 0x10], EAX",
+        "0x422699: MOV EAX, dword ptr [EBP + 0x8]",
+        "0x42269c: MOV dword ptr [ESI + 0x14], EAX",
+        "0x4226a3: MOV EAX, dword ptr [ESI + 0xc]",
+        "0x4226a6: PUSH EAX",
+        "0x4226a7: CALL 0x0040c658"
+      ],
+      "require_anchor_order": true,
+      "observation": "Store the code-page and flag operands in +12,+16,+20; pass the stored code-page to the CP-info thunk.",
+      "scope": "Selected instruction facts only; original execution and complete exception ABI not_tested",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "mbcs_decode_arguments",
+      "status": "verified",
+      "evidence": "mbcs-decode-assembly",
+      "start": "0x422748",
+      "end": "0x42275f",
+      "anchors": [
+        "0x422748: MOV EBX, dword ptr [EBP + 0x8]",
+        "0x42274b: PUSH EBX",
+        "0x42274c: MOV EBX, dword ptr [EBP + 0xc]",
+        "0x42274f: PUSH EBX",
+        "0x422750: PUSH ECX",
+        "0x422751: PUSH EDX",
+        "0x422752: MOV EDX, dword ptr [EAX + 0x10]",
+        "0x422755: PUSH EDX",
+        "0x422756: MOV EAX, dword ptr [EAX + 0xc]",
+        "0x422759: PUSH EAX",
+        "0x42275a: CALL 0x0040c864"
+      ],
+      "require_anchor_order": true,
+      "observation": "The selected decoder forwards stored +12 code-page and +16 flags into the multibyte-to-wide thunk with explicit buffers/counts.",
+      "scope": "Selected instruction facts only; original execution and complete exception ABI not_tested",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "utf8_explicit_codepage",
+      "status": "verified",
+      "evidence": "utf8-create-assembly",
+      "start": "0x422826",
+      "end": "0x422838",
+      "anchors": [
+        "0x422826: PUSH 0x8",
+        "0x422828: PUSH 0x0",
+        "0x42282a: MOV ECX, 0xfde9",
+        "0x42282f: XOR EDX, EDX",
+        "0x422833: CALL 0x00422678"
+      ],
+      "require_anchor_order": true,
+      "observation": "The UTF8 constructor supplies code page 65001 with earlier stack argument eight and later argument zero. The callee maps the earlier argument to object +16 used by the decoder; the later argument goes to +20.",
+      "scope": "Selected instruction facts only; original execution and complete exception ABI not_tested",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "string_decode_bridge",
+      "status": "verified",
+      "evidence": "string-decode-assembly",
+      "start": "0x4224ec",
+      "end": "0x422514",
+      "anchors": [
+        "0x4224ec: MOV EAX, dword ptr [EBP + 0xc]",
+        "0x4224f3: PUSH EAX",
+        "0x4224f4: MOV ECX, EDI",
+        "0x4224f6: MOV EDX, ESI",
+        "0x4224f8: MOV EAX, EBX",
+        "0x4224fa: CALL 0x00422208",
+        "0x422502: CALL 0x00408c80",
+        "0x422507: MOV ECX, EAX",
+        "0x422509: MOV EAX, dword ptr [EBP + 0x8]",
+        "0x42250c: MOV EDX, dword ptr [EBP + -0x4]",
+        "0x42250f: CALL 0x0040759c"
+      ],
+      "require_anchor_order": true,
+      "observation": "Decode via character-array helper then supply the resulting character array and its length to string construction.",
+      "scope": "Selected instruction facts only; original execution and complete exception ABI not_tested",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "char_decode_virtual",
+      "status": "verified",
+      "evidence": "char-decode-assembly",
+      "start": "0x4222bb",
+      "end": "0x422305",
+      "anchors": [
+        "0x4222c3: CALL 0x00422118",
+        "0x4222ce: PUSH EAX",
+        "0x4222d7: MOV EDX, dword ptr [0x00412194]",
+        "0x4222dd: CALL 0x00408e48",
+        "0x4222ea: PUSH EAX",
+        "0x4222ee: PUSH EAX",
+        "0x4222ef: LEA EDX, [EDI + ESI*0x1]",
+        "0x4222f2: MOV ECX, EBX",
+        "0x4222f9: CALL dword ptr [EBX + 0xc]",
+        "0x422302: RET 0x8"
+      ],
+      "require_anchor_order": true,
+      "observation": "The character-array helper obtains a count, allocates output and calls encoding virtual slot +12 with an input offset and lengths.",
+      "scope": "Selected instruction facts only; original execution and complete exception ABI not_tested",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "compare_sensitive_flags",
+      "status": "verified",
+      "evidence": "compare-sensitive-assembly",
+      "start": "0x414dd8",
+      "end": "0x414dfd",
+      "anchors": [
+        "0x414dd8: PUSH ESI",
+        "0x414de1: PUSH EAX",
+        "0x414de2: PUSH EBX",
+        "0x414deb: PUSH EAX",
+        "0x414dec: PUSH 0x0",
+        "0x414dee: PUSH 0x400",
+        "0x414df3: CALL 0x0040c550",
+        "0x414df8: SUB EAX, 0x2",
+        "0x414dfb: MOV EBX, EAX"
+      ],
+      "require_anchor_order": true,
+      "observation": "The comparison call uses locale 0x400 and flags zero; the immediate result is adjusted by minus two.",
+      "scope": "Selected instruction facts only; original execution and complete exception ABI not_tested",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "compare_insensitive_flags",
+      "status": "verified",
+      "evidence": "compare-insensitive-assembly",
+      "start": "0x414ea4",
+      "end": "0x414ec9",
+      "anchors": [
+        "0x414ea4: PUSH ESI",
+        "0x414ead: PUSH EAX",
+        "0x414eae: PUSH EBX",
+        "0x414eb7: PUSH EAX",
+        "0x414eb8: PUSH 0x1",
+        "0x414eba: PUSH 0x400",
+        "0x414ebf: CALL 0x0040c550",
+        "0x414ec4: SUB EAX, 0x2",
+        "0x414ec7: MOV EBX, EAX"
+      ],
+      "require_anchor_order": true,
+      "observation": "The other comparison uses locale 0x400 and flags one; the immediate result is adjusted by minus two.",
+      "scope": "Selected instruction facts only; original execution and complete exception ABI not_tested",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "constructor_alloc_preserves_ecx",
+      "status": "verified",
+      "evidence": "constructor-allocation-assembly",
+      "start": "0x405c2c",
+      "end": "0x405c55",
+      "anchors": [
+        "0x405c2c: PUSH EDX",
+        "0x405c2d: PUSH ECX",
+        "0x405c2f: TEST DL, DL",
+        "0x405c31: JL 0x00405c36",
+        "0x405c33: CALL dword ptr [EAX + -0xc]",
+        "0x405c51: POP EBX",
+        "0x405c52: POP ECX",
+        "0x405c53: POP EDX",
+        "0x405c54: RET"
+      ],
+      "require_anchor_order": true,
+      "observation": "The constructor allocation wrapper saves ECX/EDX and calls the class virtual allocation slot -12 before restoring those operands.",
+      "scope": "Selected instruction facts only; original execution and complete exception ABI not_tested",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "new_instance_init_call",
+      "status": "verified",
+      "evidence": "new-instance-assembly",
+      "start": "0x405690",
+      "end": "0x4056aa",
+      "anchors": [
+        "0x405691: MOV EBX, EAX",
+        "0x405695: CALL 0x004056c0",
+        "0x40569a: CALL 0x004044cc",
+        "0x40569f: MOV EDX, EAX",
+        "0x4056a1: MOV EAX, EBX",
+        "0x4056a3: CALL 0x00405704",
+        "0x4056a9: RET"
+      ],
+      "require_anchor_order": true,
+      "observation": "The selected NewInstance entry obtains size/memory and passes the class and allocated buffer to the instance initializer.",
+      "scope": "Selected instruction facts only; original execution and complete exception ABI not_tested",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "instance_zero_fill",
+      "status": "verified",
+      "evidence": "init-instance-assembly",
+      "start": "0x405707",
+      "end": "0x40571e",
+      "anchors": [
+        "0x405707: MOV EBX, EAX",
+        "0x405709: MOV EDI, EDX",
+        "0x40570b: STOSD ES:EDI",
+        "0x40570c: MOV ECX, dword ptr [EBX + -0x34]",
+        "0x40570f: XOR EAX, EAX",
+        "0x405712: SHR ECX, 0x2",
+        "0x405715: DEC ECX",
+        "0x405716: STOSD.REP ES:EDI",
+        "0x405719: AND ECX, 0x3",
+        "0x40571c: STOSB.REP ES:EDI"
+      ],
+      "require_anchor_order": true,
+      "observation": "The initializer writes the class word, then zero-fills the remaining declared instance bytes via word and byte repetition.",
+      "scope": "Selected instruction facts only; original execution and complete exception ABI not_tested",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "instance_interface_gate",
+      "status": "verified",
+      "evidence": "init-instance-assembly",
+      "start": "0x405722",
+      "end": "0x40575a",
+      "anchors": [
+        "0x405722: MOV ECX, dword ptr [EBX + -0x54]",
+        "0x405725: TEST ECX, ECX",
+        "0x405727: JZ 0x0040572a",
+        "0x405729: PUSH ECX",
+        "0x40572a: MOV EBX, dword ptr [EBX + -0x30]",
+        "0x40572d: TEST EBX, EBX",
+        "0x40572f: JZ 0x00405735",
+        "0x405731: MOV EBX, dword ptr [EBX]",
+        "0x405733: JMP 0x00405722",
+        "0x405735: CMP ESP, EDX",
+        "0x405737: JZ 0x00405756",
+        "0x405749: MOV dword ptr [EDI + EAX*0x1], ESI",
+        "0x405759: RET"
+      ],
+      "require_anchor_order": true,
+      "observation": "Additional interface writes are gated by interface metadata in the class/parent chain; a zero-metadata chain skips them.",
+      "scope": "Selected instruction facts only; original execution and complete exception ABI not_tested",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "post_constructor_virtual",
+      "status": "verified",
+      "evidence": "post-constructor-assembly",
+      "start": "0x405c9c",
+      "end": "0x405ca4",
+      "anchors": [
+        "0x405c9c: MOV EAX, dword ptr [EBP + -0x4]",
+        "0x405c9f: MOV EDX, dword ptr [EAX]",
+        "0x405ca1: CALL dword ptr [EDX + -0x1c]"
+      ],
+      "require_anchor_order": true,
+      "observation": "Normal post-construction invokes virtual slot -28; the selected classes slot bytes are checked separately.",
+      "scope": "Selected instruction facts only; original execution and complete exception ABI not_tested",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "string_list_base_constructor",
+      "status": "verified",
+      "evidence": "string-list-create-assembly",
+      "start": "0x43ef32",
+      "end": "0x43ef65",
+      "anchors": [
+        "0x43ef32: TEST DL, DL",
+        "0x43ef34: JZ 0x0043ef3e",
+        "0x43ef39: CALL 0x00405c2c",
+        "0x43ef42: XOR EDX, EDX",
+        "0x43ef46: CALL 0x004056c8",
+        "0x43ef4f: JZ 0x0043ef60",
+        "0x43ef51: CALL 0x00405c84",
+        "0x43ef64: RET"
+      ],
+      "require_anchor_order": true,
+      "observation": "Selected constructor has allocation, base-constructor and post-construction paths; no direct case-flag store occurs in the observed body.",
+      "scope": "Selected instruction facts only; original execution and complete exception ABI not_tested",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "fast_list_component_constructor",
+      "status": "verified",
+      "evidence": "fast-list-create-assembly",
+      "start": "0x563786",
+      "end": "0x5637bf",
+      "anchors": [
+        "0x563786: TEST DL, DL",
+        "0x563788: JZ 0x00563792",
+        "0x56378d: CALL 0x00405c2c",
+        "0x563796: MOV DL, 0x1",
+        "0x563798: MOV EAX, [0x004305f8]",
+        "0x56379d: CALL 0x004056c8",
+        "0x5637a2: MOV dword ptr [ESI + 0x4], EAX",
+        "0x5637a9: JZ 0x005637ba",
+        "0x5637ab: CALL 0x00405c84",
+        "0x5637be: RET"
+      ],
+      "require_anchor_order": true,
+      "observation": "Selected fast-list constructor allocates the internal list and writes +4; no direct optimization-flag store occurs in the observed body.",
+      "scope": "Selected instruction facts only; original execution and complete exception ABI not_tested",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "clear_false_branch",
+      "status": "verified",
+      "evidence": "fast-list-clear-assembly",
+      "start": "0x56368b",
+      "end": "0x5636b5",
+      "anchors": [
+        "0x56368b: TEST DL, DL",
+        "0x56368d: JNZ 0x005636b5",
+        "0x56369d: CALL 0x00563958",
+        "0x5636a2: CALL 0x0056339c",
+        "0x5636a9: JNZ 0x00563699",
+        "0x5636ab: MOV EAX, dword ptr [EDI + 0x4]",
+        "0x5636ae: MOV EDX, dword ptr [EAX]",
+        "0x5636b0: CALL dword ptr [EDX + 0x8]",
+        "0x5636b3: JMP 0x005636ce"
+      ],
+      "require_anchor_order": true,
+      "observation": "Clear with DL zero iterates item helpers then calls the component clear virtual slot; this argument is not a direct assignment to +8.",
+      "scope": "Selected instruction facts only; original execution and complete exception ABI not_tested",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "compare_import_jump",
+      "status": "verified",
+      "evidence": "compare-thunk-assembly",
+      "start": "0x40c550",
+      "end": "0x40c556",
+      "anchors": [
+        "0x40c550: JMP dword ptr [0x0071c264]"
+      ],
+      "require_anchor_order": true,
+      "observation": "Selected comparison thunk jumps through import slot 0x71c264.",
+      "scope": "Selected instruction facts only; original execution and complete exception ABI not_tested",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "decode_import_jump",
+      "status": "verified",
+      "evidence": "decode-thunk-assembly",
+      "start": "0x40c864",
+      "end": "0x40c86a",
+      "anchors": [
+        "0x40c864: JMP dword ptr [0x0071c13c]"
+      ],
+      "require_anchor_order": true,
+      "observation": "Selected conversion thunk jumps through import slot 0x71c13c.",
+      "scope": "Selected instruction facts only; original execution and complete exception ABI not_tested",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "cpinfo_import_jump",
+      "status": "verified",
+      "evidence": "cpinfo-thunk-assembly",
+      "start": "0x40c658",
+      "end": "0x40c65e",
+      "anchors": [
+        "0x40c658: JMP dword ptr [0x0071c204]"
+      ],
+      "require_anchor_order": true,
+      "observation": "Selected CP-info thunk jumps through import slot 0x71c204.",
+      "scope": "Selected instruction facts only; original execution and complete exception ABI not_tested",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "unicode_singleton_class",
+      "status": "verified",
+      "evidence": "unicode-singleton-assembly",
+      "start": "0x422542",
+      "end": "0x422557",
+      "anchors": [
+        "0x422542: CMP dword ptr [0x00712fd4], 0x0",
+        "0x422549: JNZ 0x00422572",
+        "0x42254b: MOV DL, 0x1",
+        "0x42254d: MOV EAX, [0x004143e4]",
+        "0x422552: CALL 0x00422890"
+      ],
+      "require_anchor_order": true,
+      "observation": "The candidate getter conditionally constructs its selected class via a fixed pointer cell. Runtime singleton identity is not observed.",
+      "scope": "Selected instruction facts only; original execution and complete exception ABI not_tested",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "be_singleton_class",
+      "status": "verified",
+      "evidence": "be-singleton-assembly",
+      "start": "0x421912",
+      "end": "0x421927",
+      "anchors": [
+        "0x421912: CMP dword ptr [0x00712fcc], 0x0",
+        "0x421919: JNZ 0x00421942",
+        "0x42191b: MOV DL, 0x1",
+        "0x42191d: MOV EAX, [0x004145a4]",
+        "0x421922: CALL 0x00422890"
+      ],
+      "require_anchor_order": true,
+      "observation": "The candidate getter conditionally constructs its selected class via a fixed pointer cell. Runtime singleton identity is not observed.",
+      "scope": "Selected instruction facts only; original execution and complete exception ABI not_tested",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "utf8_singleton_class",
+      "status": "verified",
+      "evidence": "utf8-singleton-assembly",
+      "start": "0x42257e",
+      "end": "0x422593",
+      "anchors": [
+        "0x42257e: CMP dword ptr [0x00712fdc], 0x0",
+        "0x422585: JNZ 0x004225ae",
+        "0x422587: MOV DL, 0x1",
+        "0x422589: MOV EAX, [0x00414224]",
+        "0x42258e: CALL 0x00422814"
+      ],
+      "require_anchor_order": true,
+      "observation": "The candidate getter conditionally constructs its selected class via a fixed pointer cell. Runtime singleton identity is not observed.",
+      "scope": "Selected instruction facts only; original execution and complete exception ABI not_tested",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    }
+  ],
+  "inferred_contracts": [
+    {
+      "id": "preamble_or_default",
+      "status": "inferred",
+      "basis": [
+        "encoding_nil_priority",
+        "prefix_size_and_bytes",
+        "default_zero_codepage",
+        "mbcs_field_arguments",
+        "mbcs_decode_arguments"
+      ],
+      "meaning": "For the selected nil-encoding load path, preamble candidates precede default code page zero. Source/codepage bindings are verified separately; invalid-input fallback remains platform dependent.",
+      "original_execution": "not_tested"
+    },
+    {
+      "id": "locale_comparison",
+      "status": "inferred",
+      "basis": [
+        "compare_sensitive_flags",
+        "compare_insensitive_flags",
+        "compare_import_jump"
+      ],
+      "meaning": "Temporary list comparison uses a Windows user/process locale with either zero or ignore-case flags; ASCII lowercasing is not a complete replacement.",
+      "original_execution": "not_tested"
+    },
+    {
+      "id": "ordinary_instance_initial_flags",
+      "status": "inferred",
+      "basis": [
+        "constructor_alloc_preserves_ecx",
+        "new_instance_init_call",
+        "instance_zero_fill",
+        "instance_interface_gate",
+        "post_constructor_virtual",
+        "string_list_base_constructor",
+        "fast_list_component_constructor"
+      ],
+      "meaning": "With the verified allocation/parent/post-construction slots, ordinary newly constructed objects begin with zero case/optimization flags. Later mutations and arbitrary objects remain outside this contract.",
+      "original_execution": "not_tested"
+    },
+    {
+      "id": "conversion_bridge",
+      "status": "inferred",
+      "basis": [
+        "string_decode_bridge",
+        "char_decode_virtual",
+        "utf8_explicit_codepage"
+      ],
+      "meaning": "Encoding selection passes through character-array conversion; Windows decoder error/replacement rules are not reproduced by Python strict codecs.",
+      "original_execution": "not_tested"
+    }
+  ]
+}

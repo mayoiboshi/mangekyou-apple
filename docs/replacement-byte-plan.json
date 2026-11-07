@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Reviewed byte constants and mode dispatch only",
+  "guard": "0x695d58",
+  "table": "0x695d68",
+  "constants": [
+    {
+      "id": "literal_first_flags",
+      "address": "0x4e0940",
+      "value": 2
+    },
+    {
+      "id": "literal_all_flags",
+      "address": "0x4e0944",
+      "value": 3
+    },
+    {
+      "id": "match_options",
+      "address": "0x667824",
+      "value": 17
+    },
+    {
+      "id": "split_options",
+      "address": "0x667914",
+      "value": 17
+    },
+    {
+      "id": "replace_options",
+      "address": "0x667974",
+      "value": 17
+    }
+  ],
+  "cases": [
+    {
+      "mode": 0,
+      "case": "0x695d7c",
+      "call": "0x695d8a",
+      "helper": "0x4e08f0"
+    },
+    {
+      "mode": 1,
+      "case": "0x695d9f",
+      "call": "0x695da8",
+      "helper": "0x6675f8"
+    },
+    {
+      "mode": 2,
+      "case": "0x695dd9",
+      "call": "0x695de7",
+      "helper": "0x667978"
+    },
+    {
+      "mode": 3,
+      "case": "0x695dfc",
+      "call": "0x695e03",
+      "helper": "0x667828"
+    },
+    {
+      "mode": 4,
+      "case": "0x695e71",
+      "call": "0x695e7f",
+      "helper": "0x667918"
+    }
+  ]
+}

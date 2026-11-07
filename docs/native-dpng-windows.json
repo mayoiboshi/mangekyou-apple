@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "status": "inferred",
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Undeclared bitmap callbacks selected from loader arguments; linear boundaries inferred",
+  "windows": [
+    {
+      "name": "pixel-callbacks",
+      "start": "0x532694",
+      "end_exclusive": "0x5326a2"
+    }
+  ]
+}

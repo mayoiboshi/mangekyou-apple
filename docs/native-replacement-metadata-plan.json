@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Five regex-related declarations only; no engine version or API equivalence",
+  "classes": [],
+  "records": [
+    {
+      "name": "TMatch",
+      "type_info": "0x664eb4",
+      "fields_count_address": "0x664edd"
+    },
+    {
+      "name": "TGroup",
+      "type_info": "0x664bc0",
+      "fields_count_address": "0x664be1"
+    },
+    {
+      "name": "TMatchCollection",
+      "type_info": "0x665140",
+      "fields_count_address": "0x665163"
+    },
+    {
+      "name": "TGroupCollection",
+      "type_info": "0x664e58",
+      "fields_count_address": "0x664e83"
+    },
+    {
+      "name": "TRegEx",
+      "type_info": "0x665214",
+      "fields_count_address": "0x66522d"
+    }
+  ],
+  "negative_class_seeds": []
+}

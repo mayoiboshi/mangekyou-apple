@@ -1,0 +1,227 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Read-only update timing and call/return context evidence; query names are analyst labels, not recovered semantics",
+  "queries": [
+    {
+      "name": "aux-record-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6c17c8"
+    },
+    {
+      "name": "aux-record-restore",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6b6b10"
+    },
+    {
+      "name": "aux-record-save",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6b6570"
+    },
+    {
+      "name": "call-location-save",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c0fbc"
+    },
+    {
+      "name": "context-at-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6c1170"
+    },
+    {
+      "name": "context-at",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c1170"
+    },
+    {
+      "name": "context-count-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6c1ac8"
+    },
+    {
+      "name": "context-count",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c1ac8"
+    },
+    {
+      "name": "context-current-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6c1160"
+    },
+    {
+      "name": "context-current",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c1160"
+    },
+    {
+      "name": "context-pop-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6c1a40"
+    },
+    {
+      "name": "context-pop",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c1a40"
+    },
+    {
+      "name": "context-push",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c17c8"
+    },
+    {
+      "name": "context-remove-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6c1a58"
+    },
+    {
+      "name": "context-remove",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c1a58"
+    },
+    {
+      "name": "context-selector-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6c1ad0"
+    },
+    {
+      "name": "context-selector",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c1ad0"
+    },
+    {
+      "name": "context-sync",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c09f0"
+    },
+    {
+      "name": "context-top",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c149c"
+    },
+    {
+      "name": "context-trim-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6c111c"
+    },
+    {
+      "name": "context-trim",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c111c"
+    },
+    {
+      "name": "control-dispatch",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6bb02c"
+    },
+    {
+      "name": "expression-core-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69bab4"
+    },
+    {
+      "name": "expression-detect",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69b9e0"
+    },
+    {
+      "name": "parameter-read-selector-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69f394"
+    },
+    {
+      "name": "parameter-read-selector",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69f394"
+    },
+    {
+      "name": "parameter-scope-mode",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69d780"
+    },
+    {
+      "name": "postfix-expand-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69b2e8"
+    },
+    {
+      "name": "postfix-expand",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69b2e8"
+    },
+    {
+      "name": "postfix-write-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69fd90"
+    },
+    {
+      "name": "postfix-write",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69fd90"
+    },
+    {
+      "name": "scope-index-core-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6a00b8"
+    },
+    {
+      "name": "scope-index-core",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6a00b8"
+    },
+    {
+      "name": "scope-index-set-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6a0188"
+    },
+    {
+      "name": "scope-index-set",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6a0188"
+    },
+    {
+      "name": "script-caller",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6aacf8"
+    },
+    {
+      "name": "secondary-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6b70d8"
+    },
+    {
+      "name": "secondary-dispatch",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6b70d8"
+    },
+    {
+      "name": "target-normalize-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6c06f0"
+    },
+    {
+      "name": "target-normalize",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c06f0"
+    },
+    {
+      "name": "tokenizer-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69c600"
+    },
+    {
+      "name": "tokenizer",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69c600"
+    },
+    {
+      "name": "variable-scope-select-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69f264"
+    },
+    {
+      "name": "variable-scope-select",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69f264"
+    }
+  ]
+}

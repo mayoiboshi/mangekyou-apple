@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "string_list_vmt": "0x432d50",
+  "string_list_name": "TStringList",
+  "selected_slots": [
+    {
+      "offset": 12,
+      "target": "0x43eb54"
+    },
+    {
+      "offset": 20,
+      "target": "0x43eb88"
+    },
+    {
+      "offset": 32,
+      "target": "0x43ed00"
+    },
+    {
+      "offset": 56,
+      "target": "0x43e8bc"
+    }
+  ],
+  "rep_literals": [
+    "0x6aaa70",
+    "0x6bd81c",
+    "0x6bf7b0"
+  ],
+  "comma_literal": "0x6b7bdc",
+  "object_guard": "0x6aaeb1",
+  "object_table": "0x6aaec5",
+  "maximum_type": 40,
+  "rep_type": 14,
+  "rep_case": "0x6ab121",
+  "rep_call": "0x6ab12a",
+  "rep_handler": "0x6ba248"
+}

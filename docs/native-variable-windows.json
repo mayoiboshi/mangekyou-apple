@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "status": "inferred",
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Explicit linear tail windows, not authoritative function boundaries",
+  "windows": [
+    {
+      "name": "read-tail",
+      "start": "0x69f5d5",
+      "end_exclusive": "0x69f5f0"
+    },
+    {
+      "name": "write-tail",
+      "start": "0x69f832",
+      "end_exclusive": "0x69f850"
+    },
+    {
+      "name": "assign-store-tail",
+      "start": "0x69d571",
+      "end_exclusive": "0x69d58c"
+    },
+    {
+      "name": "name-search-tail",
+      "start": "0x69e54b",
+      "end_exclusive": "0x69e564"
+    },
+    {
+      "name": "name-index-tail",
+      "start": "0x69fd43",
+      "end_exclusive": "0x69fd54"
+    },
+    {
+      "name": "name-lookup-tail",
+      "start": "0x69f493",
+      "end_exclusive": "0x69f4a4"
+    },
+    {
+      "name": "index-evaluate-tail",
+      "start": "0x69fb19",
+      "end_exclusive": "0x69fb34"
+    }
+  ]
+}

@@ -1,0 +1,1026 @@
+{
+  "schema_version": 1,
+  "status": "inferred",
+  "dataset": "real",
+  "scope": "E8 byte candidates, one guarded state table, selected branch instructions and dbrk spellings; no scheduler or script execution",
+  "source_file": "美少女万華鏡４.exe",
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "call_candidates": [
+    {
+      "address": "0x6ab95d",
+      "target": "0x6aacf8",
+      "status": "inferred",
+      "raw_bytes_reference": {
+        "offset": 2796893,
+        "length": 5,
+        "sha256": "abac20e2a2cfc3f65e86f6ed7f8491eca0a366d71ff5452c343dc62acb6daf54"
+      },
+      "raw_encoding": "verified",
+      "instruction_boundary": "not_tested",
+      "reachability": "not_tested",
+      "present_in_provider_xrefs": false,
+      "default_function_owner": "unsupported",
+      "unknown_reason": "Default provider has no containing procedure; byte candidate alone is not a call proof"
+    },
+    {
+      "address": "0x6ac512",
+      "target": "0x695a7c",
+      "status": "inferred",
+      "raw_bytes_reference": {
+        "offset": 2799890,
+        "length": 5,
+        "sha256": "a0e4a8b556825cde3db341fc97dad9a30d2822cbd2c13b3c83f777d3878d0693"
+      },
+      "raw_encoding": "verified",
+      "instruction_boundary": "not_tested",
+      "reachability": "not_tested",
+      "present_in_provider_xrefs": false,
+      "default_function_owner": "unsupported",
+      "unknown_reason": "Default provider has no containing procedure; byte candidate alone is not a call proof"
+    },
+    {
+      "address": "0x6ac51e",
+      "target": "0x6aacf8",
+      "status": "inferred",
+      "raw_bytes_reference": {
+        "offset": 2799902,
+        "length": 5,
+        "sha256": "26518b0235a8e15dc50e2953c8862085f290abdf1a936957dc79eaa2b3bf828f"
+      },
+      "raw_encoding": "verified",
+      "instruction_boundary": "not_tested",
+      "reachability": "not_tested",
+      "present_in_provider_xrefs": false,
+      "default_function_owner": "unsupported",
+      "unknown_reason": "Default provider has no containing procedure; byte candidate alone is not a call proof"
+    },
+    {
+      "address": "0x6adb0c",
+      "target": "0x6aacf8",
+      "status": "inferred",
+      "raw_bytes_reference": {
+        "offset": 2805516,
+        "length": 5,
+        "sha256": "ef6e73cd2ab8ec44985173c573727a6ef7d6138fabc01eb5a393c9f93a75e9e1"
+      },
+      "raw_encoding": "verified",
+      "instruction_boundary": "not_tested",
+      "reachability": "not_tested",
+      "present_in_provider_xrefs": false,
+      "default_function_owner": "unsupported",
+      "unknown_reason": "Default provider has no containing procedure; byte candidate alone is not a call proof"
+    },
+    {
+      "address": "0x6adbb7",
+      "target": "0x6aacf8",
+      "status": "inferred",
+      "raw_bytes_reference": {
+        "offset": 2805687,
+        "length": 5,
+        "sha256": "de1441c7f7f18fc8dd63d925df6d38fb64c4620a5db14f94a7a4881e6eb53ac8"
+      },
+      "raw_encoding": "verified",
+      "instruction_boundary": "not_tested",
+      "reachability": "not_tested",
+      "present_in_provider_xrefs": false,
+      "default_function_owner": "unsupported",
+      "unknown_reason": "Default provider has no containing procedure; byte candidate alone is not a call proof"
+    },
+    {
+      "address": "0x6bed0f",
+      "target": "0x6aacf8",
+      "status": "inferred",
+      "raw_bytes_reference": {
+        "offset": 2875663,
+        "length": 5,
+        "sha256": "07b8af4bd1551d7aea265f8e569cfa6167844c5cdddb03f249f1322117f6d348"
+      },
+      "raw_encoding": "verified",
+      "instruction_boundary": "not_tested",
+      "reachability": "not_tested",
+      "present_in_provider_xrefs": true,
+      "default_function_owner": "verified"
+    },
+    {
+      "address": "0x6c9aef",
+      "target": "0x6aacf8",
+      "status": "inferred",
+      "raw_bytes_reference": {
+        "offset": 2920175,
+        "length": 5,
+        "sha256": "34121b83551a0da6aaf06b4c6a041886d98aa186a5c0af8d32c8830b7557421e"
+      },
+      "raw_encoding": "verified",
+      "instruction_boundary": "not_tested",
+      "reachability": "not_tested",
+      "present_in_provider_xrefs": false,
+      "default_function_owner": "unsupported",
+      "unknown_reason": "Default provider has no containing procedure; byte candidate alone is not a call proof"
+    },
+    {
+      "address": "0x6d17ff",
+      "target": "0x695a7c",
+      "status": "inferred",
+      "raw_bytes_reference": {
+        "offset": 2952191,
+        "length": 5,
+        "sha256": "151fc863f4cbb4c520ce42e842a0a7e5c8508219018efc88c0809bf206341ee4"
+      },
+      "raw_encoding": "verified",
+      "instruction_boundary": "not_tested",
+      "reachability": "not_tested",
+      "present_in_provider_xrefs": true,
+      "default_function_owner": "not_tested"
+    },
+    {
+      "address": "0x6d180b",
+      "target": "0x6aacf8",
+      "status": "inferred",
+      "raw_bytes_reference": {
+        "offset": 2952203,
+        "length": 5,
+        "sha256": "d0504ee5576a062ed008940cb643860d277001a025839395d96f14ed0c56937f"
+      },
+      "raw_encoding": "verified",
+      "instruction_boundary": "not_tested",
+      "reachability": "not_tested",
+      "present_in_provider_xrefs": true,
+      "default_function_owner": "verified"
+    }
+  ],
+  "executable_bytes_scanned": 3073536,
+  "candidate_counts": {
+    "0x6aacf8": 7,
+    "0x695a7c": 2
+  },
+  "candidates_absent_from_provider_xrefs": 6,
+  "call_graph_completeness": "not_tested",
+  "native_state_dispatch": {
+    "status": "inferred",
+    "guard_reference": {
+      "offset": 2799787,
+      "length": 23,
+      "sha256": "e6bb2145f3f56c42cbde288e829500e96127d4a0956056bf3790610b03aeb106"
+    },
+    "table_reference": {
+      "offset": 2799810,
+      "length": 44,
+      "sha256": "4894002f8a3b1d96804f2e19717dcf0d8c57520e7e110a4f301fbbafffa8db69"
+    },
+    "default_target": "0x6ac652",
+    "bindings": [
+      {
+        "value": 0,
+        "declared_name": "ssPlay",
+        "branch_address": "0x6ac4ee",
+        "status": "inferred",
+        "table_bytes_status": "verified",
+        "owner_binding": "inferred",
+        "execution_semantics": "not_tested",
+        "enum_member_reference": {
+          "offset": 2778591,
+          "length": 7,
+          "sha256": "9831b46ddd366235aedc6ee0dd3e0dfc4b0fabf4787923095b7e16e604b47bee"
+        },
+        "table_reference": {
+          "offset": 2799810,
+          "length": 4,
+          "sha256": "3b4d49725080ab0e50de3fabe4c490198bc2bb2f3b6ebfa1914c7b66947ed82e"
+        },
+        "direct_call_observations": [
+          {
+            "address": "0x6ac4f6",
+            "target": "0x6c1160",
+            "status": "verified",
+            "raw_bytes_reference": {
+              "offset": 2799862,
+              "length": 5,
+              "sha256": "2212aed458c396dcd04ad8c04ae78b30aeb1ea74acb9a3de54cbb55cb649954b"
+            },
+            "scope": "Encoding and target only; call execution not_tested"
+          },
+          {
+            "address": "0x6ac4fb",
+            "target": "0x6c149c",
+            "status": "verified",
+            "raw_bytes_reference": {
+              "offset": 2799867,
+              "length": 5,
+              "sha256": "de005f21a63fbf7433569eedb983907175ac462a480961cb2c013f017adf9356"
+            },
+            "scope": "Encoding and target only; call execution not_tested"
+          },
+          {
+            "address": "0x6ac512",
+            "target": "0x695a7c",
+            "status": "verified",
+            "raw_bytes_reference": {
+              "offset": 2799890,
+              "length": 5,
+              "sha256": "a0e4a8b556825cde3db341fc97dad9a30d2822cbd2c13b3c83f777d3878d0693"
+            },
+            "scope": "Encoding and target only; call execution not_tested"
+          },
+          {
+            "address": "0x6ac51e",
+            "target": "0x6aacf8",
+            "status": "verified",
+            "raw_bytes_reference": {
+              "offset": 2799902,
+              "length": 5,
+              "sha256": "26518b0235a8e15dc50e2953c8862085f290abdf1a936957dc79eaa2b3bf828f"
+            },
+            "scope": "Encoding and target only; call execution not_tested"
+          }
+        ],
+        "state_reset_observations": []
+      },
+      {
+        "value": 1,
+        "declared_name": "ssStopBrk",
+        "branch_address": "0x6ac528",
+        "status": "inferred",
+        "table_bytes_status": "verified",
+        "owner_binding": "inferred",
+        "execution_semantics": "not_tested",
+        "enum_member_reference": {
+          "offset": 2778598,
+          "length": 10,
+          "sha256": "8e4978557003cb124bb688ee6630aafb6e9d7ada49555e51c5c2fe52184e1e48"
+        },
+        "table_reference": {
+          "offset": 2799814,
+          "length": 4,
+          "sha256": "e74bd6d26c86eb06350f2e567a919717f68bae0192f6c044e8fd0acd558042dd"
+        },
+        "direct_call_observations": [
+          {
+            "address": "0x6ac52a",
+            "target": "0x6cae58",
+            "status": "verified",
+            "raw_bytes_reference": {
+              "offset": 2799914,
+              "length": 5,
+              "sha256": "fc9fc4a58c0020704e8bd852d2cfa83664b73f2f7b2bd0f0947f52aa30e052ff"
+            },
+            "scope": "Encoding and target only; call execution not_tested"
+          }
+        ],
+        "state_reset_observations": []
+      },
+      {
+        "value": 2,
+        "declared_name": "ssStop",
+        "branch_address": "0x6ac534",
+        "status": "inferred",
+        "table_bytes_status": "verified",
+        "owner_binding": "inferred",
+        "execution_semantics": "not_tested",
+        "enum_member_reference": {
+          "offset": 2778608,
+          "length": 7,
+          "sha256": "0baf5a9fa471f07903c2e22e38faf194dd7fa3ea5008041476aa43e91a780c9e"
+        },
+        "table_reference": {
+          "offset": 2799818,
+          "length": 4,
+          "sha256": "c71edf535c1e82dcfaea97a1bb479f04a395259d9d581c6892306b0468d0a65a"
+        },
+        "direct_call_observations": [
+          {
+            "address": "0x6ac536",
+            "target": "0x6cad08",
+            "status": "verified",
+            "raw_bytes_reference": {
+              "offset": 2799926,
+              "length": 5,
+              "sha256": "2af61211e638d79e4180e1336c034e936b65461caae54f4b32d392a0119704d1"
+            },
+            "scope": "Encoding and target only; call execution not_tested"
+          },
+          {
+            "address": "0x6ac54b",
+            "target": "0x6c1160",
+            "status": "verified",
+            "raw_bytes_reference": {
+              "offset": 2799947,
+              "length": 5,
+              "sha256": "b97b180383fb32b61e1b5a56485f8def4f63d0ae4c4c9da027a1f4192f4e2ae6"
+            },
+            "scope": "Encoding and target only; call execution not_tested"
+          }
+        ],
+        "state_reset_observations": [
+          {
+            "address": "0x6ac550",
+            "value": 0,
+            "status": "verified",
+            "raw_bytes_reference": {
+              "offset": 2799952,
+              "length": 4,
+              "sha256": "26cc4618b0fcd5c9d34e7be222f43ff57831deb72f990e8a71efeae3487eda9a"
+            },
+            "scope": "Store bytes only; reachability not_tested"
+          }
+        ]
+      },
+      {
+        "value": 3,
+        "declared_name": "ssWait",
+        "branch_address": "0x6ac559",
+        "status": "inferred",
+        "table_bytes_status": "verified",
+        "owner_binding": "inferred",
+        "execution_semantics": "not_tested",
+        "enum_member_reference": {
+          "offset": 2778615,
+          "length": 7,
+          "sha256": "5ee0bd69bd758e93857272657ee8b12b267494bef816d40dee87bce3d84b8434"
+        },
+        "table_reference": {
+          "offset": 2799822,
+          "length": 4,
+          "sha256": "590bc57f6b7e0d89fb040c7c7351c7bc7d237c7debaaf76e86797fa1c5c4142b"
+        },
+        "direct_call_observations": [
+          {
+            "address": "0x6ac55b",
+            "target": "0x6bb010",
+            "status": "verified",
+            "raw_bytes_reference": {
+              "offset": 2799963,
+              "length": 5,
+              "sha256": "e419e66e9b9ae549098c029af73c6d221c9e6a9093550339d9a974df43bbdc01"
+            },
+            "scope": "Encoding and target only; call execution not_tested"
+          },
+          {
+            "address": "0x6ac570",
+            "target": "0x6c1160",
+            "status": "verified",
+            "raw_bytes_reference": {
+              "offset": 2799984,
+              "length": 5,
+              "sha256": "3e02e34f08b827d0a6a148fb48b901d6a4a2d49b4819719480ea7072097f0eab"
+            },
+            "scope": "Encoding and target only; call execution not_tested"
+          }
+        ],
+        "state_reset_observations": [
+          {
+            "address": "0x6ac575",
+            "value": 0,
+            "status": "verified",
+            "raw_bytes_reference": {
+              "offset": 2799989,
+              "length": 4,
+              "sha256": "26cc4618b0fcd5c9d34e7be222f43ff57831deb72f990e8a71efeae3487eda9a"
+            },
+            "scope": "Store bytes only; reachability not_tested"
+          }
+        ]
+      },
+      {
+        "value": 4,
+        "declared_name": "ssClick",
+        "branch_address": "0x6ac57e",
+        "status": "inferred",
+        "table_bytes_status": "verified",
+        "owner_binding": "inferred",
+        "execution_semantics": "not_tested",
+        "enum_member_reference": {
+          "offset": 2778622,
+          "length": 8,
+          "sha256": "4394b6b4281c7120a5bcc235293dbe3bef053057d89fdefd1820f50b7ae8c0a9"
+        },
+        "table_reference": {
+          "offset": 2799826,
+          "length": 4,
+          "sha256": "2d8eadc1dbbef7aad680537a6c50373c30f7ebd94687c4dbbe10cc6585e98660"
+        },
+        "direct_call_observations": [
+          {
+            "address": "0x6ac580",
+            "target": "0x6bb010",
+            "status": "verified",
+            "raw_bytes_reference": {
+              "offset": 2800000,
+              "length": 5,
+              "sha256": "9fc1c26e381542039d3c5369b018c2af16126c7182ae56c0484f83872eda7103"
+            },
+            "scope": "Encoding and target only; call execution not_tested"
+          },
+          {
+            "address": "0x6ac595",
+            "target": "0x6c1160",
+            "status": "verified",
+            "raw_bytes_reference": {
+              "offset": 2800021,
+              "length": 5,
+              "sha256": "5ef9ef98d3c865a98cea8a547c5703ca9dce0bdd82543460f8b8d1e1976a3f72"
+            },
+            "scope": "Encoding and target only; call execution not_tested"
+          }
+        ],
+        "state_reset_observations": [
+          {
+            "address": "0x6ac59a",
+            "value": 0,
+            "status": "verified",
+            "raw_bytes_reference": {
+              "offset": 2800026,
+              "length": 4,
+              "sha256": "26cc4618b0fcd5c9d34e7be222f43ff57831deb72f990e8a71efeae3487eda9a"
+            },
+            "scope": "Store bytes only; reachability not_tested"
+          }
+        ]
+      },
+      {
+        "value": 5,
+        "declared_name": "ssTimer",
+        "branch_address": "0x6ac5a3",
+        "status": "inferred",
+        "table_bytes_status": "verified",
+        "owner_binding": "inferred",
+        "execution_semantics": "not_tested",
+        "enum_member_reference": {
+          "offset": 2778630,
+          "length": 8,
+          "sha256": "37e9542e7a6eafa0a9669006b0abd03570a5f8bdb9ca3e8071d0c0ad3bd0613e"
+        },
+        "table_reference": {
+          "offset": 2799830,
+          "length": 4,
+          "sha256": "dfc85f77af37cfc69741708e39647bc030721ea37585e88d90293263808fafa3"
+        },
+        "direct_call_observations": [
+          {
+            "address": "0x6ac5a5",
+            "target": "0x6bafec",
+            "status": "verified",
+            "raw_bytes_reference": {
+              "offset": 2800037,
+              "length": 5,
+              "sha256": "e5ed0bbc5083a3961aa96812026a050fe2d956cb4e56099b88b2a7a131352c2b"
+            },
+            "scope": "Encoding and target only; call execution not_tested"
+          },
+          {
+            "address": "0x6ac5ba",
+            "target": "0x6c1160",
+            "status": "verified",
+            "raw_bytes_reference": {
+              "offset": 2800058,
+              "length": 5,
+              "sha256": "5437ecb4cd89525345ee9a43502ccaf127993c515b59ad494edace1411566a84"
+            },
+            "scope": "Encoding and target only; call execution not_tested"
+          }
+        ],
+        "state_reset_observations": [
+          {
+            "address": "0x6ac5bf",
+            "value": 0,
+            "status": "verified",
+            "raw_bytes_reference": {
+              "offset": 2800063,
+              "length": 4,
+              "sha256": "26cc4618b0fcd5c9d34e7be222f43ff57831deb72f990e8a71efeae3487eda9a"
+            },
+            "scope": "Store bytes only; reachability not_tested"
+          }
+        ]
+      },
+      {
+        "value": 6,
+        "declared_name": "ssSndTimer",
+        "branch_address": "0x6ac5c8",
+        "status": "inferred",
+        "table_bytes_status": "verified",
+        "owner_binding": "inferred",
+        "execution_semantics": "not_tested",
+        "enum_member_reference": {
+          "offset": 2778638,
+          "length": 11,
+          "sha256": "70e8ed0755781e660f3be63ff56e2b86c033f59c44cdbb93d9a845a8ad2548dd"
+        },
+        "table_reference": {
+          "offset": 2799834,
+          "length": 4,
+          "sha256": "b5d3ee1095c5afbac9eb7b6dbac44ce80b0298967ede71af0f9c6df749dd612c"
+        },
+        "direct_call_observations": [
+          {
+            "address": "0x6ac5ca",
+            "target": "0x6bbb14",
+            "status": "verified",
+            "raw_bytes_reference": {
+              "offset": 2800074,
+              "length": 5,
+              "sha256": "2fb6e3b21b66248c4a284b8334133c7f6236e38bf3e2fd918424654a8bff3ef0"
+            },
+            "scope": "Encoding and target only; call execution not_tested"
+          },
+          {
+            "address": "0x6ac5db",
+            "target": "0x6c1160",
+            "status": "verified",
+            "raw_bytes_reference": {
+              "offset": 2800091,
+              "length": 5,
+              "sha256": "35f5845c1660f3c41192c85aa81c6f4b0c08ffd8c5aa971f02dfc594f0878ba2"
+            },
+            "scope": "Encoding and target only; call execution not_tested"
+          }
+        ],
+        "state_reset_observations": [
+          {
+            "address": "0x6ac5e0",
+            "value": 0,
+            "status": "verified",
+            "raw_bytes_reference": {
+              "offset": 2800096,
+              "length": 4,
+              "sha256": "26cc4618b0fcd5c9d34e7be222f43ff57831deb72f990e8a71efeae3487eda9a"
+            },
+            "scope": "Store bytes only; reachability not_tested"
+          }
+        ]
+      },
+      {
+        "value": 7,
+        "declared_name": "ssMessage",
+        "branch_address": "0x6ac5e6",
+        "status": "inferred",
+        "table_bytes_status": "verified",
+        "owner_binding": "inferred",
+        "execution_semantics": "not_tested",
+        "enum_member_reference": {
+          "offset": 2778649,
+          "length": 10,
+          "sha256": "1cffdb2c31558350f626815123f390aaed91a6dd8f9f0413c8fba22bf9ea6893"
+        },
+        "table_reference": {
+          "offset": 2799838,
+          "length": 4,
+          "sha256": "6504ff299a182b6c0d74b9442fa4517755be3537b771bfcfd0a1d1fe55d7e3c9"
+        },
+        "direct_call_observations": [
+          {
+            "address": "0x6ac5ee",
+            "target": "0x6c1160",
+            "status": "verified",
+            "raw_bytes_reference": {
+              "offset": 2800110,
+              "length": 5,
+              "sha256": "361e0c25461bddf3e8349641243780a383fdead1991f6d97f1ea12700726b131"
+            },
+            "scope": "Encoding and target only; call execution not_tested"
+          },
+          {
+            "address": "0x6ac5f8",
+            "target": "0x6baba0",
+            "status": "verified",
+            "raw_bytes_reference": {
+              "offset": 2800120,
+              "length": 5,
+              "sha256": "f9f1bcb0653fc15016400cbf85d20e4b58840517bcd2858e0a24599f346bc3bc"
+            },
+            "scope": "Encoding and target only; call execution not_tested"
+          }
+        ],
+        "state_reset_observations": []
+      },
+      {
+        "value": 8,
+        "declared_name": "ssScroll",
+        "branch_address": "0x6ac5ff",
+        "status": "inferred",
+        "table_bytes_status": "verified",
+        "owner_binding": "inferred",
+        "execution_semantics": "not_tested",
+        "enum_member_reference": {
+          "offset": 2778659,
+          "length": 9,
+          "sha256": "0a8db4d2d1ab06f0f4dea04b26c2d5a2552ac8a9609e04616bee936dbcb07da7"
+        },
+        "table_reference": {
+          "offset": 2799842,
+          "length": 4,
+          "sha256": "4a01c2f29c01a68fbc6a00d2d9b8f7be4fdb09f267d4e81af87713c430adbc25"
+        },
+        "direct_call_observations": [
+          {
+            "address": "0x6ac607",
+            "target": "0x6c1160",
+            "status": "verified",
+            "raw_bytes_reference": {
+              "offset": 2800135,
+              "length": 5,
+              "sha256": "6a740a1bf6468a48312d0022c1bb494c8d7bf2594e658b62bea6068a95b3c7de"
+            },
+            "scope": "Encoding and target only; call execution not_tested"
+          },
+          {
+            "address": "0x6ac611",
+            "target": "0x6baba0",
+            "status": "verified",
+            "raw_bytes_reference": {
+              "offset": 2800145,
+              "length": 5,
+              "sha256": "86b0755652a16aa5ebe1646ae5ecd194803acb77a0c97e4024bc386f41dc73eb"
+            },
+            "scope": "Encoding and target only; call execution not_tested"
+          }
+        ],
+        "state_reset_observations": []
+      },
+      {
+        "value": 9,
+        "declared_name": "ssButton",
+        "branch_address": "0x6ac618",
+        "status": "inferred",
+        "table_bytes_status": "verified",
+        "owner_binding": "inferred",
+        "execution_semantics": "not_tested",
+        "enum_member_reference": {
+          "offset": 2778668,
+          "length": 9,
+          "sha256": "0cd8ee7b9ecb96a7c971d9f709427b1b181c27821818f1e1d5d10372bce405fd"
+        },
+        "table_reference": {
+          "offset": 2799846,
+          "length": 4,
+          "sha256": "32433f5f7c698f8c5ab9b5b0d256be4e6989c65c8374a09037f4e2d3b25a2396"
+        },
+        "direct_call_observations": [
+          {
+            "address": "0x6ac61a",
+            "target": "0x6bed78",
+            "status": "verified",
+            "raw_bytes_reference": {
+              "offset": 2800154,
+              "length": 5,
+              "sha256": "8e9ad44b47c3e7c7948a47c71cf8981e4cf4ad38377ba05ac40cf9c12b11bb2e"
+            },
+            "scope": "Encoding and target only; call execution not_tested"
+          },
+          {
+            "address": "0x6ac62b",
+            "target": "0x6c1160",
+            "status": "verified",
+            "raw_bytes_reference": {
+              "offset": 2800171,
+              "length": 5,
+              "sha256": "91ece74ffd8166166ca13b6ada9dd87ee63b76a853e6e0b73f61b58b10940ac5"
+            },
+            "scope": "Encoding and target only; call execution not_tested"
+          }
+        ],
+        "state_reset_observations": [
+          {
+            "address": "0x6ac630",
+            "value": 0,
+            "status": "verified",
+            "raw_bytes_reference": {
+              "offset": 2800176,
+              "length": 4,
+              "sha256": "26cc4618b0fcd5c9d34e7be222f43ff57831deb72f990e8a71efeae3487eda9a"
+            },
+            "scope": "Store bytes only; reachability not_tested"
+          }
+        ]
+      },
+      {
+        "value": 10,
+        "declared_name": "ssWave",
+        "branch_address": "0x6ac636",
+        "status": "inferred",
+        "table_bytes_status": "verified",
+        "owner_binding": "inferred",
+        "execution_semantics": "not_tested",
+        "enum_member_reference": {
+          "offset": 2778677,
+          "length": 7,
+          "sha256": "31c0b9844ef58c466401cce1d5405a22ced66eb9405c2986042dbab8596158f3"
+        },
+        "table_reference": {
+          "offset": 2799850,
+          "length": 4,
+          "sha256": "7ae7f1e082b460cf006ca8b955babdb185cac9d72a20d8c4ae990a0b3cb7f71e"
+        },
+        "direct_call_observations": [
+          {
+            "address": "0x6ac638",
+            "target": "0x6bac3c",
+            "status": "verified",
+            "raw_bytes_reference": {
+              "offset": 2800184,
+              "length": 5,
+              "sha256": "ba3ca08612f11f8c70e7b76897f8a447e1d86a7c9145c3eade015370701bbe4d"
+            },
+            "scope": "Encoding and target only; call execution not_tested"
+          },
+          {
+            "address": "0x6ac649",
+            "target": "0x6c1160",
+            "status": "verified",
+            "raw_bytes_reference": {
+              "offset": 2800201,
+              "length": 5,
+              "sha256": "dffe9496adf2f448a532724de0264b56f6f5eb757ef405d1b8a904aa3bc1e310"
+            },
+            "scope": "Encoding and target only; call execution not_tested"
+          }
+        ],
+        "state_reset_observations": [
+          {
+            "address": "0x6ac64e",
+            "value": 0,
+            "status": "verified",
+            "raw_bytes_reference": {
+              "offset": 2800206,
+              "length": 4,
+              "sha256": "26cc4618b0fcd5c9d34e7be222f43ff57831deb72f990e8a71efeae3487eda9a"
+            },
+            "scope": "Store bytes only; reachability not_tested"
+          }
+        ]
+      }
+    ],
+    "field_offset": 76,
+    "execution_semantics": "not_tested",
+    "window_evidence_id": "local-llvm:0c0a17556a2d62a4870be4f53171f1c9dcfcb43bb0617235a9b6027e988b2acc"
+  },
+  "handler_analysis_scope": "Only direct E8 calls and immediate zero stores at selected EAX+0x4c boundaries; other instructions are not interpreted",
+  "preliminary_boundary_review": {
+    "status": "unsupported",
+    "rejected_start": "0x6b1e2c",
+    "corrected_start": "0x6b1e42",
+    "reason": "Preliminary window starts inside an observed CALL operand; successful linear decoding is not a boundary proof",
+    "covering_call_reference": {
+      "offset": 2822696,
+      "length": 5,
+      "sha256": "f354d86bdbed22a069231b55b793595737d738d733479a7b66501770dc01297d"
+    },
+    "evidence_id": "ev_b8a8273679831bb4f8ee76b5a5317bcf86c3a38ccd3473a64d4a4fc80012b80f",
+    "preliminary_plan": "docs/native-reader-preliminary-windows.json"
+  },
+  "preliminary_boundary_coverage_status": "unsupported",
+  "linear_windows": {
+    "status": "verified",
+    "scope": "Linear window observations only; decoded trailing bytes are not asserted executable",
+    "observations": [
+      {
+        "name": "routine-state-guard",
+        "evidence_id": "local-llvm:a4719c43ec0e13bd1b925b0e5fc9a0cea97dbbfd2314ffd6117fa7da765bef73",
+        "raw_bytes_reference": {
+          "source_file": "美少女万華鏡４.exe",
+          "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+          "sha256": "11e8d804c401d1d5c59a5bf5924c04c6e82b2317d97fb84b1d293962349c22a7",
+          "offset": 2799776,
+          "length": 34
+        },
+        "address_range": {
+          "start": "0x6ac4a0",
+          "end_exclusive": "0x6ac4c2"
+        },
+        "boundary_status": "inferred",
+        "unknown_instruction_addresses": [],
+        "decode_coverage_status": "verified"
+      },
+      {
+        "name": "routine-state-handlers",
+        "evidence_id": "local-llvm:0c0a17556a2d62a4870be4f53171f1c9dcfcb43bb0617235a9b6027e988b2acc",
+        "raw_bytes_reference": {
+          "source_file": "美少女万華鏡４.exe",
+          "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+          "sha256": "e2b667ebfc3fde0f26ed3749f893d4822797ff5310f0369695ede28a9e59fd63",
+          "offset": 2799854,
+          "length": 356
+        },
+        "address_range": {
+          "start": "0x6ac4ee",
+          "end_exclusive": "0x6ac652"
+        },
+        "boundary_status": "inferred",
+        "unknown_instruction_addresses": [],
+        "decode_coverage_status": "verified"
+      },
+      {
+        "name": "dbrk-branch",
+        "evidence_id": "local-llvm:5d4ec0b28f9fed043a2683e97b7f8c5dd50b15cea1f89f6c0be2439fcab4fef1",
+        "raw_bytes_reference": {
+          "source_file": "美少女万華鏡４.exe",
+          "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+          "sha256": "0b1ef86190a004c35ad77f39c325859bfa119891721f41573a6c008e4773ab48",
+          "offset": 2817233,
+          "length": 16
+        },
+        "address_range": {
+          "start": "0x6b08d1",
+          "end_exclusive": "0x6b08e1"
+        },
+        "boundary_status": "inferred",
+        "unknown_instruction_addresses": [],
+        "decode_coverage_status": "verified"
+      },
+      {
+        "name": "dispatch-init",
+        "evidence_id": "local-llvm:d4b86cd7e7441a6271024e04c6888d95d50fac9f232de07d869399d0dc5c7376",
+        "raw_bytes_reference": {
+          "source_file": "美少女万華鏡４.exe",
+          "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+          "sha256": "f4e6e6b9bf72f7a48e106ec51189edf0f3b9f7e04b9cb5b10090bbc8e394219b",
+          "offset": 2812212,
+          "length": 26
+        },
+        "address_range": {
+          "start": "0x6af534",
+          "end_exclusive": "0x6af54e"
+        },
+        "boundary_status": "inferred",
+        "unknown_instruction_addresses": [],
+        "decode_coverage_status": "verified"
+      },
+      {
+        "name": "dispatch-handled-tail",
+        "evidence_id": "local-llvm:fcf69517eb5c15c76645fff1203df73606fa94efcd85ee4f6ff44898e1887a91",
+        "raw_bytes_reference": {
+          "source_file": "美少女万華鏡４.exe",
+          "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+          "sha256": "9fc6fe98809c1352b4e8c743806a78dc134aa3343a644848cebddf311614d355",
+          "offset": 2821764,
+          "length": 20
+        },
+        "address_range": {
+          "start": "0x6b1a84",
+          "end_exclusive": "0x6b1a98"
+        },
+        "boundary_status": "inferred",
+        "unknown_instruction_addresses": [],
+        "decode_coverage_status": "verified"
+      },
+      {
+        "name": "dispatch-return",
+        "evidence_id": "local-llvm:a03a024d98377f2d38793be59a520668c64711999d8ed019dc6928de16604f9a",
+        "raw_bytes_reference": {
+          "source_file": "美少女万華鏡４.exe",
+          "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+          "sha256": "790f6f2f8a36224a0faf3970a10863048f99ee392295bdedbb4dbf32049d90d0",
+          "offset": 2822722,
+          "length": 11
+        },
+        "address_range": {
+          "start": "0x6b1e42",
+          "end_exclusive": "0x6b1e4d"
+        },
+        "boundary_status": "inferred",
+        "unknown_instruction_addresses": [],
+        "decode_coverage_status": "verified"
+      }
+    ]
+  },
+  "linear_window_coverage_status": "verified",
+  "dbrk_records": [
+    {
+      "source_file": "data7.pack/script/caution/main.s",
+      "source_sha256": "f70cb49a9a89afd62df149664f37632f3d071b25b6ca0f9b200e351394e521de",
+      "byte_offset": 39,
+      "byte_length": 5,
+      "raw_bytes_reference": {
+        "source_sha256": "f70cb49a9a89afd62df149664f37632f3d071b25b6ca0f9b200e351394e521de",
+        "offset": 39,
+        "length": 5,
+        "sha256": "a53b02069bdb390be6525d5408767f8d3cbb08c9bb4c93514bb834a33c9203dd"
+      },
+      "command": "dbrk",
+      "arity": 0,
+      "status": "inferred",
+      "local_dispatch_fact": "dbrk_branch_to_handled_tail",
+      "lexical_family_binding": "not_tested",
+      "global_execution_semantics": "not_tested"
+    },
+    {
+      "source_file": "data7.pack/script/exceptionbackup/main.s",
+      "source_sha256": "49ed941ece01f3c525dcefa8d99a79d7c5b9e2c9b6f9b9c2248afd820ce99929",
+      "byte_offset": 71,
+      "byte_length": 5,
+      "raw_bytes_reference": {
+        "source_sha256": "49ed941ece01f3c525dcefa8d99a79d7c5b9e2c9b6f9b9c2248afd820ce99929",
+        "offset": 71,
+        "length": 5,
+        "sha256": "a53b02069bdb390be6525d5408767f8d3cbb08c9bb4c93514bb834a33c9203dd"
+      },
+      "command": "dbrk",
+      "arity": 0,
+      "status": "inferred",
+      "local_dispatch_fact": "dbrk_branch_to_handled_tail",
+      "lexical_family_binding": "not_tested",
+      "global_execution_semantics": "not_tested"
+    },
+    {
+      "source_file": "data7.pack/script/makerlogo/main.s",
+      "source_sha256": "a41ba7dc86dfbefbbe0d34e1e175cf75876ff07580d5069dfbadb9a3482bd7a3",
+      "byte_offset": 39,
+      "byte_length": 5,
+      "raw_bytes_reference": {
+        "source_sha256": "a41ba7dc86dfbefbbe0d34e1e175cf75876ff07580d5069dfbadb9a3482bd7a3",
+        "offset": 39,
+        "length": 5,
+        "sha256": "a53b02069bdb390be6525d5408767f8d3cbb08c9bb4c93514bb834a33c9203dd"
+      },
+      "command": "dbrk",
+      "arity": 0,
+      "status": "inferred",
+      "local_dispatch_fact": "dbrk_branch_to_handled_tail",
+      "lexical_family_binding": "not_tested",
+      "global_execution_semantics": "not_tested"
+    },
+    {
+      "source_file": "data7.pack/script/unlock/unlock.s",
+      "source_sha256": "7e2fcf6c4cff1802c102f4554573fd6f58bf1f9b84cb7816312d0b66c4127941",
+      "byte_offset": 537,
+      "byte_length": 5,
+      "raw_bytes_reference": {
+        "source_sha256": "7e2fcf6c4cff1802c102f4554573fd6f58bf1f9b84cb7816312d0b66c4127941",
+        "offset": 537,
+        "length": 5,
+        "sha256": "a53b02069bdb390be6525d5408767f8d3cbb08c9bb4c93514bb834a33c9203dd"
+      },
+      "command": "dbrk",
+      "arity": 0,
+      "status": "inferred",
+      "local_dispatch_fact": "dbrk_branch_to_handled_tail",
+      "lexical_family_binding": "not_tested",
+      "global_execution_semantics": "not_tested"
+    },
+    {
+      "source_file": "data8.pack/script/caution/main.s",
+      "source_sha256": "37356b5005c9f99f7491790dd3e34bc1cb1d865082807022094a009cdcf4f574",
+      "byte_offset": 80,
+      "byte_length": 10,
+      "raw_bytes_reference": {
+        "source_sha256": "37356b5005c9f99f7491790dd3e34bc1cb1d865082807022094a009cdcf4f574",
+        "offset": 80,
+        "length": 10,
+        "sha256": "bdf9884802327eae05f37a5563a9e929ae751357cee3b1eefc89d7300e184b04"
+      },
+      "command": "dbrk",
+      "arity": 0,
+      "status": "inferred",
+      "local_dispatch_fact": "dbrk_branch_to_handled_tail",
+      "lexical_family_binding": "not_tested",
+      "global_execution_semantics": "not_tested"
+    },
+    {
+      "source_file": "data8.pack/script/makerlogo/main.s",
+      "source_sha256": "3857a5781b82dabaf8e845959de233d1a113b801e32b49d9ac483d37e36d6818",
+      "byte_offset": 80,
+      "byte_length": 10,
+      "raw_bytes_reference": {
+        "source_sha256": "3857a5781b82dabaf8e845959de233d1a113b801e32b49d9ac483d37e36d6818",
+        "offset": 80,
+        "length": 10,
+        "sha256": "bdf9884802327eae05f37a5563a9e929ae751357cee3b1eefc89d7300e184b04"
+      },
+      "command": "dbrk",
+      "arity": 0,
+      "status": "inferred",
+      "local_dispatch_fact": "dbrk_branch_to_handled_tail",
+      "lexical_family_binding": "not_tested",
+      "global_execution_semantics": "not_tested"
+    },
+    {
+      "source_file": "data8.pack/script/unlock/unlock.s",
+      "source_sha256": "136cc6c55fb63d8bfc92264374db0468221b55327e6945ea7d5f93f4c4091928",
+      "byte_offset": 1038,
+      "byte_length": 10,
+      "raw_bytes_reference": {
+        "source_sha256": "136cc6c55fb63d8bfc92264374db0468221b55327e6945ea7d5f93f4c4091928",
+        "offset": 1038,
+        "length": 10,
+        "sha256": "bdf9884802327eae05f37a5563a9e929ae751357cee3b1eefc89d7300e184b04"
+      },
+      "command": "dbrk",
+      "arity": 0,
+      "status": "inferred",
+      "local_dispatch_fact": "dbrk_branch_to_handled_tail",
+      "lexical_family_binding": "not_tested",
+      "global_execution_semantics": "not_tested"
+    }
+  ],
+  "dbrk_arity_counts": {
+    "0": 7
+  },
+  "corpus_files_verified": 379,
+  "default_function_coverage_status": "unsupported",
+  "non_command_line_skip_paths": "not_tested",
+  "text_prefix_configuration": "not_tested",
+  "all_wait_semantics": "not_tested",
+  "execution_semantics": "not_tested",
+  "runtime_development_ready": false,
+  "original_files_written": false,
+  "external_game_data_uploads": false
+}

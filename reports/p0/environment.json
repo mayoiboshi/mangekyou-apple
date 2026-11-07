@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "status": "verified",
+  "system": "Darwin",
+  "release": "27.2.0",
+  "machine": "arm64",
+  "python": "3.13.15",
+  "commands": {
+    "python3": "/usr/bin/python3",
+    "python3.13": "/Users/wanzhenyu/.local/bin/python3.13",
+    "git": "/opt/homebrew/bin/git",
+    "clang": "/usr/bin/clang",
+    "swift": "/usr/bin/swift",
+    "cargo": null,
+    "rustc": null,
+    "cmake": null,
+    "ffprobe": "/opt/homebrew/bin/ffprobe"
+  },
+  "isolated_cargo_available": true,
+  "target_hardware_identity": "not_tested",
+  "note": "arm64 host observed; M4/M4 Pro performance is not benchmarked",
+  "native_build_probes": [
+    {
+      "command": [
+        "clang",
+        "-fsyntax-only",
+        ".research/upstream/mangekyoupack/filepack31.c"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": ".research/upstream/mangekyoupack/filepack31.c:4:10: fatal error: 'io.h' file not found\n    4 | #include <io.h>\n      |          ^~~~~~\n1 error generated.\n",
+      "name": "filepack31",
+      "status": "unsupported",
+      "kind": "native_syntax_check_only"
+    },
+    {
+      "command": [
+        "clang++",
+        "-fsyntax-only",
+        ".research/upstream/mangekyoupack/dpng2png.cpp"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": ".research/upstream/mangekyoupack/dpng2png.cpp:4:10: fatal error: 'io.h' file not found\n    4 | #include <io.h>\n      |          ^~~~~~\n1 error generated.\n",
+      "name": "dpng2png",
+      "status": "unsupported",
+      "kind": "native_syntax_check_only"
+    },
+    {
+      "command": [
+        "clang++",
+        "-fsyntax-only",
+        ".research/upstream/mangekyou_util/exfp3.cpp"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": ".research/upstream/mangekyou_util/exfp3.cpp:12:10: fatal error: 'as-util.h' file not found\n   12 | #include \"as-util.h\"\n      |          ^~~~~~~~~~~\n1 error generated.\n",
+      "name": "exfp3",
+      "status": "unsupported",
+      "kind": "native_syntax_check_only"
+    }
+  ]
+}

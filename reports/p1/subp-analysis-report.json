@@ -1,0 +1,3540 @@
+{
+  "schema_version": 1,
+  "status": "inferred",
+  "dataset": "real",
+  "source_file": "美少女万華鏡４.exe",
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Selected native structure, versioned field-boundary audit and lexical prefix/label links; no script execution",
+  "native_report": "reports/p1/subp-native-report.json",
+  "native_report_sha256": "7fa4034b8c82fd140da1686a76e61ebc519f89be4589e374f99972f319b8d3a4",
+  "structures": {
+    "status": "inferred",
+    "string_list": {
+      "name": "TStringList",
+      "vmt": "0x432d50",
+      "header_reference": {
+        "offset": 205048,
+        "length": 88,
+        "sha256": "28f93ff16474a5ad27182cf1eabbd721967f9a477b5114c7bc94952e466d5c65"
+      },
+      "selected_slots": [
+        {
+          "offset": 12,
+          "target": "0x43eb54",
+          "raw_bytes_reference": {
+            "offset": 205148,
+            "length": 4,
+            "sha256": "dc1cf9453fea5c2811d69a324bbd0328504d5aa73813407ba51697d339335df9"
+          }
+        },
+        {
+          "offset": 20,
+          "target": "0x43eb88",
+          "raw_bytes_reference": {
+            "offset": 205156,
+            "length": 4,
+            "sha256": "9600e459252bbff78cad3b0d73edfe03a511f5a77daa01d848bc4139781c64fa"
+          }
+        },
+        {
+          "offset": 32,
+          "target": "0x43ed00",
+          "raw_bytes_reference": {
+            "offset": 205168,
+            "length": 4,
+            "sha256": "13c0816e7694d2e85c28477348d55e50edb55d58b0100f74cc6cffcf30ae62bd"
+          }
+        },
+        {
+          "offset": 56,
+          "target": "0x43e8bc",
+          "raw_bytes_reference": {
+            "offset": 205192,
+            "length": 4,
+            "sha256": "289e03982ef57fce17b793a782923c0154c31a0b2bec1f51c0d9a85aadd45f31"
+          }
+        }
+      ],
+      "complete_ABI": "not_tested"
+    },
+    "preliminary_reference_assumption": {
+      "status": "unsupported",
+      "scope": "Rejected treating this admitted direct VMT as a self-pointer cell",
+      "referenced_address": "0x43c310",
+      "raw_bytes_reference": {
+        "offset": 205136,
+        "length": 4,
+        "sha256": "0816521ad588b0588df181b1250e45324fef2c79fa13dd24c7522ef7a2473e72"
+      }
+    },
+    "literals": [
+      {
+        "symbol": "rep",
+        "address": "0x6aaa70",
+        "status": "verified",
+        "scope": "Constant bytes only",
+        "raw_bytes_reference": {
+          "offset": 2793072,
+          "length": 8,
+          "sha256": "37b7b149aaacb28df1510d0af3a44d50eefe392dbf1dd4f9be08fa6d9fc232e6"
+        }
+      },
+      {
+        "symbol": "rep",
+        "address": "0x6bd81c",
+        "status": "verified",
+        "scope": "Constant bytes only",
+        "raw_bytes_reference": {
+          "offset": 2870300,
+          "length": 8,
+          "sha256": "37b7b149aaacb28df1510d0af3a44d50eefe392dbf1dd4f9be08fa6d9fc232e6"
+        }
+      },
+      {
+        "symbol": "rep",
+        "address": "0x6bf7b0",
+        "status": "verified",
+        "scope": "Constant bytes only",
+        "raw_bytes_reference": {
+          "offset": 2878384,
+          "length": 8,
+          "sha256": "37b7b149aaacb28df1510d0af3a44d50eefe392dbf1dd4f9be08fa6d9fc232e6"
+        }
+      },
+      {
+        "symbol": ",",
+        "address": "0x6b7bdc",
+        "status": "verified",
+        "scope": "Constant bytes only",
+        "raw_bytes_reference": {
+          "offset": 2846684,
+          "length": 4,
+          "sha256": "32434dc5b0f72c9b863c24daa5d4e79b9c43bd73b38c469fb65fd13d996b7b32"
+        }
+      }
+    ],
+    "rep_dispatch": {
+      "status": "inferred",
+      "object_type": 14,
+      "object_field_offset": 12,
+      "handler_address": "0x6ba248",
+      "guard_reference": {
+        "offset": 2794161,
+        "length": 20,
+        "sha256": "8c1246c029c97688c911bc78fc6eebb83f50fa927e1e24b34a45cb1cdf375297"
+      },
+      "table_entry_reference": {
+        "offset": 2794237,
+        "length": 4,
+        "sha256": "ab452c3549b5b178bd4f34aadb9aa66e5197c72808e1eedfca63b3935f9c9981"
+      },
+      "handler_call_reference": {
+        "offset": 2794794,
+        "length": 5,
+        "sha256": "7d754d708a85d92aca88756fb86e3e912300267043b86c7b85d05d02b84571ea"
+      },
+      "execution_semantics": "not_tested"
+    },
+    "creation_callback_link": "not_tested",
+    "namespace_shadowing": "not_tested"
+  },
+  "field_model": "native_grouping",
+  "field_boundary_audit": {
+    "status": "verified",
+    "scope": "Comparison of source field spans only",
+    "source_files": 379,
+    "command_records_compared": 40824,
+    "changed_records": [],
+    "errors": [],
+    "per_file": [
+      {
+        "source_file": "data0.pack/startup.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data0.pack/sysstartup.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data0.pack/system/etc/game.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data0.pack/system/etc/gui.u.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data0.pack/system/etc/message.u.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data0.pack/system/font/fontdata.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data0.pack/system/voice/voicedata.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/include/allclear.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/include/allset.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/include/dayend.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/include/dayend_nf.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/include/fileend.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/include/fileend_nf.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/include/fileend_nfm.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/include/fileend_nfmm.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/include/last1.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/include/last2.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/include/longend.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/ed_movie.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/root.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/scenereplay.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/select.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t00op_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t01_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t01_02@.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t01_03.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t02_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t02_02@.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t02_03.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t03_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t04_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t04_02@.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t04_03.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t05_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t05_02@.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t05_03.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t06_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t07_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t07_02@.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t07_03.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t08_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t08_02@.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t08_03.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t09_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t09_02@.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t09_03.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t10_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t11_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t12_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t12_02@.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t12_03.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t13_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t13_02@.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t13_03.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t14_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t14_02@.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t14_03.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t15_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t16_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t16_02@.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t16_03.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t17_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t17_02@.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t17_03.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t18_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t18_01b@.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t18_02@.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t18_03.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t19a_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t19a_02@.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t19a_03.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t19b_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t19b_02@.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t19b_03.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t19c_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t20a_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/t21_01omake@.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data6.pack/scenario/本編/ted99_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/avgsystem.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/avgsystem_abmpmovie.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/avgsystem_autoselect.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/avgsystem_custom.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/avgsystem_logjump.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/avgsystem_movie.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/avgsystem_rewind.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/avgsystem_route.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/avgsystem_sceneskip.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/avgsystem_select.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/avgsystem_value.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/footer.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/header.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/header_replay.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_base.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_blendmodelist.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_camera.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_chara.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_chara8e.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_charaposlist.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_custom.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_extentionlist.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_face.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_face_poslist.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_face_repfile.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_face_repid.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_fadeeventlist.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_filterlist.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_fontlist.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_format.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_generatorfilterlist.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_gfadelist.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_gmodelist.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_gtargetlist.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_image.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_imagefilterlist.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_include.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_indexlist.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_information.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_message.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_movemodelist.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_music.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_namecolorlist.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_nametext.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_reptextlist.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_sentence.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_sound.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_soundfilterlist.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_template_camera.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_template_chara.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_template_chara8e.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_template_face.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_template_format.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_template_image.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_template_information.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_template_message.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_template_music.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_template_nametext.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_template_sentence.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_template_sound.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/imoscripter_texturefilterlist.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/include_route.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/prebranch.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/preselect.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/projectobjects.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/projectsetting.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/select/layout_select.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/setting.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/uppermenu/layout.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/uppermenu/main.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/avg/window/layout_window.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/misc/mgmisc.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/misc/misc.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/misc/misc_systeminfo.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/misc/value.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/misc/voicefiletonametable.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/albummode/layout.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/albummode/layout_view.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/albummode/list.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/albummode/main.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/albummode/viewfunction.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/caution/main.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/config/layout.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/config/main.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/config/value.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/config/valuedefault.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/dialog/layout_message.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/dialog/layout_yesno.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/dialog/main.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/exceptionbackup/main.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/log/layout.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/log/main.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/log/__layout.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/log/__main.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/makerlogo/main.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/memorymode/layout.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/memorymode/list.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/memorymode/main.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/memorymode/replayfunction.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/quit/main.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/reset/main.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/saveload/common.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/saveload/layout_load.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/saveload/layout_save.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/saveload/main_load.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/saveload/main_quickload.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/saveload/main_quicksave.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/saveload/main_save.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/sequence/onload.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/sequence/onquit.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/sequence/onreset.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/soundmode/layout.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/soundmode/list.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/soundmode/main.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/title/layout01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/title/layout02.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/title/layout_select01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/title/layout_select02.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/title/main.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/unlock/unlock.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/view/layout.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data7.pack/script/view/main.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/1.01パッチ用フォルダ.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/avgsystem.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/avgsystem_abmpmovie.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/avgsystem_autoselect.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/avgsystem_custom.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/avgsystem_logjump.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/avgsystem_movie.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/avgsystem_rewind.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/avgsystem_route.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/avgsystem_sceneskip.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/avgsystem_select.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/avgsystem_value.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/footer.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/header.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/header_replay.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_base.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_blendmodelist.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_camera.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_chara.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_chara8e.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_charaposlist.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_custom.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_extentionlist.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_face.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_face_poslist.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_face_repfile.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_face_repid.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_fadeeventlist.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_filterlist.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_fontlist.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_format.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_generatorfilterlist.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_gfadelist.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_gmodelist.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_gtargetlist.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_image.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_imagefilterlist.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_include.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_indexlist.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_information.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_message.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_movemodelist.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_music.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_namecolorlist.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_nametext.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_reptextlist.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_sentence.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_sound.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_soundfilterlist.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_template_camera.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_template_chara.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_template_chara8e.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_template_face.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_template_format.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_template_image.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_template_information.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_template_message.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_template_music.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_template_nametext.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_template_sentence.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_template_sound.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/imoscripter_texturefilterlist.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/include_route.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/prebranch.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/preselect.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/projectobjects.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/projectsetting.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/select/layout_select.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/setting.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/uppermenu/layout.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/uppermenu/main.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/avg/window/layout_window.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/misc/mgmisc.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/misc/misc.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/misc/misc_systeminfo.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/misc/value.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/misc/voicefiletonametable.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t00op_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t01_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t01_02@.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t01_03.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t02_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t02_02@.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t02_03.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t03_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t04_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t04_02@.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t04_03.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t05_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t05_02@.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t05_03.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t06_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t07_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t07_02@.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t07_03.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t08_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t08_02@.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t08_03.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t09_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t09_02@.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t09_03.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t10_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t11_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t12_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t12_02@.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t12_03.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t13_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t13_02@.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t13_03.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t14_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t14_02@.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t14_03.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t15_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t16_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t16_02@.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t16_03.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t17_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t17_02@.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t17_03.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t18_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t18_01b@.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t18_02@.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t18_03.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t19a_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t19a_02@.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t19a_03.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t19b_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t19b_02@.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t19b_03.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t19c_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t20a_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/t21_01omake@.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/scenario/本編/ted99_01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/albummode/layout.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/albummode/layout_view.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/albummode/list.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/albummode/main.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/albummode/viewfunction.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/caution/main.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/config/layout.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/config/main.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/config/value.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/config/valuedefault.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/dialog/layout_message.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/dialog/layout_yesno.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/dialog/main.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/log/layout.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/log/main.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/makerlogo/main.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/memorymode/layout.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/memorymode/list.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/memorymode/main.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/memorymode/replayfunction.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/quit/main.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/reset/main.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/saveload/common.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/saveload/layout_load.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/saveload/layout_save.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/saveload/main_load.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/saveload/main_quickload.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/saveload/main_quicksave.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/saveload/main_save.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/sequence/onload.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/sequence/onquit.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/sequence/onreset.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/soundmode/layout.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/soundmode/list.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/soundmode/main.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/title/layout01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/title/layout02.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/title/layout_select01.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/title/layout_select02.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/title/main.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/unlock/unlock.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/view/layout.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/script/view/main.s",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      },
+      {
+        "source_file": "data8.pack/system/etc/game.txt",
+        "old_status": "verified",
+        "native_grouping_status": "verified",
+        "changed_records": 0
+      }
+    ],
+    "native_grouping_execution_equivalence": "not_tested",
+    "legacy_model": "quote_only"
+  },
+  "field_boundary_coverage_status": "verified",
+  "field_boundary_change_count": 0,
+  "call_variant_counts": {
+    "sub": 1804,
+    "subp": 4,
+    "subr": 0
+  },
+  "call_arity_counts": {
+    "sub": {
+      "1": 906,
+      "2": 38,
+      "3": 612,
+      "6": 20,
+      "4": 150,
+      "8": 4,
+      "5": 52,
+      "11": 6,
+      "10": 6,
+      "7": 4,
+      "9": 4,
+      "13": 2
+    },
+    "subp": {
+      "3": 4
+    }
+  },
+  "direct_variant_records": [
+    {
+      "source_file": "data7.pack/avg/imoscripter_format.s",
+      "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+      "byte_offset": 5295,
+      "byte_length": 42,
+      "raw_bytes_reference": {
+        "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+        "offset": 5295,
+        "length": 42,
+        "sha256": "9c7046b6b4b82179239ed8cf436140ecef87f33009f0a6dbbef7425bbe7bc157"
+      },
+      "command": "subp",
+      "lexical_arity": 3,
+      "file_operand_shape": "raw_empty",
+      "raw_tail_field_count": 1,
+      "raw_empty_tail_positions": [],
+      "quoted_empty_tail_positions": [],
+      "packing_role": "raw_field_tail_merge_candidate",
+      "status": "inferred",
+      "field_model": "native_grouping",
+      "nil_pointer_mapping": "not_tested",
+      "runtime_argument_count": "not_tested"
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_format.s",
+      "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+      "byte_offset": 5347,
+      "byte_length": 41,
+      "raw_bytes_reference": {
+        "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+        "offset": 5347,
+        "length": 41,
+        "sha256": "e6e3209330b33b546d83edeee08ed46420f6dc402f7f3b45f0895fcc79cc099b"
+      },
+      "command": "subp",
+      "lexical_arity": 3,
+      "file_operand_shape": "raw_empty",
+      "raw_tail_field_count": 1,
+      "raw_empty_tail_positions": [],
+      "quoted_empty_tail_positions": [],
+      "packing_role": "raw_field_tail_merge_candidate",
+      "status": "inferred",
+      "field_model": "native_grouping",
+      "nil_pointer_mapping": "not_tested",
+      "runtime_argument_count": "not_tested"
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_format.s",
+      "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+      "byte_offset": 10572,
+      "byte_length": 84,
+      "raw_bytes_reference": {
+        "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+        "offset": 10572,
+        "length": 84,
+        "sha256": "c51e3d33079edbb65b85fd03e299bbc8c4224a1877d2dff27a87b7977c86b737"
+      },
+      "command": "subp",
+      "lexical_arity": 3,
+      "file_operand_shape": "raw_empty",
+      "raw_tail_field_count": 1,
+      "raw_empty_tail_positions": [],
+      "quoted_empty_tail_positions": [],
+      "packing_role": "raw_field_tail_merge_candidate",
+      "status": "inferred",
+      "field_model": "native_grouping",
+      "nil_pointer_mapping": "not_tested",
+      "runtime_argument_count": "not_tested"
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_format.s",
+      "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+      "byte_offset": 10676,
+      "byte_length": 82,
+      "raw_bytes_reference": {
+        "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+        "offset": 10676,
+        "length": 82,
+        "sha256": "4822e409c10618bc456b1d53cc505454e6e5d0a9031efb6d02fc06fd79d2d8d5"
+      },
+      "command": "subp",
+      "lexical_arity": 3,
+      "file_operand_shape": "raw_empty",
+      "raw_tail_field_count": 1,
+      "raw_empty_tail_positions": [],
+      "quoted_empty_tail_positions": [],
+      "packing_role": "raw_field_tail_merge_candidate",
+      "status": "inferred",
+      "field_model": "native_grouping",
+      "nil_pointer_mapping": "not_tested",
+      "runtime_argument_count": "not_tested"
+    }
+  ],
+  "prefix_records": [
+    {
+      "source_file": "data7.pack/avg/imoscripter_format.s",
+      "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+      "byte_offset": 1279,
+      "byte_length": 32,
+      "raw_bytes_reference": {
+        "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+        "offset": 1279,
+        "length": 32,
+        "sha256": "38801da32e4c47bd1de9fe07b72d02c1ef996eb20a74e6d155399c0412f9fde2"
+      },
+      "command": "et",
+      "status": "inferred",
+      "namespace_hint": {
+        "reference": {
+          "source_file": "data7.pack/avg/imoscripter_format.s",
+          "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+          "byte_offset": 1267,
+          "byte_length": 8,
+          "raw_bytes_reference": {
+            "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+            "offset": 1267,
+            "length": 8,
+            "sha256": "ef078e88f3e3fa22438791bfdb3262e8bb73e0693e9a0a330d9cc0645d33cdb0"
+          }
+        },
+        "matches_builtin_rep": true,
+        "status": "inferred"
+      },
+      "namespace_binding": "not_tested",
+      "actual_execution": "not_tested",
+      "parent_field_reference": {
+        "source_file": "data7.pack/avg/imoscripter_format.s",
+        "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+        "byte_offset": 1283,
+        "byte_length": 28,
+        "raw_bytes_reference": {
+          "offset": 1283,
+          "length": 28,
+          "sha256": "1419426d8d19c5c72bd8a08cc38fc979d0525aad50ee27b786583e08953f0fda"
+        }
+      },
+      "empty_literal": false,
+      "derived_calls": [
+        {
+          "command": "subp",
+          "lexical_arity": 3,
+          "file_operand_shape": "raw_empty",
+          "raw_tail_field_count": 1,
+          "raw_empty_tail_positions": [
+            0
+          ],
+          "quoted_empty_tail_positions": [],
+          "packing_role": "raw_field_tail_merge_candidate",
+          "status": "inferred",
+          "field_model": "native_grouping",
+          "nil_pointer_mapping": "not_tested",
+          "runtime_argument_count": "not_tested",
+          "target_identifier_sha256": "90f133d88f48bc8f46c9f7fcc7a90e67eab470d53a6ba218833a2f053718c1a3",
+          "origin": "quoted_prefix_literal",
+          "native_target_resolution": "not_tested",
+          "label_candidate_count": 2
+        }
+      ]
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_format.s",
+      "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+      "byte_offset": 1316,
+      "byte_length": 34,
+      "raw_bytes_reference": {
+        "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+        "offset": 1316,
+        "length": 34,
+        "sha256": "8584f8dcd59e345d48eddeff3c4dc882cdcb558b6635546b76b3999a517c9ac9"
+      },
+      "command": "nt",
+      "status": "inferred",
+      "namespace_hint": {
+        "reference": {
+          "source_file": "data7.pack/avg/imoscripter_format.s",
+          "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+          "byte_offset": 1267,
+          "byte_length": 8,
+          "raw_bytes_reference": {
+            "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+            "offset": 1267,
+            "length": 8,
+            "sha256": "ef078e88f3e3fa22438791bfdb3262e8bb73e0693e9a0a330d9cc0645d33cdb0"
+          }
+        },
+        "matches_builtin_rep": true,
+        "status": "inferred"
+      },
+      "namespace_binding": "not_tested",
+      "actual_execution": "not_tested",
+      "parent_field_reference": {
+        "source_file": "data7.pack/avg/imoscripter_format.s",
+        "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+        "byte_offset": 1320,
+        "byte_length": 30,
+        "raw_bytes_reference": {
+          "offset": 1320,
+          "length": 30,
+          "sha256": "bdf7e6f458086ab32e4626f28949ef961b4b16a130e683777d005d64df70156d"
+        }
+      },
+      "empty_literal": false,
+      "derived_calls": [
+        {
+          "command": "subp",
+          "lexical_arity": 1,
+          "file_operand_shape": "absent",
+          "raw_tail_field_count": 0,
+          "raw_empty_tail_positions": [],
+          "quoted_empty_tail_positions": [],
+          "packing_role": "raw_field_tail_merge_candidate",
+          "status": "inferred",
+          "field_model": "native_grouping",
+          "nil_pointer_mapping": "not_tested",
+          "runtime_argument_count": "not_tested",
+          "target_identifier_sha256": "9e05ef5d232aebb0961cb1a11713df038bf6ab211b20cc8fa127f4eb6454eb83",
+          "origin": "quoted_prefix_literal",
+          "native_target_resolution": "not_tested",
+          "label_candidate_count": 2
+        }
+      ]
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_format.s",
+      "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+      "byte_offset": 1476,
+      "byte_length": 6,
+      "raw_bytes_reference": {
+        "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+        "offset": 1476,
+        "length": 6,
+        "sha256": "58022e8c1768aa73b50a7f709177da4b0b1e42ae5e3afb627f8a722a5fa0234f"
+      },
+      "command": "et",
+      "status": "inferred",
+      "namespace_hint": {
+        "reference": {
+          "source_file": "data7.pack/avg/imoscripter_format.s",
+          "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+          "byte_offset": 1464,
+          "byte_length": 8,
+          "raw_bytes_reference": {
+            "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+            "offset": 1464,
+            "length": 8,
+            "sha256": "ef078e88f3e3fa22438791bfdb3262e8bb73e0693e9a0a330d9cc0645d33cdb0"
+          }
+        },
+        "matches_builtin_rep": true,
+        "status": "inferred"
+      },
+      "namespace_binding": "not_tested",
+      "actual_execution": "not_tested",
+      "parent_field_reference": {
+        "source_file": "data7.pack/avg/imoscripter_format.s",
+        "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+        "byte_offset": 1480,
+        "byte_length": 2,
+        "raw_bytes_reference": {
+          "offset": 1480,
+          "length": 2,
+          "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126"
+        }
+      },
+      "empty_literal": true,
+      "derived_calls": []
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_format.s",
+      "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+      "byte_offset": 1486,
+      "byte_length": 6,
+      "raw_bytes_reference": {
+        "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+        "offset": 1486,
+        "length": 6,
+        "sha256": "2065878d025b1a76824f0cdf933a203ceda8111d4942de2f3a27783800e04822"
+      },
+      "command": "nt",
+      "status": "inferred",
+      "namespace_hint": {
+        "reference": {
+          "source_file": "data7.pack/avg/imoscripter_format.s",
+          "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+          "byte_offset": 1464,
+          "byte_length": 8,
+          "raw_bytes_reference": {
+            "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+            "offset": 1464,
+            "length": 8,
+            "sha256": "ef078e88f3e3fa22438791bfdb3262e8bb73e0693e9a0a330d9cc0645d33cdb0"
+          }
+        },
+        "matches_builtin_rep": true,
+        "status": "inferred"
+      },
+      "namespace_binding": "not_tested",
+      "actual_execution": "not_tested",
+      "parent_field_reference": {
+        "source_file": "data7.pack/avg/imoscripter_format.s",
+        "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+        "byte_offset": 1490,
+        "byte_length": 2,
+        "raw_bytes_reference": {
+          "offset": 1490,
+          "length": 2,
+          "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126"
+        }
+      },
+      "empty_literal": true,
+      "derived_calls": []
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_format.s",
+      "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+      "byte_offset": 2560,
+      "byte_length": 64,
+      "raw_bytes_reference": {
+        "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+        "offset": 2560,
+        "length": 64,
+        "sha256": "a7ef886ed134e562cba40cc3cd94e18cc5ebc00693cc27c85c68d5f63b249f61"
+      },
+      "command": "et",
+      "status": "inferred",
+      "namespace_hint": {
+        "reference": {
+          "source_file": "data8.pack/avg/imoscripter_format.s",
+          "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+          "byte_offset": 2536,
+          "byte_length": 16,
+          "raw_bytes_reference": {
+            "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+            "offset": 2536,
+            "length": 16,
+            "sha256": "d012cad1f33a6e4abca34f02a7c324dd542bad3cc72b0e2228f22354eb374392"
+          }
+        },
+        "matches_builtin_rep": true,
+        "status": "inferred"
+      },
+      "namespace_binding": "not_tested",
+      "actual_execution": "not_tested",
+      "parent_field_reference": {
+        "source_file": "data8.pack/avg/imoscripter_format.s",
+        "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+        "byte_offset": 2568,
+        "byte_length": 56,
+        "raw_bytes_reference": {
+          "offset": 2568,
+          "length": 56,
+          "sha256": "7bc53d3e310a6c770ccc8215d5446ee46e60aa4712f138610e729f223e7035e5"
+        }
+      },
+      "empty_literal": false,
+      "derived_calls": [
+        {
+          "command": "subp",
+          "lexical_arity": 3,
+          "file_operand_shape": "raw_empty",
+          "raw_tail_field_count": 1,
+          "raw_empty_tail_positions": [
+            0
+          ],
+          "quoted_empty_tail_positions": [],
+          "packing_role": "raw_field_tail_merge_candidate",
+          "status": "inferred",
+          "field_model": "native_grouping",
+          "nil_pointer_mapping": "not_tested",
+          "runtime_argument_count": "not_tested",
+          "target_identifier_sha256": "90f133d88f48bc8f46c9f7fcc7a90e67eab470d53a6ba218833a2f053718c1a3",
+          "origin": "quoted_prefix_literal",
+          "native_target_resolution": "not_tested",
+          "label_candidate_count": 2
+        }
+      ]
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_format.s",
+      "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+      "byte_offset": 2634,
+      "byte_length": 68,
+      "raw_bytes_reference": {
+        "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+        "offset": 2634,
+        "length": 68,
+        "sha256": "70f4ed2cc8af8e72ee84138caf4828760acf7516194e4f60212c6096e9e341ef"
+      },
+      "command": "nt",
+      "status": "inferred",
+      "namespace_hint": {
+        "reference": {
+          "source_file": "data8.pack/avg/imoscripter_format.s",
+          "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+          "byte_offset": 2536,
+          "byte_length": 16,
+          "raw_bytes_reference": {
+            "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+            "offset": 2536,
+            "length": 16,
+            "sha256": "d012cad1f33a6e4abca34f02a7c324dd542bad3cc72b0e2228f22354eb374392"
+          }
+        },
+        "matches_builtin_rep": true,
+        "status": "inferred"
+      },
+      "namespace_binding": "not_tested",
+      "actual_execution": "not_tested",
+      "parent_field_reference": {
+        "source_file": "data8.pack/avg/imoscripter_format.s",
+        "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+        "byte_offset": 2642,
+        "byte_length": 60,
+        "raw_bytes_reference": {
+          "offset": 2642,
+          "length": 60,
+          "sha256": "27f43115a50e894dbac96ed19d9ddb602faa03111d3783a84bc94813aeabfa9e"
+        }
+      },
+      "empty_literal": false,
+      "derived_calls": [
+        {
+          "command": "subp",
+          "lexical_arity": 1,
+          "file_operand_shape": "absent",
+          "raw_tail_field_count": 0,
+          "raw_empty_tail_positions": [],
+          "quoted_empty_tail_positions": [],
+          "packing_role": "raw_field_tail_merge_candidate",
+          "status": "inferred",
+          "field_model": "native_grouping",
+          "nil_pointer_mapping": "not_tested",
+          "runtime_argument_count": "not_tested",
+          "target_identifier_sha256": "9e05ef5d232aebb0961cb1a11713df038bf6ab211b20cc8fa127f4eb6454eb83",
+          "origin": "quoted_prefix_literal",
+          "native_target_resolution": "not_tested",
+          "label_candidate_count": 2
+        }
+      ]
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_format.s",
+      "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+      "byte_offset": 2954,
+      "byte_length": 12,
+      "raw_bytes_reference": {
+        "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+        "offset": 2954,
+        "length": 12,
+        "sha256": "2c743e15f7d9ea59eeb5732e9602581165098cc04b250029966b84f07a1125e6"
+      },
+      "command": "et",
+      "status": "inferred",
+      "namespace_hint": {
+        "reference": {
+          "source_file": "data8.pack/avg/imoscripter_format.s",
+          "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+          "byte_offset": 2930,
+          "byte_length": 16,
+          "raw_bytes_reference": {
+            "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+            "offset": 2930,
+            "length": 16,
+            "sha256": "d012cad1f33a6e4abca34f02a7c324dd542bad3cc72b0e2228f22354eb374392"
+          }
+        },
+        "matches_builtin_rep": true,
+        "status": "inferred"
+      },
+      "namespace_binding": "not_tested",
+      "actual_execution": "not_tested",
+      "parent_field_reference": {
+        "source_file": "data8.pack/avg/imoscripter_format.s",
+        "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+        "byte_offset": 2962,
+        "byte_length": 4,
+        "raw_bytes_reference": {
+          "offset": 2962,
+          "length": 4,
+          "sha256": "6e586cbee3390ce73582f487f39ed8139079194c26c5fed5f748ec2adf236c4d"
+        }
+      },
+      "empty_literal": true,
+      "derived_calls": []
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_format.s",
+      "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+      "byte_offset": 2974,
+      "byte_length": 12,
+      "raw_bytes_reference": {
+        "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+        "offset": 2974,
+        "length": 12,
+        "sha256": "ea240a133ea9eea2155c3700dfa8cda178f1a5c69b3ae0b19d826a9eaf5bfb01"
+      },
+      "command": "nt",
+      "status": "inferred",
+      "namespace_hint": {
+        "reference": {
+          "source_file": "data8.pack/avg/imoscripter_format.s",
+          "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+          "byte_offset": 2930,
+          "byte_length": 16,
+          "raw_bytes_reference": {
+            "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+            "offset": 2930,
+            "length": 16,
+            "sha256": "d012cad1f33a6e4abca34f02a7c324dd542bad3cc72b0e2228f22354eb374392"
+          }
+        },
+        "matches_builtin_rep": true,
+        "status": "inferred"
+      },
+      "namespace_binding": "not_tested",
+      "actual_execution": "not_tested",
+      "parent_field_reference": {
+        "source_file": "data8.pack/avg/imoscripter_format.s",
+        "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+        "byte_offset": 2982,
+        "byte_length": 4,
+        "raw_bytes_reference": {
+          "offset": 2982,
+          "length": 4,
+          "sha256": "6e586cbee3390ce73582f487f39ed8139079194c26c5fed5f748ec2adf236c4d"
+        }
+      },
+      "empty_literal": true,
+      "derived_calls": []
+    }
+  ],
+  "prefix_label_edges": [
+    {
+      "prefix_reference": {
+        "source_file": "data7.pack/avg/imoscripter_format.s",
+        "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+        "byte_offset": 1279,
+        "byte_length": 32,
+        "raw_bytes_reference": {
+          "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+          "offset": 1279,
+          "length": 32,
+          "sha256": "38801da32e4c47bd1de9fe07b72d02c1ef996eb20a74e6d155399c0412f9fde2"
+        }
+      },
+      "receiver_reference": {
+        "source_file": "data7.pack/avg/imoscripter_format.s",
+        "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+        "byte_offset": 4996,
+        "byte_length": 18,
+        "raw_bytes_reference": {
+          "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+          "offset": 4996,
+          "length": 18,
+          "sha256": "b8bd31aac12d6cd596b81db640f676fe8bb37a7ce3aa3dea0ccc5b8b96233093"
+        }
+      },
+      "same_source_file": true,
+      "match": "exact_lexical_identifier",
+      "status": "inferred",
+      "runtime_target": "not_tested"
+    },
+    {
+      "prefix_reference": {
+        "source_file": "data7.pack/avg/imoscripter_format.s",
+        "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+        "byte_offset": 1279,
+        "byte_length": 32,
+        "raw_bytes_reference": {
+          "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+          "offset": 1279,
+          "length": 32,
+          "sha256": "38801da32e4c47bd1de9fe07b72d02c1ef996eb20a74e6d155399c0412f9fde2"
+        }
+      },
+      "receiver_reference": {
+        "source_file": "data8.pack/avg/imoscripter_format.s",
+        "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+        "byte_offset": 9994,
+        "byte_length": 36,
+        "raw_bytes_reference": {
+          "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+          "offset": 9994,
+          "length": 36,
+          "sha256": "1791c1949674813225d615850082b335992c7ce95828658785992579f92577f9"
+        }
+      },
+      "same_source_file": false,
+      "match": "exact_lexical_identifier",
+      "status": "inferred",
+      "runtime_target": "not_tested"
+    },
+    {
+      "prefix_reference": {
+        "source_file": "data7.pack/avg/imoscripter_format.s",
+        "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+        "byte_offset": 1316,
+        "byte_length": 34,
+        "raw_bytes_reference": {
+          "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+          "offset": 1316,
+          "length": 34,
+          "sha256": "8584f8dcd59e345d48eddeff3c4dc882cdcb558b6635546b76b3999a517c9ac9"
+        }
+      },
+      "receiver_reference": {
+        "source_file": "data7.pack/avg/imoscripter_format.s",
+        "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+        "byte_offset": 5658,
+        "byte_length": 22,
+        "raw_bytes_reference": {
+          "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+          "offset": 5658,
+          "length": 22,
+          "sha256": "82322d47f8716ac8575bfc91aa11b243dd8be4b3a1d7318956e8867f179a1778"
+        }
+      },
+      "same_source_file": true,
+      "match": "exact_lexical_identifier",
+      "status": "inferred",
+      "runtime_target": "not_tested"
+    },
+    {
+      "prefix_reference": {
+        "source_file": "data7.pack/avg/imoscripter_format.s",
+        "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+        "byte_offset": 1316,
+        "byte_length": 34,
+        "raw_bytes_reference": {
+          "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+          "offset": 1316,
+          "length": 34,
+          "sha256": "8584f8dcd59e345d48eddeff3c4dc882cdcb558b6635546b76b3999a517c9ac9"
+        }
+      },
+      "receiver_reference": {
+        "source_file": "data8.pack/avg/imoscripter_format.s",
+        "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+        "byte_offset": 11298,
+        "byte_length": 44,
+        "raw_bytes_reference": {
+          "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+          "offset": 11298,
+          "length": 44,
+          "sha256": "a09380117c9cab89cdac0e36c4a294af844693ff30ce918f4f35124b760bbf79"
+        }
+      },
+      "same_source_file": false,
+      "match": "exact_lexical_identifier",
+      "status": "inferred",
+      "runtime_target": "not_tested"
+    },
+    {
+      "prefix_reference": {
+        "source_file": "data8.pack/avg/imoscripter_format.s",
+        "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+        "byte_offset": 2560,
+        "byte_length": 64,
+        "raw_bytes_reference": {
+          "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+          "offset": 2560,
+          "length": 64,
+          "sha256": "a7ef886ed134e562cba40cc3cd94e18cc5ebc00693cc27c85c68d5f63b249f61"
+        }
+      },
+      "receiver_reference": {
+        "source_file": "data7.pack/avg/imoscripter_format.s",
+        "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+        "byte_offset": 4996,
+        "byte_length": 18,
+        "raw_bytes_reference": {
+          "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+          "offset": 4996,
+          "length": 18,
+          "sha256": "b8bd31aac12d6cd596b81db640f676fe8bb37a7ce3aa3dea0ccc5b8b96233093"
+        }
+      },
+      "same_source_file": false,
+      "match": "exact_lexical_identifier",
+      "status": "inferred",
+      "runtime_target": "not_tested"
+    },
+    {
+      "prefix_reference": {
+        "source_file": "data8.pack/avg/imoscripter_format.s",
+        "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+        "byte_offset": 2560,
+        "byte_length": 64,
+        "raw_bytes_reference": {
+          "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+          "offset": 2560,
+          "length": 64,
+          "sha256": "a7ef886ed134e562cba40cc3cd94e18cc5ebc00693cc27c85c68d5f63b249f61"
+        }
+      },
+      "receiver_reference": {
+        "source_file": "data8.pack/avg/imoscripter_format.s",
+        "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+        "byte_offset": 9994,
+        "byte_length": 36,
+        "raw_bytes_reference": {
+          "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+          "offset": 9994,
+          "length": 36,
+          "sha256": "1791c1949674813225d615850082b335992c7ce95828658785992579f92577f9"
+        }
+      },
+      "same_source_file": true,
+      "match": "exact_lexical_identifier",
+      "status": "inferred",
+      "runtime_target": "not_tested"
+    },
+    {
+      "prefix_reference": {
+        "source_file": "data8.pack/avg/imoscripter_format.s",
+        "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+        "byte_offset": 2634,
+        "byte_length": 68,
+        "raw_bytes_reference": {
+          "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+          "offset": 2634,
+          "length": 68,
+          "sha256": "70f4ed2cc8af8e72ee84138caf4828760acf7516194e4f60212c6096e9e341ef"
+        }
+      },
+      "receiver_reference": {
+        "source_file": "data7.pack/avg/imoscripter_format.s",
+        "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+        "byte_offset": 5658,
+        "byte_length": 22,
+        "raw_bytes_reference": {
+          "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+          "offset": 5658,
+          "length": 22,
+          "sha256": "82322d47f8716ac8575bfc91aa11b243dd8be4b3a1d7318956e8867f179a1778"
+        }
+      },
+      "same_source_file": false,
+      "match": "exact_lexical_identifier",
+      "status": "inferred",
+      "runtime_target": "not_tested"
+    },
+    {
+      "prefix_reference": {
+        "source_file": "data8.pack/avg/imoscripter_format.s",
+        "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+        "byte_offset": 2634,
+        "byte_length": 68,
+        "raw_bytes_reference": {
+          "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+          "offset": 2634,
+          "length": 68,
+          "sha256": "70f4ed2cc8af8e72ee84138caf4828760acf7516194e4f60212c6096e9e341ef"
+        }
+      },
+      "receiver_reference": {
+        "source_file": "data8.pack/avg/imoscripter_format.s",
+        "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+        "byte_offset": 11298,
+        "byte_length": 44,
+        "raw_bytes_reference": {
+          "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+          "offset": 11298,
+          "length": 44,
+          "sha256": "a09380117c9cab89cdac0e36c4a294af844693ff30ce918f4f35124b760bbf79"
+        }
+      },
+      "same_source_file": true,
+      "match": "exact_lexical_identifier",
+      "status": "inferred",
+      "runtime_target": "not_tested"
+    }
+  ],
+  "receiver_regions": [
+    {
+      "label_reference": {
+        "source_file": "data7.pack/avg/imoscripter_format.s",
+        "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+        "byte_offset": 4996,
+        "byte_length": 18,
+        "raw_bytes_reference": {
+          "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+          "offset": 4996,
+          "length": 18,
+          "sha256": "b8bd31aac12d6cd596b81db640f676fe8bb37a7ce3aa3dea0ccc5b8b96233093"
+        }
+      },
+      "identifier_sha256": "90f133d88f48bc8f46c9f7fcc7a90e67eab470d53a6ba218833a2f053718c1a3",
+      "command_count": 30,
+      "param_str_zero_mentions": [
+        {
+          "record_reference": {
+            "source_file": "data7.pack/avg/imoscripter_format.s",
+            "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+            "byte_offset": 5144,
+            "byte_length": 20,
+            "raw_bytes_reference": {
+              "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+              "offset": 5144,
+              "length": 20,
+              "sha256": "3a14fb0992df52211123e7fd25c607aec0eff1709d72d8a4c39a5a695ea5464b"
+            }
+          },
+          "field_reference": {
+            "source_file": "data7.pack/avg/imoscripter_format.s",
+            "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+            "byte_offset": 5149,
+            "byte_length": 11,
+            "raw_bytes_reference": {
+              "offset": 5149,
+              "length": 11,
+              "sha256": "2e153e9c0881fabe9944b439c63ceb7c00646bb8b90e46396b700ecc8f7f3e22"
+            }
+          },
+          "character_offset": 0,
+          "status": "inferred",
+          "read_write_direction": "not_tested"
+        },
+        {
+          "record_reference": {
+            "source_file": "data7.pack/avg/imoscripter_format.s",
+            "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+            "byte_offset": 5197,
+            "byte_length": 47,
+            "raw_bytes_reference": {
+              "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+              "offset": 5197,
+              "length": 47,
+              "sha256": "aa18b0f9a50b978cdf62ede1e25c796f5071e23ccb6dbddfba91c2826729d4c7"
+            }
+          },
+          "field_reference": {
+            "source_file": "data7.pack/avg/imoscripter_format.s",
+            "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+            "byte_offset": 5203,
+            "byte_length": 41,
+            "raw_bytes_reference": {
+              "offset": 5203,
+              "length": 41,
+              "sha256": "ab9cfc6dd8857c08af7b97a4a0bb986f3155b11b4f4be5ff77b81e11b40dfb0d"
+            }
+          },
+          "character_offset": 20,
+          "status": "inferred",
+          "read_write_direction": "not_tested"
+        },
+        {
+          "record_reference": {
+            "source_file": "data7.pack/avg/imoscripter_format.s",
+            "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+            "byte_offset": 5295,
+            "byte_length": 42,
+            "raw_bytes_reference": {
+              "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+              "offset": 5295,
+              "length": 42,
+              "sha256": "9c7046b6b4b82179239ed8cf436140ecef87f33009f0a6dbbef7425bbe7bc157"
+            }
+          },
+          "field_reference": {
+            "source_file": "data7.pack/avg/imoscripter_format.s",
+            "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+            "byte_offset": 5326,
+            "byte_length": 11,
+            "raw_bytes_reference": {
+              "offset": 5326,
+              "length": 11,
+              "sha256": "2e153e9c0881fabe9944b439c63ceb7c00646bb8b90e46396b700ecc8f7f3e22"
+            }
+          },
+          "character_offset": 0,
+          "status": "inferred",
+          "read_write_direction": "not_tested"
+        },
+        {
+          "record_reference": {
+            "source_file": "data7.pack/avg/imoscripter_format.s",
+            "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+            "byte_offset": 5347,
+            "byte_length": 41,
+            "raw_bytes_reference": {
+              "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+              "offset": 5347,
+              "length": 41,
+              "sha256": "e6e3209330b33b546d83edeee08ed46420f6dc402f7f3b45f0895fcc79cc099b"
+            }
+          },
+          "field_reference": {
+            "source_file": "data7.pack/avg/imoscripter_format.s",
+            "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+            "byte_offset": 5377,
+            "byte_length": 11,
+            "raw_bytes_reference": {
+              "offset": 5377,
+              "length": 11,
+              "sha256": "2e153e9c0881fabe9944b439c63ceb7c00646bb8b90e46396b700ecc8f7f3e22"
+            }
+          },
+          "character_offset": 0,
+          "status": "inferred",
+          "read_write_direction": "not_tested"
+        }
+      ]
+    },
+    {
+      "label_reference": {
+        "source_file": "data8.pack/avg/imoscripter_format.s",
+        "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+        "byte_offset": 9994,
+        "byte_length": 36,
+        "raw_bytes_reference": {
+          "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+          "offset": 9994,
+          "length": 36,
+          "sha256": "1791c1949674813225d615850082b335992c7ce95828658785992579f92577f9"
+        }
+      },
+      "identifier_sha256": "90f133d88f48bc8f46c9f7fcc7a90e67eab470d53a6ba218833a2f053718c1a3",
+      "command_count": 30,
+      "param_str_zero_mentions": [
+        {
+          "record_reference": {
+            "source_file": "data8.pack/avg/imoscripter_format.s",
+            "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+            "byte_offset": 10290,
+            "byte_length": 40,
+            "raw_bytes_reference": {
+              "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+              "offset": 10290,
+              "length": 40,
+              "sha256": "6a468e8a428b3180282832982177a539dbf2beb861b33e5895a966bf3a9023ab"
+            }
+          },
+          "field_reference": {
+            "source_file": "data8.pack/avg/imoscripter_format.s",
+            "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+            "byte_offset": 10300,
+            "byte_length": 22,
+            "raw_bytes_reference": {
+              "offset": 10300,
+              "length": 22,
+              "sha256": "0bd26982d872df082eea502a2081edb4e99e4359cf647446f3b945a0a846b258"
+            }
+          },
+          "character_offset": 0,
+          "status": "inferred",
+          "read_write_direction": "not_tested"
+        },
+        {
+          "record_reference": {
+            "source_file": "data8.pack/avg/imoscripter_format.s",
+            "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+            "byte_offset": 10396,
+            "byte_length": 74,
+            "raw_bytes_reference": {
+              "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+              "offset": 10396,
+              "length": 74,
+              "sha256": "f704573d19ed631bb0aa3ae9842fc5fb0755589850f551f49751cf6f52ab9fb2"
+            }
+          },
+          "field_reference": {
+            "source_file": "data8.pack/avg/imoscripter_format.s",
+            "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+            "byte_offset": 10408,
+            "byte_length": 62,
+            "raw_bytes_reference": {
+              "offset": 10408,
+              "length": 62,
+              "sha256": "1fed986507b2daca526a55b5f95ac1b0302697b4644db1dfc4f1b489061bd6e7"
+            }
+          },
+          "character_offset": 20,
+          "status": "inferred",
+          "read_write_direction": "not_tested"
+        },
+        {
+          "record_reference": {
+            "source_file": "data8.pack/avg/imoscripter_format.s",
+            "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+            "byte_offset": 10572,
+            "byte_length": 84,
+            "raw_bytes_reference": {
+              "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+              "offset": 10572,
+              "length": 84,
+              "sha256": "c51e3d33079edbb65b85fd03e299bbc8c4224a1877d2dff27a87b7977c86b737"
+            }
+          },
+          "field_reference": {
+            "source_file": "data8.pack/avg/imoscripter_format.s",
+            "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+            "byte_offset": 10634,
+            "byte_length": 22,
+            "raw_bytes_reference": {
+              "offset": 10634,
+              "length": 22,
+              "sha256": "0bd26982d872df082eea502a2081edb4e99e4359cf647446f3b945a0a846b258"
+            }
+          },
+          "character_offset": 0,
+          "status": "inferred",
+          "read_write_direction": "not_tested"
+        },
+        {
+          "record_reference": {
+            "source_file": "data8.pack/avg/imoscripter_format.s",
+            "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+            "byte_offset": 10676,
+            "byte_length": 82,
+            "raw_bytes_reference": {
+              "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+              "offset": 10676,
+              "length": 82,
+              "sha256": "4822e409c10618bc456b1d53cc505454e6e5d0a9031efb6d02fc06fd79d2d8d5"
+            }
+          },
+          "field_reference": {
+            "source_file": "data8.pack/avg/imoscripter_format.s",
+            "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+            "byte_offset": 10736,
+            "byte_length": 22,
+            "raw_bytes_reference": {
+              "offset": 10736,
+              "length": 22,
+              "sha256": "0bd26982d872df082eea502a2081edb4e99e4359cf647446f3b945a0a846b258"
+            }
+          },
+          "character_offset": 0,
+          "status": "inferred",
+          "read_write_direction": "not_tested"
+        }
+      ]
+    },
+    {
+      "label_reference": {
+        "source_file": "data7.pack/avg/imoscripter_format.s",
+        "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+        "byte_offset": 5658,
+        "byte_length": 22,
+        "raw_bytes_reference": {
+          "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+          "offset": 5658,
+          "length": 22,
+          "sha256": "82322d47f8716ac8575bfc91aa11b243dd8be4b3a1d7318956e8867f179a1778"
+        }
+      },
+      "identifier_sha256": "9e05ef5d232aebb0961cb1a11713df038bf6ab211b20cc8fa127f4eb6454eb83",
+      "command_count": 68,
+      "param_str_zero_mentions": []
+    },
+    {
+      "label_reference": {
+        "source_file": "data8.pack/avg/imoscripter_format.s",
+        "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+        "byte_offset": 11298,
+        "byte_length": 44,
+        "raw_bytes_reference": {
+          "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+          "offset": 11298,
+          "length": 44,
+          "sha256": "a09380117c9cab89cdac0e36c4a294af844693ff30ce918f4f35124b760bbf79"
+        }
+      },
+      "identifier_sha256": "9e05ef5d232aebb0961cb1a11713df038bf6ab211b20cc8fa127f4eb6454eb83",
+      "command_count": 68,
+      "param_str_zero_mentions": []
+    }
+  ],
+  "variant_presence_status": {
+    "sub": "verified",
+    "subp": "verified",
+    "subr": "not_tested"
+  },
+  "variant_presence_scope": "Lexical occurrence only; absence in the retained corpus is not a proof of no runtime use",
+  "namespace_binding": "inferred",
+  "namespace_shadowing": "not_tested",
+  "creation_callback_link": "not_tested",
+  "native_label_target_resolution": "not_tested",
+  "subp_execution_semantics": "not_tested",
+  "runtime_argument_conversion": "not_tested",
+  "original_files_written": false,
+  "external_game_data_uploads": false,
+  "runtime_development_ready": false,
+  "execution_semantics": "not_tested"
+}

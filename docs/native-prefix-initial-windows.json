@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "status": "inferred",
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Reader creation and configuration candidate windows only",
+  "windows": [
+    {
+      "name": "reader-constructor",
+      "start": "0x694c74",
+      "end_exclusive": "0x694d04"
+    },
+    {
+      "name": "reader-creation-0",
+      "start": "0x6be9a3",
+      "end_exclusive": "0x6bea63"
+    }
+  ]
+}

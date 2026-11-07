@@ -1,0 +1,1381 @@
+{
+  "schema_version": 1,
+  "status": "inferred",
+  "dataset": "real",
+  "scope": "Explicit module binding and version-choice experiments only; full game startup and original execution equivalence not_tested",
+  "native_evidence": "reports/p1/module-native-report.json",
+  "native_evidence_sha256": "10a5c38535e03bcaf3633657b80c1cd369f92817c7f0e024dbf3ff758cb8c20b",
+  "native_binary_sha256": "c764479f411b4fd4bbc2d9bbd724e1746817e43fc47d792b630e12193f91ef24",
+  "native_source_sha256": {
+    "native/Package.swift": "b5c5411837acfa54a9bd24dee6db30bb6cd65a985dd085f4f31c7bb6f9287d5c",
+    "native/Sources/MangekyouApp/MangekyouApp.swift": "8ce5fb148b071f3cd7bcc64307ad4de4055970f6633c90cba74fd9b38ce2986a",
+    "native/Sources/MangekyouCore/DPNGDescriptor.swift": "dbc88afe01023f2c530fbe3de28423e33c6e5b45a336a51e9e4a908564d8f1ff",
+    "native/Sources/MangekyouCore/Inventory.swift": "3ec7bab6f1359f986a5d9fabd1e18611484663086fdb8f40e311744318f327cb",
+    "native/Sources/MangekyouCore/SafeDirectory.swift": "3dfcc344e51c948a1b08909a6df3b2412ecb44eb24e9a619ab1670b0c3bd6118",
+    "native/Sources/MangekyouCore/ScriptDocument.swift": "f90cc0e3e1e9a0b95aaa80bf503ac03e4bfd967ef861736500f1c707750693d1",
+    "native/Sources/MangekyouCore/ScriptExpression.swift": "62444ad4624aa36ef04c03826e12ccf11e6235d605827b00e41280ffe952ab69",
+    "native/Sources/MangekyouCore/ScriptFingerprint.swift": "5a4c3057a7222eebb7144e514b669ec07800620e91eace715b9c2411fda974bb",
+    "native/Sources/MangekyouCore/ScriptMachine.swift": "ddd5ca71003dec1b18fd8a2e7f21abfc99ebe809aa475456d02dabbda57253cc",
+    "native/Sources/MangekyouCore/ScriptRepository.swift": "19c6618d3175416e3d15224b0a3db396a824aee281d920257793e9dfe3cb86e3",
+    "native/Sources/MangekyouCore/ScriptSource.swift": "ab25a07127d62552cab592e170b4226ddea69cd9754fc941be9201eaf07cf92a",
+    "native/Sources/MangekyouInspect/main.swift": "8a3d06cea3f59b50867831be4f4349c3a913285bb5b65fd4b6153d1138043c19",
+    "native/Sources/MangekyouMedia/ResourceImage.swift": "447d6a2e0248849e617ea0669b92a712b2f4124ee2fd517bdc86ceb47601b69f",
+    "native/Sources/MangekyouScript/main.swift": "98ba89ee5997aba59bb1e8816083ae07e94960d1e78f6dbbca1dcd5cbe884ec0",
+    "native/Tests/MangekyouCoreTests/ModuleTests.swift": "41a0a2a4f024fed29bfbd2b7eda89bcb02ce0d5a5468c9f0bf25fac5821656ff",
+    "native/Tests/MangekyouCoreTests/ResourceTests.swift": "627e430007fef383cc0f4993fd912b4112b7e2aad967e4f919a1cd507be724ea",
+    "native/Tests/MangekyouCoreTests/ScriptTests.swift": "e45f893116af91ff106a5af6829ed121a7bae2c8dee03bdfa347ea841c0c90d8"
+  },
+  "catalog_metadata_sha256": "40a57e053214a4498c2a62eadf4ee1b9002ea13b353a66820392f96df11a1206",
+  "physical_corpus_files": 379,
+  "all_versions_preserved": true,
+  "lexical_crosscheck": {
+    "status": "verified",
+    "files": 379,
+    "mismatch_count": 0,
+    "records": 291273,
+    "scope": "Agreement with project Python model, not independent engine grammar proof"
+  },
+  "selected_entry": {
+    "source_file": "data0.pack/startup.s",
+    "source_sha256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+  },
+  "scenarios": [
+    {
+      "name": "strict_no_preference",
+      "selected_source_file": null,
+      "selected_source_sha256": null,
+      "cli_exit_code": 2,
+      "byte_reference_status": "verified",
+      "byte_reference_count": 24,
+      "cross_file_call_status": "unsupported",
+      "scope": "One bounded candidate path; unsupported stop is preserved, not counted as full startup success",
+      "machine": {
+        "callDepth": 2,
+        "currentLocation": {
+          "byteLength": 76,
+          "byteOffset": 1012,
+          "lineNumber": 45,
+          "rangeSHA256": "3c8f1ab8e60afa006342a0204663c63967817964592c55662d2c349f42bd7dae",
+          "sourceFile": "data0.pack/startup.s",
+          "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+        },
+        "errorPolicy": "Atomic instruction commit and stop; original error rollback not_tested",
+        "evidenceStatus": "inferred",
+        "inputSnapshotPolicy": "Pinned immutable snapshots within one run; identical source bytes may alias, differing variants require explicit selection",
+        "moduleSnapshotBytes": 1488,
+        "moduleSnapshotCount": 1,
+        "originalEngineEquivalence": "not_tested",
+        "phase": "stopped",
+        "profile": "experimental_static_contracts_v2",
+        "scalarInitialization": "Zero-initialized int dictionaries are an explicit candidate, not a verified native ABI",
+        "scope": "Bounded scalar/if/call execution with explicitly pinned source modules; no complete preprocessing, objects, media or saves",
+        "status": "unsupported",
+        "steps": 20,
+        "stopReason": "ambiguous_module_variants",
+        "trace": [
+          {
+            "action": "advance",
+            "callDepth": 1,
+            "location": {
+              "byteLength": 2,
+              "byteOffset": 0,
+              "lineNumber": 1,
+              "rangeSHA256": "b3d510ef04275ca8e698e5b3cbb0ece3949ef9252f0cdc839e9ee347409a2209",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "bom",
+            "sequence": 1,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 1,
+            "location": {
+              "byteLength": 24,
+              "byteOffset": 2,
+              "lineNumber": 1,
+              "rangeSHA256": "da5f782bfc39eda4f54e48c4e221af536c0797f006b4e2e6aae950bea7a36265",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "empty_span",
+            "sequence": 2,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 1,
+            "location": {
+              "byteLength": 10,
+              "byteOffset": 26,
+              "lineNumber": 7,
+              "rangeSHA256": "f35c53fa8be7fc0e4875811e4cedf033f880f23b39b6584b1ef63093c7275759",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "label",
+            "sequence": 3,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 1,
+            "location": {
+              "byteLength": 4,
+              "byteOffset": 36,
+              "lineNumber": 8,
+              "rangeSHA256": "b7f560303ee2cca55615b53fcff87c6ab2c55f9e71a6cea93c61b572213e7075",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "layout_span",
+            "sequence": 4,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 1,
+            "location": {
+              "byteLength": 6,
+              "byteOffset": 40,
+              "lineNumber": 8,
+              "rangeSHA256": "f4ff6230db63df2543ec34e011459db1650f68af974ce8ca0f915c442634144b",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "empty_span",
+            "sequence": 5,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 1,
+            "location": {
+              "byteLength": 2,
+              "byteOffset": 46,
+              "lineNumber": 9,
+              "rangeSHA256": "a2c4aed1cf757cd9a509734a267ffc7b1166b55f4c8f9c3e3550c56e743328fc",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "layout_span",
+            "sequence": 6,
+            "status": "inferred"
+          },
+          {
+            "action": "declare_int_candidate",
+            "callDepth": 1,
+            "command": "svar",
+            "commandSHA256": "036b300b9ee452180978488406c681bf98e93b0902fb3f736a142fb8faaa5e57",
+            "location": {
+              "byteLength": 38,
+              "byteOffset": 48,
+              "lineNumber": 9,
+              "rangeSHA256": "e3a6c7ec708903aa6ac078cd984fcbaf495807b71949184b30a13bc331dade77",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "command",
+            "sequence": 7,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 1,
+            "location": {
+              "byteLength": 6,
+              "byteOffset": 86,
+              "lineNumber": 10,
+              "rangeSHA256": "b6c08ac2251ff94a05b534d739c982182094fb8259e2c247580e53d0d5001519",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "layout_span",
+            "sequence": 8,
+            "status": "inferred"
+          },
+          {
+            "action": "calculate",
+            "callDepth": 1,
+            "command": "cal",
+            "commandSHA256": "f28c5d59eb1307e88ffc2943867931a33eaa9dbd2e246e40e60c1c12139bd960",
+            "location": {
+              "byteLength": 52,
+              "byteOffset": 92,
+              "lineNumber": 10,
+              "rangeSHA256": "5a917dd9786c25f589909ea0891bcc4fbfc8d52760171ec8260360910cb60846",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "command",
+            "resultType": "integer",
+            "sequence": 9,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 1,
+            "location": {
+              "byteLength": 6,
+              "byteOffset": 144,
+              "lineNumber": 11,
+              "rangeSHA256": "b6c08ac2251ff94a05b534d739c982182094fb8259e2c247580e53d0d5001519",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "layout_span",
+            "sequence": 10,
+            "status": "inferred"
+          },
+          {
+            "action": "if_not_exact_one",
+            "callDepth": 1,
+            "command": "if",
+            "commandSHA256": "935f68319d4f227e02bfd54a0ddf85b8a242e42a4277aa5ef5eaab691710924e",
+            "location": {
+              "byteLength": 44,
+              "byteOffset": 150,
+              "lineNumber": 11,
+              "rangeSHA256": "3dfb875d1bfa5628d5143351daac64c7007352b1c4d9c2d6910d62228b25821d",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "command",
+            "resultType": "integer",
+            "sequence": 11,
+            "skipped": {
+              "location": {
+                "byteLength": 78,
+                "byteOffset": 194,
+                "lineNumber": 11,
+                "rangeSHA256": "2d20bb10236b066eecc9bd04cea8647be84068992581d5f4fe5e70748219eab4",
+                "sourceFile": "data0.pack/startup.s",
+                "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+              },
+              "reason": "Not executed under the experimental branch model",
+              "recordCount": 5,
+              "recordTypes": {
+                "command": 3,
+                "layout_span": 2
+              },
+              "status": "not_tested"
+            },
+            "status": "inferred",
+            "target": {
+              "byteLength": 4,
+              "byteOffset": 272,
+              "lineNumber": 14,
+              "rangeSHA256": "b7f560303ee2cca55615b53fcff87c6ab2c55f9e71a6cea93c61b572213e7075",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            }
+          },
+          {
+            "action": "advance",
+            "callDepth": 1,
+            "location": {
+              "byteLength": 4,
+              "byteOffset": 272,
+              "lineNumber": 14,
+              "rangeSHA256": "b7f560303ee2cca55615b53fcff87c6ab2c55f9e71a6cea93c61b572213e7075",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "layout_span",
+            "sequence": 12,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 1,
+            "location": {
+              "byteLength": 6,
+              "byteOffset": 276,
+              "lineNumber": 14,
+              "rangeSHA256": "f4ff6230db63df2543ec34e011459db1650f68af974ce8ca0f915c442634144b",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "empty_span",
+            "sequence": 13,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 1,
+            "location": {
+              "byteLength": 2,
+              "byteOffset": 282,
+              "lineNumber": 15,
+              "rangeSHA256": "a2c4aed1cf757cd9a509734a267ffc7b1166b55f4c8f9c3e3550c56e743328fc",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "layout_span",
+            "sequence": 14,
+            "status": "inferred"
+          },
+          {
+            "action": "local_call",
+            "callDepth": 2,
+            "command": "sub",
+            "commandSHA256": "ddc6e2b224d0fd821669202258386936fc9ce2899e215eec6322b95f8dd96d6a",
+            "location": {
+              "byteLength": 34,
+              "byteOffset": 284,
+              "lineNumber": 15,
+              "rangeSHA256": "16133214db864ac166e558d672a4aba3ce561e7e9b2f7fd09b4e8f7bc85de544",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "command",
+            "sequence": 15,
+            "status": "inferred",
+            "target": {
+              "byteLength": 24,
+              "byteOffset": 976,
+              "lineNumber": 43,
+              "rangeSHA256": "bf6f77fcf1e82774a03407a6ab9f1c65de970a1cc9b706335d1e9af5e7622164",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            }
+          },
+          {
+            "action": "advance",
+            "callDepth": 2,
+            "location": {
+              "byteLength": 24,
+              "byteOffset": 976,
+              "lineNumber": 43,
+              "rangeSHA256": "bf6f77fcf1e82774a03407a6ab9f1c65de970a1cc9b706335d1e9af5e7622164",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "label",
+            "sequence": 16,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 2,
+            "location": {
+              "byteLength": 4,
+              "byteOffset": 1000,
+              "lineNumber": 44,
+              "rangeSHA256": "b7f560303ee2cca55615b53fcff87c6ab2c55f9e71a6cea93c61b572213e7075",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "layout_span",
+            "sequence": 17,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 2,
+            "location": {
+              "byteLength": 6,
+              "byteOffset": 1004,
+              "lineNumber": 44,
+              "rangeSHA256": "f4ff6230db63df2543ec34e011459db1650f68af974ce8ca0f915c442634144b",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "empty_span",
+            "sequence": 18,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 2,
+            "location": {
+              "byteLength": 2,
+              "byteOffset": 1010,
+              "lineNumber": 45,
+              "rangeSHA256": "a2c4aed1cf757cd9a509734a267ffc7b1166b55f4c8f9c3e3550c56e743328fc",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "layout_span",
+            "sequence": 19,
+            "status": "inferred"
+          },
+          {
+            "action": "stop",
+            "callDepth": 2,
+            "command": "sub",
+            "commandSHA256": "ddc6e2b224d0fd821669202258386936fc9ce2899e215eec6322b95f8dd96d6a",
+            "location": {
+              "byteLength": 76,
+              "byteOffset": 1012,
+              "lineNumber": 45,
+              "rangeSHA256": "3c8f1ab8e60afa006342a0204663c63967817964592c55662d2c349f42bd7dae",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "reason": "ambiguous_module_variants",
+            "recordType": "command",
+            "sequence": 20,
+            "status": "unsupported"
+          }
+        ],
+        "variableCounts": {
+          "all_local_frames": 0,
+          "global": 0,
+          "system": 1
+        }
+      }
+    },
+    {
+      "name": "explicit_source_1",
+      "selected_source_file": "data7.pack/misc/value.s",
+      "selected_source_sha256": "6d2791eca5a9c82ff4d525b3b99c31869de7dca383dd5ed51de8779522e63080",
+      "cli_exit_code": 2,
+      "byte_reference_status": "verified",
+      "byte_reference_count": 30,
+      "cross_file_call_status": "verified",
+      "scope": "One bounded candidate path; unsupported stop is preserved, not counted as full startup success",
+      "machine": {
+        "callDepth": 3,
+        "currentLocation": {
+          "byteLength": 12,
+          "byteOffset": 35,
+          "lineNumber": 8,
+          "rangeSHA256": "365343acc816f7f25a1eaf20a5cedd2f2c1f19bf9aabde8bd89fa3fffc76d68e",
+          "sourceFile": "data7.pack/misc/value.s",
+          "sourceSHA256": "6d2791eca5a9c82ff4d525b3b99c31869de7dca383dd5ed51de8779522e63080"
+        },
+        "errorPolicy": "Atomic instruction commit and stop; original error rollback not_tested",
+        "evidenceStatus": "inferred",
+        "inputSnapshotPolicy": "Pinned immutable snapshots within one run; identical source bytes may alias, differing variants require explicit selection",
+        "moduleSnapshotBytes": 4022,
+        "moduleSnapshotCount": 2,
+        "originalEngineEquivalence": "not_tested",
+        "phase": "stopped",
+        "profile": "experimental_static_contracts_v2",
+        "scalarInitialization": "Zero-initialized int dictionaries are an explicit candidate, not a verified native ABI",
+        "scope": "Bounded scalar/if/call execution with explicitly pinned source modules; no complete preprocessing, objects, media or saves",
+        "status": "unsupported",
+        "steps": 25,
+        "stopReason": "declaration_type_outside_int_profile",
+        "trace": [
+          {
+            "action": "advance",
+            "callDepth": 1,
+            "location": {
+              "byteLength": 2,
+              "byteOffset": 0,
+              "lineNumber": 1,
+              "rangeSHA256": "b3d510ef04275ca8e698e5b3cbb0ece3949ef9252f0cdc839e9ee347409a2209",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "bom",
+            "sequence": 1,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 1,
+            "location": {
+              "byteLength": 24,
+              "byteOffset": 2,
+              "lineNumber": 1,
+              "rangeSHA256": "da5f782bfc39eda4f54e48c4e221af536c0797f006b4e2e6aae950bea7a36265",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "empty_span",
+            "sequence": 2,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 1,
+            "location": {
+              "byteLength": 10,
+              "byteOffset": 26,
+              "lineNumber": 7,
+              "rangeSHA256": "f35c53fa8be7fc0e4875811e4cedf033f880f23b39b6584b1ef63093c7275759",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "label",
+            "sequence": 3,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 1,
+            "location": {
+              "byteLength": 4,
+              "byteOffset": 36,
+              "lineNumber": 8,
+              "rangeSHA256": "b7f560303ee2cca55615b53fcff87c6ab2c55f9e71a6cea93c61b572213e7075",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "layout_span",
+            "sequence": 4,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 1,
+            "location": {
+              "byteLength": 6,
+              "byteOffset": 40,
+              "lineNumber": 8,
+              "rangeSHA256": "f4ff6230db63df2543ec34e011459db1650f68af974ce8ca0f915c442634144b",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "empty_span",
+            "sequence": 5,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 1,
+            "location": {
+              "byteLength": 2,
+              "byteOffset": 46,
+              "lineNumber": 9,
+              "rangeSHA256": "a2c4aed1cf757cd9a509734a267ffc7b1166b55f4c8f9c3e3550c56e743328fc",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "layout_span",
+            "sequence": 6,
+            "status": "inferred"
+          },
+          {
+            "action": "declare_int_candidate",
+            "callDepth": 1,
+            "command": "svar",
+            "commandSHA256": "036b300b9ee452180978488406c681bf98e93b0902fb3f736a142fb8faaa5e57",
+            "location": {
+              "byteLength": 38,
+              "byteOffset": 48,
+              "lineNumber": 9,
+              "rangeSHA256": "e3a6c7ec708903aa6ac078cd984fcbaf495807b71949184b30a13bc331dade77",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "command",
+            "sequence": 7,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 1,
+            "location": {
+              "byteLength": 6,
+              "byteOffset": 86,
+              "lineNumber": 10,
+              "rangeSHA256": "b6c08ac2251ff94a05b534d739c982182094fb8259e2c247580e53d0d5001519",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "layout_span",
+            "sequence": 8,
+            "status": "inferred"
+          },
+          {
+            "action": "calculate",
+            "callDepth": 1,
+            "command": "cal",
+            "commandSHA256": "f28c5d59eb1307e88ffc2943867931a33eaa9dbd2e246e40e60c1c12139bd960",
+            "location": {
+              "byteLength": 52,
+              "byteOffset": 92,
+              "lineNumber": 10,
+              "rangeSHA256": "5a917dd9786c25f589909ea0891bcc4fbfc8d52760171ec8260360910cb60846",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "command",
+            "resultType": "integer",
+            "sequence": 9,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 1,
+            "location": {
+              "byteLength": 6,
+              "byteOffset": 144,
+              "lineNumber": 11,
+              "rangeSHA256": "b6c08ac2251ff94a05b534d739c982182094fb8259e2c247580e53d0d5001519",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "layout_span",
+            "sequence": 10,
+            "status": "inferred"
+          },
+          {
+            "action": "if_not_exact_one",
+            "callDepth": 1,
+            "command": "if",
+            "commandSHA256": "935f68319d4f227e02bfd54a0ddf85b8a242e42a4277aa5ef5eaab691710924e",
+            "location": {
+              "byteLength": 44,
+              "byteOffset": 150,
+              "lineNumber": 11,
+              "rangeSHA256": "3dfb875d1bfa5628d5143351daac64c7007352b1c4d9c2d6910d62228b25821d",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "command",
+            "resultType": "integer",
+            "sequence": 11,
+            "skipped": {
+              "location": {
+                "byteLength": 78,
+                "byteOffset": 194,
+                "lineNumber": 11,
+                "rangeSHA256": "2d20bb10236b066eecc9bd04cea8647be84068992581d5f4fe5e70748219eab4",
+                "sourceFile": "data0.pack/startup.s",
+                "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+              },
+              "reason": "Not executed under the experimental branch model",
+              "recordCount": 5,
+              "recordTypes": {
+                "command": 3,
+                "layout_span": 2
+              },
+              "status": "not_tested"
+            },
+            "status": "inferred",
+            "target": {
+              "byteLength": 4,
+              "byteOffset": 272,
+              "lineNumber": 14,
+              "rangeSHA256": "b7f560303ee2cca55615b53fcff87c6ab2c55f9e71a6cea93c61b572213e7075",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            }
+          },
+          {
+            "action": "advance",
+            "callDepth": 1,
+            "location": {
+              "byteLength": 4,
+              "byteOffset": 272,
+              "lineNumber": 14,
+              "rangeSHA256": "b7f560303ee2cca55615b53fcff87c6ab2c55f9e71a6cea93c61b572213e7075",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "layout_span",
+            "sequence": 12,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 1,
+            "location": {
+              "byteLength": 6,
+              "byteOffset": 276,
+              "lineNumber": 14,
+              "rangeSHA256": "f4ff6230db63df2543ec34e011459db1650f68af974ce8ca0f915c442634144b",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "empty_span",
+            "sequence": 13,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 1,
+            "location": {
+              "byteLength": 2,
+              "byteOffset": 282,
+              "lineNumber": 15,
+              "rangeSHA256": "a2c4aed1cf757cd9a509734a267ffc7b1166b55f4c8f9c3e3550c56e743328fc",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "layout_span",
+            "sequence": 14,
+            "status": "inferred"
+          },
+          {
+            "action": "local_call",
+            "callDepth": 2,
+            "command": "sub",
+            "commandSHA256": "ddc6e2b224d0fd821669202258386936fc9ce2899e215eec6322b95f8dd96d6a",
+            "location": {
+              "byteLength": 34,
+              "byteOffset": 284,
+              "lineNumber": 15,
+              "rangeSHA256": "16133214db864ac166e558d672a4aba3ce561e7e9b2f7fd09b4e8f7bc85de544",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "command",
+            "sequence": 15,
+            "status": "inferred",
+            "target": {
+              "byteLength": 24,
+              "byteOffset": 976,
+              "lineNumber": 43,
+              "rangeSHA256": "bf6f77fcf1e82774a03407a6ab9f1c65de970a1cc9b706335d1e9af5e7622164",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            }
+          },
+          {
+            "action": "advance",
+            "callDepth": 2,
+            "location": {
+              "byteLength": 24,
+              "byteOffset": 976,
+              "lineNumber": 43,
+              "rangeSHA256": "bf6f77fcf1e82774a03407a6ab9f1c65de970a1cc9b706335d1e9af5e7622164",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "label",
+            "sequence": 16,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 2,
+            "location": {
+              "byteLength": 4,
+              "byteOffset": 1000,
+              "lineNumber": 44,
+              "rangeSHA256": "b7f560303ee2cca55615b53fcff87c6ab2c55f9e71a6cea93c61b572213e7075",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "layout_span",
+            "sequence": 17,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 2,
+            "location": {
+              "byteLength": 6,
+              "byteOffset": 1004,
+              "lineNumber": 44,
+              "rangeSHA256": "f4ff6230db63df2543ec34e011459db1650f68af974ce8ca0f915c442634144b",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "empty_span",
+            "sequence": 18,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 2,
+            "location": {
+              "byteLength": 2,
+              "byteOffset": 1010,
+              "lineNumber": 45,
+              "rangeSHA256": "a2c4aed1cf757cd9a509734a267ffc7b1166b55f4c8f9c3e3550c56e743328fc",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "layout_span",
+            "sequence": 19,
+            "status": "inferred"
+          },
+          {
+            "action": "module_call",
+            "callDepth": 3,
+            "command": "sub",
+            "commandSHA256": "ddc6e2b224d0fd821669202258386936fc9ce2899e215eec6322b95f8dd96d6a",
+            "location": {
+              "byteLength": 76,
+              "byteOffset": 1012,
+              "lineNumber": 45,
+              "rangeSHA256": "3c8f1ab8e60afa006342a0204663c63967817964592c55662d2c349f42bd7dae",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "command",
+            "sequence": 20,
+            "status": "inferred",
+            "target": {
+              "byteLength": 18,
+              "byteOffset": 8,
+              "lineNumber": 5,
+              "rangeSHA256": "ae893b9bee3bcdeec57e6beab439e32cc8e331a23f94145be1cd970c412bf688",
+              "sourceFile": "data7.pack/misc/value.s",
+              "sourceSHA256": "6d2791eca5a9c82ff4d525b3b99c31869de7dca383dd5ed51de8779522e63080"
+            }
+          },
+          {
+            "action": "advance",
+            "callDepth": 3,
+            "location": {
+              "byteLength": 18,
+              "byteOffset": 8,
+              "lineNumber": 5,
+              "rangeSHA256": "ae893b9bee3bcdeec57e6beab439e32cc8e331a23f94145be1cd970c412bf688",
+              "sourceFile": "data7.pack/misc/value.s",
+              "sourceSHA256": "6d2791eca5a9c82ff4d525b3b99c31869de7dca383dd5ed51de8779522e63080"
+            },
+            "recordType": "label",
+            "sequence": 21,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 3,
+            "location": {
+              "byteLength": 2,
+              "byteOffset": 26,
+              "lineNumber": 6,
+              "rangeSHA256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6",
+              "sourceFile": "data7.pack/misc/value.s",
+              "sourceSHA256": "6d2791eca5a9c82ff4d525b3b99c31869de7dca383dd5ed51de8779522e63080"
+            },
+            "recordType": "layout_span",
+            "sequence": 22,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 3,
+            "location": {
+              "byteLength": 6,
+              "byteOffset": 28,
+              "lineNumber": 6,
+              "rangeSHA256": "10d74b6facd544a74be56428268107c55f5562458a19ce0715a49c689e8b4d55",
+              "sourceFile": "data7.pack/misc/value.s",
+              "sourceSHA256": "6d2791eca5a9c82ff4d525b3b99c31869de7dca383dd5ed51de8779522e63080"
+            },
+            "recordType": "empty_span",
+            "sequence": 23,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 3,
+            "location": {
+              "byteLength": 1,
+              "byteOffset": 34,
+              "lineNumber": 8,
+              "rangeSHA256": "2b4c342f5433ebe591a1da77e013d1b72475562d48578dca8b84bac6651c3cb9",
+              "sourceFile": "data7.pack/misc/value.s",
+              "sourceSHA256": "6d2791eca5a9c82ff4d525b3b99c31869de7dca383dd5ed51de8779522e63080"
+            },
+            "recordType": "layout_span",
+            "sequence": 24,
+            "status": "inferred"
+          },
+          {
+            "action": "stop",
+            "callDepth": 3,
+            "command": "var",
+            "commandSHA256": "c86872dc97dd35aabbbd845130a5fcd6262d80a5c0da34e11e6411efd1e837e9",
+            "location": {
+              "byteLength": 12,
+              "byteOffset": 35,
+              "lineNumber": 8,
+              "rangeSHA256": "365343acc816f7f25a1eaf20a5cedd2f2c1f19bf9aabde8bd89fa3fffc76d68e",
+              "sourceFile": "data7.pack/misc/value.s",
+              "sourceSHA256": "6d2791eca5a9c82ff4d525b3b99c31869de7dca383dd5ed51de8779522e63080"
+            },
+            "reason": "declaration_type_outside_int_profile",
+            "recordType": "command",
+            "sequence": 25,
+            "status": "unsupported"
+          }
+        ],
+        "variableCounts": {
+          "all_local_frames": 0,
+          "global": 0,
+          "system": 1
+        }
+      }
+    },
+    {
+      "name": "explicit_source_2",
+      "selected_source_file": "data8.pack/misc/value.s",
+      "selected_source_sha256": "2d4b82b51e9bf8f0a0cb24605c44f3ecad0efa773ae02a0077603be63b03c9e5",
+      "cli_exit_code": 2,
+      "byte_reference_status": "verified",
+      "byte_reference_count": 30,
+      "cross_file_call_status": "verified",
+      "scope": "One bounded candidate path; unsupported stop is preserved, not counted as full startup success",
+      "machine": {
+        "callDepth": 3,
+        "currentLocation": {
+          "byteLength": 24,
+          "byteOffset": 72,
+          "lineNumber": 8,
+          "rangeSHA256": "0381a2d7223c2305d5f3712ab0705f47215ce7be743dc973fa7feb29419fdb47",
+          "sourceFile": "data8.pack/misc/value.s",
+          "sourceSHA256": "2d4b82b51e9bf8f0a0cb24605c44f3ecad0efa773ae02a0077603be63b03c9e5"
+        },
+        "errorPolicy": "Atomic instruction commit and stop; original error rollback not_tested",
+        "evidenceStatus": "inferred",
+        "inputSnapshotPolicy": "Pinned immutable snapshots within one run; identical source bytes may alias, differing variants require explicit selection",
+        "moduleSnapshotBytes": 6554,
+        "moduleSnapshotCount": 2,
+        "originalEngineEquivalence": "not_tested",
+        "phase": "stopped",
+        "profile": "experimental_static_contracts_v2",
+        "scalarInitialization": "Zero-initialized int dictionaries are an explicit candidate, not a verified native ABI",
+        "scope": "Bounded scalar/if/call execution with explicitly pinned source modules; no complete preprocessing, objects, media or saves",
+        "status": "unsupported",
+        "steps": 25,
+        "stopReason": "declaration_type_outside_int_profile",
+        "trace": [
+          {
+            "action": "advance",
+            "callDepth": 1,
+            "location": {
+              "byteLength": 2,
+              "byteOffset": 0,
+              "lineNumber": 1,
+              "rangeSHA256": "b3d510ef04275ca8e698e5b3cbb0ece3949ef9252f0cdc839e9ee347409a2209",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "bom",
+            "sequence": 1,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 1,
+            "location": {
+              "byteLength": 24,
+              "byteOffset": 2,
+              "lineNumber": 1,
+              "rangeSHA256": "da5f782bfc39eda4f54e48c4e221af536c0797f006b4e2e6aae950bea7a36265",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "empty_span",
+            "sequence": 2,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 1,
+            "location": {
+              "byteLength": 10,
+              "byteOffset": 26,
+              "lineNumber": 7,
+              "rangeSHA256": "f35c53fa8be7fc0e4875811e4cedf033f880f23b39b6584b1ef63093c7275759",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "label",
+            "sequence": 3,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 1,
+            "location": {
+              "byteLength": 4,
+              "byteOffset": 36,
+              "lineNumber": 8,
+              "rangeSHA256": "b7f560303ee2cca55615b53fcff87c6ab2c55f9e71a6cea93c61b572213e7075",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "layout_span",
+            "sequence": 4,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 1,
+            "location": {
+              "byteLength": 6,
+              "byteOffset": 40,
+              "lineNumber": 8,
+              "rangeSHA256": "f4ff6230db63df2543ec34e011459db1650f68af974ce8ca0f915c442634144b",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "empty_span",
+            "sequence": 5,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 1,
+            "location": {
+              "byteLength": 2,
+              "byteOffset": 46,
+              "lineNumber": 9,
+              "rangeSHA256": "a2c4aed1cf757cd9a509734a267ffc7b1166b55f4c8f9c3e3550c56e743328fc",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "layout_span",
+            "sequence": 6,
+            "status": "inferred"
+          },
+          {
+            "action": "declare_int_candidate",
+            "callDepth": 1,
+            "command": "svar",
+            "commandSHA256": "036b300b9ee452180978488406c681bf98e93b0902fb3f736a142fb8faaa5e57",
+            "location": {
+              "byteLength": 38,
+              "byteOffset": 48,
+              "lineNumber": 9,
+              "rangeSHA256": "e3a6c7ec708903aa6ac078cd984fcbaf495807b71949184b30a13bc331dade77",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "command",
+            "sequence": 7,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 1,
+            "location": {
+              "byteLength": 6,
+              "byteOffset": 86,
+              "lineNumber": 10,
+              "rangeSHA256": "b6c08ac2251ff94a05b534d739c982182094fb8259e2c247580e53d0d5001519",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "layout_span",
+            "sequence": 8,
+            "status": "inferred"
+          },
+          {
+            "action": "calculate",
+            "callDepth": 1,
+            "command": "cal",
+            "commandSHA256": "f28c5d59eb1307e88ffc2943867931a33eaa9dbd2e246e40e60c1c12139bd960",
+            "location": {
+              "byteLength": 52,
+              "byteOffset": 92,
+              "lineNumber": 10,
+              "rangeSHA256": "5a917dd9786c25f589909ea0891bcc4fbfc8d52760171ec8260360910cb60846",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "command",
+            "resultType": "integer",
+            "sequence": 9,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 1,
+            "location": {
+              "byteLength": 6,
+              "byteOffset": 144,
+              "lineNumber": 11,
+              "rangeSHA256": "b6c08ac2251ff94a05b534d739c982182094fb8259e2c247580e53d0d5001519",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "layout_span",
+            "sequence": 10,
+            "status": "inferred"
+          },
+          {
+            "action": "if_not_exact_one",
+            "callDepth": 1,
+            "command": "if",
+            "commandSHA256": "935f68319d4f227e02bfd54a0ddf85b8a242e42a4277aa5ef5eaab691710924e",
+            "location": {
+              "byteLength": 44,
+              "byteOffset": 150,
+              "lineNumber": 11,
+              "rangeSHA256": "3dfb875d1bfa5628d5143351daac64c7007352b1c4d9c2d6910d62228b25821d",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "command",
+            "resultType": "integer",
+            "sequence": 11,
+            "skipped": {
+              "location": {
+                "byteLength": 78,
+                "byteOffset": 194,
+                "lineNumber": 11,
+                "rangeSHA256": "2d20bb10236b066eecc9bd04cea8647be84068992581d5f4fe5e70748219eab4",
+                "sourceFile": "data0.pack/startup.s",
+                "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+              },
+              "reason": "Not executed under the experimental branch model",
+              "recordCount": 5,
+              "recordTypes": {
+                "command": 3,
+                "layout_span": 2
+              },
+              "status": "not_tested"
+            },
+            "status": "inferred",
+            "target": {
+              "byteLength": 4,
+              "byteOffset": 272,
+              "lineNumber": 14,
+              "rangeSHA256": "b7f560303ee2cca55615b53fcff87c6ab2c55f9e71a6cea93c61b572213e7075",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            }
+          },
+          {
+            "action": "advance",
+            "callDepth": 1,
+            "location": {
+              "byteLength": 4,
+              "byteOffset": 272,
+              "lineNumber": 14,
+              "rangeSHA256": "b7f560303ee2cca55615b53fcff87c6ab2c55f9e71a6cea93c61b572213e7075",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "layout_span",
+            "sequence": 12,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 1,
+            "location": {
+              "byteLength": 6,
+              "byteOffset": 276,
+              "lineNumber": 14,
+              "rangeSHA256": "f4ff6230db63df2543ec34e011459db1650f68af974ce8ca0f915c442634144b",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "empty_span",
+            "sequence": 13,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 1,
+            "location": {
+              "byteLength": 2,
+              "byteOffset": 282,
+              "lineNumber": 15,
+              "rangeSHA256": "a2c4aed1cf757cd9a509734a267ffc7b1166b55f4c8f9c3e3550c56e743328fc",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "layout_span",
+            "sequence": 14,
+            "status": "inferred"
+          },
+          {
+            "action": "local_call",
+            "callDepth": 2,
+            "command": "sub",
+            "commandSHA256": "ddc6e2b224d0fd821669202258386936fc9ce2899e215eec6322b95f8dd96d6a",
+            "location": {
+              "byteLength": 34,
+              "byteOffset": 284,
+              "lineNumber": 15,
+              "rangeSHA256": "16133214db864ac166e558d672a4aba3ce561e7e9b2f7fd09b4e8f7bc85de544",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "command",
+            "sequence": 15,
+            "status": "inferred",
+            "target": {
+              "byteLength": 24,
+              "byteOffset": 976,
+              "lineNumber": 43,
+              "rangeSHA256": "bf6f77fcf1e82774a03407a6ab9f1c65de970a1cc9b706335d1e9af5e7622164",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            }
+          },
+          {
+            "action": "advance",
+            "callDepth": 2,
+            "location": {
+              "byteLength": 24,
+              "byteOffset": 976,
+              "lineNumber": 43,
+              "rangeSHA256": "bf6f77fcf1e82774a03407a6ab9f1c65de970a1cc9b706335d1e9af5e7622164",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "label",
+            "sequence": 16,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 2,
+            "location": {
+              "byteLength": 4,
+              "byteOffset": 1000,
+              "lineNumber": 44,
+              "rangeSHA256": "b7f560303ee2cca55615b53fcff87c6ab2c55f9e71a6cea93c61b572213e7075",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "layout_span",
+            "sequence": 17,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 2,
+            "location": {
+              "byteLength": 6,
+              "byteOffset": 1004,
+              "lineNumber": 44,
+              "rangeSHA256": "f4ff6230db63df2543ec34e011459db1650f68af974ce8ca0f915c442634144b",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "empty_span",
+            "sequence": 18,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 2,
+            "location": {
+              "byteLength": 2,
+              "byteOffset": 1010,
+              "lineNumber": 45,
+              "rangeSHA256": "a2c4aed1cf757cd9a509734a267ffc7b1166b55f4c8f9c3e3550c56e743328fc",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "layout_span",
+            "sequence": 19,
+            "status": "inferred"
+          },
+          {
+            "action": "module_call",
+            "callDepth": 3,
+            "command": "sub",
+            "commandSHA256": "ddc6e2b224d0fd821669202258386936fc9ce2899e215eec6322b95f8dd96d6a",
+            "location": {
+              "byteLength": 76,
+              "byteOffset": 1012,
+              "lineNumber": 45,
+              "rangeSHA256": "3c8f1ab8e60afa006342a0204663c63967817964592c55662d2c349f42bd7dae",
+              "sourceFile": "data0.pack/startup.s",
+              "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+            },
+            "recordType": "command",
+            "sequence": 20,
+            "status": "inferred",
+            "target": {
+              "byteLength": 36,
+              "byteOffset": 18,
+              "lineNumber": 5,
+              "rangeSHA256": "70de84d42de2e7fdce85d2550d096c19c002aa7ae1d27034788dc23fec649239",
+              "sourceFile": "data8.pack/misc/value.s",
+              "sourceSHA256": "2d4b82b51e9bf8f0a0cb24605c44f3ecad0efa773ae02a0077603be63b03c9e5"
+            }
+          },
+          {
+            "action": "advance",
+            "callDepth": 3,
+            "location": {
+              "byteLength": 36,
+              "byteOffset": 18,
+              "lineNumber": 5,
+              "rangeSHA256": "70de84d42de2e7fdce85d2550d096c19c002aa7ae1d27034788dc23fec649239",
+              "sourceFile": "data8.pack/misc/value.s",
+              "sourceSHA256": "2d4b82b51e9bf8f0a0cb24605c44f3ecad0efa773ae02a0077603be63b03c9e5"
+            },
+            "recordType": "label",
+            "sequence": 21,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 3,
+            "location": {
+              "byteLength": 4,
+              "byteOffset": 54,
+              "lineNumber": 6,
+              "rangeSHA256": "b7f560303ee2cca55615b53fcff87c6ab2c55f9e71a6cea93c61b572213e7075",
+              "sourceFile": "data8.pack/misc/value.s",
+              "sourceSHA256": "2d4b82b51e9bf8f0a0cb24605c44f3ecad0efa773ae02a0077603be63b03c9e5"
+            },
+            "recordType": "layout_span",
+            "sequence": 22,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 3,
+            "location": {
+              "byteLength": 12,
+              "byteOffset": 58,
+              "lineNumber": 6,
+              "rangeSHA256": "f11987bc272916f3144deef7eb48a878676f8bd51e6f486ee723108cd45c832c",
+              "sourceFile": "data8.pack/misc/value.s",
+              "sourceSHA256": "2d4b82b51e9bf8f0a0cb24605c44f3ecad0efa773ae02a0077603be63b03c9e5"
+            },
+            "recordType": "empty_span",
+            "sequence": 23,
+            "status": "inferred"
+          },
+          {
+            "action": "advance",
+            "callDepth": 3,
+            "location": {
+              "byteLength": 2,
+              "byteOffset": 70,
+              "lineNumber": 8,
+              "rangeSHA256": "a2c4aed1cf757cd9a509734a267ffc7b1166b55f4c8f9c3e3550c56e743328fc",
+              "sourceFile": "data8.pack/misc/value.s",
+              "sourceSHA256": "2d4b82b51e9bf8f0a0cb24605c44f3ecad0efa773ae02a0077603be63b03c9e5"
+            },
+            "recordType": "layout_span",
+            "sequence": 24,
+            "status": "inferred"
+          },
+          {
+            "action": "stop",
+            "callDepth": 3,
+            "command": "var",
+            "commandSHA256": "c86872dc97dd35aabbbd845130a5fcd6262d80a5c0da34e11e6411efd1e837e9",
+            "location": {
+              "byteLength": 24,
+              "byteOffset": 72,
+              "lineNumber": 8,
+              "rangeSHA256": "0381a2d7223c2305d5f3712ab0705f47215ce7be743dc973fa7feb29419fdb47",
+              "sourceFile": "data8.pack/misc/value.s",
+              "sourceSHA256": "2d4b82b51e9bf8f0a0cb24605c44f3ecad0efa773ae02a0077603be63b03c9e5"
+            },
+            "reason": "declaration_type_outside_int_profile",
+            "recordType": "command",
+            "sequence": 25,
+            "status": "unsupported"
+          }
+        ],
+        "variableCounts": {
+          "all_local_frames": 0,
+          "global": 0,
+          "system": 1
+        }
+      }
+    }
+  ],
+  "original_engine_equivalence": "not_tested",
+  "original_package_winner": "not_tested",
+  "full_game_compatibility": "not_tested",
+  "original_files_written": false,
+  "external_game_data_uploads": false,
+  "commercial_text_in_public_report": false
+}

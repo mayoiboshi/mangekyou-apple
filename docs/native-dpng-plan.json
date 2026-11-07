@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Selected DPNG load, row fill and pixel-copy paths only; original renderer never executed",
+  "queries": [
+    {
+      "name": "bitmap-loader",
+      "operation": "procedure_pseudo_code",
+      "address": "0x54dfb8"
+    },
+    {
+      "name": "bitmap-loader-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x54dfb8"
+    },
+    {
+      "name": "bitmap-load-stream",
+      "operation": "procedure_pseudo_code",
+      "address": "0x535a9c"
+    },
+    {
+      "name": "bitmap-load-stream-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x535a9c"
+    },
+    {
+      "name": "dpng-dispatch",
+      "operation": "procedure_pseudo_code",
+      "address": "0x530890"
+    },
+    {
+      "name": "dpng-dispatch-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x530890"
+    },
+    {
+      "name": "tile-work",
+      "operation": "procedure_pseudo_code",
+      "address": "0x530854"
+    },
+    {
+      "name": "tile-work-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x530854"
+    },
+    {
+      "name": "row-fill-gate",
+      "operation": "procedure_pseudo_code",
+      "address": "0x53077c"
+    },
+    {
+      "name": "row-fill-gate-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x53077c"
+    },
+    {
+      "name": "row-fill",
+      "operation": "procedure_pseudo_code",
+      "address": "0x530388"
+    },
+    {
+      "name": "row-fill-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x530388"
+    },
+    {
+      "name": "tile-decode",
+      "operation": "procedure_pseudo_code",
+      "address": "0x5307a8"
+    },
+    {
+      "name": "tile-decode-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x5307a8"
+    },
+    {
+      "name": "rgba-copy",
+      "operation": "procedure_pseudo_code",
+      "address": "0x530418"
+    },
+    {
+      "name": "rgba-copy-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x530418"
+    },
+    {
+      "name": "rgb-copy",
+      "operation": "procedure_pseudo_code",
+      "address": "0x53054c"
+    },
+    {
+      "name": "rgb-copy-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x53054c"
+    },
+    {
+      "name": "fallback-copy",
+      "operation": "procedure_pseudo_code",
+      "address": "0x530648"
+    },
+    {
+      "name": "fallback-copy-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x530648"
+    },
+    {
+      "name": "row-callback-owner",
+      "operation": "resolve_containing_procedure",
+      "address": "0x532694"
+    },
+    {
+      "name": "size-callback-owner",
+      "operation": "resolve_containing_procedure",
+      "address": "0x53269c"
+    }
+  ]
+}

@@ -1,0 +1,148 @@
+{
+  "status": "inferred",
+  "authority": "analyst-inference",
+  "target_executed": false,
+  "program_bytes_patched": false,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Ephemeral database flow override experiment; not original execution or unmodified REA Evidence",
+  "functions": [
+    {
+      "name": "precedence",
+      "source_memory_sha256": "b335c222e8752c20ee0c7cf82b1fb068d28246a9c120e9117945bb9d836cadc5",
+      "metadata_overrides": [
+        {
+          "address": "0069b9cc",
+          "before": "NONE",
+          "after": "BRANCH",
+          "continuation_push": "0069b9ba",
+          "analyst_single_target": "0069b9d4",
+          "target_model_status": "inferred"
+        }
+      ],
+      "memory_unchanged": true,
+      "memory_sha256_after": "b335c222e8752c20ee0c7cf82b1fb068d28246a9c120e9117945bb9d836cadc5",
+      "status": "verified",
+      "baseline": {
+        "status": "verified",
+        "error": "",
+        "body_min": "0069b684",
+        "body_max": "0069b9cc",
+        "body_bytes": 841,
+        "pseudocode_characters": 6486,
+        "pseudocode_sha256": "e391cc8e4ec4cf99cbff0c2d417447ad1ef3ca1a2825e799ea1dc07676666d28",
+        "unresolved_jump_markers": 0,
+        "has_value_return": false
+      },
+      "variant": {
+        "status": "verified",
+        "error": "",
+        "body_min": "0069b684",
+        "body_max": "0069b9dd",
+        "body_bytes": 851,
+        "pseudocode_characters": 6631,
+        "pseudocode_sha256": "f7221ee4aca4fdfd517863c055ed217ffd70bc3728be24b4fa2db963039f4c1e",
+        "unresolved_jump_markers": 0,
+        "has_value_return": true
+      }
+    },
+    {
+      "name": "tokenizer",
+      "source_memory_sha256": "70dc8635fddbea129a9b9ffae00ccc1f9c1c7359537ce5daa89ca50a0bcc167c",
+      "metadata_overrides": [
+        {
+          "address": "0069ce83",
+          "before": "NONE",
+          "after": "BRANCH",
+          "continuation_push": "0069ce61",
+          "analyst_single_target": "0069ce8b",
+          "target_model_status": "inferred"
+        }
+      ],
+      "memory_unchanged": true,
+      "memory_sha256_after": "70dc8635fddbea129a9b9ffae00ccc1f9c1c7359537ce5daa89ca50a0bcc167c",
+      "status": "verified",
+      "baseline": {
+        "status": "verified",
+        "error": "",
+        "body_min": "0069c600",
+        "body_max": "0069ce83",
+        "body_bytes": 2144,
+        "pseudocode_characters": 18879,
+        "pseudocode_sha256": "d1bda23c140a848257e4ca4115bdf1f49848b0c70e687143a1999272faa70f49",
+        "unresolved_jump_markers": 0,
+        "has_value_return": false
+      },
+      "variant": {
+        "status": "verified",
+        "error": "",
+        "body_min": "0069c600",
+        "body_max": "0069ce93",
+        "body_bytes": 2153,
+        "pseudocode_characters": 19081,
+        "pseudocode_sha256": "375e33a8864218f9f2b5cf7e67394ea8df3a9071db0327ed55525d4fcc249606",
+        "unresolved_jump_markers": 0,
+        "has_value_return": true
+      }
+    },
+    {
+      "name": "reducer",
+      "source_memory_sha256": "60f6181485417c643a2716fa1a9837416c16dd75896afa118ac7c8ebdef92f0a",
+      "metadata_overrides": [
+        {
+          "address": "0069b664",
+          "before": "NONE",
+          "after": "BRANCH",
+          "continuation_push": "0069b652",
+          "analyst_single_target": "0069b66c",
+          "target_model_status": "inferred"
+        }
+      ],
+      "memory_unchanged": true,
+      "memory_sha256_after": "60f6181485417c643a2716fa1a9837416c16dd75896afa118ac7c8ebdef92f0a",
+      "status": "verified",
+      "baseline": {
+        "status": "verified",
+        "error": "",
+        "body_min": "0069b580",
+        "body_max": "0069b664",
+        "body_bytes": 229,
+        "pseudocode_characters": 1785,
+        "pseudocode_sha256": "b76e531dc7b1a2e371f10c4ec4d8d0c796d8470698b93e153cf73d3fb86bdcc7",
+        "unresolved_jump_markers": 0,
+        "has_value_return": false
+      },
+      "variant": {
+        "status": "verified",
+        "error": "",
+        "body_min": "0069b580",
+        "body_max": "0069b672",
+        "body_bytes": 236,
+        "pseudocode_characters": 1900,
+        "pseudocode_sha256": "2f9d10c6267c7ec25401da3d9da40a940632ae2638aa7c726da11bea7a0936ca",
+        "unresolved_jump_markers": 0,
+        "has_value_return": false
+      }
+    }
+  ],
+  "schema_version": 1,
+  "experiment_status": "verified",
+  "dataset": "real",
+  "decompiler_model_recovery": "verified",
+  "expected_value_returns": {
+    "precedence": true,
+    "tokenizer": true,
+    "reducer": false
+  },
+  "error": null,
+  "game_execution": "not_tested",
+  "original_files_written": false,
+  "target_semantic_equivalence": "not_tested",
+  "script_sha256": "ccbeb1106b70cc659c3eb779563a70c15f7b7842535d2a36b39262b9539cddd1",
+  "limitations": [
+    "Only selected normal-flow hypotheses in a disposable analysis database",
+    "Real-program overrides are analyst inference, not original execution or unmodified REA output",
+    "Synthetic success does not verify game behavior or arbitrary Delphi exception paths"
+  ],
+  "source_file": "美少女万華鏡４.exe",
+  "original_sha256_after": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5"
+}

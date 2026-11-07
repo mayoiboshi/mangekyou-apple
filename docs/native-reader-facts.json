@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "选定片段读取、行前缀和 dbrk 局部分派证据；默认覆盖缺口明确保留",
+  "facts": [
+    {
+      "id": "generic_handled_default",
+      "status": "verified",
+      "evidence": "generic-dispatch-assembly",
+      "start": "0x6af542",
+      "end": "0x6af546",
+      "observation": "通用分派在选定入口将局部处理标志置为 1。",
+      "scope": "所列指令及顺序；不是完整正文处理或 dbrk 执行证明",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6af542: MOV byte ptr [EBP + -0x31], 0x1"
+      ],
+      "unknown": [
+        "完整执行语义 not_tested"
+      ]
+    },
+    {
+      "id": "dbrk_branch_to_handled_tail",
+      "status": "verified",
+      "evidence": "generic-dispatch-assembly",
+      "start": "0x6b08d1",
+      "end": "0x6b08e1",
+      "observation": "dbrk 编号的相等分支直接跳至共享尾部；这里只观察该局部分支。",
+      "scope": "所列指令及顺序；不是完整正文处理或 dbrk 执行证明",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6b08d1: MOV EAX, dword ptr [EBP + -0x30]",
+        "0x6b08d4: CMP EAX, 0x6b726264",
+        "0x6b08d9: JG 0x006b0941",
+        "0x6b08db: JZ 0x006b1a8e"
+      ],
+      "unknown": [
+        "完整执行语义 not_tested"
+      ]
+    },
+    {
+      "id": "generic_handled_tail_gate",
+      "status": "verified",
+      "evidence": "generic-dispatch-assembly",
+      "start": "0x6b1a8e",
+      "end": "0x6b1a98",
+      "observation": "共享尾部检查处理标志；非零时跳向清理路径。",
+      "scope": "所列指令及顺序；不是完整正文处理或 dbrk 执行证明",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6b1a8e: CMP byte ptr [EBP + -0x31], 0x0",
+        "0x6b1a92: JNZ 0x006b1dbc"
+      ],
+      "unknown": [
+        "完整执行语义 not_tested"
+      ]
+    },
+    {
+      "id": "reader_quote_delimiter_checks",
+      "status": "verified",
+      "evidence": "chunk-reader-assembly",
+      "start": "0x695b14",
+      "end": "0x695b3c",
+      "observation": "片段扫描路径比较引号和反斜线，切换局部引号标志并将分隔符计数与 2 比较。",
+      "scope": "所列指令及顺序；不是完整正文处理或 dbrk 执行证明",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x695b14: CMP dword ptr [EBP + -0x1c], 0x0",
+        "0x695b1a: CMP AX, 0x22",
+        "0x695b20: XOR dword ptr [EBP + -0x18], 0x1",
+        "0x695b24: CMP dword ptr [EBP + -0x18], 0x0",
+        "0x695b2a: CMP AX, 0x5c",
+        "0x695b30: INC dword ptr [EBP + -0x14]",
+        "0x695b33: CMP dword ptr [EBP + -0x14], 0x2"
+      ],
+      "unknown": [
+        "完整执行语义 not_tested"
+      ]
+    },
+    {
+      "id": "reader_label_gate_and_output",
+      "status": "verified",
+      "evidence": "chunk-reader-assembly",
+      "start": "0x695b5b",
+      "end": "0x695bfe",
+      "observation": "非零输入标志绕过中间标签状态更新，仍到达输出字符串赋值调用。",
+      "scope": "所列指令及顺序；不是完整正文处理或 dbrk 执行证明",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x695b5b: CMP byte ptr [EBP + -0x5], 0x0",
+        "0x695b5f: JNZ 0x00695bf3",
+        "0x695beb: MOV dword ptr [EBX + 0x1c], EAX",
+        "0x695bf0: MOV dword ptr [EBX + 0x20], EAX",
+        "0x695bf3: MOV EAX, dword ptr [EBP + -0xd]",
+        "0x695bf9: CALL 0x00407460"
+      ],
+      "unknown": [
+        "完整执行语义 not_tested"
+      ]
+    },
+    {
+      "id": "line_advance_load",
+      "status": "verified",
+      "evidence": "line-advance-assembly",
+      "start": "0x695c24",
+      "end": "0x695c32",
+      "observation": "递增两个位置相关字段后，以第三参数零调用行加载函数。",
+      "scope": "所列指令及顺序；不是完整正文处理或 dbrk 执行证明",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x695c24: INC dword ptr [EAX + 0x20]",
+        "0x695c2a: INC EDX",
+        "0x695c2b: XOR ECX, ECX",
+        "0x695c2d: CALL 0x0069630c"
+      ],
+      "unknown": [
+        "完整执行语义 not_tested"
+      ]
+    },
+    {
+      "id": "line_preprocessor_order",
+      "status": "verified",
+      "evidence": "line-loader-assembly",
+      "start": "0x6963dc",
+      "end": "0x6963fa",
+      "observation": "一项局部标志控制两个预处理调用；两个调用按所列顺序出现。",
+      "scope": "所列指令及顺序；不是完整正文处理或 dbrk 执行证明",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6963dc: CMP byte ptr [EBP + -0xa], 0x0",
+        "0x6963e0: JZ 0x006964f0",
+        "0x6963eb: CALL 0x0069687c",
+        "0x6963f5: CALL 0x00695ce4"
+      ],
+      "unknown": [
+        "完整执行语义 not_tested"
+      ]
+    },
+    {
+      "id": "line_prefix_exclusions",
+      "status": "verified",
+      "evidence": "line-loader-assembly",
+      "start": "0x696435",
+      "end": "0x6964e2",
+      "observation": "前缀判定链中依次出现反斜线、空格、制表符、斜线和 @ 的首单元比较。",
+      "scope": "所列指令及顺序；不是完整正文处理或 dbrk 执行证明",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x696435: CMP word ptr [EAX], 0x5c",
+        "0x696458: CMP word ptr [EAX], 0x20",
+        "0x696484: CMP word ptr [EAX], 0x9",
+        "0x6964b0: CMP word ptr [EAX], 0x2f",
+        "0x6964dc: CMP word ptr [EAX], 0x40"
+      ],
+      "unknown": [
+        "完整执行语义 not_tested"
+      ]
+    },
+    {
+      "id": "line_prefix_field",
+      "status": "verified",
+      "evidence": "line-loader-assembly",
+      "start": "0x6964e2",
+      "end": "0x6964f0",
+      "observation": "一条路径将对象 +0x2c 与当前字符串传给拼接候选函数；实际配置内容尚未追溯。",
+      "scope": "所列指令及顺序；不是完整正文处理或 dbrk 执行证明",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6964e2: LEA EAX, [EBP + -0x4]",
+        "0x6964e5: MOV ECX, dword ptr [EBP + -0x4]",
+        "0x6964e8: MOV EDX, dword ptr [EBX + 0x2c]",
+        "0x6964eb: CALL 0x00407934"
+      ],
+      "unknown": [
+        "完整执行语义 not_tested"
+      ]
+    }
+  ],
+  "inferred_contracts": [
+    {
+      "id": "dbrk_local_handled_candidate",
+      "status": "inferred",
+      "meaning": "选定通用分派中的 dbrk 走共享尾部，没有独立处理体；外层是否另有影响仍未验证。"
+    },
+    {
+      "id": "reader_flag_not_blanket_text_drop",
+      "status": "inferred",
+      "meaning": "片段读取的输入标志绕过标签跟踪而仍返回字符串，不能把该标志解释成丢弃整段正文。"
+    },
+    {
+      "id": "line_preprocessing_before_dispatch",
+      "status": "inferred",
+      "meaning": "原始行经过预处理及可配置前缀路径后才供片段读取与命令分派使用；完整规则和前缀配置未验证。"
+    },
+    {
+      "id": "default_coverage_is_partial",
+      "status": "inferred",
+      "meaning": "额外 E8 字节候选及独立窗口揭示默认函数覆盖缺口；候选不能直接升级为完整调用图。"
+    }
+  ]
+}

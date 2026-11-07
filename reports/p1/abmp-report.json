@@ -1,0 +1,2764 @@
+{
+  "schema_version": 1,
+  "dataset": "real",
+  "status": "verified",
+  "scope": "Existing P0 samples only; container boundaries and bounded member decoding, not animation semantics",
+  "files": 9,
+  "items": [
+    {
+      "source_file": "data0.pack/system/etc/debugskip.b",
+      "origin": {
+        "archive": "GameData/data0.pack",
+        "index": 3,
+        "offset": 5293,
+        "archive_sha256": "53f84595e304a757bd6ef9e590e6c8a74e198ca8420232d586aef900514d3d74"
+      },
+      "status": "verified",
+      "container_sha256": "047f6280a7c279f295601c2c49afa7c159699d4e22f7a8a4c96da40665c6c5a9",
+      "container_chain": [],
+      "signature": "abmp12",
+      "members": [
+        {
+          "name": "data_000.bin",
+          "name_is_upstream_format_hint": true,
+          "type_code": null,
+          "raw_bytes_reference": {
+            "container_sha256": "047f6280a7c279f295601c2c49afa7c159699d4e22f7a8a4c96da40665c6c5a9",
+            "offset": 36,
+            "length": 205,
+            "sha256": "373ee9708d478a07949973a9bee61c3f8f9c3575d133497fb121c4e351751e8a"
+          },
+          "compressed": true,
+          "decoded_size": 735,
+          "decoded_sha256": "95189829c95bd35ca78f56bbe5732714b053c5850ea68e35e2935ad513effed9",
+          "format": "Unknown",
+          "signature_status": "verified",
+          "content_decode_status": "unsupported",
+          "signature_hex": "06004e6f4e616d650100000020030000",
+          "destination_name_status": "verified"
+        },
+        {
+          "name": "Skip.png",
+          "name_is_upstream_format_hint": true,
+          "type_code": 0,
+          "raw_bytes_reference": {
+            "container_sha256": "047f6280a7c279f295601c2c49afa7c159699d4e22f7a8a4c96da40665c6c5a9",
+            "offset": 363,
+            "length": 4231,
+            "sha256": "27229f59d9f69c2702f0cbcadd2bcca9e77074ca020784f33277ef34624c6bd4"
+          },
+          "compressed": false,
+          "decoded_size": 4231,
+          "decoded_sha256": "27229f59d9f69c2702f0cbcadd2bcca9e77074ca020784f33277ef34624c6bd4",
+          "format": "PNG",
+          "signature_status": "verified",
+          "content_decode_status": "verified",
+          "signature_hex": "89504e470d0a1a0a0000000d49484452",
+          "destination_name_status": "verified",
+          "width": 62,
+          "height": 59,
+          "mode": "RGBA",
+          "rgba_sha256": "4092784e0a8700443b9fc436bdbb753312b399fd7af61d29498fdacea330fb77"
+        }
+      ],
+      "tags": [
+        {
+          "offset": 16,
+          "length": 16,
+          "tag": "abdata13"
+        },
+        {
+          "offset": 241,
+          "length": 16,
+          "tag": "abimage10"
+        },
+        {
+          "offset": 258,
+          "length": 16,
+          "tag": "abimgdat13"
+        },
+        {
+          "offset": 4594,
+          "length": 16,
+          "tag": "absound10"
+        },
+        {
+          "offset": 4611,
+          "length": 16,
+          "tag": "absnddat11"
+        }
+      ],
+      "unknown_spans": [
+        {
+          "offset": 282,
+          "length": 64,
+          "sha256": "591e100482f4e9a8d6290d3ab16ca46ae10046fa92caaa7643ccfb52ca25b016",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 346,
+          "length": 12,
+          "sha256": "43c7af85dc86601c0ca09481f66212051051d3fecc94363fe1f0522d74fd2a2b",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 4631,
+          "length": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "meaning": "not_tested"
+        }
+      ],
+      "resource_versions": [],
+      "errors": [],
+      "animation_semantics": "not_tested",
+      "bytes_consumed": 4636,
+      "total_budget_bytes": 4966,
+      "total_budget_members": 2,
+      "upstream_commit": "531694715df21a9940578f4319d246ac8aa794de"
+    },
+    {
+      "source_file": "data3.pack/画像/effect/c_笑う夕摩変化.b",
+      "origin": {
+        "archive": "GameData/data3.pack",
+        "index": 149,
+        "offset": 184831360,
+        "archive_sha256": "47053b06b036ad58d4bea6c5465f952c617da1561b4a2fce59a71633fea13409"
+      },
+      "status": "verified",
+      "container_sha256": "314b88ba61c071017ab1fc3494dc5e8eb4bfbbff03e040c6e8ab93b18465e1c5",
+      "container_chain": [],
+      "signature": "abmp12",
+      "members": [
+        {
+          "name": "data_000.bin",
+          "name_is_upstream_format_hint": true,
+          "type_code": null,
+          "raw_bytes_reference": {
+            "container_sha256": "314b88ba61c071017ab1fc3494dc5e8eb4bfbbff03e040c6e8ab93b18465e1c5",
+            "offset": 36,
+            "length": 249,
+            "sha256": "7ca5e93a8391ad86c8b2751701cced0a6d2dd9dc29c736aa36b4486ce14bb6b1"
+          },
+          "compressed": true,
+          "decoded_size": 2317,
+          "decoded_sha256": "3f6bb4ff8116bb4efd11d74ee727c901b03357569a3c3e7bd43ed2e4cda1f038",
+          "format": "Unknown",
+          "signature_status": "verified",
+          "content_decode_status": "unsupported",
+          "signature_hex": "06004e006f004e0061006d0065000100",
+          "destination_name_status": "verified"
+        }
+      ],
+      "tags": [
+        {
+          "offset": 16,
+          "length": 16,
+          "tag": "abdata14"
+        },
+        {
+          "offset": 285,
+          "length": 16,
+          "tag": "abimage10"
+        },
+        {
+          "offset": 302,
+          "length": 16,
+          "tag": "abimgdat15"
+        },
+        {
+          "offset": 348,
+          "length": 16,
+          "tag": "absound10"
+        },
+        {
+          "offset": 365,
+          "length": 16,
+          "tag": "absnddat12"
+        }
+      ],
+      "unknown_spans": [
+        {
+          "offset": 327,
+          "length": 17,
+          "sha256": "26b33937acf45047275d2f926e4cc354261c25acfeb91f2862356ce3fa4355a3",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 387,
+          "length": 7,
+          "sha256": "5de16aef7fb6985446959d10ab9984ed7c1d9d05db7277410184084add4518d6",
+          "meaning": "not_tested"
+        }
+      ],
+      "resource_versions": [
+        {
+          "tag": "abimgdat15",
+          "offset": 318,
+          "raw_u32": 1,
+          "meaning": "not_tested",
+          "variant_status": "inferred"
+        },
+        {
+          "tag": "absnddat12",
+          "offset": 381,
+          "raw_u32": 1,
+          "meaning": "not_tested",
+          "variant_status": "inferred"
+        }
+      ],
+      "errors": [],
+      "animation_semantics": "not_tested",
+      "bytes_consumed": 394,
+      "total_budget_bytes": 2317,
+      "total_budget_members": 1,
+      "upstream_commit": "531694715df21a9940578f4319d246ac8aa794de"
+    },
+    {
+      "source_file": "data4.pack/立ち絵/motion/ext_basicset.b",
+      "origin": {
+        "archive": "GameData/data4.pack",
+        "index": 191,
+        "offset": 13728427,
+        "archive_sha256": "6dbfa65c8eb9c701ab546a125d82fcbbcfd5ff173c3c263f69d8111117ee2ccf"
+      },
+      "status": "verified",
+      "container_sha256": "bc57a36db245b73d43dd71bbb7ee41ca3fa79c2f68eefd70b121f51cd3399cdf",
+      "container_chain": [],
+      "signature": "abmp12",
+      "members": [
+        {
+          "name": "data_000.bin",
+          "name_is_upstream_format_hint": true,
+          "type_code": null,
+          "raw_bytes_reference": {
+            "container_sha256": "bc57a36db245b73d43dd71bbb7ee41ca3fa79c2f68eefd70b121f51cd3399cdf",
+            "offset": 36,
+            "length": 781,
+            "sha256": "19ba62fc904b5476b83da2268e60472d3b7b5083ec2cbd5704a1449eef6c5980"
+          },
+          "compressed": true,
+          "decoded_size": 14520,
+          "decoded_sha256": "38deb69f723d1bb6137d2c0ae38e43186d76c76622861ef52d796bb36d71cbf5",
+          "format": "Unknown",
+          "signature_status": "verified",
+          "content_decode_status": "unsupported",
+          "signature_hex": "06004e6f4e616d650100000000000000",
+          "destination_name_status": "verified"
+        },
+        {
+          "name": "怒り.b",
+          "name_is_upstream_format_hint": true,
+          "type_code": 35,
+          "raw_bytes_reference": {
+            "container_sha256": "bc57a36db245b73d43dd71bbb7ee41ca3fa79c2f68eefd70b121f51cd3399cdf",
+            "offset": 1040,
+            "length": 9790,
+            "sha256": "fae676b9ac36b871ea37a9b957842277dd0971bc0b35dcb00baf6d5eab132b41"
+          },
+          "compressed": false,
+          "decoded_size": 9790,
+          "decoded_sha256": "fae676b9ac36b871ea37a9b957842277dd0971bc0b35dcb00baf6d5eab132b41",
+          "format": "ABMP-candidate",
+          "signature_status": "verified",
+          "content_decode_status": "not_tested",
+          "signature_hex": "61626d70313200000000000000000000",
+          "destination_name_status": "verified",
+          "nested": {
+            "status": "verified",
+            "container_sha256": "fae676b9ac36b871ea37a9b957842277dd0971bc0b35dcb00baf6d5eab132b41",
+            "container_chain": [
+              {
+                "name": "怒り.b",
+                "decoded_parent_sha256": "fae676b9ac36b871ea37a9b957842277dd0971bc0b35dcb00baf6d5eab132b41",
+                "parent_raw_reference": {
+                  "container_sha256": "bc57a36db245b73d43dd71bbb7ee41ca3fa79c2f68eefd70b121f51cd3399cdf",
+                  "offset": 1040,
+                  "length": 9790,
+                  "sha256": "fae676b9ac36b871ea37a9b957842277dd0971bc0b35dcb00baf6d5eab132b41"
+                }
+              }
+            ],
+            "signature": "abmp12",
+            "members": [
+              {
+                "name": "data_000.bin",
+                "name_is_upstream_format_hint": true,
+                "type_code": null,
+                "raw_bytes_reference": {
+                  "container_sha256": "fae676b9ac36b871ea37a9b957842277dd0971bc0b35dcb00baf6d5eab132b41",
+                  "offset": 36,
+                  "length": 1266,
+                  "sha256": "799e4a99d948dda171887af21b8948308ce5e2b963610b575dc2d1ed838229aa"
+                },
+                "compressed": true,
+                "decoded_size": 32777,
+                "decoded_sha256": "09a47ce4143d1ac9ad4b99768baa42a1f93c9c13bce167cf9049ba4225631041",
+                "format": "Unknown",
+                "signature_status": "verified",
+                "content_decode_status": "unsupported",
+                "signature_hex": "06004e6f4e616d650100000000000000",
+                "destination_name_status": "verified"
+              },
+              {
+                "name": "怒り_1.png",
+                "name_is_upstream_format_hint": true,
+                "type_code": 35,
+                "raw_bytes_reference": {
+                  "container_sha256": "fae676b9ac36b871ea37a9b957842277dd0971bc0b35dcb00baf6d5eab132b41",
+                  "offset": 1498,
+                  "length": 8149,
+                  "sha256": "8524a53a8bf90a44b34b76a299678297d376a7ab7604e5a760c6de6a6bf750f2"
+                },
+                "compressed": false,
+                "decoded_size": 8149,
+                "decoded_sha256": "8524a53a8bf90a44b34b76a299678297d376a7ab7604e5a760c6de6a6bf750f2",
+                "format": "PNG",
+                "signature_status": "verified",
+                "content_decode_status": "verified",
+                "signature_hex": "89504e470d0a1a0a0000000d49484452",
+                "destination_name_status": "verified",
+                "width": 109,
+                "height": 120,
+                "mode": "RGBA",
+                "rgba_sha256": "934c942f78860950a72a87bf5fedc29d69ba7f47c387999a6a7f1dfa5ed895ec"
+              }
+            ],
+            "tags": [
+              {
+                "offset": 16,
+                "length": 16,
+                "tag": "abdata13"
+              },
+              {
+                "offset": 1302,
+                "length": 16,
+                "tag": "abimage10"
+              },
+              {
+                "offset": 1319,
+                "length": 16,
+                "tag": "abimgdat14"
+              },
+              {
+                "offset": 9647,
+                "length": 16,
+                "tag": "abimgdat14"
+              },
+              {
+                "offset": 9748,
+                "length": 16,
+                "tag": "absound10"
+              },
+              {
+                "offset": 9765,
+                "length": 16,
+                "tag": "absnddat11"
+              }
+            ],
+            "unknown_spans": [
+              {
+                "offset": 1345,
+                "length": 72,
+                "sha256": "71bf4a5a9bd59e9528899762796bc23eaa8a7255c6ba5e8a0e96c1120639f8ab",
+                "meaning": "not_tested"
+              },
+              {
+                "offset": 1417,
+                "length": 76,
+                "sha256": "9987fba6209a0070e842809a934f36d0cf1a483d07b16bc7bd2d16eeda18b5a3",
+                "meaning": "not_tested"
+              },
+              {
+                "offset": 9667,
+                "length": 0,
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "meaning": "not_tested"
+              },
+              {
+                "offset": 9667,
+                "length": 76,
+                "sha256": "9987fba6209a0070e842809a934f36d0cf1a483d07b16bc7bd2d16eeda18b5a3",
+                "meaning": "not_tested"
+              },
+              {
+                "offset": 9785,
+                "length": 0,
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "meaning": "not_tested"
+              }
+            ],
+            "resource_versions": [],
+            "errors": [],
+            "animation_semantics": "not_tested",
+            "bytes_consumed": 9790,
+            "total_budget_bytes": 115530,
+            "total_budget_members": 10
+          }
+        },
+        {
+          "name": "発見.b",
+          "name_is_upstream_format_hint": true,
+          "type_code": 0,
+          "raw_bytes_reference": {
+            "container_sha256": "bc57a36db245b73d43dd71bbb7ee41ca3fa79c2f68eefd70b121f51cd3399cdf",
+            "offset": 10935,
+            "length": 14876,
+            "sha256": "c8714debd54d7439040b3549e05910b113b33554613db6838932e2fcb1f0720b"
+          },
+          "compressed": false,
+          "decoded_size": 14876,
+          "decoded_sha256": "c8714debd54d7439040b3549e05910b113b33554613db6838932e2fcb1f0720b",
+          "format": "ABMP-candidate",
+          "signature_status": "verified",
+          "content_decode_status": "not_tested",
+          "signature_hex": "61626d70313200000000000000000000",
+          "destination_name_status": "verified",
+          "nested": {
+            "status": "verified",
+            "container_sha256": "c8714debd54d7439040b3549e05910b113b33554613db6838932e2fcb1f0720b",
+            "container_chain": [
+              {
+                "name": "発見.b",
+                "decoded_parent_sha256": "c8714debd54d7439040b3549e05910b113b33554613db6838932e2fcb1f0720b",
+                "parent_raw_reference": {
+                  "container_sha256": "bc57a36db245b73d43dd71bbb7ee41ca3fa79c2f68eefd70b121f51cd3399cdf",
+                  "offset": 10935,
+                  "length": 14876,
+                  "sha256": "c8714debd54d7439040b3549e05910b113b33554613db6838932e2fcb1f0720b"
+                }
+              }
+            ],
+            "signature": "abmp12",
+            "members": [
+              {
+                "name": "data_000.bin",
+                "name_is_upstream_format_hint": true,
+                "type_code": null,
+                "raw_bytes_reference": {
+                  "container_sha256": "c8714debd54d7439040b3549e05910b113b33554613db6838932e2fcb1f0720b",
+                  "offset": 36,
+                  "length": 1080,
+                  "sha256": "8ceb111caf3d9a945363f4bd2040fbb23da8a6af9cec2969c02fb431e2173c4c"
+                },
+                "compressed": true,
+                "decoded_size": 22190,
+                "decoded_sha256": "698d4ade563dea11c5c04119b78e88bc4d5b5a665f9946019aa995ba26431fbe",
+                "format": "Unknown",
+                "signature_status": "verified",
+                "content_decode_status": "unsupported",
+                "signature_hex": "06004e6f4e616d650100000000000000",
+                "destination_name_status": "verified"
+              },
+              {
+                "name": "喜びアニメ_1.png",
+                "name_is_upstream_format_hint": true,
+                "type_code": 0,
+                "raw_bytes_reference": {
+                  "container_sha256": "c8714debd54d7439040b3549e05910b113b33554613db6838932e2fcb1f0720b",
+                  "offset": 1318,
+                  "length": 6841,
+                  "sha256": "a4cfca26c4a55d49683025b74a512a150bade3c90b81f722791ae1d2dcd25714"
+                },
+                "compressed": false,
+                "decoded_size": 6841,
+                "decoded_sha256": "a4cfca26c4a55d49683025b74a512a150bade3c90b81f722791ae1d2dcd25714",
+                "format": "PNG",
+                "signature_status": "verified",
+                "content_decode_status": "verified",
+                "signature_hex": "89504e470d0a1a0a0000000d49484452",
+                "destination_name_status": "verified",
+                "width": 117,
+                "height": 113,
+                "mode": "RGBA",
+                "rgba_sha256": "8fb60018ec9c657bd00d040ead66e06be82d7c632d82d54b86c34722f2b01bb4"
+              },
+              {
+                "name": "喜びアニメ_2.png",
+                "name_is_upstream_format_hint": true,
+                "type_code": 0,
+                "raw_bytes_reference": {
+                  "container_sha256": "c8714debd54d7439040b3549e05910b113b33554613db6838932e2fcb1f0720b",
+                  "offset": 8344,
+                  "length": 6490,
+                  "sha256": "2c0f11a85a7865d69e1ba43d856fca40b47f8ce6dfb1d4566c5ac463ae6f54e9"
+                },
+                "compressed": false,
+                "decoded_size": 6490,
+                "decoded_sha256": "2c0f11a85a7865d69e1ba43d856fca40b47f8ce6dfb1d4566c5ac463ae6f54e9",
+                "format": "PNG",
+                "signature_status": "verified",
+                "content_decode_status": "verified",
+                "signature_hex": "89504e470d0a1a0a0000000d49484452",
+                "destination_name_status": "verified",
+                "width": 117,
+                "height": 113,
+                "mode": "RGBA",
+                "rgba_sha256": "d6328f7436ff64eab6d1563df09b744f9f4149a7cf0b461a88ae4f5cbbd5cfed"
+              }
+            ],
+            "tags": [
+              {
+                "offset": 16,
+                "length": 16,
+                "tag": "abdata13"
+              },
+              {
+                "offset": 1116,
+                "length": 16,
+                "tag": "abimage10"
+              },
+              {
+                "offset": 1133,
+                "length": 16,
+                "tag": "abimgdat14"
+              },
+              {
+                "offset": 8159,
+                "length": 16,
+                "tag": "abimgdat14"
+              },
+              {
+                "offset": 14834,
+                "length": 16,
+                "tag": "absound10"
+              },
+              {
+                "offset": 14851,
+                "length": 16,
+                "tag": "absnddat11"
+              }
+            ],
+            "unknown_spans": [
+              {
+                "offset": 1165,
+                "length": 72,
+                "sha256": "ade41b4566883b30d01228a4404b0220e8923784ed8dac7f45f704c34a7b8fc2",
+                "meaning": "not_tested"
+              },
+              {
+                "offset": 1237,
+                "length": 76,
+                "sha256": "833292a12e1fb68472f96df2125e0188e1dad58e566cbb9fda418c5a95bdfa1a",
+                "meaning": "not_tested"
+              },
+              {
+                "offset": 8191,
+                "length": 72,
+                "sha256": "5e5e44caac0447c10a42f1ba2163a6ada59dbc3328ac2f1609d5edf8a13ab786",
+                "meaning": "not_tested"
+              },
+              {
+                "offset": 8263,
+                "length": 76,
+                "sha256": "032c6ee704503259863162f5db6b73c13c8e72e32a8f82fb922b8a717fee925a",
+                "meaning": "not_tested"
+              },
+              {
+                "offset": 14871,
+                "length": 0,
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "meaning": "not_tested"
+              }
+            ],
+            "resource_versions": [],
+            "errors": [],
+            "animation_semantics": "not_tested",
+            "bytes_consumed": 14876,
+            "total_budget_bytes": 151051,
+            "total_budget_members": 13
+          }
+        },
+        {
+          "name": "驚き.b",
+          "name_is_upstream_format_hint": true,
+          "type_code": 0,
+          "raw_bytes_reference": {
+            "container_sha256": "bc57a36db245b73d43dd71bbb7ee41ca3fa79c2f68eefd70b121f51cd3399cdf",
+            "offset": 25916,
+            "length": 11032,
+            "sha256": "1795e1aea488cf76891c6ed641243c9f959cb5317d7b934efa495023b2c48579"
+          },
+          "compressed": false,
+          "decoded_size": 11032,
+          "decoded_sha256": "1795e1aea488cf76891c6ed641243c9f959cb5317d7b934efa495023b2c48579",
+          "format": "ABMP-candidate",
+          "signature_status": "verified",
+          "content_decode_status": "not_tested",
+          "signature_hex": "61626d70313200000000000000000000",
+          "destination_name_status": "verified",
+          "nested": {
+            "status": "verified",
+            "container_sha256": "1795e1aea488cf76891c6ed641243c9f959cb5317d7b934efa495023b2c48579",
+            "container_chain": [
+              {
+                "name": "驚き.b",
+                "decoded_parent_sha256": "1795e1aea488cf76891c6ed641243c9f959cb5317d7b934efa495023b2c48579",
+                "parent_raw_reference": {
+                  "container_sha256": "bc57a36db245b73d43dd71bbb7ee41ca3fa79c2f68eefd70b121f51cd3399cdf",
+                  "offset": 25916,
+                  "length": 11032,
+                  "sha256": "1795e1aea488cf76891c6ed641243c9f959cb5317d7b934efa495023b2c48579"
+                }
+              }
+            ],
+            "signature": "abmp12",
+            "members": [
+              {
+                "name": "data_000.bin",
+                "name_is_upstream_format_hint": true,
+                "type_code": null,
+                "raw_bytes_reference": {
+                  "container_sha256": "1795e1aea488cf76891c6ed641243c9f959cb5317d7b934efa495023b2c48579",
+                  "offset": 36,
+                  "length": 408,
+                  "sha256": "217bea02f420b2aea4d5be91d44881d56914992bc49adc38897fe0fc78104824"
+                },
+                "compressed": true,
+                "decoded_size": 3613,
+                "decoded_sha256": "29ab63c9f72cadb81084d0865b29b2f2d1a4316c3c15c537d45d377dbe9280fe",
+                "format": "Unknown",
+                "signature_status": "verified",
+                "content_decode_status": "unsupported",
+                "signature_hex": "06004e6f4e616d650100000000000000",
+                "destination_name_status": "verified"
+              },
+              {
+                "name": "驚き_3.png",
+                "name_is_upstream_format_hint": true,
+                "type_code": 0,
+                "raw_bytes_reference": {
+                  "container_sha256": "1795e1aea488cf76891c6ed641243c9f959cb5317d7b934efa495023b2c48579",
+                  "offset": 632,
+                  "length": 10358,
+                  "sha256": "d22ea2859a5f9c5decac3e20ea09e874b3ac94e0d4bfc515a85cb5f9fea4c133"
+                },
+                "compressed": false,
+                "decoded_size": 10358,
+                "decoded_sha256": "d22ea2859a5f9c5decac3e20ea09e874b3ac94e0d4bfc515a85cb5f9fea4c133",
+                "format": "PNG",
+                "signature_status": "verified",
+                "content_decode_status": "verified",
+                "signature_hex": "89504e470d0a1a0a0000000d49484452",
+                "destination_name_status": "verified",
+                "width": 170,
+                "height": 130,
+                "mode": "RGBA",
+                "rgba_sha256": "c8ab5bbb44270462bbc906d8ec24796d34794d1702df264a49fd79b78cd0741a"
+              }
+            ],
+            "tags": [
+              {
+                "offset": 16,
+                "length": 16,
+                "tag": "abdata13"
+              },
+              {
+                "offset": 444,
+                "length": 16,
+                "tag": "abimage10"
+              },
+              {
+                "offset": 461,
+                "length": 16,
+                "tag": "abimgdat14"
+              },
+              {
+                "offset": 10990,
+                "length": 16,
+                "tag": "absound10"
+              },
+              {
+                "offset": 11007,
+                "length": 16,
+                "tag": "absnddat11"
+              }
+            ],
+            "unknown_spans": [
+              {
+                "offset": 487,
+                "length": 64,
+                "sha256": "674db1142684f99a71a1da9d898e8108c9c468ce179fffc4292ec575888f00c4",
+                "meaning": "not_tested"
+              },
+              {
+                "offset": 551,
+                "length": 76,
+                "sha256": "cbe11327d087a00852ea64d30cb01e0bb0262154a29fdd0f43f854311598414f",
+                "meaning": "not_tested"
+              },
+              {
+                "offset": 11027,
+                "length": 0,
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "meaning": "not_tested"
+              }
+            ],
+            "resource_versions": [],
+            "errors": [],
+            "animation_semantics": "not_tested",
+            "bytes_consumed": 11032,
+            "total_budget_bytes": 165022,
+            "total_budget_members": 15
+          }
+        },
+        {
+          "name": "汗.b",
+          "name_is_upstream_format_hint": true,
+          "type_code": 0,
+          "raw_bytes_reference": {
+            "container_sha256": "bc57a36db245b73d43dd71bbb7ee41ca3fa79c2f68eefd70b121f51cd3399cdf",
+            "offset": 37051,
+            "length": 4024,
+            "sha256": "444f93343e0356561c0d9491c9a6783d6accdfcd41beb305bfebc0683e9a9e60"
+          },
+          "compressed": false,
+          "decoded_size": 4024,
+          "decoded_sha256": "444f93343e0356561c0d9491c9a6783d6accdfcd41beb305bfebc0683e9a9e60",
+          "format": "ABMP-candidate",
+          "signature_status": "verified",
+          "content_decode_status": "not_tested",
+          "signature_hex": "61626d70313200000000000000000000",
+          "destination_name_status": "verified",
+          "nested": {
+            "status": "verified",
+            "container_sha256": "444f93343e0356561c0d9491c9a6783d6accdfcd41beb305bfebc0683e9a9e60",
+            "container_chain": [
+              {
+                "name": "汗.b",
+                "decoded_parent_sha256": "444f93343e0356561c0d9491c9a6783d6accdfcd41beb305bfebc0683e9a9e60",
+                "parent_raw_reference": {
+                  "container_sha256": "bc57a36db245b73d43dd71bbb7ee41ca3fa79c2f68eefd70b121f51cd3399cdf",
+                  "offset": 37051,
+                  "length": 4024,
+                  "sha256": "444f93343e0356561c0d9491c9a6783d6accdfcd41beb305bfebc0683e9a9e60"
+                }
+              }
+            ],
+            "signature": "abmp12",
+            "members": [
+              {
+                "name": "data_000.bin",
+                "name_is_upstream_format_hint": true,
+                "type_code": null,
+                "raw_bytes_reference": {
+                  "container_sha256": "444f93343e0356561c0d9491c9a6783d6accdfcd41beb305bfebc0683e9a9e60",
+                  "offset": 36,
+                  "length": 443,
+                  "sha256": "2ac19cc7941e1ee7215dfd5995557bf3cf06bee1662ecc074aabdd82d0ff32aa"
+                },
+                "compressed": true,
+                "decoded_size": 9011,
+                "decoded_sha256": "42bad48b93a41ed1c9ecefeab25821c2209e13e72f25d495c1a43d0217253256",
+                "format": "Unknown",
+                "signature_status": "verified",
+                "content_decode_status": "unsupported",
+                "signature_hex": "06004e6f4e616d650100000000000000",
+                "destination_name_status": "verified"
+              },
+              {
+                "name": "汗_1.png",
+                "name_is_upstream_format_hint": true,
+                "type_code": 0,
+                "raw_bytes_reference": {
+                  "container_sha256": "444f93343e0356561c0d9491c9a6783d6accdfcd41beb305bfebc0683e9a9e60",
+                  "offset": 671,
+                  "length": 3311,
+                  "sha256": "b01a0b9e5c8cb8810819acb9c22d30b03e5309e2d5c060e6bfe74fb6bdc56f55"
+                },
+                "compressed": false,
+                "decoded_size": 3311,
+                "decoded_sha256": "b01a0b9e5c8cb8810819acb9c22d30b03e5309e2d5c060e6bfe74fb6bdc56f55",
+                "format": "PNG",
+                "signature_status": "verified",
+                "content_decode_status": "verified",
+                "signature_hex": "89504e470d0a1a0a0000000d49484452",
+                "destination_name_status": "verified",
+                "width": 33,
+                "height": 66,
+                "mode": "RGBA",
+                "rgba_sha256": "6deefe1809fd68561cd3fd11405cefb4306655785974cd3c1ec30a34cae16856"
+              }
+            ],
+            "tags": [
+              {
+                "offset": 16,
+                "length": 16,
+                "tag": "abdata13"
+              },
+              {
+                "offset": 479,
+                "length": 16,
+                "tag": "abimage10"
+              },
+              {
+                "offset": 496,
+                "length": 16,
+                "tag": "abimgdat14"
+              },
+              {
+                "offset": 3982,
+                "length": 16,
+                "tag": "absound10"
+              },
+              {
+                "offset": 3999,
+                "length": 16,
+                "tag": "absnddat11"
+              }
+            ],
+            "unknown_spans": [
+              {
+                "offset": 520,
+                "length": 70,
+                "sha256": "bd72d159c1d83307952df4a98341c4d440abed3a4c8faf2052e9580fd2096bc3",
+                "meaning": "not_tested"
+              },
+              {
+                "offset": 590,
+                "length": 76,
+                "sha256": "c937885a0025aac0b3aedddb6722b360416e05177c1542f212eba71d7d06e57c",
+                "meaning": "not_tested"
+              },
+              {
+                "offset": 4019,
+                "length": 0,
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "meaning": "not_tested"
+              }
+            ],
+            "resource_versions": [],
+            "errors": [],
+            "animation_semantics": "not_tested",
+            "bytes_consumed": 4024,
+            "total_budget_bytes": 177344,
+            "total_budget_members": 17
+          }
+        },
+        {
+          "name": "？.b",
+          "name_is_upstream_format_hint": true,
+          "type_code": 0,
+          "raw_bytes_reference": {
+            "container_sha256": "bc57a36db245b73d43dd71bbb7ee41ca3fa79c2f68eefd70b121f51cd3399cdf",
+            "offset": 41178,
+            "length": 4134,
+            "sha256": "3c8ad2d0f9c9469dca44b04eb6ebad29013256ebab82c633b6e040b35f89319c"
+          },
+          "compressed": false,
+          "decoded_size": 4134,
+          "decoded_sha256": "3c8ad2d0f9c9469dca44b04eb6ebad29013256ebab82c633b6e040b35f89319c",
+          "format": "ABMP-candidate",
+          "signature_status": "verified",
+          "content_decode_status": "not_tested",
+          "signature_hex": "61626d70313200000000000000000000",
+          "destination_name_status": "verified",
+          "nested": {
+            "status": "verified",
+            "container_sha256": "3c8ad2d0f9c9469dca44b04eb6ebad29013256ebab82c633b6e040b35f89319c",
+            "container_chain": [
+              {
+                "name": "？.b",
+                "decoded_parent_sha256": "3c8ad2d0f9c9469dca44b04eb6ebad29013256ebab82c633b6e040b35f89319c",
+                "parent_raw_reference": {
+                  "container_sha256": "bc57a36db245b73d43dd71bbb7ee41ca3fa79c2f68eefd70b121f51cd3399cdf",
+                  "offset": 41178,
+                  "length": 4134,
+                  "sha256": "3c8ad2d0f9c9469dca44b04eb6ebad29013256ebab82c633b6e040b35f89319c"
+                }
+              }
+            ],
+            "signature": "abmp12",
+            "members": [
+              {
+                "name": "data_000.bin",
+                "name_is_upstream_format_hint": true,
+                "type_code": null,
+                "raw_bytes_reference": {
+                  "container_sha256": "3c8ad2d0f9c9469dca44b04eb6ebad29013256ebab82c633b6e040b35f89319c",
+                  "offset": 36,
+                  "length": 382,
+                  "sha256": "5c1ea5ec6303339bbc6d3a5889c68b531e88038f02144fe71b8b72386aebdad8"
+                },
+                "compressed": true,
+                "decoded_size": 3213,
+                "decoded_sha256": "778093c87f2312076598f67aa3422427fbf6b04270e9a75b55b9d91f0e372cba",
+                "format": "Unknown",
+                "signature_status": "verified",
+                "content_decode_status": "unsupported",
+                "signature_hex": "06004e6f4e616d650100000000000000",
+                "destination_name_status": "verified"
+              },
+              {
+                "name": "？__.png",
+                "name_is_upstream_format_hint": true,
+                "type_code": 61,
+                "raw_bytes_reference": {
+                  "container_sha256": "3c8ad2d0f9c9469dca44b04eb6ebad29013256ebab82c633b6e040b35f89319c",
+                  "offset": 604,
+                  "length": 3387,
+                  "sha256": "6af0aa1831263d7c239cdef2858a7236f8a48961501ec163ff09334362883d30"
+                },
+                "compressed": false,
+                "decoded_size": 3387,
+                "decoded_sha256": "6af0aa1831263d7c239cdef2858a7236f8a48961501ec163ff09334362883d30",
+                "format": "PNG",
+                "signature_status": "verified",
+                "content_decode_status": "verified",
+                "signature_hex": "89504e470d0a1a0a0000000d49484452",
+                "destination_name_status": "verified",
+                "width": 56,
+                "height": 63,
+                "mode": "RGBA",
+                "rgba_sha256": "09a101a9674d971150807bec20d38ce18804f4d00b3d96a84fa999dc279d6f3f"
+              }
+            ],
+            "tags": [
+              {
+                "offset": 16,
+                "length": 16,
+                "tag": "abdata13"
+              },
+              {
+                "offset": 418,
+                "length": 16,
+                "tag": "abimage10"
+              },
+              {
+                "offset": 435,
+                "length": 16,
+                "tag": "abimgdat14"
+              },
+              {
+                "offset": 3991,
+                "length": 16,
+                "tag": "abimgdat14"
+              },
+              {
+                "offset": 4092,
+                "length": 16,
+                "tag": "absound10"
+              },
+              {
+                "offset": 4109,
+                "length": 16,
+                "tag": "absnddat11"
+              }
+            ],
+            "unknown_spans": [
+              {
+                "offset": 459,
+                "length": 64,
+                "sha256": "85ae0b51320b659bb3c41e714748ebe0d1968f57591ec1e10d1a624d6450f757",
+                "meaning": "not_tested"
+              },
+              {
+                "offset": 523,
+                "length": 76,
+                "sha256": "837a33482a1cfd8cf6a2daf95e6fd05b296e84eb5202d63deb60409aea8619bc",
+                "meaning": "not_tested"
+              },
+              {
+                "offset": 4011,
+                "length": 0,
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "meaning": "not_tested"
+              },
+              {
+                "offset": 4011,
+                "length": 76,
+                "sha256": "23ab79d1ca14adecf9390f4db2c3955a72fb54b34fc1b23ff5a975ca3f27df70",
+                "meaning": "not_tested"
+              },
+              {
+                "offset": 4129,
+                "length": 0,
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "meaning": "not_tested"
+              }
+            ],
+            "resource_versions": [],
+            "errors": [],
+            "animation_semantics": "not_tested",
+            "bytes_consumed": 4134,
+            "total_budget_bytes": 183944,
+            "total_budget_members": 19
+          }
+        },
+        {
+          "name": "びっくり_1.b",
+          "name_is_upstream_format_hint": true,
+          "type_code": 0,
+          "raw_bytes_reference": {
+            "container_sha256": "bc57a36db245b73d43dd71bbb7ee41ca3fa79c2f68eefd70b121f51cd3399cdf",
+            "offset": 45423,
+            "length": 5059,
+            "sha256": "6cbce14755d71fcd31471b4cecc77168023128932e8a5e47ab6d4ef8a4a2c6b5"
+          },
+          "compressed": false,
+          "decoded_size": 5059,
+          "decoded_sha256": "6cbce14755d71fcd31471b4cecc77168023128932e8a5e47ab6d4ef8a4a2c6b5",
+          "format": "ABMP-candidate",
+          "signature_status": "verified",
+          "content_decode_status": "not_tested",
+          "signature_hex": "61626d70313200000000000000000000",
+          "destination_name_status": "verified",
+          "nested": {
+            "status": "verified",
+            "container_sha256": "6cbce14755d71fcd31471b4cecc77168023128932e8a5e47ab6d4ef8a4a2c6b5",
+            "container_chain": [
+              {
+                "name": "びっくり_1.b",
+                "decoded_parent_sha256": "6cbce14755d71fcd31471b4cecc77168023128932e8a5e47ab6d4ef8a4a2c6b5",
+                "parent_raw_reference": {
+                  "container_sha256": "bc57a36db245b73d43dd71bbb7ee41ca3fa79c2f68eefd70b121f51cd3399cdf",
+                  "offset": 45423,
+                  "length": 5059,
+                  "sha256": "6cbce14755d71fcd31471b4cecc77168023128932e8a5e47ab6d4ef8a4a2c6b5"
+                }
+              }
+            ],
+            "signature": "abmp12",
+            "members": [
+              {
+                "name": "data_000.bin",
+                "name_is_upstream_format_hint": true,
+                "type_code": null,
+                "raw_bytes_reference": {
+                  "container_sha256": "6cbce14755d71fcd31471b4cecc77168023128932e8a5e47ab6d4ef8a4a2c6b5",
+                  "offset": 36,
+                  "length": 445,
+                  "sha256": "ceb55e6e05cc238512820ba01e163ded94264b550430448ef09a2e286c79fe20"
+                },
+                "compressed": true,
+                "decoded_size": 8495,
+                "decoded_sha256": "6110f78e0e0b251f0be8f4f7b058a468c200ec5d7caf5ec8c94a71ff78fb0d6f",
+                "format": "Unknown",
+                "signature_status": "verified",
+                "content_decode_status": "unsupported",
+                "signature_hex": "06004e6f4e616d650100000000000000",
+                "destination_name_status": "verified"
+              },
+              {
+                "name": "びっくり_1.png",
+                "name_is_upstream_format_hint": true,
+                "type_code": 61,
+                "raw_bytes_reference": {
+                  "container_sha256": "6cbce14755d71fcd31471b4cecc77168023128932e8a5e47ab6d4ef8a4a2c6b5",
+                  "offset": 679,
+                  "length": 4237,
+                  "sha256": "2a509f6a07e8f1b36f09299b0835e0c44483cc47de85c29c9c8a5323f9eefbef"
+                },
+                "compressed": false,
+                "decoded_size": 4237,
+                "decoded_sha256": "2a509f6a07e8f1b36f09299b0835e0c44483cc47de85c29c9c8a5323f9eefbef",
+                "format": "PNG",
+                "signature_status": "verified",
+                "content_decode_status": "verified",
+                "signature_hex": "89504e470d0a1a0a0000000d49484452",
+                "destination_name_status": "verified",
+                "width": 58,
+                "height": 94,
+                "mode": "RGBA",
+                "rgba_sha256": "c033c4dd9f9525c0768a4056923bff7bcf3a4c7f28f4af199f34861c94d3b920"
+              }
+            ],
+            "tags": [
+              {
+                "offset": 16,
+                "length": 16,
+                "tag": "abdata13"
+              },
+              {
+                "offset": 481,
+                "length": 16,
+                "tag": "abimage10"
+              },
+              {
+                "offset": 498,
+                "length": 16,
+                "tag": "abimgdat14"
+              },
+              {
+                "offset": 4916,
+                "length": 16,
+                "tag": "abimgdat14"
+              },
+              {
+                "offset": 5017,
+                "length": 16,
+                "tag": "absound10"
+              },
+              {
+                "offset": 5034,
+                "length": 16,
+                "tag": "absnddat11"
+              }
+            ],
+            "unknown_spans": [
+              {
+                "offset": 528,
+                "length": 70,
+                "sha256": "08d1a527b4de6177344f3827c8ce0fdb8945641d76d9e82159e03acd346287b5",
+                "meaning": "not_tested"
+              },
+              {
+                "offset": 598,
+                "length": 76,
+                "sha256": "837a33482a1cfd8cf6a2daf95e6fd05b296e84eb5202d63deb60409aea8619bc",
+                "meaning": "not_tested"
+              },
+              {
+                "offset": 4936,
+                "length": 0,
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "meaning": "not_tested"
+              },
+              {
+                "offset": 4936,
+                "length": 76,
+                "sha256": "23ab79d1ca14adecf9390f4db2c3955a72fb54b34fc1b23ff5a975ca3f27df70",
+                "meaning": "not_tested"
+              },
+              {
+                "offset": 5054,
+                "length": 0,
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "meaning": "not_tested"
+              }
+            ],
+            "resource_versions": [],
+            "errors": [],
+            "animation_semantics": "not_tested",
+            "bytes_consumed": 5059,
+            "total_budget_bytes": 196676,
+            "total_budget_members": 21
+          }
+        },
+        {
+          "name": "パク_1.b",
+          "name_is_upstream_format_hint": true,
+          "type_code": 0,
+          "raw_bytes_reference": {
+            "container_sha256": "bc57a36db245b73d43dd71bbb7ee41ca3fa79c2f68eefd70b121f51cd3399cdf",
+            "offset": 50589,
+            "length": 11169,
+            "sha256": "30858abaf8f9225568fc7bf8a3c59b65bca191623eb1962192dbeaa32195a592"
+          },
+          "compressed": false,
+          "decoded_size": 11169,
+          "decoded_sha256": "30858abaf8f9225568fc7bf8a3c59b65bca191623eb1962192dbeaa32195a592",
+          "format": "ABMP-candidate",
+          "signature_status": "verified",
+          "content_decode_status": "not_tested",
+          "signature_hex": "61626d70313200000000000000000000",
+          "destination_name_status": "verified",
+          "nested": {
+            "status": "verified",
+            "container_sha256": "30858abaf8f9225568fc7bf8a3c59b65bca191623eb1962192dbeaa32195a592",
+            "container_chain": [
+              {
+                "name": "パク_1.b",
+                "decoded_parent_sha256": "30858abaf8f9225568fc7bf8a3c59b65bca191623eb1962192dbeaa32195a592",
+                "parent_raw_reference": {
+                  "container_sha256": "bc57a36db245b73d43dd71bbb7ee41ca3fa79c2f68eefd70b121f51cd3399cdf",
+                  "offset": 50589,
+                  "length": 11169,
+                  "sha256": "30858abaf8f9225568fc7bf8a3c59b65bca191623eb1962192dbeaa32195a592"
+                }
+              }
+            ],
+            "signature": "abmp12",
+            "members": [
+              {
+                "name": "data_000.bin",
+                "name_is_upstream_format_hint": true,
+                "type_code": null,
+                "raw_bytes_reference": {
+                  "container_sha256": "30858abaf8f9225568fc7bf8a3c59b65bca191623eb1962192dbeaa32195a592",
+                  "offset": 36,
+                  "length": 559,
+                  "sha256": "0ac50dbcdd7d92ee391d937bcce1ee86d50bb7f605cde49272f7d048e96994bf"
+                },
+                "compressed": true,
+                "decoded_size": 10798,
+                "decoded_sha256": "bfce4ed0f187ed274ef376e34e3b07ff956de11aeb99df733001070fc0964c37",
+                "format": "Unknown",
+                "signature_status": "verified",
+                "content_decode_status": "unsupported",
+                "signature_hex": "06004e6f4e616d650100000000000000",
+                "destination_name_status": "verified"
+              },
+              {
+                "name": "パク_1.png",
+                "name_is_upstream_format_hint": true,
+                "type_code": 0,
+                "raw_bytes_reference": {
+                  "container_sha256": "30858abaf8f9225568fc7bf8a3c59b65bca191623eb1962192dbeaa32195a592",
+                  "offset": 791,
+                  "length": 10336,
+                  "sha256": "a3ba12f5262ef70b58c46c4d47a4fdb8a98d668b21d4ba2b5abbbcb3052f35b7"
+                },
+                "compressed": false,
+                "decoded_size": 10336,
+                "decoded_sha256": "a3ba12f5262ef70b58c46c4d47a4fdb8a98d668b21d4ba2b5abbbcb3052f35b7",
+                "format": "PNG",
+                "signature_status": "verified",
+                "content_decode_status": "verified",
+                "signature_hex": "89504e470d0a1a0a0000000d49484452",
+                "destination_name_status": "verified",
+                "width": 162,
+                "height": 123,
+                "mode": "RGBA",
+                "rgba_sha256": "f95ebb44c1515b4c5030ee7be71a782ea8d3956546c14350d13e5db1b3957f4b"
+              }
+            ],
+            "tags": [
+              {
+                "offset": 16,
+                "length": 16,
+                "tag": "abdata13"
+              },
+              {
+                "offset": 595,
+                "length": 16,
+                "tag": "abimage10"
+              },
+              {
+                "offset": 612,
+                "length": 16,
+                "tag": "abimgdat14"
+              },
+              {
+                "offset": 11127,
+                "length": 16,
+                "tag": "absound10"
+              },
+              {
+                "offset": 11144,
+                "length": 16,
+                "tag": "absnddat11"
+              }
+            ],
+            "unknown_spans": [
+              {
+                "offset": 638,
+                "length": 72,
+                "sha256": "1810798963a366b22a9ae021d6174926ce058c0e54e4e72c3a380a9fa3fd859c",
+                "meaning": "not_tested"
+              },
+              {
+                "offset": 710,
+                "length": 76,
+                "sha256": "c937885a0025aac0b3aedddb6722b360416e05177c1542f212eba71d7d06e57c",
+                "meaning": "not_tested"
+              },
+              {
+                "offset": 11164,
+                "length": 0,
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "meaning": "not_tested"
+              }
+            ],
+            "resource_versions": [],
+            "errors": [],
+            "animation_semantics": "not_tested",
+            "bytes_consumed": 11169,
+            "total_budget_bytes": 217810,
+            "total_budget_members": 23
+          }
+        }
+      ],
+      "tags": [
+        {
+          "offset": 16,
+          "length": 16,
+          "tag": "abdata13"
+        },
+        {
+          "offset": 817,
+          "length": 16,
+          "tag": "abimage10"
+        },
+        {
+          "offset": 834,
+          "length": 16,
+          "tag": "abimgdat14"
+        },
+        {
+          "offset": 935,
+          "length": 16,
+          "tag": "abimgdat14"
+        },
+        {
+          "offset": 10830,
+          "length": 16,
+          "tag": "abimgdat14"
+        },
+        {
+          "offset": 25811,
+          "length": 16,
+          "tag": "abimgdat14"
+        },
+        {
+          "offset": 36948,
+          "length": 16,
+          "tag": "abimgdat14"
+        },
+        {
+          "offset": 41075,
+          "length": 16,
+          "tag": "abimgdat14"
+        },
+        {
+          "offset": 45312,
+          "length": 16,
+          "tag": "abimgdat14"
+        },
+        {
+          "offset": 50482,
+          "length": 16,
+          "tag": "abimgdat14"
+        },
+        {
+          "offset": 61758,
+          "length": 16,
+          "tag": "absound10"
+        },
+        {
+          "offset": 61775,
+          "length": 16,
+          "tag": "absnddat11"
+        }
+      ],
+      "unknown_spans": [
+        {
+          "offset": 854,
+          "length": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 854,
+          "length": 76,
+          "sha256": "9987fba6209a0070e842809a934f36d0cf1a483d07b16bc7bd2d16eeda18b5a3",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 959,
+          "length": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 959,
+          "length": 76,
+          "sha256": "266fea826b169acd0007d9da4847e55475c0933ba5f156be4a3c77905d90fde6",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 10854,
+          "length": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 10854,
+          "length": 76,
+          "sha256": "59b23f689d6e2f1d10da8aea74a595c29b492e647f43a99b2a3a776982ca2adf",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 25835,
+          "length": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 25835,
+          "length": 76,
+          "sha256": "59b23f689d6e2f1d10da8aea74a595c29b492e647f43a99b2a3a776982ca2adf",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 36970,
+          "length": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 36970,
+          "length": 76,
+          "sha256": "59b23f689d6e2f1d10da8aea74a595c29b492e647f43a99b2a3a776982ca2adf",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 41097,
+          "length": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 41097,
+          "length": 76,
+          "sha256": "59b23f689d6e2f1d10da8aea74a595c29b492e647f43a99b2a3a776982ca2adf",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 45342,
+          "length": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 45342,
+          "length": 76,
+          "sha256": "59b23f689d6e2f1d10da8aea74a595c29b492e647f43a99b2a3a776982ca2adf",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 50508,
+          "length": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 50508,
+          "length": 76,
+          "sha256": "59b23f689d6e2f1d10da8aea74a595c29b492e647f43a99b2a3a776982ca2adf",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 61795,
+          "length": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "meaning": "not_tested"
+        }
+      ],
+      "resource_versions": [],
+      "errors": [],
+      "animation_semantics": "not_tested",
+      "bytes_consumed": 61800,
+      "total_budget_bytes": 217810,
+      "total_budget_members": 23,
+      "upstream_commit": "531694715df21a9940578f4319d246ac8aa794de"
+    },
+    {
+      "source_file": "data4.pack/立ち絵/motion/motion_basicset.b",
+      "origin": {
+        "archive": "GameData/data4.pack",
+        "index": 192,
+        "offset": 13790227,
+        "archive_sha256": "6dbfa65c8eb9c701ab546a125d82fcbbcfd5ff173c3c263f69d8111117ee2ccf"
+      },
+      "status": "verified",
+      "container_sha256": "5b0f2bc31cc6b14311642df53590c1efd3edec3b6a032e13b90424ce70e99b03",
+      "container_chain": [],
+      "signature": "abmp12",
+      "members": [
+        {
+          "name": "data_000.bin",
+          "name_is_upstream_format_hint": true,
+          "type_code": null,
+          "raw_bytes_reference": {
+            "container_sha256": "5b0f2bc31cc6b14311642df53590c1efd3edec3b6a032e13b90424ce70e99b03",
+            "offset": 36,
+            "length": 9850,
+            "sha256": "5bc103a97e5392e831c646be15eb2763c720527c7ebc5f32fd29b638f228dacc"
+          },
+          "compressed": true,
+          "decoded_size": 172281,
+          "decoded_sha256": "8b675d30da5fcc23970f5584c82260592aa6297ce1867e59cdb7f653d32ae1e5",
+          "format": "Unknown",
+          "signature_status": "verified",
+          "content_decode_status": "unsupported",
+          "signature_hex": "06004e6f4e616d650100000000000000",
+          "destination_name_status": "verified"
+        },
+        {
+          "name": "遠_普通.png",
+          "name_is_upstream_format_hint": true,
+          "type_code": 0,
+          "raw_bytes_reference": {
+            "container_sha256": "5b0f2bc31cc6b14311642df53590c1efd3edec3b6a032e13b90424ce70e99b03",
+            "offset": 10083,
+            "length": 14573,
+            "sha256": "1dcb770069825256418412db3817754705a51bd23f44c97809adacb7705d793d"
+          },
+          "compressed": false,
+          "decoded_size": 14573,
+          "decoded_sha256": "1dcb770069825256418412db3817754705a51bd23f44c97809adacb7705d793d",
+          "format": "PNG",
+          "signature_status": "verified",
+          "content_decode_status": "verified",
+          "signature_hex": "89504e470d0a1a0a0000000d49484452",
+          "destination_name_status": "verified",
+          "width": 444,
+          "height": 379,
+          "mode": "RGBA",
+          "rgba_sha256": "82949f5484c5325bffbb6a56b90ad38939777a6b7c321465669f6d0a0764882d"
+        },
+        {
+          "name": "ScanLine.png",
+          "name_is_upstream_format_hint": true,
+          "type_code": 0,
+          "raw_bytes_reference": {
+            "container_sha256": "5b0f2bc31cc6b14311642df53590c1efd3edec3b6a032e13b90424ce70e99b03",
+            "offset": 24838,
+            "length": 7792,
+            "sha256": "58372e331a7c83c68a0bb5a9a480f39a89e0354e4f757887b8079783595bc848"
+          },
+          "compressed": false,
+          "decoded_size": 7792,
+          "decoded_sha256": "58372e331a7c83c68a0bb5a9a480f39a89e0354e4f757887b8079783595bc848",
+          "format": "PNG",
+          "signature_status": "verified",
+          "content_decode_status": "verified",
+          "signature_hex": "89504e470d0a1a0a0000000d49484452",
+          "destination_name_status": "verified",
+          "width": 256,
+          "height": 1024,
+          "mode": "RGB",
+          "rgba_sha256": "92dc20db29141e9ac807881ae62678b1dee495057c35f09fadeaff8e144b883a"
+        }
+      ],
+      "tags": [
+        {
+          "offset": 16,
+          "length": 16,
+          "tag": "abdata13"
+        },
+        {
+          "offset": 9886,
+          "length": 16,
+          "tag": "abimage10"
+        },
+        {
+          "offset": 9903,
+          "length": 16,
+          "tag": "abimgdat14"
+        },
+        {
+          "offset": 24656,
+          "length": 16,
+          "tag": "abimgdat14"
+        },
+        {
+          "offset": 32630,
+          "length": 16,
+          "tag": "abimgdat14"
+        },
+        {
+          "offset": 32731,
+          "length": 16,
+          "tag": "abimgdat14"
+        },
+        {
+          "offset": 32832,
+          "length": 16,
+          "tag": "abimgdat14"
+        },
+        {
+          "offset": 32933,
+          "length": 16,
+          "tag": "abimgdat14"
+        },
+        {
+          "offset": 33034,
+          "length": 16,
+          "tag": "abimgdat14"
+        },
+        {
+          "offset": 33135,
+          "length": 16,
+          "tag": "abimgdat14"
+        },
+        {
+          "offset": 33236,
+          "length": 16,
+          "tag": "absound10"
+        },
+        {
+          "offset": 33253,
+          "length": 16,
+          "tag": "absnddat11"
+        }
+      ],
+      "unknown_spans": [
+        {
+          "offset": 9930,
+          "length": 72,
+          "sha256": "4e372ca4c712b9b08970fdc1329c0c06a4d90cf5f65a2eb75e6de15f5cce49f0",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 10002,
+          "length": 76,
+          "sha256": "ce275f0f0d89c24dbd245dd0a9c629e0a4d0742b25f15d1da6daac26a978bb5c",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 24684,
+          "length": 73,
+          "sha256": "5c91a12be650284972e855792d5ccfe3b997bc47ea511d80c275ce84ab4c00c5",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 24757,
+          "length": 76,
+          "sha256": "032c6ee704503259863162f5db6b73c13c8e72e32a8f82fb922b8a717fee925a",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 32650,
+          "length": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 32650,
+          "length": 76,
+          "sha256": "032c6ee704503259863162f5db6b73c13c8e72e32a8f82fb922b8a717fee925a",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 32751,
+          "length": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 32751,
+          "length": 76,
+          "sha256": "032c6ee704503259863162f5db6b73c13c8e72e32a8f82fb922b8a717fee925a",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 32852,
+          "length": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 32852,
+          "length": 76,
+          "sha256": "032c6ee704503259863162f5db6b73c13c8e72e32a8f82fb922b8a717fee925a",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 32953,
+          "length": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 32953,
+          "length": 76,
+          "sha256": "032c6ee704503259863162f5db6b73c13c8e72e32a8f82fb922b8a717fee925a",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 33054,
+          "length": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 33054,
+          "length": 76,
+          "sha256": "032c6ee704503259863162f5db6b73c13c8e72e32a8f82fb922b8a717fee925a",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 33155,
+          "length": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 33155,
+          "length": 76,
+          "sha256": "032c6ee704503259863162f5db6b73c13c8e72e32a8f82fb922b8a717fee925a",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 33273,
+          "length": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "meaning": "not_tested"
+        }
+      ],
+      "resource_versions": [],
+      "errors": [],
+      "animation_semantics": "not_tested",
+      "bytes_consumed": 33278,
+      "total_budget_bytes": 194646,
+      "total_budget_members": 3,
+      "upstream_commit": "531694715df21a9940578f4319d246ac8aa794de"
+    },
+    {
+      "source_file": "data5.pack/fade/fade_3dsphere.b",
+      "origin": {
+        "archive": "GameData/data5.pack",
+        "index": 1,
+        "offset": 4161,
+        "archive_sha256": "0d6b3183a62d5e2b69af06f66b23123212ce55ccfbfb992be4eb9da8339380f6"
+      },
+      "status": "verified",
+      "container_sha256": "dee6d4a974aee7ba800a7480eb2147ccdf372b83bbd54fb80c71142dc9db1df4",
+      "container_chain": [],
+      "signature": "abmp12",
+      "members": [
+        {
+          "name": "data_000.bin",
+          "name_is_upstream_format_hint": true,
+          "type_code": null,
+          "raw_bytes_reference": {
+            "container_sha256": "dee6d4a974aee7ba800a7480eb2147ccdf372b83bbd54fb80c71142dc9db1df4",
+            "offset": 36,
+            "length": 348,
+            "sha256": "5d1249751b1d08d16ffe3f3276f9217b1a7e91bea2df1d06e2aa67e679079aa9"
+          },
+          "compressed": true,
+          "decoded_size": 877,
+          "decoded_sha256": "e8a295120d95e707cc202b7620a95f705b169f5db4b5a95ceb913b9ebfba1157",
+          "format": "Unknown",
+          "signature_status": "verified",
+          "content_decode_status": "unsupported",
+          "signature_hex": "06004e6f4e616d650100000000050000",
+          "destination_name_status": "verified"
+        },
+        {
+          "name": "DammyA.jpg",
+          "name_is_upstream_format_hint": true,
+          "type_code": 0,
+          "raw_bytes_reference": {
+            "container_sha256": "dee6d4a974aee7ba800a7480eb2147ccdf372b83bbd54fb80c71142dc9db1df4",
+            "offset": 572,
+            "length": 64829,
+            "sha256": "e6f492233799081925b004f81d50945b1cff8579e361f565db0274047205a580"
+          },
+          "compressed": false,
+          "decoded_size": 64829,
+          "decoded_sha256": "e6f492233799081925b004f81d50945b1cff8579e361f565db0274047205a580",
+          "format": "JPEG",
+          "signature_status": "verified",
+          "content_decode_status": "verified",
+          "signature_hex": "ffd8ffe000104a464946000102000064",
+          "destination_name_status": "verified",
+          "width": 1024,
+          "height": 576,
+          "mode": "RGB",
+          "rgba_sha256": "16ca853097676a742e77e74de9716b11c21f381bd9fa3dba0815ca9c67fb703a"
+        },
+        {
+          "name": "model01.b",
+          "name_is_upstream_format_hint": true,
+          "type_code": 0,
+          "raw_bytes_reference": {
+            "container_sha256": "dee6d4a974aee7ba800a7480eb2147ccdf372b83bbd54fb80c71142dc9db1df4",
+            "offset": 65509,
+            "length": 1434569,
+            "sha256": "9ee131e4d7c5ac5c2765f86c7087c0d88af09f6d2bf8ee9f1e829f5d3bee412a"
+          },
+          "compressed": false,
+          "decoded_size": 1434569,
+          "decoded_sha256": "9ee131e4d7c5ac5c2765f86c7087c0d88af09f6d2bf8ee9f1e829f5d3bee412a",
+          "format": "ABMP-candidate",
+          "signature_status": "verified",
+          "content_decode_status": "not_tested",
+          "signature_hex": "61626d70313200000000000000000000",
+          "destination_name_status": "verified",
+          "nested": {
+            "status": "verified",
+            "container_sha256": "9ee131e4d7c5ac5c2765f86c7087c0d88af09f6d2bf8ee9f1e829f5d3bee412a",
+            "container_chain": [
+              {
+                "name": "model01.b",
+                "decoded_parent_sha256": "9ee131e4d7c5ac5c2765f86c7087c0d88af09f6d2bf8ee9f1e829f5d3bee412a",
+                "parent_raw_reference": {
+                  "container_sha256": "dee6d4a974aee7ba800a7480eb2147ccdf372b83bbd54fb80c71142dc9db1df4",
+                  "offset": 65509,
+                  "length": 1434569,
+                  "sha256": "9ee131e4d7c5ac5c2765f86c7087c0d88af09f6d2bf8ee9f1e829f5d3bee412a"
+                }
+              }
+            ],
+            "signature": "abmp12",
+            "members": [
+              {
+                "name": "data_000.bin",
+                "name_is_upstream_format_hint": true,
+                "type_code": null,
+                "raw_bytes_reference": {
+                  "container_sha256": "9ee131e4d7c5ac5c2765f86c7087c0d88af09f6d2bf8ee9f1e829f5d3bee412a",
+                  "offset": 36,
+                  "length": 224,
+                  "sha256": "769d6a511451d31b0b2c8f63c946cf7d4163a05e92eaa6f5deca06a6cbbddeaa"
+                },
+                "compressed": true,
+                "decoded_size": 1435,
+                "decoded_sha256": "2fe50a63fbb16ba89bb22667dbee474b939d4471b1f10263c0b8b0d9b72e5227",
+                "format": "Unknown",
+                "signature_status": "verified",
+                "content_decode_status": "unsupported",
+                "signature_hex": "06004e6f4e616d650100000000000000",
+                "destination_name_status": "verified"
+              },
+              {
+                "name": "model01.bmp",
+                "name_is_upstream_format_hint": true,
+                "type_code": 0,
+                "raw_bytes_reference": {
+                  "container_sha256": "9ee131e4d7c5ac5c2765f86c7087c0d88af09f6d2bf8ee9f1e829f5d3bee412a",
+                  "offset": 389,
+                  "length": 21216,
+                  "sha256": "5ee8005927b62b6aef6643b9fe0551c49eccf674dcd73b5144faa0aec7a1b376"
+                },
+                "compressed": false,
+                "decoded_size": 21216,
+                "decoded_sha256": "5ee8005927b62b6aef6643b9fe0551c49eccf674dcd73b5144faa0aec7a1b376",
+                "format": "Unknown",
+                "signature_status": "verified",
+                "content_decode_status": "unsupported",
+                "signature_hex": "415247424d6f64656c312e3000000000",
+                "destination_name_status": "verified"
+              },
+              {
+                "name": "*Link,0.png",
+                "name_is_upstream_format_hint": true,
+                "type_code": 0,
+                "raw_bytes_reference": {
+                  "container_sha256": "9ee131e4d7c5ac5c2765f86c7087c0d88af09f6d2bf8ee9f1e829f5d3bee412a",
+                  "offset": 21713,
+                  "length": 1412814,
+                  "sha256": "95c4c1d1e168829c497664e914bd8fddc0a4834b54d42c69ddc4e270e804b8ab"
+                },
+                "compressed": false,
+                "decoded_size": 1412814,
+                "decoded_sha256": "95c4c1d1e168829c497664e914bd8fddc0a4834b54d42c69ddc4e270e804b8ab",
+                "format": "PNG",
+                "signature_status": "verified",
+                "content_decode_status": "verified",
+                "signature_hex": "89504e470d0a1a0a0000000d49484452",
+                "destination_name_status": "verified",
+                "width": 1280,
+                "height": 720,
+                "mode": "RGB",
+                "rgba_sha256": "f2ee254fdb51b8442eeb044ea572b4127adc41a7f05305d2264ff2dd4a640249"
+              }
+            ],
+            "tags": [
+              {
+                "offset": 16,
+                "length": 16,
+                "tag": "abdata13"
+              },
+              {
+                "offset": 260,
+                "length": 16,
+                "tag": "abimage10"
+              },
+              {
+                "offset": 277,
+                "length": 16,
+                "tag": "abimgdat14"
+              },
+              {
+                "offset": 21605,
+                "length": 16,
+                "tag": "abimgdat14"
+              },
+              {
+                "offset": 1434527,
+                "length": 16,
+                "tag": "absound10"
+              },
+              {
+                "offset": 1434544,
+                "length": 16,
+                "tag": "absnddat11"
+              }
+            ],
+            "unknown_spans": [
+              {
+                "offset": 308,
+                "length": 0,
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "meaning": "not_tested"
+              },
+              {
+                "offset": 308,
+                "length": 76,
+                "sha256": "f4d2c51d06d817f6442bb0fb860e1d217e31b120a9f27f6a9219711e53907bdf",
+                "meaning": "not_tested"
+              },
+              {
+                "offset": 21632,
+                "length": 0,
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "meaning": "not_tested"
+              },
+              {
+                "offset": 21632,
+                "length": 76,
+                "sha256": "032c6ee704503259863162f5db6b73c13c8e72e32a8f82fb922b8a717fee925a",
+                "meaning": "not_tested"
+              },
+              {
+                "offset": 1434564,
+                "length": 0,
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "meaning": "not_tested"
+              }
+            ],
+            "resource_versions": [],
+            "errors": [],
+            "animation_semantics": "not_tested",
+            "bytes_consumed": 1434569,
+            "total_budget_bytes": 2935740,
+            "total_budget_members": 6
+          }
+        }
+      ],
+      "tags": [
+        {
+          "offset": 16,
+          "length": 16,
+          "tag": "abdata13"
+        },
+        {
+          "offset": 384,
+          "length": 16,
+          "tag": "abimage10"
+        },
+        {
+          "offset": 401,
+          "length": 16,
+          "tag": "abimgdat14"
+        },
+        {
+          "offset": 65401,
+          "length": 16,
+          "tag": "abimgdat14"
+        },
+        {
+          "offset": 1500078,
+          "length": 16,
+          "tag": "absound10"
+        },
+        {
+          "offset": 1500095,
+          "length": 16,
+          "tag": "absnddat11"
+        }
+      ],
+      "unknown_spans": [
+        {
+          "offset": 427,
+          "length": 64,
+          "sha256": "830cadb81a37ac8f01bbe8c18e86d1f0728a3fcf531fa6848db3a1ec975d9db6",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 491,
+          "length": 76,
+          "sha256": "064719a42fdb8076d21504ee47d640102ec5859fed5c95ce37e58f7871a8d0fe",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 65428,
+          "length": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 65428,
+          "length": 76,
+          "sha256": "59b23f689d6e2f1d10da8aea74a595c29b492e647f43a99b2a3a776982ca2adf",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 1500115,
+          "length": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "meaning": "not_tested"
+        }
+      ],
+      "resource_versions": [],
+      "errors": [],
+      "animation_semantics": "not_tested",
+      "bytes_consumed": 1500120,
+      "total_budget_bytes": 2935740,
+      "total_budget_members": 6,
+      "upstream_commit": "531694715df21a9940578f4319d246ac8aa794de"
+    },
+    {
+      "source_file": "data7.pack/avg/sceneskip.b",
+      "origin": {
+        "archive": "GameData/data7.pack",
+        "index": 68,
+        "offset": 88009,
+        "archive_sha256": "29d04ca1f627438ddccc066873a6651bd2c46e9561e070c780d4a64244a4f06c"
+      },
+      "status": "verified",
+      "container_sha256": "0959bade470be4572ec7ad689b24859b0bd9528263108118dc26a3e9c564fe80",
+      "container_chain": [],
+      "signature": "abmp12",
+      "members": [
+        {
+          "name": "data_000.bin",
+          "name_is_upstream_format_hint": true,
+          "type_code": null,
+          "raw_bytes_reference": {
+            "container_sha256": "0959bade470be4572ec7ad689b24859b0bd9528263108118dc26a3e9c564fe80",
+            "offset": 36,
+            "length": 747,
+            "sha256": "96eb7b7048b8a6a52efba975bec1e529d687609c7dd9b5e72f4aee9f4c3a9bdd"
+          },
+          "compressed": true,
+          "decoded_size": 8875,
+          "decoded_sha256": "5a8603f31992a1e5e2c5f1990accfda575bb90ca22706b08cbfda3e9508f9824",
+          "format": "Unknown",
+          "signature_status": "verified",
+          "content_decode_status": "unsupported",
+          "signature_hex": "06004e006f004e0061006d0065000100",
+          "destination_name_status": "verified"
+        },
+        {
+          "name": "Back.jpg",
+          "name_is_upstream_format_hint": true,
+          "type_code": 1,
+          "raw_bytes_reference": {
+            "container_sha256": "0959bade470be4572ec7ad689b24859b0bd9528263108118dc26a3e9c564fe80",
+            "offset": 918,
+            "length": 59971,
+            "sha256": "24b08008a478707a90530699f995011c3ab2672fad91ea3082d7eb1a1f6fd8aa"
+          },
+          "compressed": false,
+          "decoded_size": 59971,
+          "decoded_sha256": "24b08008a478707a90530699f995011c3ab2672fad91ea3082d7eb1a1f6fd8aa",
+          "format": "JPEG",
+          "signature_status": "verified",
+          "content_decode_status": "verified",
+          "signature_hex": "ffd8ffe000104a464946000102000064",
+          "destination_name_status": "verified",
+          "width": 1024,
+          "height": 576,
+          "mode": "RGB",
+          "rgba_sha256": "22b7382e8b5a17304d0c108d15d5997a2f2acec8b949bb18e22e3240f88fae73"
+        },
+        {
+          "name": "Caption.png",
+          "name_is_upstream_format_hint": true,
+          "type_code": 3,
+          "raw_bytes_reference": {
+            "container_sha256": "0959bade470be4572ec7ad689b24859b0bd9528263108118dc26a3e9c564fe80",
+            "offset": 61013,
+            "length": 5712,
+            "sha256": "d1ce0ae245e95b563cf6a328e7516c3d0c655799ca78dd364e9256c3595e1eff"
+          },
+          "compressed": false,
+          "decoded_size": 5712,
+          "decoded_sha256": "d1ce0ae245e95b563cf6a328e7516c3d0c655799ca78dd364e9256c3595e1eff",
+          "format": "PNG",
+          "signature_status": "verified",
+          "content_decode_status": "verified",
+          "signature_hex": "89504e470d0a1a0a0000000d49484452",
+          "destination_name_status": "verified",
+          "width": 166,
+          "height": 25,
+          "mode": "RGBA",
+          "rgba_sha256": "4cd121e45a382fde9b07e8d46a972f5d606dbc64cf8f6a9870386d379d0c3659"
+        },
+        {
+          "name": "Iocn.png",
+          "name_is_upstream_format_hint": true,
+          "type_code": 3,
+          "raw_bytes_reference": {
+            "container_sha256": "0959bade470be4572ec7ad689b24859b0bd9528263108118dc26a3e9c564fe80",
+            "offset": 66843,
+            "length": 2436,
+            "sha256": "0301064c6b51f21f276d7ecbf5cf600364e59ecf64987c6b442bd0df05b785bb"
+          },
+          "compressed": false,
+          "decoded_size": 2436,
+          "decoded_sha256": "0301064c6b51f21f276d7ecbf5cf600364e59ecf64987c6b442bd0df05b785bb",
+          "format": "PNG",
+          "signature_status": "verified",
+          "content_decode_status": "verified",
+          "signature_hex": "89504e470d0a1a0a0000000d49484452",
+          "destination_name_status": "verified",
+          "width": 37,
+          "height": 37,
+          "mode": "RGBA",
+          "rgba_sha256": "d2fb9189160d08745d51f4f8cdc6233be68a82fb9d5cc61ecf7eda8f67e422f4"
+        },
+        {
+          "name": "*MesSurface.png",
+          "name_is_upstream_format_hint": true,
+          "type_code": 3,
+          "raw_bytes_reference": {
+            "container_sha256": "0959bade470be4572ec7ad689b24859b0bd9528263108118dc26a3e9c564fe80",
+            "offset": 69411,
+            "length": 537,
+            "sha256": "7c2e4e3d8fa0c9e7e307f9847d9b2e38a54fef329740cac3debacb095df56cac"
+          },
+          "compressed": false,
+          "decoded_size": 537,
+          "decoded_sha256": "7c2e4e3d8fa0c9e7e307f9847d9b2e38a54fef329740cac3debacb095df56cac",
+          "format": "PNG",
+          "signature_status": "verified",
+          "content_decode_status": "verified",
+          "signature_hex": "89504e470d0a1a0a0000000d49484452",
+          "destination_name_status": "verified",
+          "width": 300,
+          "height": 50,
+          "mode": "RGBA",
+          "rgba_sha256": "63e220ab1de9ba0123f50ed2efab05c572be857f0c4cfea266da5b30d3df4705"
+        }
+      ],
+      "tags": [
+        {
+          "offset": 16,
+          "length": 16,
+          "tag": "abdata14"
+        },
+        {
+          "offset": 783,
+          "length": 16,
+          "tag": "abimage10"
+        },
+        {
+          "offset": 800,
+          "length": 16,
+          "tag": "abimgdat15"
+        },
+        {
+          "offset": 60889,
+          "length": 16,
+          "tag": "abimgdat15"
+        },
+        {
+          "offset": 66725,
+          "length": 16,
+          "tag": "abimgdat15"
+        },
+        {
+          "offset": 69279,
+          "length": 16,
+          "tag": "abimgdat15"
+        },
+        {
+          "offset": 69948,
+          "length": 16,
+          "tag": "abimgdat15"
+        },
+        {
+          "offset": 69994,
+          "length": 16,
+          "tag": "absound10"
+        },
+        {
+          "offset": 70011,
+          "length": 16,
+          "tag": "absnddat12"
+        }
+      ],
+      "unknown_spans": [
+        {
+          "offset": 897,
+          "length": 17,
+          "sha256": "c5b42c06a4a2ca7807de12e09e2b38bcea983beb62c8f87cd602279663d21fd4",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 60992,
+          "length": 17,
+          "sha256": "c5b42c06a4a2ca7807de12e09e2b38bcea983beb62c8f87cd602279663d21fd4",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 66822,
+          "length": 17,
+          "sha256": "c5b42c06a4a2ca7807de12e09e2b38bcea983beb62c8f87cd602279663d21fd4",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 69390,
+          "length": 17,
+          "sha256": "c5b42c06a4a2ca7807de12e09e2b38bcea983beb62c8f87cd602279663d21fd4",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 69973,
+          "length": 17,
+          "sha256": "c5b42c06a4a2ca7807de12e09e2b38bcea983beb62c8f87cd602279663d21fd4",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 70033,
+          "length": 7,
+          "sha256": "5de16aef7fb6985446959d10ab9984ed7c1d9d05db7277410184084add4518d6",
+          "meaning": "not_tested"
+        }
+      ],
+      "resource_versions": [
+        {
+          "tag": "abimgdat15",
+          "offset": 816,
+          "raw_u32": 1,
+          "meaning": "not_tested",
+          "variant_status": "inferred"
+        },
+        {
+          "tag": "abimgdat15",
+          "offset": 60905,
+          "raw_u32": 1,
+          "meaning": "not_tested",
+          "variant_status": "inferred"
+        },
+        {
+          "tag": "abimgdat15",
+          "offset": 66741,
+          "raw_u32": 1,
+          "meaning": "not_tested",
+          "variant_status": "inferred"
+        },
+        {
+          "tag": "abimgdat15",
+          "offset": 69295,
+          "raw_u32": 1,
+          "meaning": "not_tested",
+          "variant_status": "inferred"
+        },
+        {
+          "tag": "abimgdat15",
+          "offset": 69964,
+          "raw_u32": 1,
+          "meaning": "not_tested",
+          "variant_status": "inferred"
+        },
+        {
+          "tag": "absnddat12",
+          "offset": 70027,
+          "raw_u32": 1,
+          "meaning": "not_tested",
+          "variant_status": "inferred"
+        }
+      ],
+      "errors": [],
+      "animation_semantics": "not_tested",
+      "bytes_consumed": 70040,
+      "total_budget_bytes": 77531,
+      "total_budget_members": 5,
+      "upstream_commit": "531694715df21a9940578f4319d246ac8aa794de"
+    },
+    {
+      "source_file": "data7.pack/script/saveload/black.b",
+      "origin": {
+        "archive": "GameData/data7.pack",
+        "index": 386,
+        "offset": 5383015,
+        "archive_sha256": "29d04ca1f627438ddccc066873a6651bd2c46e9561e070c780d4a64244a4f06c"
+      },
+      "status": "verified",
+      "container_sha256": "1c77971ab0c6952b111e0109919b93d4461fe8d9e623edf646845c3c82bc0606",
+      "container_chain": [],
+      "signature": "abmp12",
+      "members": [
+        {
+          "name": "data_000.bin",
+          "name_is_upstream_format_hint": true,
+          "type_code": null,
+          "raw_bytes_reference": {
+            "container_sha256": "1c77971ab0c6952b111e0109919b93d4461fe8d9e623edf646845c3c82bc0606",
+            "offset": 36,
+            "length": 254,
+            "sha256": "2bfb8b8a1cf367be89ded73f0daef313e965e7edea112a2d3b9fac047c436819"
+          },
+          "compressed": true,
+          "decoded_size": 1276,
+          "decoded_sha256": "e007ef31f78f682db5cb24c285ce7919b4f2e58a7884501b63ceb215316793c8",
+          "format": "Unknown",
+          "signature_status": "verified",
+          "content_decode_status": "unsupported",
+          "signature_hex": "06004e6f4e616d650100000000000000",
+          "destination_name_status": "verified"
+        }
+      ],
+      "tags": [
+        {
+          "offset": 16,
+          "length": 16,
+          "tag": "abdata13"
+        },
+        {
+          "offset": 290,
+          "length": 16,
+          "tag": "abimage10"
+        },
+        {
+          "offset": 307,
+          "length": 16,
+          "tag": "abimgdat13"
+        },
+        {
+          "offset": 344,
+          "length": 16,
+          "tag": "absound10"
+        },
+        {
+          "offset": 361,
+          "length": 16,
+          "tag": "absnddat11"
+        }
+      ],
+      "unknown_spans": [
+        {
+          "offset": 327,
+          "length": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 327,
+          "length": 12,
+          "sha256": "82f63b935a385c7a6e1176aec3307db0df131cd469b491b666e01d47d91a02d1",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 381,
+          "length": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "meaning": "not_tested"
+        }
+      ],
+      "resource_versions": [],
+      "errors": [],
+      "animation_semantics": "not_tested",
+      "bytes_consumed": 386,
+      "total_budget_bytes": 1276,
+      "total_budget_members": 1,
+      "upstream_commit": "531694715df21a9940578f4319d246ac8aa794de"
+    },
+    {
+      "source_file": "data8.pack/avg/sceneskip.b",
+      "origin": {
+        "archive": "GameData/data8.pack",
+        "index": 69,
+        "offset": 114387,
+        "archive_sha256": "f796a90c498de7325d8968d8ce99ef17b71753b7ce101521e390167649c83509"
+      },
+      "status": "verified",
+      "container_sha256": "0959bade470be4572ec7ad689b24859b0bd9528263108118dc26a3e9c564fe80",
+      "container_chain": [],
+      "signature": "abmp12",
+      "members": [
+        {
+          "name": "data_000.bin",
+          "name_is_upstream_format_hint": true,
+          "type_code": null,
+          "raw_bytes_reference": {
+            "container_sha256": "0959bade470be4572ec7ad689b24859b0bd9528263108118dc26a3e9c564fe80",
+            "offset": 36,
+            "length": 747,
+            "sha256": "96eb7b7048b8a6a52efba975bec1e529d687609c7dd9b5e72f4aee9f4c3a9bdd"
+          },
+          "compressed": true,
+          "decoded_size": 8875,
+          "decoded_sha256": "5a8603f31992a1e5e2c5f1990accfda575bb90ca22706b08cbfda3e9508f9824",
+          "format": "Unknown",
+          "signature_status": "verified",
+          "content_decode_status": "unsupported",
+          "signature_hex": "06004e006f004e0061006d0065000100",
+          "destination_name_status": "verified"
+        },
+        {
+          "name": "Back.jpg",
+          "name_is_upstream_format_hint": true,
+          "type_code": 1,
+          "raw_bytes_reference": {
+            "container_sha256": "0959bade470be4572ec7ad689b24859b0bd9528263108118dc26a3e9c564fe80",
+            "offset": 918,
+            "length": 59971,
+            "sha256": "24b08008a478707a90530699f995011c3ab2672fad91ea3082d7eb1a1f6fd8aa"
+          },
+          "compressed": false,
+          "decoded_size": 59971,
+          "decoded_sha256": "24b08008a478707a90530699f995011c3ab2672fad91ea3082d7eb1a1f6fd8aa",
+          "format": "JPEG",
+          "signature_status": "verified",
+          "content_decode_status": "verified",
+          "signature_hex": "ffd8ffe000104a464946000102000064",
+          "destination_name_status": "verified",
+          "width": 1024,
+          "height": 576,
+          "mode": "RGB",
+          "rgba_sha256": "22b7382e8b5a17304d0c108d15d5997a2f2acec8b949bb18e22e3240f88fae73"
+        },
+        {
+          "name": "Caption.png",
+          "name_is_upstream_format_hint": true,
+          "type_code": 3,
+          "raw_bytes_reference": {
+            "container_sha256": "0959bade470be4572ec7ad689b24859b0bd9528263108118dc26a3e9c564fe80",
+            "offset": 61013,
+            "length": 5712,
+            "sha256": "d1ce0ae245e95b563cf6a328e7516c3d0c655799ca78dd364e9256c3595e1eff"
+          },
+          "compressed": false,
+          "decoded_size": 5712,
+          "decoded_sha256": "d1ce0ae245e95b563cf6a328e7516c3d0c655799ca78dd364e9256c3595e1eff",
+          "format": "PNG",
+          "signature_status": "verified",
+          "content_decode_status": "verified",
+          "signature_hex": "89504e470d0a1a0a0000000d49484452",
+          "destination_name_status": "verified",
+          "width": 166,
+          "height": 25,
+          "mode": "RGBA",
+          "rgba_sha256": "4cd121e45a382fde9b07e8d46a972f5d606dbc64cf8f6a9870386d379d0c3659"
+        },
+        {
+          "name": "Iocn.png",
+          "name_is_upstream_format_hint": true,
+          "type_code": 3,
+          "raw_bytes_reference": {
+            "container_sha256": "0959bade470be4572ec7ad689b24859b0bd9528263108118dc26a3e9c564fe80",
+            "offset": 66843,
+            "length": 2436,
+            "sha256": "0301064c6b51f21f276d7ecbf5cf600364e59ecf64987c6b442bd0df05b785bb"
+          },
+          "compressed": false,
+          "decoded_size": 2436,
+          "decoded_sha256": "0301064c6b51f21f276d7ecbf5cf600364e59ecf64987c6b442bd0df05b785bb",
+          "format": "PNG",
+          "signature_status": "verified",
+          "content_decode_status": "verified",
+          "signature_hex": "89504e470d0a1a0a0000000d49484452",
+          "destination_name_status": "verified",
+          "width": 37,
+          "height": 37,
+          "mode": "RGBA",
+          "rgba_sha256": "d2fb9189160d08745d51f4f8cdc6233be68a82fb9d5cc61ecf7eda8f67e422f4"
+        },
+        {
+          "name": "*MesSurface.png",
+          "name_is_upstream_format_hint": true,
+          "type_code": 3,
+          "raw_bytes_reference": {
+            "container_sha256": "0959bade470be4572ec7ad689b24859b0bd9528263108118dc26a3e9c564fe80",
+            "offset": 69411,
+            "length": 537,
+            "sha256": "7c2e4e3d8fa0c9e7e307f9847d9b2e38a54fef329740cac3debacb095df56cac"
+          },
+          "compressed": false,
+          "decoded_size": 537,
+          "decoded_sha256": "7c2e4e3d8fa0c9e7e307f9847d9b2e38a54fef329740cac3debacb095df56cac",
+          "format": "PNG",
+          "signature_status": "verified",
+          "content_decode_status": "verified",
+          "signature_hex": "89504e470d0a1a0a0000000d49484452",
+          "destination_name_status": "verified",
+          "width": 300,
+          "height": 50,
+          "mode": "RGBA",
+          "rgba_sha256": "63e220ab1de9ba0123f50ed2efab05c572be857f0c4cfea266da5b30d3df4705"
+        }
+      ],
+      "tags": [
+        {
+          "offset": 16,
+          "length": 16,
+          "tag": "abdata14"
+        },
+        {
+          "offset": 783,
+          "length": 16,
+          "tag": "abimage10"
+        },
+        {
+          "offset": 800,
+          "length": 16,
+          "tag": "abimgdat15"
+        },
+        {
+          "offset": 60889,
+          "length": 16,
+          "tag": "abimgdat15"
+        },
+        {
+          "offset": 66725,
+          "length": 16,
+          "tag": "abimgdat15"
+        },
+        {
+          "offset": 69279,
+          "length": 16,
+          "tag": "abimgdat15"
+        },
+        {
+          "offset": 69948,
+          "length": 16,
+          "tag": "abimgdat15"
+        },
+        {
+          "offset": 69994,
+          "length": 16,
+          "tag": "absound10"
+        },
+        {
+          "offset": 70011,
+          "length": 16,
+          "tag": "absnddat12"
+        }
+      ],
+      "unknown_spans": [
+        {
+          "offset": 897,
+          "length": 17,
+          "sha256": "c5b42c06a4a2ca7807de12e09e2b38bcea983beb62c8f87cd602279663d21fd4",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 60992,
+          "length": 17,
+          "sha256": "c5b42c06a4a2ca7807de12e09e2b38bcea983beb62c8f87cd602279663d21fd4",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 66822,
+          "length": 17,
+          "sha256": "c5b42c06a4a2ca7807de12e09e2b38bcea983beb62c8f87cd602279663d21fd4",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 69390,
+          "length": 17,
+          "sha256": "c5b42c06a4a2ca7807de12e09e2b38bcea983beb62c8f87cd602279663d21fd4",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 69973,
+          "length": 17,
+          "sha256": "c5b42c06a4a2ca7807de12e09e2b38bcea983beb62c8f87cd602279663d21fd4",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 70033,
+          "length": 7,
+          "sha256": "5de16aef7fb6985446959d10ab9984ed7c1d9d05db7277410184084add4518d6",
+          "meaning": "not_tested"
+        }
+      ],
+      "resource_versions": [
+        {
+          "tag": "abimgdat15",
+          "offset": 816,
+          "raw_u32": 1,
+          "meaning": "not_tested",
+          "variant_status": "inferred"
+        },
+        {
+          "tag": "abimgdat15",
+          "offset": 60905,
+          "raw_u32": 1,
+          "meaning": "not_tested",
+          "variant_status": "inferred"
+        },
+        {
+          "tag": "abimgdat15",
+          "offset": 66741,
+          "raw_u32": 1,
+          "meaning": "not_tested",
+          "variant_status": "inferred"
+        },
+        {
+          "tag": "abimgdat15",
+          "offset": 69295,
+          "raw_u32": 1,
+          "meaning": "not_tested",
+          "variant_status": "inferred"
+        },
+        {
+          "tag": "abimgdat15",
+          "offset": 69964,
+          "raw_u32": 1,
+          "meaning": "not_tested",
+          "variant_status": "inferred"
+        },
+        {
+          "tag": "absnddat12",
+          "offset": 70027,
+          "raw_u32": 1,
+          "meaning": "not_tested",
+          "variant_status": "inferred"
+        }
+      ],
+      "errors": [],
+      "animation_semantics": "not_tested",
+      "bytes_consumed": 70040,
+      "total_budget_bytes": 77531,
+      "total_budget_members": 5,
+      "upstream_commit": "531694715df21a9940578f4319d246ac8aa794de"
+    },
+    {
+      "source_file": "data8.pack/avg/window/windowframe_full.b",
+      "origin": {
+        "archive": "GameData/data8.pack",
+        "index": 115,
+        "offset": 460771,
+        "archive_sha256": "f796a90c498de7325d8968d8ce99ef17b71753b7ce101521e390167649c83509"
+      },
+      "status": "verified",
+      "container_sha256": "4b8c83118bbeee2e040b2c7ffab4d4704d134a373faa28e936b930207020a5c8",
+      "container_chain": [],
+      "signature": "abmp12",
+      "members": [
+        {
+          "name": "data_000.bin",
+          "name_is_upstream_format_hint": true,
+          "type_code": null,
+          "raw_bytes_reference": {
+            "container_sha256": "4b8c83118bbeee2e040b2c7ffab4d4704d134a373faa28e936b930207020a5c8",
+            "offset": 36,
+            "length": 448,
+            "sha256": "9ca68bbe615b2f3c9c02d1cb390fbb0e498ee6bf6da1bc73d21d8f20aaac6d86"
+          },
+          "compressed": true,
+          "decoded_size": 2923,
+          "decoded_sha256": "6a2a569a82fc3aaff5e8e3c78e4ac17c6d1ed5da87ecb95bd7903e0bd06c0ad0",
+          "format": "Unknown",
+          "signature_status": "verified",
+          "content_decode_status": "unsupported",
+          "signature_hex": "06004e6f4e616d650100000000000000",
+          "destination_name_status": "verified"
+        },
+        {
+          "name": "*MesSurface.png",
+          "name_is_upstream_format_hint": true,
+          "type_code": 53,
+          "raw_bytes_reference": {
+            "container_sha256": "4b8c83118bbeee2e040b2c7ffab4d4704d134a373faa28e936b930207020a5c8",
+            "offset": 778,
+            "length": 470,
+            "sha256": "3c57ab5bb02f68205352b69510a9706e218a430a40fffc4204aa1a2fca52bb0f"
+          },
+          "compressed": false,
+          "decoded_size": 470,
+          "decoded_sha256": "3c57ab5bb02f68205352b69510a9706e218a430a40fffc4204aa1a2fca52bb0f",
+          "format": "PNG",
+          "signature_status": "verified",
+          "content_decode_status": "verified",
+          "signature_hex": "89504e470d0a1a0a0000000d49484452",
+          "destination_name_status": "verified",
+          "width": 300,
+          "height": 50,
+          "mode": "RGBA",
+          "rgba_sha256": "cb29d943209d924614f5fc8dee12450d51c476ed1016ec2d6a88aba467f6604b"
+        }
+      ],
+      "tags": [
+        {
+          "offset": 16,
+          "length": 16,
+          "tag": "abdata13"
+        },
+        {
+          "offset": 484,
+          "length": 16,
+          "tag": "abimage10"
+        },
+        {
+          "offset": 501,
+          "length": 16,
+          "tag": "abimgdat14"
+        },
+        {
+          "offset": 602,
+          "length": 16,
+          "tag": "abimgdat14"
+        },
+        {
+          "offset": 1248,
+          "length": 16,
+          "tag": "absound10"
+        },
+        {
+          "offset": 1265,
+          "length": 16,
+          "tag": "absnddat11"
+        }
+      ],
+      "unknown_spans": [
+        {
+          "offset": 521,
+          "length": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 521,
+          "length": 76,
+          "sha256": "64fdb2b98cead487b705b752c0eef710de7d7ea173dac9233fd2387db5001db7",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 633,
+          "length": 64,
+          "sha256": "c511f1e078d895409ec677767a51dfc8d36bb2c8616cb560cb896e0850447ee0",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 697,
+          "length": 76,
+          "sha256": "64fdb2b98cead487b705b752c0eef710de7d7ea173dac9233fd2387db5001db7",
+          "meaning": "not_tested"
+        },
+        {
+          "offset": 1285,
+          "length": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "meaning": "not_tested"
+        }
+      ],
+      "resource_versions": [],
+      "errors": [],
+      "animation_semantics": "not_tested",
+      "bytes_consumed": 1290,
+      "total_budget_bytes": 3393,
+      "total_budget_members": 2,
+      "upstream_commit": "531694715df21a9940578f4319d246ac8aa794de"
+    }
+  ],
+  "member_count": 48,
+  "tag_counts": {
+    "abdata13": 14,
+    "abimage10": 17,
+    "abimgdat13": 2,
+    "absound10": 17,
+    "absnddat11": 14,
+    "abdata14": 3,
+    "abimgdat15": 11,
+    "absnddat12": 3,
+    "abimgdat14": 33
+  },
+  "format_counts": {
+    "Unknown": 18,
+    "PNG": 19,
+    "ABMP-candidate": 8,
+    "JPEG": 3
+  },
+  "game_files_written": false,
+  "resource_bytes_exported": false,
+  "animation_semantics": "unsupported",
+  "limits": {
+    "member_bytes": 16777216,
+    "total_bytes_per_worker": 67108864,
+    "members": 4096,
+    "depth": 4,
+    "cpu_seconds": 20,
+    "wall_seconds": 25,
+    "hard_rss_cap": "unsupported"
+  }
+}

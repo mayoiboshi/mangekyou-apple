@@ -1,0 +1,293 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Event binding and parameter conversion static evidence; no VM or runtime equivalence",
+  "facts": [
+    {
+      "id": "manager_forwards_record",
+      "status": "verified",
+      "evidence": "manager-create-assembly",
+      "start": "0x69a8d9",
+      "end": "0x69a91f",
+      "observation": "Copy eight DWORDs; forward one stack record to three constructors, storing returns at +8/+10/+18.",
+      "scope": "Ordered selected instructions only; reachability, complete ABI and execution equivalence remain unknown",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x69a8de: MOV ECX, 0x8",
+        "0x69a8e3: MOVSD.REP ES:EDI, ESI",
+        "0x69a8e9: LEA ECX, [EBP + -0x20]",
+        "0x69a8f3: CALL 0x0069a4d8",
+        "0x69a8f8: MOV dword ptr [ESI + 0x8], EAX",
+        "0x69a8fb: LEA ECX, [EBP + -0x20]",
+        "0x69a905: CALL 0x0069a4d8",
+        "0x69a90a: MOV dword ptr [ESI + 0x10], EAX",
+        "0x69a90d: LEA ECX, [EBP + -0x20]",
+        "0x69a917: CALL 0x0069ffc0",
+        "0x69a91c: MOV dword ptr [ESI + 0x18], EAX"
+      ],
+      "unknown": [
+        "Execution not_tested"
+      ]
+    },
+    {
+      "id": "table_event_copy",
+      "status": "verified",
+      "evidence": "table-create-assembly",
+      "start": "0x69a4ed",
+      "end": "0x69a50b",
+      "observation": "Two eight-DWORD copies move the input record through the stack to instance+10.",
+      "scope": "Ordered selected instructions only; reachability, complete ABI and execution equivalence remain unknown",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x69a4ed: MOV ESI, ECX",
+        "0x69a4ef: LEA EDI, [EBP + -0x20]",
+        "0x69a4f2: MOV ECX, 0x8",
+        "0x69a4f7: MOVSD.REP ES:EDI, ESI",
+        "0x69a4fe: LEA EDI, [ESI + 0x10]",
+        "0x69a501: LEA ESI, [EBP + -0x20]",
+        "0x69a504: MOV ECX, 0x8",
+        "0x69a509: MOVSD.REP ES:EDI, ESI"
+      ],
+      "unknown": [
+        "Execution not_tested"
+      ]
+    },
+    {
+      "id": "object_event_copy",
+      "status": "verified",
+      "evidence": "object-create-assembly",
+      "start": "0x69e575",
+      "end": "0x69e593",
+      "observation": "Two eight-DWORD copies move the input record to instance+48.",
+      "scope": "Ordered selected instructions only; reachability, complete ABI and execution equivalence remain unknown",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x69e575: MOV ESI, ECX",
+        "0x69e577: LEA EDI, [EBP + -0x20]",
+        "0x69e57a: MOV ECX, 0x8",
+        "0x69e57f: MOVSD.REP ES:EDI, ESI",
+        "0x69e586: LEA EDI, [ESI + 0x48]",
+        "0x69e589: LEA ESI, [EBP + -0x20]",
+        "0x69e58c: MOV ECX, 0x8",
+        "0x69e591: MOVSD.REP ES:EDI, ESI"
+      ],
+      "unknown": [
+        "Execution not_tested"
+      ]
+    },
+    {
+      "id": "register_forwards_event_set",
+      "status": "verified",
+      "evidence": "register-wrapper-assembly",
+      "start": "0x69a65a",
+      "end": "0x69a67a",
+      "observation": "Selected registration branch forwards instance+10 to the object-array constructor and stores its return at entry+34.",
+      "scope": "Ordered selected instructions only; reachability, complete ABI and execution equivalence remain unknown",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x69a65f: MOV EAX, dword ptr [ESI + 0x34]",
+        "0x69a668: LEA ECX, [ESI + 0x10]",
+        "0x69a66b: MOV DL, 0x1",
+        "0x69a66d: MOV EAX, [0x00697c88]",
+        "0x69a672: CALL 0x0069e560",
+        "0x69a677: MOV dword ptr [EBX + 0x34], EAX"
+      ],
+      "unknown": [
+        "Execution not_tested"
+      ]
+    },
+    {
+      "id": "error_mode_propagation",
+      "status": "verified",
+      "evidence": "error-mode-assembly",
+      "start": "0x69d780",
+      "end": "0x69d7b2",
+      "observation": "Write supplied byte to instance+4 and propagate it through two getters and the +18 object.",
+      "scope": "Ordered selected instructions only; reachability, complete ABI and execution equivalence remain unknown",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x69d782: MOV EBX, EDX",
+        "0x69d786: MOV byte ptr [ESI + 0x4], BL",
+        "0x69d78b: CALL 0x0069f3a0",
+        "0x69d792: CALL 0x0069d8e0",
+        "0x69d799: CALL 0x0069f278",
+        "0x69d7a0: CALL 0x0069d8e0",
+        "0x69d7a7: MOV EAX, dword ptr [ESI + 0x18]",
+        "0x69d7aa: CALL 0x006a0550"
+      ],
+      "unknown": [
+        "Execution not_tested"
+      ]
+    },
+    {
+      "id": "call_conversion_mode",
+      "status": "verified",
+      "evidence": "call-dispatch-assembly",
+      "start": "0x6b7862",
+      "end": "0x6b7890",
+      "observation": "Call the same error-mode helper with zero before conversion and one afterward; exception restoration unknown.",
+      "scope": "Ordered selected instructions only; reachability, complete ABI and execution equivalence remain unknown",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6b7865: MOV EAX, dword ptr [EAX + 0xe8]",
+        "0x6b786b: XOR EDX, EDX",
+        "0x6b786d: CALL 0x0069d780",
+        "0x6b7872: LEA ECX, [EBP + -0x24]",
+        "0x6b7875: MOV EDX, dword ptr [EBP + -0x10]",
+        "0x6b787b: CALL 0x006be1d8",
+        "0x6b7889: MOV DL, 0x1",
+        "0x6b788b: CALL 0x0069d780"
+      ],
+      "unknown": [
+        "Execution not_tested"
+      ]
+    },
+    {
+      "id": "argument_tag_four_branch",
+      "status": "verified",
+      "evidence": "call-dispatch-assembly",
+      "start": "0x6b7890",
+      "end": "0x6b7896",
+      "observation": "Compare the first descriptor byte with four; other tags branch to the descriptor-field path.",
+      "scope": "Ordered selected instructions only; reachability, complete ABI and execution equivalence remain unknown",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6b7890: CMP byte ptr [EBP + -0x24], 0x4",
+        "0x6b7894: JNZ 0x006b78f5"
+      ],
+      "unknown": [
+        "Execution not_tested"
+      ]
+    },
+    {
+      "id": "fallback_integer_source",
+      "status": "verified",
+      "evidence": "call-dispatch-assembly",
+      "start": "0x6b789e",
+      "end": "0x6b78c8",
+      "observation": "Tag-four path passes raw string and integer default zero to a helper, then invokes the integer-slot writer.",
+      "scope": "Ordered selected instructions only; reachability, complete ABI and execution equivalence remain unknown",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6b789e: XOR EDX, EDX",
+        "0x6b78a0: MOV EAX, dword ptr [EBP + -0x10]",
+        "0x6b78a3: CALL 0x00415a90",
+        "0x6b78a8: PUSH EAX",
+        "0x6b78b7: CALL 0x0069f394",
+        "0x6b78bc: MOV ECX, EBX",
+        "0x6b78be: MOV EDX, 0x6b7c24",
+        "0x6b78c3: CALL 0x0069d2c8"
+      ],
+      "unknown": [
+        "Execution not_tested"
+      ]
+    },
+    {
+      "id": "fallback_string_source",
+      "status": "verified",
+      "evidence": "call-dispatch-assembly",
+      "start": "0x6b78d0",
+      "end": "0x6b78f5",
+      "observation": "Tag-four path passes the raw string to the string-slot writer before merging.",
+      "scope": "Ordered selected instructions only; reachability, complete ABI and execution equivalence remain unknown",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6b78d0: MOV EAX, dword ptr [EBP + -0x10]",
+        "0x6b78d3: PUSH EAX",
+        "0x6b78e2: CALL 0x0069f394",
+        "0x6b78e7: MOV ECX, EBX",
+        "0x6b78e9: MOV EDX, 0x6b7c58",
+        "0x6b78ee: CALL 0x0069d35c",
+        "0x6b78f3: JMP 0x006b794b"
+      ],
+      "unknown": [
+        "Execution not_tested"
+      ]
+    },
+    {
+      "id": "descriptor_field_sources",
+      "status": "verified",
+      "evidence": "call-dispatch-assembly",
+      "start": "0x6b78fd",
+      "end": "0x6b794b",
+      "observation": "Non-four path uses the descriptor integer and string fields in the two writer calls.",
+      "scope": "Ordered selected instructions only; reachability, complete ABI and execution equivalence remain unknown",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6b78fd: MOV EAX, dword ptr [EBP + -0x20]",
+        "0x6b7900: PUSH EAX",
+        "0x6b7916: MOV EDX, 0x6b7c24",
+        "0x6b791b: CALL 0x0069d2c8",
+        "0x6b7928: MOV EAX, dword ptr [EBP + -0x1c]",
+        "0x6b792b: PUSH EAX",
+        "0x6b7941: MOV EDX, 0x6b7c58",
+        "0x6b7946: CALL 0x0069d35c"
+      ],
+      "unknown": [
+        "Execution not_tested"
+      ]
+    },
+    {
+      "id": "integer_helper_default",
+      "status": "verified",
+      "evidence": "integer-default-assembly",
+      "start": "0x415a90",
+      "end": "0x415aa6",
+      "observation": "Preserve second argument; when conversion reports a nonzero error slot, move the preserved default into EAX.",
+      "scope": "Ordered selected instructions only; reachability, complete ABI and execution equivalence remain unknown",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x415a92: MOV EBX, EDX",
+        "0x415a94: MOV EDX, ESP",
+        "0x415a96: CALL 0x00404ffc",
+        "0x415a9b: CMP dword ptr [ESP], 0x0",
+        "0x415a9f: JZ 0x00415aa3",
+        "0x415aa1: MOV EAX, EBX"
+      ],
+      "unknown": [
+        "Execution not_tested"
+      ]
+    }
+  ],
+  "inferred_contracts": [
+    {
+      "id": "static_event_chain",
+      "status": "inferred",
+      "basis": [
+        "manager_forwards_record",
+        "table_event_copy",
+        "register_forwards_event_set",
+        "object_event_copy",
+        "reports/p1/object-callback-report.json"
+      ],
+      "observation": "Event records link initialization, tables, object arrays and the creation bridge; both creation and load bridges call the factory.",
+      "runtime_reachability": "not_tested",
+      "full_ABI": "not_tested"
+    },
+    {
+      "id": "argument_fallback",
+      "status": "inferred",
+      "basis": [
+        "call_conversion_mode",
+        "argument_tag_four_branch",
+        "fallback_integer_source",
+        "fallback_string_source",
+        "descriptor_field_sources",
+        "integer_helper_default"
+      ],
+      "observation": "Declared vtError selects raw string and default integer fallback on this parameter path; other tags use descriptor fields.",
+      "actual_argument_tag": "not_tested",
+      "exception_restoration": "not_tested"
+    },
+    {
+      "id": "object_value_representation",
+      "status": "inferred",
+      "basis": [
+        "LLVM object-value-get window",
+        "TValueArrayObject declarations"
+      ],
+      "observation": "Selected GetValue writes tag two and integer zero, then assigns a string from the data array; Object naming alone does not prove a native pointer array.",
+      "complete_handle_semantics": "not_tested"
+    }
+  ]
+}

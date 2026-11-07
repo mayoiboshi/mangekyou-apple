@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Only four fixed PE32 VMTs and one record, not general Delphi or game compatibility",
+  "classes": [
+    {
+      "name": "TScriptDataListInterface",
+      "vmt": "0x6a77fc",
+      "slots": 4
+    },
+    {
+      "name": "TScriptBlock",
+      "vmt": "0x6a7a98",
+      "slots": 3
+    },
+    {
+      "name": "TScriptRoutine",
+      "vmt": "0x6a802c",
+      "slots": 4
+    },
+    {
+      "name": "TScriptThread",
+      "vmt": "0x6a8440",
+      "slots": 4
+    }
+  ],
+  "records": [
+    {
+      "name": "TScriptRoutineResult",
+      "type_info": "0x6a7e54",
+      "fields_count_address": "0x6a7e9b"
+    }
+  ],
+  "negative_class_seeds": [
+    "0x6a775c",
+    "0x6a7af8"
+  ]
+}

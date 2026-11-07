@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "List and self-path static evidence; no target execution",
+  "facts": [
+    {
+      "id": "reader_current_record_key",
+      "status": "verified",
+      "evidence": "reader-current-key-assembly",
+      "start": "0x696190",
+      "end": "0x6961b5",
+      "observation": "Current record index is bounded, then the first word of a 24-byte record is copied out.",
+      "scope": "Selected static instructions only; not original execution equivalence",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x696190: CMP dword ptr [EBX + 0x14], 0x0",
+        "0x69619a: MOV ESI, dword ptr [EBX + 0x1c]",
+        "0x6961a7: LEA EDX, [ESI + ESI*0x2]",
+        "0x6961ad: MOV EDX, dword ptr [ECX + EDX*0x8]"
+      ],
+      "unknown": [
+        "Original execution and complete lifetime not tested"
+      ]
+    },
+    {
+      "id": "reader_source_field",
+      "status": "verified",
+      "evidence": "reader-source-name-assembly",
+      "start": "0x69689b",
+      "end": "0x6968c5",
+      "observation": "After key lookup, the selected helper copies record offset 12.",
+      "scope": "Selected static instructions only; not original execution equivalence",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x69689d: CALL 0x00696094",
+        "0x6968a4: CMP ESI, -0x1",
+        "0x6968b6: LEA EDX, [ESI + ESI*0x2]",
+        "0x6968bc: MOV EDX, dword ptr [ECX + EDX*0x8 + 0xc]"
+      ],
+      "unknown": [
+        "Original execution and complete lifetime not tested"
+      ]
+    },
+    {
+      "id": "directory_suffix_helper",
+      "status": "verified",
+      "evidence": "extract-directory-assembly",
+      "start": "0x4163c3",
+      "end": "0x4163e0",
+      "observation": "The selected helper uses a delimiter constant and returns the prefix ending at its reported position.",
+      "scope": "Selected static instructions only; not original execution equivalence",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x4163c5: MOV EAX, 0x4163f0",
+        "0x4163ca: CALL 0x0041620c",
+        "0x4163d4: MOV EDX, 0x1",
+        "0x4163db: CALL 0x00407ba0"
+      ],
+      "unknown": [
+        "Original execution and complete lifetime not tested"
+      ]
+    }
+  ],
+  "inferred_contracts": [
+    {
+      "id": "list_and_path_candidate",
+      "status": "inferred",
+      "meaning": "Bounded ASCII lookup and self-directory resource candidate; Windows locale, full search prefixes, preprocessing and execution equivalence untested"
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "dataset": "real",
+  "stage": "P1 static foundation round 1",
+  "status": "verified",
+  "p1_fully_complete": false,
+  "runtime_development_ready": false,
+  "tests_run": 65,
+  "jobs": [
+    {
+      "name": "static_corpus",
+      "status": "verified",
+      "exit_code": 0,
+      "stdout": "{\"files\": 379, \"errors\": 0, \"inline_command_lines\": 7398, \"overlay_counts\": {\"line_ending_normalized_text_equal\": 113, \"normalized_text_changed\": 11, \"raw_equal\": 53}, \"include_count\": 442, \"label_references\": 3106, \"resource_candidate_edges\": 18786}\n",
+      "stderr": ""
+    },
+    {
+      "name": "abmp_containers",
+      "status": "verified",
+      "exit_code": 0,
+      "stdout": "{\"status\": \"verified\", \"files\": 9, \"member_count\": 48, \"tag_counts\": {\"abdata13\": 14, \"abimage10\": 17, \"abimgdat13\": 2, \"absound10\": 17, \"absnddat11\": 14, \"abdata14\": 3, \"abimgdat15\": 11, \"absnddat12\": 3, \"abimgdat14\": 33}, \"format_counts\": {\"Unknown\": 18, \"PNG\": 19, \"ABMP-candidate\": 8, \"JPEG\": 3}}\n",
+      "stderr": ""
+    }
+  ],
+  "p0_reports_unchanged": "verified",
+  "original_files_written": false,
+  "game_execution": "not_tested",
+  "external_game_data_uploads": false,
+  "remaining": [
+    "Load/patch precedence",
+    "Command execution and expression model",
+    "Variable scopes and save state",
+    "ABMP opaque data/parameters and animation semantics",
+    "Original engine rendering/timing equivalence",
+    "Third-party licensing for distribution"
+  ],
+  "files": 379,
+  "inline_command_lines": 7398,
+  "original_pack_integrity": "verified",
+  "changed_duplicate_texts": 11,
+  "unresolved_label_literals": 140,
+  "dynamic_control_targets": 205,
+  "unresolved_resource_literals": 2735,
+  "unknown_abmp_members": 18
+}

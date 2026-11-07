@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "profile": "experimental_static_contracts_v4",
+  "status": "inferred",
+  "basis_profile": "docs/runtime-profile-v3.json",
+  "original_engine_equivalence": "not_tested",
+  "scope": "Bounded one-dimensional int/string arrays and prior table/module subset; not a complete QLIE runtime",
+  "basis": ["reports/p1/index-native-report.json", "reports/p1/index-allocation-native-report.json", "reports/p1/index-binding-report.json"],
+  "contracts": [
+    {"id": "declaration_dimension", "status": "inferred", "implemented": "Unindexed int/str declarations have one element. One integer dimension expression is evaluated without writes, then values below one clamp to one. Larger allocations stop at explicit limits.", "unsupported": ["multiple source coordinates", "object arrays", "dimension expressions requiring coercion"]},
+    {"id": "array_element_access", "status": "inferred", "implemented": "Plain variable name selects element zero; a single integer coordinate selects a bounded element. String access returns the whole stored element. Int and str elements initialize to zero and empty string.", "unsupported": ["string character indexing", "multiple source coordinates", "array slices", "native overflow/coercion/error equivalence"]},
+    {"id": "assignment_and_scope", "status": "inferred", "implemented": "Same-type indexed assignment, frame-local shadowing and global result element zero. Nested assignments and index side effects are rejected. Prior atomic instruction commit policy retained.", "original_error_rollback": "not_tested"}
+  ],
+  "limits": {"elements_per_binding": 4096, "elements_total": 65536, "bindings": 4096, "strings_utf8_bytes_total": 8388608},
+  "unchanged_limits": "Other catalog/table/expression limits remain as in v3/v2/v1 and source code",
+  "real_validation": "reports/p1/index-execution-report.json",
+  "owned_tests": "native/Tests/MangekyouCoreTests/IndexTests.swift",
+  "full_game_compatibility": "not_tested",
+  "original_files_written": false,
+  "commercial_assets_bundled": false
+}

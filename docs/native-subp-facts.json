@@ -1,0 +1,330 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Subp raw-tail packing, selected builtin rep and field grouping observations; no VM",
+  "facts": [
+    {
+      "id": "subp_selector",
+      "status": "verified",
+      "evidence": "call-dispatch-assembly",
+      "start": "0x6b7408",
+      "end": "0x6b741e",
+      "observation": "subp/subr 均进入共享区域，后续另有 subp 专用分支。",
+      "scope": "选定指令及顺序；不证明完整路径可达、脚本值转换或执行等价",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6b7408: SUB EAX, 0x70627573",
+        "0x6b740d: JZ 0x006b759d",
+        "0x6b7413: SUB EAX, 0x2000000",
+        "0x6b7418: JZ 0x006b759d"
+      ],
+      "unknown": [
+        "实际执行 not_tested"
+      ]
+    },
+    {
+      "id": "call_pad_nineteen",
+      "status": "verified",
+      "evidence": "call-dispatch-assembly",
+      "start": "0x6b759d",
+      "end": "0x6b75ac",
+      "observation": "共享入口将 ECX 置 19、EDX 置列表，再调用补齐助手。",
+      "scope": "选定指令及顺序；不证明完整路径可达、脚本值转换或执行等价",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6b759d: MOV ECX, 0x13",
+        "0x6b75a2: MOV EDX, ESI",
+        "0x6b75a7: CALL 0x006caf0c"
+      ],
+      "unknown": [
+        "实际执行 not_tested"
+      ]
+    },
+    {
+      "id": "padding_appends_zero",
+      "status": "verified",
+      "evidence": "call-padding-assembly",
+      "start": "0x6caf0c",
+      "end": "0x6caf2e",
+      "observation": "不足输入目标数量的部分通过列表追加入口传入零。",
+      "scope": "选定指令及顺序；不证明完整路径可达、脚本值转换或执行等价",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6caf0e: MOV EBX, ECX",
+        "0x6caf16: CALL dword ptr [EDX + 0x14]",
+        "0x6caf19: DEC EBX",
+        "0x6caf1a: SUB EBX, EAX",
+        "0x6caf1c: JL 0x006caf2b",
+        "0x6caf1f: XOR EDX, EDX",
+        "0x6caf25: CALL dword ptr [ECX + 0x38]",
+        "0x6caf28: DEC EBX",
+        "0x6caf29: JNZ 0x006caf1f"
+      ],
+      "unknown": [
+        "实际执行 not_tested"
+      ]
+    },
+    {
+      "id": "subp_last_present_scan",
+      "status": "verified",
+      "evidence": "call-dispatch-assembly",
+      "start": "0x6b75f0",
+      "end": "0x6b763c",
+      "observation": "subp 专用路径从列表尾向前寻找非零字段。",
+      "scope": "选定指令及顺序；不证明完整路径可达、脚本值转换或执行等价",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6b75f0: CMP dword ptr [EBP + -0x28], 0x70627573",
+        "0x6b75f7: JNZ 0x006b76b5",
+        "0x6b7614: DEC EBX",
+        "0x6b7626: CALL dword ptr [EDI + 0xc]",
+        "0x6b7629: CMP dword ptr [EBP + 0xffffff74], 0x0",
+        "0x6b7630: JNZ 0x006b7638",
+        "0x6b7632: DEC EBX",
+        "0x6b7638: INC EBX"
+      ],
+      "unknown": [
+        "实际执行 not_tested"
+      ]
+    },
+    {
+      "id": "subp_tail_merge",
+      "status": "verified",
+      "evidence": "call-dispatch-assembly",
+      "start": "0x6b7649",
+      "end": "0x6b7692",
+      "observation": "从字段 3 起逐项拼接，中间使用指定常量，再写回字段 3。",
+      "scope": "选定指令及顺序；不证明完整路径可达、脚本值转换或执行等价",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6b7649: MOV EBX, 0x3",
+        "0x6b764e: CMP EBX, 0x3",
+        "0x6b7651: JLE 0x006b7660",
+        "0x6b7656: MOV EDX, 0x6b7bdc",
+        "0x6b765b: CALL 0x00407874",
+        "0x6b766c: CALL dword ptr [EDI + 0xc]",
+        "0x6b7678: CALL 0x00407874",
+        "0x6b767d: INC EBX",
+        "0x6b7686: MOV EDX, 0x3",
+        "0x6b768f: CALL dword ptr [EBX + 0x20]"
+      ],
+      "unknown": [
+        "实际执行 not_tested"
+      ]
+    },
+    {
+      "id": "subp_clear_later_fields",
+      "status": "verified",
+      "evidence": "call-dispatch-assembly",
+      "start": "0x6b7692",
+      "end": "0x6b76b5",
+      "observation": "字段 4 起的剩余项传入零，随后进入公共参数处理路径。",
+      "scope": "选定指令及顺序；不证明完整路径可达、脚本值转换或执行等价",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6b7692: MOV EAX, dword ptr [EBP + -0x30]",
+        "0x6b7696: SUB EAX, 0x4",
+        "0x6b769f: MOV EBX, 0x4",
+        "0x6b76a4: XOR ECX, ECX",
+        "0x6b76ac: CALL dword ptr [EDI + 0x20]",
+        "0x6b76af: INC EBX",
+        "0x6b76b3: JNZ 0x006b76a4"
+      ],
+      "unknown": [
+        "实际执行 not_tested"
+      ]
+    },
+    {
+      "id": "common_sixteen_slots",
+      "status": "verified",
+      "evidence": "call-dispatch-assembly",
+      "start": "0x6b7832",
+      "end": "0x6b7955",
+      "observation": "共享参数循环访问槽号加三，保存最高出现槽加一，循环边界为 16。",
+      "scope": "选定指令及顺序；不证明完整路径可达、脚本值转换或执行等价",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6b7838: LEA EDX, [EBX + 0x3]",
+        "0x6b783f: CALL dword ptr [EDI + 0xc]",
+        "0x6b7842: CMP dword ptr [EBP + 0xffffff58], 0x0",
+        "0x6b7849: JZ 0x006b794b",
+        "0x6b785c: LEA EAX, [EBX + 0x1]",
+        "0x6b785f: MOV dword ptr [EBP + -0x34], EAX",
+        "0x6b794b: INC EBX",
+        "0x6b794c: CMP EBX, 0x10",
+        "0x6b794f: JNZ 0x006b7832"
+      ],
+      "unknown": [
+        "实际执行 not_tested"
+      ]
+    },
+    {
+      "id": "native_group_depth",
+      "status": "verified",
+      "evidence": "field-split-assembly",
+      "start": "0x69a0c5",
+      "end": "0x69a10d",
+      "observation": "引号状态和同一个括号/方括号有符号计数参与分隔符判断。",
+      "scope": "选定指令及顺序；不证明完整路径可达、脚本值转换或执行等价",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x69a0c5: CMP word ptr [EBP + -0x1e], 0x22",
+        "0x69a0cc: XOR dword ptr [EBP + -0x14], 0x1",
+        "0x69a0d0: CMP dword ptr [EBP + -0x14], 0x0",
+        "0x69a0d4: JG 0x0069a131",
+        "0x69a0d6: CMP word ptr [EBP + -0x1e], 0x5b",
+        "0x69a0dd: CMP word ptr [EBP + -0x1e], 0x28",
+        "0x69a0e4: INC dword ptr [EBP + -0x10]",
+        "0x69a0e7: CMP word ptr [EBP + -0x1e], 0x5d",
+        "0x69a0ee: CMP word ptr [EBP + -0x1e], 0x29",
+        "0x69a0f5: DEC dword ptr [EBP + -0x10]",
+        "0x69a0f8: CMP dword ptr [EBP + -0x10], 0x0",
+        "0x69a0fc: JG 0x0069a131",
+        "0x69a102: CMP AX, word ptr [EBP + -0xa]",
+        "0x69a106: JNZ 0x0069a131"
+      ],
+      "unknown": [
+        "实际执行 not_tested"
+      ]
+    },
+    {
+      "id": "field_list_copy_and_add",
+      "status": "verified",
+      "evidence": "field-split-assembly",
+      "start": "0x69a10d",
+      "end": "0x69a13a",
+      "observation": "源区间传给字符串片段助手，再加入列表。",
+      "scope": "选定指令及顺序；不证明完整路径可达、脚本值转换或执行等价",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x69a111: MOV ECX, ESI",
+        "0x69a116: DEC ECX",
+        "0x69a117: MOV EDX, dword ptr [EBP + -0x28]",
+        "0x69a11a: INC EDX",
+        "0x69a11e: CALL 0x004e3dd8",
+        "0x69a12b: CALL dword ptr [ECX + 0x38]"
+      ],
+      "unknown": [
+        "实际执行 not_tested"
+      ]
+    },
+    {
+      "id": "builtin_rep_register",
+      "status": "verified",
+      "evidence": "builtin-register-assembly",
+      "start": "0x6bcc1c",
+      "end": "0x6bcc3d",
+      "observation": "注册调用使用同一个 rep 常量地址作为两个输入。",
+      "scope": "选定指令及顺序；不证明完整路径可达、脚本值转换或执行等价",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6bcc24: PUSH 0x0",
+        "0x6bcc26: PUSH 0x2",
+        "0x6bcc2c: MOV ECX, 0x6bd81c",
+        "0x6bcc31: MOV EDX, 0x6bd81c",
+        "0x6bcc38: CALL 0x0069a5c4"
+      ],
+      "unknown": [
+        "实际执行 not_tested"
+      ]
+    },
+    {
+      "id": "builtin_registration_table",
+      "status": "verified",
+      "evidence": "builtin-register-assembly",
+      "start": "0x6bca8e",
+      "end": "0x6bcc3d",
+      "observation": "注册表来自变量上下文助手；回调与遮蔽未闭合。",
+      "scope": "选定指令及顺序；不证明完整路径可达、脚本值转换或执行等价",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6bca8e: MOV EAX, dword ptr [ESI + 0xe8]",
+        "0x6bca94: CALL 0x0069f278",
+        "0x6bca99: MOV EBX, EAX",
+        "0x6bcc36: MOV EAX, EBX",
+        "0x6bcc38: CALL 0x0069a5c4"
+      ],
+      "unknown": [
+        "实际执行 not_tested"
+      ]
+    },
+    {
+      "id": "rep_factory_path",
+      "status": "verified",
+      "evidence": "type-factory-assembly",
+      "start": "0x6bf387",
+      "end": "0x6bf3a6",
+      "observation": "工厂比较 rep 的一条相等路径调用选定构造函数。",
+      "scope": "选定指令及顺序；不证明完整路径可达、脚本值转换或执行等价",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6bf38a: MOV EDX, 0x6bf7b0",
+        "0x6bf38f: CALL 0x00407b38",
+        "0x6bf394: JNZ 0x006bf3a6",
+        "0x6bf39a: MOV EAX, [0x00685dd8]",
+        "0x6bf39f: CALL 0x0068d738"
+      ],
+      "unknown": [
+        "实际执行 not_tested"
+      ]
+    },
+    {
+      "id": "rep_constructor_tag",
+      "status": "verified",
+      "evidence": "rep-constructor-assembly",
+      "start": "0x68d76e",
+      "end": "0x68d777",
+      "observation": "基类调用之后，将对象 +0xc 的类型字节写为 14。",
+      "scope": "选定指令及顺序；不证明完整路径可达、脚本值转换或执行等价",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x68d76e: CALL 0x0068bc58",
+        "0x68d773: MOV byte ptr [ESI + 0xc], 0xe"
+      ],
+      "unknown": [
+        "实际执行 not_tested"
+      ]
+    },
+    {
+      "id": "object_type_dispatch",
+      "status": "verified",
+      "evidence": "object-dispatch-assembly",
+      "start": "0x6aaeb1",
+      "end": "0x6ab12f",
+      "observation": "对象 +0xc 参与有界跳表分派，选定调用指向前缀分派器；表项单独验证。",
+      "scope": "选定指令及顺序；不证明完整路径可达、脚本值转换或执行等价",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6aaeb1: MOVZX EAX, byte ptr [EDI + 0xc]",
+        "0x6aaeb5: CMP EAX, 0x28",
+        "0x6aaebe: JMP dword ptr [EAX*0x4 + 0x6aaec5]",
+        "0x6ab12a: CALL 0x006ba248"
+      ],
+      "unknown": [
+        "实际执行 not_tested"
+      ]
+    }
+  ],
+  "inferred_contracts": [
+    {
+      "id": "subp_raw_tail",
+      "status": "inferred",
+      "meaning": "subp 合并字段 3 起的原始尾部，再走共享调用；不保证逐字节保留原文或尾部空字段。"
+    },
+    {
+      "id": "nineteen_fields",
+      "status": "inferred",
+      "meaning": "先补到至少 19 项，对应 opcode、两个目标字段和 16 槽的布局候选，不是输入最多 19 项的证明。"
+    },
+    {
+      "id": "rep_conditional_binding",
+      "status": "inferred",
+      "meaning": "内建 rep 注册、工厂类型 14 和前缀分派器形成条件关系；对象身份、创建回调及遮蔽未知。"
+    },
+    {
+      "id": "grouped_fields",
+      "status": "inferred",
+      "meaning": "原生选定拆分路径使用引号和有符号分组计数；只观察静态边界，不实现表达式。"
+    }
+  ]
+}

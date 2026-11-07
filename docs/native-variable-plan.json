@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Bounded variable, assignment and index helper observations; no target execution",
+  "queries": [
+    {
+      "name": "assign-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69b260"
+    },
+    {
+      "name": "assign-store-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69d400"
+    },
+    {
+      "name": "assign-store",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69d400"
+    },
+    {
+      "name": "assign",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69b260"
+    },
+    {
+      "name": "context-lookup",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6a0520"
+    },
+    {
+      "name": "context-read",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6a0220"
+    },
+    {
+      "name": "context-select",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6a0264"
+    },
+    {
+      "name": "element-index-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69dd30"
+    },
+    {
+      "name": "element-index",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69dd30"
+    },
+    {
+      "name": "element-read-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69dcf0"
+    },
+    {
+      "name": "element-read",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69dcf0"
+    },
+    {
+      "name": "element-write-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69dea4"
+    },
+    {
+      "name": "element-write",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69dea4"
+    },
+    {
+      "name": "expression-core-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69bab4"
+    },
+    {
+      "name": "index-evaluate-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69f900"
+    },
+    {
+      "name": "index-evaluate",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69f900"
+    },
+    {
+      "name": "integer64-default-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x415b0c"
+    },
+    {
+      "name": "integer64-default",
+      "operation": "procedure_pseudo_code",
+      "address": "0x415b0c"
+    },
+    {
+      "name": "name-index-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69fb64"
+    },
+    {
+      "name": "name-index",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69fb64"
+    },
+    {
+      "name": "name-lookup-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69f3b0"
+    },
+    {
+      "name": "name-lookup-core",
+      "operation": "procedure_pseudo_code",
+      "address": "0x41493c"
+    },
+    {
+      "name": "name-lookup",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69f3b0"
+    },
+    {
+      "name": "name-search-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69e444"
+    },
+    {
+      "name": "name-search",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69e444"
+    },
+    {
+      "name": "store-category1",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69f3a0"
+    },
+    {
+      "name": "store-category2",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69f278"
+    },
+    {
+      "name": "store-read-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69f4a4"
+    },
+    {
+      "name": "store-read",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69f4a4"
+    },
+    {
+      "name": "store-write-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69f6ec"
+    },
+    {
+      "name": "store-write",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69f6ec"
+    }
+  ]
+}

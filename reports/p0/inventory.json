@@ -1,0 +1,664 @@
+{
+  "schema_version": 1,
+  "dataset": "real",
+  "real_game_status": "inferred",
+  "evidence_status_values": [
+    "verified",
+    "inferred",
+    "unsupported",
+    "not_tested"
+  ],
+  "original_files_written": false,
+  "note": "directory identity and fourth-game edition require human confirmation",
+  "status": "verified",
+  "files": [
+    {
+      "path": ".DS_Store",
+      "size": 8196,
+      "extension": "",
+      "signature_hex": "00000001427564310000180000000800000018000000100b0000000000000000",
+      "signature_type": "Unknown",
+      "archive_candidate": false,
+      "status": "verified"
+    },
+    {
+      "path": "Code of Conduct.txt",
+      "size": 1879,
+      "extension": ".txt",
+      "signature_hex": "e6b0b8e4b985e5858de8b4b9e58886e4baabe9bb84e6b2b9efbc8c67616c6761",
+      "signature_type": "Unknown",
+      "archive_candidate": false,
+      "status": "verified"
+    },
+    {
+      "path": "DLL/SystemInfo.dll",
+      "size": 159744,
+      "extension": ".dll",
+      "signature_hex": "4d5a50000200000004000f00ffff0000b80000000000000040001a0000000000",
+      "signature_type": "PE-candidate",
+      "archive_candidate": false,
+      "status": "verified",
+      "pe_metadata": {
+        "status": "verified",
+        "header_offset": 256,
+        "machine": "0x14c",
+        "coff_timestamp": 708992537,
+        "timestamp_trusted": false,
+        "resource_version_status": "not_tested"
+      },
+      "sha256": "4595143df3019fad60818447bda326a0b996abc7589c1dd7f850d4a47d8fd522"
+    },
+    {
+      "path": "DLL/TheoraLib.dll",
+      "size": 319488,
+      "extension": ".dll",
+      "signature_hex": "4d5a90000300000004000000ffff0000b8000000000000004000000000000000",
+      "signature_type": "PE-candidate",
+      "archive_candidate": false,
+      "status": "verified",
+      "pe_metadata": {
+        "status": "verified",
+        "header_offset": 240,
+        "machine": "0x14c",
+        "coff_timestamp": 1317271608,
+        "timestamp_trusted": false,
+        "resource_version_status": "not_tested"
+      },
+      "sha256": "9ef27127f90bb7aa869a23965e77c5609ec3976bf3ec2ed6b4f889f94f0b5fc5"
+    },
+    {
+      "path": "DLL/bicubic.pso",
+      "size": 1000,
+      "extension": ".pso",
+      "signature_hex": "0002ffff1f00000200000080000003b01f00000200000080010003b01f000002",
+      "signature_type": "Unknown",
+      "archive_candidate": false,
+      "status": "verified"
+    },
+    {
+      "path": "DLL/lanczos.pso",
+      "size": 2208,
+      "extension": ".pso",
+      "signature_hex": "0003ffff5100000502000fa00000803f00000000000080bf000000c051000005",
+      "signature_type": "Unknown",
+      "archive_candidate": false,
+      "status": "verified"
+    },
+    {
+      "path": "DLL/sharplinear.pso",
+      "size": 376,
+      "extension": ".pso",
+      "signature_hex": "0002ffff5100000502000fa00000a040000000bf0000003f0000803f51000005",
+      "signature_type": "Unknown",
+      "archive_candidate": false,
+      "status": "verified"
+    },
+    {
+      "path": "DLL/wuvorbis.dll",
+      "size": 196608,
+      "extension": ".dll",
+      "signature_hex": "4d5a90000300000004000000ffff0000b8000000000000004000000000000000",
+      "signature_type": "PE-candidate",
+      "archive_candidate": false,
+      "status": "verified",
+      "pe_metadata": {
+        "status": "verified",
+        "header_offset": 256,
+        "machine": "0x14c",
+        "coff_timestamp": 1096982196,
+        "timestamp_trusted": false,
+        "resource_version_status": "not_tested"
+      },
+      "sha256": "60996d622b30dc0af15bd85a1b701f84fc8a34e7a8f1877c917e0eb63fa9eb2b"
+    },
+    {
+      "path": "EngineSetting_gui.u.txt",
+      "size": 24758,
+      "extension": ".txt",
+      "signature_hex": "fffe0d000a002f002f0066006f006e0074000d000a002f002f002a002a002a00",
+      "signature_type": "Unknown",
+      "archive_candidate": false,
+      "status": "verified"
+    },
+    {
+      "path": "EngineSetting_message.u.txt",
+      "size": 540,
+      "extension": ".txt",
+      "signature_hex": "fffe0d000a002f002f002f002d002d002d002000640065006600610075006c00",
+      "signature_type": "Unknown",
+      "archive_candidate": false,
+      "status": "verified"
+    },
+    {
+      "path": "Engine_gui.u.txt",
+      "size": 1576,
+      "extension": ".txt",
+      "signature_hex": "fffe0d000a002f002f0066006f006e0074000d000a002f002f002a002a002a00",
+      "signature_type": "Unknown",
+      "archive_candidate": false,
+      "status": "verified"
+    },
+    {
+      "path": "Engine_message.u.txt",
+      "size": 1386,
+      "extension": ".txt",
+      "signature_hex": "fffe0d000a002f002f00660069006c0065007000610063006b000d000a006600",
+      "signature_type": "Unknown",
+      "archive_candidate": false,
+      "status": "verified"
+    },
+    {
+      "path": "GameData/System/config.txt",
+      "size": 8460,
+      "extension": ".txt",
+      "signature_hex": "fffe2f002f00b07483582d8a9a5b0d000a000d000a002f002f00470072006100",
+      "signature_type": "Unknown",
+      "archive_candidate": false,
+      "status": "verified"
+    },
+    {
+      "path": "GameData/data0.pack",
+      "size": 19186,
+      "extension": ".pack",
+      "signature_hex": "4fc33f6997a81799d5045b01e7e40aac59cd9514023217628624acb65469d0f4",
+      "signature_type": "Unknown",
+      "archive_candidate": true,
+      "status": "verified",
+      "sha256": "53f84595e304a757bd6ef9e590e6c8a74e198ca8420232d586aef900514d3d74",
+      "footer_hex": "46696c655061636b566572332e310000090000008a42000000000000"
+    },
+    {
+      "path": "GameData/data1.pack",
+      "size": 254632020,
+      "extension": ".pack",
+      "signature_hex": "4fc33f6997a81799d5045b01e7e40aac59cd9514023217628624acb65469d0f4",
+      "signature_type": "Unknown",
+      "archive_candidate": true,
+      "status": "verified",
+      "sha256": "cb712faa03bd8aa5693198ab7d41d3e7231004ac8970a067888f25db916bf819",
+      "footer_hex": "46696c655061636b566572332e3100001d00000094522d0f00000000"
+    },
+    {
+      "path": "GameData/data2.pack",
+      "size": 929075300,
+      "extension": ".pack",
+      "signature_hex": "4fc33f6997a81799d5045b01e7e40aac59cd9514023217628624acb65469d0f4",
+      "signature_type": "Unknown",
+      "archive_candidate": true,
+      "status": "verified",
+      "sha256": "a12e76df9ac19690fb4582b3280470ed8ecabd3ff4e8ba20349a6ccfe834ba71",
+      "footer_hex": "46696c655061636b566572332e310000591d0000684a583700000000"
+    },
+    {
+      "path": "GameData/data3.pack",
+      "size": 1676113827,
+      "extension": ".pack",
+      "signature_hex": "4fc33f6997a81799d5045b01e7e40aac59cd9514023217628624acb65469d0f4",
+      "signature_type": "Unknown",
+      "archive_candidate": true,
+      "status": "verified",
+      "sha256": "47053b06b036ad58d4bea6c5465f952c617da1561b4a2fce59a71633fea13409",
+      "footer_hex": "46696c655061636b566572332e310000c403000082fbe56300000000"
+    },
+    {
+      "path": "GameData/data4.pack",
+      "size": 558119490,
+      "extension": ".pack",
+      "signature_hex": "4fc33f6997a81799d5045b01e7e40aac59cd9514023217628624acb65469d0f4",
+      "signature_type": "Unknown",
+      "archive_candidate": true,
+      "status": "verified",
+      "sha256": "6dbfa65c8eb9c701ab546a125d82fcbbcfd5ff173c3c263f69d8111117ee2ccf",
+      "footer_hex": "46696c655061636b566572332e310000730500002607422100000000"
+    },
+    {
+      "path": "GameData/data5.pack",
+      "size": 24047025,
+      "extension": ".pack",
+      "signature_hex": "4fc33f6997a81799d5045b01e7e40aac59cd9514023217628624acb65469d0f4",
+      "signature_type": "Unknown",
+      "archive_candidate": true,
+      "status": "verified",
+      "sha256": "0d6b3183a62d5e2b69af06f66b23123212ce55ccfbfb992be4eb9da8339380f6",
+      "footer_hex": "46696c655061636b566572332e3100007800000022b86e0100000000"
+    },
+    {
+      "path": "GameData/data6.pack",
+      "size": 874971,
+      "extension": ".pack",
+      "signature_hex": "4fc33f6997a81799d5045b01e7e40aac59cd9514023217628624acb65469d0f4",
+      "signature_type": "Unknown",
+      "archive_candidate": true,
+      "status": "verified",
+      "sha256": "c8f6e1e1821ecc5bccea2db9737e2915c0bf2f2e185df6f40ad1b5e7fb3c1006",
+      "footer_hex": "46696c655061636b566572332e31000048000000c13c0d0000000000"
+    },
+    {
+      "path": "GameData/data7.pack",
+      "size": 13039853,
+      "extension": ".pack",
+      "signature_hex": "4fc33f6997a81799d5045b01e7e40aac59cd9514023217628624acb65469d0f4",
+      "signature_type": "Unknown",
+      "archive_candidate": true,
+      "status": "verified",
+      "sha256": "29d04ca1f627438ddccc066873a6651bd2c46e9561e070c780d4a64244a4f06c",
+      "footer_hex": "46696c655061636b566572332e31000040020000ccecc50000000000"
+    },
+    {
+      "path": "GameData/data8.pack",
+      "size": 11564781,
+      "extension": ".pack",
+      "signature_hex": "4fc33f6997a81799d5045b01e7e40aac59cd9514023217628624acb65469d0f4",
+      "signature_type": "Unknown",
+      "archive_candidate": true,
+      "status": "verified",
+      "sha256": "f796a90c498de7325d8968d8ce99ef17b71753b7ce101521e390167649c83509",
+      "footer_hex": "46696c655061636b566572332e310000060100006302b00000000000"
+    },
+    {
+      "path": "Lisence.txt",
+      "size": 22244,
+      "extension": ".txt",
+      "signature_hex": "fffe0d000a0053306e30bd30d530c830a630a730a2306f30d86905306a30d730",
+      "signature_type": "Unknown",
+      "archive_candidate": false,
+      "status": "verified"
+    },
+    {
+      "path": "Nakahara_Chuya.cn",
+      "size": 46258348,
+      "extension": ".cn",
+      "signature_hex": "acd8c10223480000be18000084670000efa2297421bee2741800c6dd39f84a94",
+      "signature_type": "Unknown",
+      "archive_candidate": false,
+      "status": "verified"
+    },
+    {
+      "path": "Readme.html",
+      "size": 31774,
+      "extension": ".html",
+      "signature_hex": "3c21444f43545950452048544d4c205055424c494320222d2f2f5733432f2f44",
+      "signature_type": "Unknown",
+      "archive_candidate": false,
+      "status": "verified"
+    },
+    {
+      "path": "SaveData/SavePath.txt",
+      "size": 798,
+      "extension": ".txt",
+      "signature_hex": "fffe2f002f003c006e006f006e0065003e000900090009000900090049006e00",
+      "signature_type": "Unknown",
+      "archive_candidate": false,
+      "status": "verified"
+    },
+    {
+      "path": "UnInstall.exe",
+      "size": 1219084,
+      "extension": ".exe",
+      "signature_hex": "4d5a50000200000004000f00ffff0000b80000000000000040001a0000000000",
+      "signature_type": "PE-candidate",
+      "archive_candidate": false,
+      "status": "verified",
+      "pe_metadata": {
+        "status": "verified",
+        "header_offset": 256,
+        "machine": "0x14c",
+        "coff_timestamp": 1500058798,
+        "timestamp_trusted": false,
+        "resource_version_status": "not_tested"
+      },
+      "sha256": "f299a61315c930921793af65366f9cb3bf60d2f2d78c4172376f88dc730a5f70"
+    },
+    {
+      "path": "UnInstallData.pack",
+      "size": 871747,
+      "extension": ".pack",
+      "signature_hex": "86d77835bcf96ea92bcf3d74fee4f9eba7726916ad08f33131e9acbf73e1de03",
+      "signature_type": "Unknown",
+      "archive_candidate": true,
+      "status": "verified",
+      "sha256": "c02a6cc7454932f48f0c8d49c5db6982a4538501b1dd43494ad4cc2c6739617d",
+      "footer_hex": "46696c655061636b566572332e310000070000009f450d0000000000"
+    },
+    {
+      "path": "cndata.dat",
+      "size": 99294912,
+      "extension": ".dat",
+      "signature_hex": "901eeb0525d3769c59d56b04040000000123e21cb069d68b9a42fbe5dbd366eb",
+      "signature_type": "Unknown",
+      "archive_candidate": false,
+      "status": "verified"
+    },
+    {
+      "path": "html/00.jpg",
+      "size": 425174,
+      "extension": ".jpg",
+      "signature_hex": "ffd8ffe11fee4578696600004d4d002a00000008000c01000003000000010320",
+      "signature_type": "JPEG",
+      "archive_candidate": false,
+      "status": "verified"
+    },
+    {
+      "path": "html/01.jpg",
+      "size": 71730,
+      "extension": ".jpg",
+      "signature_hex": "ffd8ffe11ae44578696600004d4d002a00000008000701120003000000010001",
+      "signature_type": "JPEG",
+      "archive_candidate": false,
+      "status": "verified"
+    },
+    {
+      "path": "html/02.jpg",
+      "size": 121342,
+      "extension": ".jpg",
+      "signature_hex": "ffd8ffe1115245786966000049492a0008000000070012010300010000000100",
+      "signature_type": "JPEG",
+      "archive_candidate": false,
+      "status": "verified"
+    },
+    {
+      "path": "html/03.jpg",
+      "size": 178533,
+      "extension": ".jpg",
+      "signature_hex": "ffd8ffe112f84578696600004d4d002a00000008000701120003000000010001",
+      "signature_type": "JPEG",
+      "archive_candidate": false,
+      "status": "verified"
+    },
+    {
+      "path": "html/04.jpg",
+      "size": 197185,
+      "extension": ".jpg",
+      "signature_hex": "ffd8ffe113d14578696600004d4d002a00000008000701120003000000010001",
+      "signature_type": "JPEG",
+      "archive_candidate": false,
+      "status": "verified"
+    },
+    {
+      "path": "html/05.jpg",
+      "size": 117649,
+      "extension": ".jpg",
+      "signature_hex": "ffd8ffe1115b4578696600004d4d002a00000008000c01000003000000010320",
+      "signature_type": "JPEG",
+      "archive_candidate": false,
+      "status": "verified"
+    },
+    {
+      "path": "html/06.jpg",
+      "size": 183082,
+      "extension": ".jpg",
+      "signature_hex": "ffd8ffe000104a46494600010201004800480000ffe111424578696600004d4d",
+      "signature_type": "JPEG",
+      "archive_candidate": false,
+      "status": "verified"
+    },
+    {
+      "path": "html/07.jpg",
+      "size": 78718,
+      "extension": ".jpg",
+      "signature_hex": "ffd8ffe116624578696600004d4d002a00000008000701120003000000010001",
+      "signature_type": "JPEG",
+      "archive_candidate": false,
+      "status": "verified"
+    },
+    {
+      "path": "html/biman2.css",
+      "size": 2012,
+      "extension": ".css",
+      "signature_hex": "4063686172736574202253686966745f4a4953223b0d0a424f44597b0d0a2020",
+      "signature_type": "Unknown",
+      "archive_candidate": false,
+      "status": "verified"
+    },
+    {
+      "path": "html/dot2.png",
+      "size": 3374,
+      "extension": ".png",
+      "signature_hex": "89504e470d0a1a0a0000000d49484452000000140000001408060000008d891d",
+      "signature_type": "PNG",
+      "archive_candidate": false,
+      "status": "verified"
+    },
+    {
+      "path": "html/hed.jpg",
+      "size": 45957,
+      "extension": ".jpg",
+      "signature_hex": "ffd8ffe10af04578696600004d4d002a00000008000c010000030000000104af",
+      "signature_type": "JPEG",
+      "archive_candidate": false,
+      "status": "verified"
+    },
+    {
+      "path": "html/jimon_haru.jpg",
+      "size": 504981,
+      "extension": ".jpg",
+      "signature_hex": "ffd8ffe10c004578696600004d4d002a00000008000c01000003000000010a00",
+      "signature_type": "JPEG",
+      "archive_candidate": false,
+      "status": "verified"
+    },
+    {
+      "path": "html/jimontop.jpg",
+      "size": 10832,
+      "extension": ".jpg",
+      "signature_hex": "ffd8ffe1055c4578696600004d4d002a00000008000c01000003000000010152",
+      "signature_type": "JPEG",
+      "archive_candidate": false,
+      "status": "verified"
+    },
+    {
+      "path": "html/omegastarrogo.png",
+      "size": 5255,
+      "extension": ".png",
+      "signature_hex": "89504e470d0a1a0a0000000d49484452000000270000002408060000000a3723",
+      "signature_type": "PNG",
+      "archive_candidate": false,
+      "status": "verified"
+    },
+    {
+      "path": "html/os.ico",
+      "size": 1150,
+      "extension": ".ico",
+      "signature_hex": "0000010001001010000001002000680400001600000028000000100000002000",
+      "signature_type": "Unknown",
+      "archive_candidate": false,
+      "status": "verified"
+    },
+    {
+      "path": "libeay32.dll",
+      "size": 1367552,
+      "extension": ".dll",
+      "signature_hex": "4d5a90000300000004000000ffff0000b8000000000000004000000000000000",
+      "signature_type": "PE-candidate",
+      "archive_candidate": false,
+      "status": "verified",
+      "pe_metadata": {
+        "status": "verified",
+        "header_offset": 240,
+        "machine": "0x14c",
+        "coff_timestamp": 1475322272,
+        "timestamp_trusted": false,
+        "resource_version_status": "not_tested"
+      },
+      "sha256": "05ba6d1ef9ada95a0c7ee98c1777068d0683471d1f69222342e8064a8a4f255f"
+    },
+    {
+      "path": "ssleay32.dll",
+      "size": 336384,
+      "extension": ".dll",
+      "signature_hex": "4d5a90000300000004000000ffff0000b8000000000000004000000000000000",
+      "signature_type": "PE-candidate",
+      "archive_candidate": false,
+      "status": "verified",
+      "pe_metadata": {
+        "status": "verified",
+        "header_offset": 232,
+        "machine": "0x14c",
+        "coff_timestamp": 1475322273,
+        "timestamp_trusted": false,
+        "resource_version_status": "not_tested"
+      },
+      "sha256": "23045a2207721b2b7152216f82dbc25ac9fb33bb9d87d1d820c70f5c4dc2beab"
+    },
+    {
+      "path": "version.txt",
+      "size": 146,
+      "extension": ".txt",
+      "signature_hex": "fffe700072006f0064007500630074003d008e7f115c7359074eef83e1935f00",
+      "signature_type": "Unknown",
+      "archive_candidate": false,
+      "status": "verified",
+      "version_clues": {
+        "status": "verified",
+        "encoding": "utf-16",
+        "fields": {
+          "product": "美少女万華鏡_罪と罰の少女",
+          "version": "1.2"
+        },
+        "authenticity": "not_tested"
+      }
+    },
+    {
+      "path": "エンジン設定.exe",
+      "size": 1199104,
+      "extension": ".exe",
+      "signature_hex": "4d5a50000200000004000f00ffff0000b80000000000000040001a0000000000",
+      "signature_type": "PE-candidate",
+      "archive_candidate": false,
+      "status": "verified",
+      "pe_metadata": {
+        "status": "verified",
+        "header_offset": 256,
+        "machine": "0x14c",
+        "coff_timestamp": 1499160173,
+        "timestamp_trusted": false,
+        "resource_version_status": "not_tested"
+      },
+      "sha256": "60c02c95d9f1eb6c009a0877a7e694788be4f7e70ae39438ae5952311b83a89d"
+    },
+    {
+      "path": "美少女万华镜４(瑞树×萌你妹).exe",
+      "size": 57667072,
+      "extension": ".exe",
+      "signature_hex": "4d5a50000200000004000f00ffff0000b80000000000000040001a0000000000",
+      "signature_type": "PE-candidate",
+      "archive_candidate": false,
+      "status": "verified",
+      "pe_metadata": {
+        "status": "verified",
+        "header_offset": 256,
+        "machine": "0x14c",
+        "coff_timestamp": 1500622282,
+        "timestamp_trusted": false,
+        "resource_version_status": "not_tested"
+      },
+      "sha256": "d259f82de8e31abcc7d8e35b4a8a0461339a6e676d0e85c74589160787421302"
+    },
+    {
+      "path": "美少女万华镜４(脸肿汉化组).exe",
+      "size": 2164509,
+      "extension": ".exe",
+      "signature_hex": "4d5a90000300000004000000ffff0000b8000000000000004000000000000000",
+      "signature_type": "PE-candidate",
+      "archive_candidate": false,
+      "status": "verified",
+      "pe_metadata": {
+        "status": "verified",
+        "header_offset": 128,
+        "machine": "0x14c",
+        "coff_timestamp": 1311547539,
+        "timestamp_trusted": false,
+        "resource_version_status": "not_tested"
+      },
+      "sha256": "5c28e7983c0b5786b5d1fbcea7e1ec4a2c6534dc99fc6ade93b249a23825bb01"
+    },
+    {
+      "path": "美少女万華鏡４.exe",
+      "size": 3915264,
+      "extension": ".exe",
+      "signature_hex": "4d5a50000200000004000f00ffff0000b80000000000000040001a0000000000",
+      "signature_type": "PE-candidate",
+      "archive_candidate": false,
+      "status": "verified",
+      "pe_metadata": {
+        "status": "verified",
+        "header_offset": 256,
+        "machine": "0x14c",
+        "coff_timestamp": 1500622282,
+        "timestamp_trusted": false,
+        "resource_version_status": "not_tested"
+      },
+      "sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5"
+    },
+    {
+      "path": "补丁/存档/SystemData.dat",
+      "size": 88145,
+      "extension": ".dat",
+      "signature_hex": "4e4d32fd8ed96c2345580100494d4f53595344415441313200000000860793fc",
+      "signature_type": "Unknown",
+      "archive_candidate": false,
+      "status": "verified"
+    },
+    {
+      "path": "补丁/瑞树×萌你妹/[moe your sister 45th project & MIZUKI CHINESE 2nd project]《Bishoujo Mangekyou 4》1.02简体中文化补丁.rar",
+      "size": 65972977,
+      "extension": ".rar",
+      "signature_hex": "526172211a0700cf907300000d000000000000003b5d7a0080230086070000ae",
+      "signature_type": "Unknown",
+      "archive_candidate": false,
+      "status": "verified"
+    },
+    {
+      "path": "补丁/瑞树×萌你妹/[moe your sister 45th project & MIZUKI CHINESE 2nd project]《美少女万华镜－罪与罚的少女－》1.00简体中文化补丁.rar",
+      "size": 62755475,
+      "extension": ".rar",
+      "signature_hex": "526172211a0700cf907300000d00000000000000aebf74c0903800bc470000f2",
+      "signature_type": "Unknown",
+      "archive_candidate": false,
+      "status": "verified"
+    },
+    {
+      "path": "补丁/脸肿汉化组/V1汉化补丁.rar",
+      "size": 129883737,
+      "extension": ".rar",
+      "signature_hex": "526172211a070100cbe977dd1301050f080e0103e29396b88000fe9596b88000",
+      "signature_type": "Unknown",
+      "archive_candidate": false,
+      "status": "verified"
+    },
+    {
+      "path": "补丁/脸肿汉化组/V2汉化补丁.rar",
+      "size": 108548683,
+      "extension": ".rar",
+      "signature_hex": "526172211a070100ec94e7871301050f080e0103d898f8ae8000f89af8ae8000",
+      "signature_type": "Unknown",
+      "archive_candidate": false,
+      "status": "verified"
+    }
+  ],
+  "errors": [],
+  "file_count": 56,
+  "total_bytes": 4051757601,
+  "extensions": {
+    "": 1,
+    ".txt": 9,
+    ".dll": 5,
+    ".pso": 3,
+    ".pack": 10,
+    ".cn": 1,
+    ".html": 1,
+    ".exe": 5,
+    ".dat": 2,
+    ".jpg": 11,
+    ".css": 1,
+    ".png": 2,
+    ".ico": 1,
+    ".rar": 4
+  },
+  "limitations": [
+    "No RT_VERSION/product edition decoding",
+    "No unknown executable is run"
+  ],
+  "scope": "user-provided mixed installation; metadata only",
+  "official_edition_authenticity": "not_tested"
+}

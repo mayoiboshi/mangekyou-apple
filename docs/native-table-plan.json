@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Table object, selected name/value helpers and result writes; static observations only",
+  "queries": [
+    {
+      "name": "table-create",
+      "operation": "procedure_pseudo_code",
+      "address": "0x68f1e8"
+    },
+    {
+      "name": "table-create-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x68f1e8"
+    },
+    {
+      "name": "list-create",
+      "operation": "procedure_pseudo_code",
+      "address": "0x563784"
+    },
+    {
+      "name": "list-create-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x563784"
+    },
+    {
+      "name": "table-dispatch",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6cdd34"
+    },
+    {
+      "name": "table-dispatch-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6cdd34"
+    },
+    {
+      "name": "stream-load",
+      "operation": "procedure_pseudo_code",
+      "address": "0x563a68"
+    },
+    {
+      "name": "stream-load-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x563a68"
+    },
+    {
+      "name": "line-load",
+      "operation": "procedure_pseudo_code",
+      "address": "0x563b80"
+    },
+    {
+      "name": "line-load-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x563b80"
+    },
+    {
+      "name": "reject-slashes",
+      "operation": "procedure_pseudo_code",
+      "address": "0x563b08"
+    },
+    {
+      "name": "reject-slashes-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x563b08"
+    },
+    {
+      "name": "empty-marker",
+      "operation": "procedure_pseudo_code",
+      "address": "0x563b50"
+    },
+    {
+      "name": "empty-marker-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x563b50"
+    },
+    {
+      "name": "list-upsert",
+      "operation": "procedure_pseudo_code",
+      "address": "0x564644"
+    },
+    {
+      "name": "list-upsert-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x564644"
+    },
+    {
+      "name": "list-search",
+      "operation": "procedure_pseudo_code",
+      "address": "0x564524"
+    },
+    {
+      "name": "list-search-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x564524"
+    },
+    {
+      "name": "list-get",
+      "operation": "procedure_pseudo_code",
+      "address": "0x5639e0"
+    },
+    {
+      "name": "list-get-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x5639e0"
+    },
+    {
+      "name": "list-add",
+      "operation": "procedure_pseudo_code",
+      "address": "0x563540"
+    },
+    {
+      "name": "list-add-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x563540"
+    },
+    {
+      "name": "line-name",
+      "operation": "procedure_pseudo_code",
+      "address": "0x43d348"
+    },
+    {
+      "name": "line-name-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x43d348"
+    },
+    {
+      "name": "line-separator",
+      "operation": "procedure_pseudo_code",
+      "address": "0x43e694"
+    },
+    {
+      "name": "line-separator-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x43e694"
+    },
+    {
+      "name": "value-by-name",
+      "operation": "procedure_pseudo_code",
+      "address": "0x43d934"
+    },
+    {
+      "name": "value-by-name-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x43d934"
+    },
+    {
+      "name": "result-int",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6be294"
+    },
+    {
+      "name": "result-int-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6be294"
+    },
+    {
+      "name": "result-str",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6be2cc"
+    },
+    {
+      "name": "result-str-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6be2cc"
+    },
+    {
+      "name": "table-init-owner",
+      "operation": "resolve_containing_procedure",
+      "address": "0x68f2f0"
+    },
+    {
+      "name": "table-property-owner",
+      "operation": "resolve_containing_procedure",
+      "address": "0x68f2a0"
+    },
+    {
+      "name": "name-index-owner",
+      "operation": "resolve_containing_procedure",
+      "address": "0x43da78"
+    }
+  ]
+}

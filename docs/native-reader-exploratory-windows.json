@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "status": "inferred",
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Selected candidate call sites and dbrk branch only, not complete functions",
+  "windows": [
+    {
+      "name": "reader-call-site",
+      "start": "0x6ac4a0",
+      "end_exclusive": "0x6ac570"
+    },
+    {
+      "name": "dbrk-branch",
+      "start": "0x6b08c8",
+      "end_exclusive": "0x6b08e1"
+    },
+    {
+      "name": "dispatch-tail",
+      "start": "0x6b1a70",
+      "end_exclusive": "0x6b1b20"
+    }
+  ]
+}

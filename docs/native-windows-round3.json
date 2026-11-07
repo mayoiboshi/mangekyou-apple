@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "status": "inferred",
+  "scope": "Explicit linear decode windows; not authoritative function boundaries",
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "windows": [
+    {
+      "name": "pack-init",
+      "start": "0x4ec10c",
+      "end_exclusive": "0x4ec40c"
+    },
+    {
+      "name": "startup-pack-call",
+      "start": "0x6dcca0",
+      "end_exclusive": "0x6dccf7"
+    },
+    {
+      "name": "decimal-conversion",
+      "start": "0x4156fa",
+      "end_exclusive": "0x415780"
+    },
+    {
+      "name": "named-context-tail",
+      "start": "0x6c12e0",
+      "end_exclusive": "0x6c1380"
+    },
+    {
+      "name": "command-id-tail",
+      "start": "0x6aa43c",
+      "end_exclusive": "0x6aa530"
+    }
+  ]
+}

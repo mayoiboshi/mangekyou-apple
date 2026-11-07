@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Selected static object event binding and argument conversion only; no target execution",
+  "queries": [
+    {
+      "name": "call-dispatch",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6b70d8"
+    },
+    {
+      "name": "call-dispatch-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6b70d8"
+    },
+    {
+      "name": "manager-create",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69a8c4"
+    },
+    {
+      "name": "manager-create-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69a8c4"
+    },
+    {
+      "name": "table-create",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69a4d8"
+    },
+    {
+      "name": "table-create-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69a4d8"
+    },
+    {
+      "name": "object-create",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69e560"
+    },
+    {
+      "name": "object-create-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69e560"
+    },
+    {
+      "name": "error-mode",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69d780"
+    },
+    {
+      "name": "error-mode-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69d780"
+    },
+    {
+      "name": "integer-default",
+      "operation": "procedure_pseudo_code",
+      "address": "0x415a90"
+    },
+    {
+      "name": "integer-default-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x415a90"
+    },
+    {
+      "name": "type-factory",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6befa8"
+    },
+    {
+      "name": "type-factory-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6befa8"
+    },
+    {
+      "name": "register-wrapper",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69a5c4"
+    },
+    {
+      "name": "register-wrapper-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69a5c4"
+    },
+    {
+      "name": "object-value-get-owner",
+      "operation": "resolve_containing_procedure",
+      "address": "0x69e5d0"
+    },
+    {
+      "name": "object-array-grow-owner",
+      "operation": "resolve_containing_procedure",
+      "address": "0x69e764"
+    },
+    {
+      "name": "object-value-init-owner",
+      "operation": "resolve_containing_procedure",
+      "address": "0x69ea1c"
+    },
+    {
+      "name": "create-bridge-owner",
+      "operation": "resolve_containing_procedure",
+      "address": "0x6bee50"
+    },
+    {
+      "name": "load-bridge-owner",
+      "operation": "resolve_containing_procedure",
+      "address": "0x6bef28"
+    },
+    {
+      "name": "factory-xrefs",
+      "operation": "xrefs",
+      "address": "0x6befa8"
+    }
+  ]
+}

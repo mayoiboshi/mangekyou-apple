@@ -1,0 +1,5027 @@
+{
+  "schema_version": 1,
+  "status": "inferred",
+  "dataset": "real",
+  "scope": "Field declarations, selected native path references and et/nt lexical spelling candidates; no replacement execution or text playback",
+  "source_file": "美少女万華鏡４.exe",
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "native_report": "reports/p1/prefix-native-report.json",
+  "native_report_sha256": "3b781762625fb6a3d485918b358fdcd4cfe0ee658e868fab9adc135673d3de67",
+  "class_name": "TImoReader",
+  "candidate_fields": [
+    {
+      "name": "FExceptText",
+      "offset": 44,
+      "flags_u8": 1,
+      "type_info": {
+        "status": "verified",
+        "kind_u8": 18,
+        "name": "string",
+        "reference_cell": "0x40126c",
+        "type_info_address": "0x401270",
+        "raw_bytes_reference": {
+          "offset": 1648,
+          "length": 8,
+          "sha256": "882c598a645d17832a7824779df8f543e3adea898ed6f431b130fcaba78abc61"
+        },
+        "type_semantics": "not_tested"
+      },
+      "attributes": {
+        "status": "verified",
+        "length": 2,
+        "raw_bytes_reference": {
+          "offset": 2700968,
+          "length": 2,
+          "sha256": "99be5efb88ca2013bd8e4eb035fd42d5245468fe9afa70d8ba9c1c419a48c4e8"
+        },
+        "unknown_reason": null
+      },
+      "raw_bytes_reference": {
+        "offset": 2700947,
+        "length": 23,
+        "sha256": "b509e27e821bfca226db1b151a7c19f2230cf014ad4f52ece0b3ed3101b37154"
+      }
+    },
+    {
+      "name": "FNoWordLineText",
+      "offset": 48,
+      "flags_u8": 1,
+      "type_info": {
+        "status": "verified",
+        "kind_u8": 18,
+        "name": "string",
+        "reference_cell": "0x40126c",
+        "type_info_address": "0x401270",
+        "raw_bytes_reference": {
+          "offset": 1648,
+          "length": 8,
+          "sha256": "882c598a645d17832a7824779df8f543e3adea898ed6f431b130fcaba78abc61"
+        },
+        "type_semantics": "not_tested"
+      },
+      "attributes": {
+        "status": "verified",
+        "length": 2,
+        "raw_bytes_reference": {
+          "offset": 2700995,
+          "length": 2,
+          "sha256": "99be5efb88ca2013bd8e4eb035fd42d5245468fe9afa70d8ba9c1c419a48c4e8"
+        },
+        "unknown_reason": null
+      },
+      "raw_bytes_reference": {
+        "offset": 2700970,
+        "length": 27,
+        "sha256": "ea185c1b1ca37a8b1ae38bd1c8507364a56dfe12f6fb943089475f7c2b78f80a"
+      }
+    }
+  ],
+  "replacement_record": {
+    "status": "inferred",
+    "name": "TReplaceData",
+    "type_info_address": "0x693f7c",
+    "declared_size": 12,
+    "managed_fields": [
+      {
+        "offset": 0,
+        "type_info": {
+          "status": "verified",
+          "kind_u8": 18,
+          "name": "string",
+          "reference_cell": "0x40126c",
+          "type_info_address": "0x401270",
+          "raw_bytes_reference": {
+            "offset": 1648,
+            "length": 8,
+            "sha256": "882c598a645d17832a7824779df8f543e3adea898ed6f431b130fcaba78abc61"
+          },
+          "type_semantics": "not_tested"
+        },
+        "raw_bytes_reference": {
+          "offset": 2700178,
+          "length": 8,
+          "sha256": "61bdd2031abb14b97ad6a3e4e19d76f1b470b4733c642be16b1d9edec40ab7eb"
+        }
+      },
+      {
+        "offset": 4,
+        "type_info": {
+          "status": "verified",
+          "kind_u8": 18,
+          "name": "string",
+          "reference_cell": "0x40126c",
+          "type_info_address": "0x401270",
+          "raw_bytes_reference": {
+            "offset": 1648,
+            "length": 8,
+            "sha256": "882c598a645d17832a7824779df8f543e3adea898ed6f431b130fcaba78abc61"
+          },
+          "type_semantics": "not_tested"
+        },
+        "raw_bytes_reference": {
+          "offset": 2700186,
+          "length": 8,
+          "sha256": "2a9629d81e60e45a2da0cf4d0118aa532ec2f1f19291e1f4d0998530cbe97d55"
+        }
+      }
+    ],
+    "fields": [
+      {
+        "name": "SerchWord",
+        "offset": 0,
+        "flags_u8": 2,
+        "type_info": {
+          "status": "verified",
+          "kind_u8": 18,
+          "name": "string",
+          "reference_cell": "0x40126c",
+          "type_info_address": "0x401270",
+          "raw_bytes_reference": {
+            "offset": 1648,
+            "length": 8,
+            "sha256": "882c598a645d17832a7824779df8f543e3adea898ed6f431b130fcaba78abc61"
+          },
+          "type_semantics": "not_tested"
+        },
+        "attributes": {
+          "status": "verified",
+          "length": 2,
+          "raw_bytes_reference": {
+            "offset": 2700218,
+            "length": 2,
+            "sha256": "99be5efb88ca2013bd8e4eb035fd42d5245468fe9afa70d8ba9c1c419a48c4e8"
+          },
+          "unknown_reason": null
+        },
+        "raw_bytes_reference": {
+          "offset": 2700199,
+          "length": 21,
+          "sha256": "b70b173b4eb1e5db810772cd0d43d99d3d8482bb32884b1119f0fe23c9756ebd"
+        }
+      },
+      {
+        "name": "ReplaceWord",
+        "offset": 4,
+        "flags_u8": 2,
+        "type_info": {
+          "status": "verified",
+          "kind_u8": 18,
+          "name": "string",
+          "reference_cell": "0x40126c",
+          "type_info_address": "0x401270",
+          "raw_bytes_reference": {
+            "offset": 1648,
+            "length": 8,
+            "sha256": "882c598a645d17832a7824779df8f543e3adea898ed6f431b130fcaba78abc61"
+          },
+          "type_semantics": "not_tested"
+        },
+        "attributes": {
+          "status": "verified",
+          "length": 2,
+          "raw_bytes_reference": {
+            "offset": 2700241,
+            "length": 2,
+            "sha256": "99be5efb88ca2013bd8e4eb035fd42d5245468fe9afa70d8ba9c1c419a48c4e8"
+          },
+          "unknown_reason": null
+        },
+        "raw_bytes_reference": {
+          "offset": 2700220,
+          "length": 23,
+          "sha256": "6c0c6ea6232b0926da498074aac875aa3c59ccc3bcc17e019aac499e7ffe3e99"
+        }
+      },
+      {
+        "name": "_Type",
+        "offset": 8,
+        "flags_u8": 2,
+        "type_info": {
+          "status": "verified",
+          "kind_u8": 1,
+          "name": "Integer",
+          "reference_cell": "0x40109c",
+          "type_info_address": "0x4010a0",
+          "raw_bytes_reference": {
+            "offset": 1184,
+            "length": 9,
+            "sha256": "801ad41c64653550f533d6f1b1fa48fa4299cf26f0f08821e8fd4d8696d276cc"
+          },
+          "type_semantics": "not_tested"
+        },
+        "attributes": {
+          "status": "verified",
+          "length": 2,
+          "raw_bytes_reference": {
+            "offset": 2700258,
+            "length": 2,
+            "sha256": "99be5efb88ca2013bd8e4eb035fd42d5245468fe9afa70d8ba9c1c419a48c4e8"
+          },
+          "unknown_reason": null
+        },
+        "raw_bytes_reference": {
+          "offset": 2700243,
+          "length": 17,
+          "sha256": "b6a4d8744d4986b0861a8dfe9c4b9b6af949a6e1f648cb0ea715264aac8d2ef5"
+        }
+      }
+    ],
+    "header_reference": {
+      "offset": 2700156,
+      "length": 22,
+      "sha256": "2eb5e67c474e00fb50f67ddf08b52f7a87532be891fcd8909eadfb912a26c88f"
+    },
+    "extended_prefix": {
+      "value_u8": 0,
+      "meaning": "not_tested",
+      "raw_bytes_reference": {
+        "offset": 2700194,
+        "length": 5,
+        "sha256": "2c8781cf4ff5280129b190856ff431adae77be2294fc3ffdadf88105743fe667"
+      }
+    },
+    "declaration_bytes_status": "verified",
+    "initialization_and_serialization": "not_tested",
+    "extended_layout_scope": "Only the reviewed zero-prefix record variant"
+  },
+  "rejected_slot_assumption": {
+    "status": "unsupported",
+    "scope": "Rejected preliminary positive-slot assumption, not a failure of the admitted zero-slot layout",
+    "attempted_positive_slots": 3,
+    "reason": "metadata_not_uniquely_file_backed",
+    "first_data_reference": {
+      "offset": 2700696,
+      "length": 4,
+      "sha256": "01b4f6bd5d6a06a7b74a8565ceb4f845afe0ae96a0ac05cf5e86066bf7b538ec"
+    }
+  },
+  "observed_setter_counts": {
+    "et": 4,
+    "nt": 4
+  },
+  "setter_candidates": [
+    {
+      "source_file": "data7.pack/avg/imoscripter_format.s",
+      "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+      "command": "et",
+      "byte_offset": 1279,
+      "byte_length": 32,
+      "raw_bytes_reference": {
+        "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+        "offset": 1279,
+        "length": 32,
+        "sha256": "38801da32e4c47bd1de9fe07b72d02c1ef996eb20a74e6d155399c0412f9fde2"
+      },
+      "arity": 1,
+      "status": "inferred",
+      "native_handler": "0x6ba248",
+      "candidate_field": "FExceptText",
+      "candidate_field_offset": 44,
+      "native_fact": "prefix_setter_et",
+      "namespace_binding": "not_tested",
+      "execution_semantics": "not_tested",
+      "selector_sha256": null,
+      "selector_interpretation": "Same-line lexical observation only, not runtime object resolution",
+      "parent_field_reference": {
+        "byte_offset": 1283,
+        "byte_length": 28,
+        "raw_bytes_reference": {
+          "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+          "offset": 1283,
+          "length": 28,
+          "sha256": "1419426d8d19c5c72bd8a08cc38fc979d0525aad50ee27b786583e08953f0fda"
+        }
+      },
+      "literal_shape": {
+        "status": "inferred",
+        "execution_semantics": "not_tested",
+        "escaped_string_semantics": "not_tested",
+        "decoded_form_sha256": "6fa851902510c5f26de9f9c92af424e77b0ad7d88ede7b7a3eb2ccce2e17f389",
+        "character_count": 26,
+        "leading_category": "backslash",
+        "command_token_candidates": {
+          "subp": 1
+        },
+        "virtual_lexical_coverage": "verified",
+        "unknown_command_token_hashes": {},
+        "scope": "Only literal shape and lexical command names; source reference remains the parent field"
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_format.s",
+      "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+      "command": "nt",
+      "byte_offset": 1316,
+      "byte_length": 34,
+      "raw_bytes_reference": {
+        "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+        "offset": 1316,
+        "length": 34,
+        "sha256": "8584f8dcd59e345d48eddeff3c4dc882cdcb558b6635546b76b3999a517c9ac9"
+      },
+      "arity": 1,
+      "status": "inferred",
+      "native_handler": "0x6ba248",
+      "candidate_field": "FNoWordLineText",
+      "candidate_field_offset": 48,
+      "native_fact": "prefix_setter_nt",
+      "namespace_binding": "not_tested",
+      "execution_semantics": "not_tested",
+      "selector_sha256": null,
+      "selector_interpretation": "Same-line lexical observation only, not runtime object resolution",
+      "parent_field_reference": {
+        "byte_offset": 1320,
+        "byte_length": 30,
+        "raw_bytes_reference": {
+          "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+          "offset": 1320,
+          "length": 30,
+          "sha256": "bdf7e6f458086ab32e4626f28949ef961b4b16a130e683777d005d64df70156d"
+        }
+      },
+      "literal_shape": {
+        "status": "inferred",
+        "execution_semantics": "not_tested",
+        "escaped_string_semantics": "not_tested",
+        "decoded_form_sha256": "bc97942f95493d1f940f23205a8a0ed877a4f78f934167fb1a3ae6ab98809814",
+        "character_count": 28,
+        "leading_category": "backslash",
+        "command_token_candidates": {
+          "subp": 1
+        },
+        "virtual_lexical_coverage": "verified",
+        "unknown_command_token_hashes": {},
+        "scope": "Only literal shape and lexical command names; source reference remains the parent field"
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_format.s",
+      "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+      "command": "et",
+      "byte_offset": 1476,
+      "byte_length": 6,
+      "raw_bytes_reference": {
+        "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+        "offset": 1476,
+        "length": 6,
+        "sha256": "58022e8c1768aa73b50a7f709177da4b0b1e42ae5e3afb627f8a722a5fa0234f"
+      },
+      "arity": 1,
+      "status": "inferred",
+      "native_handler": "0x6ba248",
+      "candidate_field": "FExceptText",
+      "candidate_field_offset": 44,
+      "native_fact": "prefix_setter_et",
+      "namespace_binding": "not_tested",
+      "execution_semantics": "not_tested",
+      "selector_sha256": null,
+      "selector_interpretation": "Same-line lexical observation only, not runtime object resolution",
+      "parent_field_reference": {
+        "byte_offset": 1480,
+        "byte_length": 2,
+        "raw_bytes_reference": {
+          "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+          "offset": 1480,
+          "length": 2,
+          "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126"
+        }
+      },
+      "literal_shape": {
+        "status": "inferred",
+        "execution_semantics": "not_tested",
+        "escaped_string_semantics": "not_tested",
+        "decoded_form_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "character_count": 0,
+        "leading_category": "empty",
+        "command_token_candidates": {},
+        "virtual_lexical_coverage": "verified",
+        "unknown_command_token_hashes": {},
+        "scope": "Only literal shape and lexical command names; source reference remains the parent field"
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_format.s",
+      "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+      "command": "nt",
+      "byte_offset": 1486,
+      "byte_length": 6,
+      "raw_bytes_reference": {
+        "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+        "offset": 1486,
+        "length": 6,
+        "sha256": "2065878d025b1a76824f0cdf933a203ceda8111d4942de2f3a27783800e04822"
+      },
+      "arity": 1,
+      "status": "inferred",
+      "native_handler": "0x6ba248",
+      "candidate_field": "FNoWordLineText",
+      "candidate_field_offset": 48,
+      "native_fact": "prefix_setter_nt",
+      "namespace_binding": "not_tested",
+      "execution_semantics": "not_tested",
+      "selector_sha256": null,
+      "selector_interpretation": "Same-line lexical observation only, not runtime object resolution",
+      "parent_field_reference": {
+        "byte_offset": 1490,
+        "byte_length": 2,
+        "raw_bytes_reference": {
+          "source_sha256": "3345092a60bd220a0b2595e39c4d8529fa41489b4023d7a57ae74fecc8d76857",
+          "offset": 1490,
+          "length": 2,
+          "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126"
+        }
+      },
+      "literal_shape": {
+        "status": "inferred",
+        "execution_semantics": "not_tested",
+        "escaped_string_semantics": "not_tested",
+        "decoded_form_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "character_count": 0,
+        "leading_category": "empty",
+        "command_token_candidates": {},
+        "virtual_lexical_coverage": "verified",
+        "unknown_command_token_hashes": {},
+        "scope": "Only literal shape and lexical command names; source reference remains the parent field"
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_format.s",
+      "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+      "command": "et",
+      "byte_offset": 2560,
+      "byte_length": 64,
+      "raw_bytes_reference": {
+        "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+        "offset": 2560,
+        "length": 64,
+        "sha256": "a7ef886ed134e562cba40cc3cd94e18cc5ebc00693cc27c85c68d5f63b249f61"
+      },
+      "arity": 1,
+      "status": "inferred",
+      "native_handler": "0x6ba248",
+      "candidate_field": "FExceptText",
+      "candidate_field_offset": 44,
+      "native_fact": "prefix_setter_et",
+      "namespace_binding": "not_tested",
+      "execution_semantics": "not_tested",
+      "selector_sha256": null,
+      "selector_interpretation": "Same-line lexical observation only, not runtime object resolution",
+      "parent_field_reference": {
+        "byte_offset": 2568,
+        "byte_length": 56,
+        "raw_bytes_reference": {
+          "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+          "offset": 2568,
+          "length": 56,
+          "sha256": "7bc53d3e310a6c770ccc8215d5446ee46e60aa4712f138610e729f223e7035e5"
+        }
+      },
+      "literal_shape": {
+        "status": "inferred",
+        "execution_semantics": "not_tested",
+        "escaped_string_semantics": "not_tested",
+        "decoded_form_sha256": "6fa851902510c5f26de9f9c92af424e77b0ad7d88ede7b7a3eb2ccce2e17f389",
+        "character_count": 26,
+        "leading_category": "backslash",
+        "command_token_candidates": {
+          "subp": 1
+        },
+        "virtual_lexical_coverage": "verified",
+        "unknown_command_token_hashes": {},
+        "scope": "Only literal shape and lexical command names; source reference remains the parent field"
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_format.s",
+      "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+      "command": "nt",
+      "byte_offset": 2634,
+      "byte_length": 68,
+      "raw_bytes_reference": {
+        "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+        "offset": 2634,
+        "length": 68,
+        "sha256": "70f4ed2cc8af8e72ee84138caf4828760acf7516194e4f60212c6096e9e341ef"
+      },
+      "arity": 1,
+      "status": "inferred",
+      "native_handler": "0x6ba248",
+      "candidate_field": "FNoWordLineText",
+      "candidate_field_offset": 48,
+      "native_fact": "prefix_setter_nt",
+      "namespace_binding": "not_tested",
+      "execution_semantics": "not_tested",
+      "selector_sha256": null,
+      "selector_interpretation": "Same-line lexical observation only, not runtime object resolution",
+      "parent_field_reference": {
+        "byte_offset": 2642,
+        "byte_length": 60,
+        "raw_bytes_reference": {
+          "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+          "offset": 2642,
+          "length": 60,
+          "sha256": "27f43115a50e894dbac96ed19d9ddb602faa03111d3783a84bc94813aeabfa9e"
+        }
+      },
+      "literal_shape": {
+        "status": "inferred",
+        "execution_semantics": "not_tested",
+        "escaped_string_semantics": "not_tested",
+        "decoded_form_sha256": "bc97942f95493d1f940f23205a8a0ed877a4f78f934167fb1a3ae6ab98809814",
+        "character_count": 28,
+        "leading_category": "backslash",
+        "command_token_candidates": {
+          "subp": 1
+        },
+        "virtual_lexical_coverage": "verified",
+        "unknown_command_token_hashes": {},
+        "scope": "Only literal shape and lexical command names; source reference remains the parent field"
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_format.s",
+      "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+      "command": "et",
+      "byte_offset": 2954,
+      "byte_length": 12,
+      "raw_bytes_reference": {
+        "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+        "offset": 2954,
+        "length": 12,
+        "sha256": "2c743e15f7d9ea59eeb5732e9602581165098cc04b250029966b84f07a1125e6"
+      },
+      "arity": 1,
+      "status": "inferred",
+      "native_handler": "0x6ba248",
+      "candidate_field": "FExceptText",
+      "candidate_field_offset": 44,
+      "native_fact": "prefix_setter_et",
+      "namespace_binding": "not_tested",
+      "execution_semantics": "not_tested",
+      "selector_sha256": null,
+      "selector_interpretation": "Same-line lexical observation only, not runtime object resolution",
+      "parent_field_reference": {
+        "byte_offset": 2962,
+        "byte_length": 4,
+        "raw_bytes_reference": {
+          "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+          "offset": 2962,
+          "length": 4,
+          "sha256": "6e586cbee3390ce73582f487f39ed8139079194c26c5fed5f748ec2adf236c4d"
+        }
+      },
+      "literal_shape": {
+        "status": "inferred",
+        "execution_semantics": "not_tested",
+        "escaped_string_semantics": "not_tested",
+        "decoded_form_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "character_count": 0,
+        "leading_category": "empty",
+        "command_token_candidates": {},
+        "virtual_lexical_coverage": "verified",
+        "unknown_command_token_hashes": {},
+        "scope": "Only literal shape and lexical command names; source reference remains the parent field"
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_format.s",
+      "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+      "command": "nt",
+      "byte_offset": 2974,
+      "byte_length": 12,
+      "raw_bytes_reference": {
+        "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+        "offset": 2974,
+        "length": 12,
+        "sha256": "ea240a133ea9eea2155c3700dfa8cda178f1a5c69b3ae0b19d826a9eaf5bfb01"
+      },
+      "arity": 1,
+      "status": "inferred",
+      "native_handler": "0x6ba248",
+      "candidate_field": "FNoWordLineText",
+      "candidate_field_offset": 48,
+      "native_fact": "prefix_setter_nt",
+      "namespace_binding": "not_tested",
+      "execution_semantics": "not_tested",
+      "selector_sha256": null,
+      "selector_interpretation": "Same-line lexical observation only, not runtime object resolution",
+      "parent_field_reference": {
+        "byte_offset": 2982,
+        "byte_length": 4,
+        "raw_bytes_reference": {
+          "source_sha256": "8c45c06bc0946fa38baec1cf65a4456470714f1fa0f68348331b96f8d5adcc15",
+          "offset": 2982,
+          "length": 4,
+          "sha256": "6e586cbee3390ce73582f487f39ed8139079194c26c5fed5f748ec2adf236c4d"
+        }
+      },
+      "literal_shape": {
+        "status": "inferred",
+        "execution_semantics": "not_tested",
+        "escaped_string_semantics": "not_tested",
+        "decoded_form_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "character_count": 0,
+        "leading_category": "empty",
+        "command_token_candidates": {},
+        "virtual_lexical_coverage": "verified",
+        "unknown_command_token_hashes": {},
+        "scope": "Only literal shape and lexical command names; source reference remains the parent field"
+      }
+    }
+  ],
+  "per_file": [
+    {
+      "source_file": "data0.pack/startup.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 19,
+        "label": 4,
+        "layout_span": 40,
+        "command": 23
+      }
+    },
+    {
+      "source_file": "data0.pack/sysstartup.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 22,
+        "label": 23,
+        "layout_span": 70,
+        "command": 48
+      }
+    },
+    {
+      "source_file": "data0.pack/system/etc/game.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 21,
+        "setting_assignment_candidate": 25,
+        "layout_span": 25
+      }
+    },
+    {
+      "source_file": "data0.pack/system/etc/gui.u.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 20,
+        "opaque_text": 79,
+        "layout_span": 79
+      }
+    },
+    {
+      "source_file": "data0.pack/system/etc/message.u.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 15,
+        "setting_assignment_candidate": 95,
+        "layout_span": 95
+      }
+    },
+    {
+      "source_file": "data0.pack/system/font/fontdata.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 10,
+        "opaque_text": 38,
+        "layout_span": 38
+      }
+    },
+    {
+      "source_file": "data0.pack/system/voice/voicedata.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 2,
+        "opaque_text": 7,
+        "layout_span": 7
+      }
+    },
+    {
+      "source_file": "data6.pack/include/allclear.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 1
+      }
+    },
+    {
+      "source_file": "data6.pack/include/allset.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "line_tag": 28,
+        "layout_span": 28
+      }
+    },
+    {
+      "source_file": "data6.pack/include/dayend.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "line_tag": 27,
+        "layout_span": 27
+      }
+    },
+    {
+      "source_file": "data6.pack/include/dayend_nf.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "line_tag": 23,
+        "layout_span": 23
+      }
+    },
+    {
+      "source_file": "data6.pack/include/fileend.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "line_tag": 27,
+        "layout_span": 27
+      }
+    },
+    {
+      "source_file": "data6.pack/include/fileend_nf.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "line_tag": 26,
+        "layout_span": 26
+      }
+    },
+    {
+      "source_file": "data6.pack/include/fileend_nfm.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "line_tag": 25,
+        "layout_span": 25
+      }
+    },
+    {
+      "source_file": "data6.pack/include/fileend_nfmm.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "line_tag": 24,
+        "layout_span": 24
+      }
+    },
+    {
+      "source_file": "data6.pack/include/last1.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "line_tag": 27,
+        "layout_span": 27
+      }
+    },
+    {
+      "source_file": "data6.pack/include/last2.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "line_tag": 23,
+        "layout_span": 23
+      }
+    },
+    {
+      "source_file": "data6.pack/include/longend.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "line_tag": 27,
+        "layout_span": 27
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/ed_movie.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 7,
+        "label": 1,
+        "empty_span": 3,
+        "command": 3,
+        "line_tag": 1
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/root.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 1,
+        "layout_span": 212,
+        "label": 114,
+        "empty_span": 75,
+        "command": 93,
+        "line_tag": 9
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/scenereplay.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 1,
+        "layout_span": 26,
+        "empty_span": 4,
+        "label": 3,
+        "command": 21,
+        "line_tag": 1
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/select.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t00op_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 454,
+        "label": 1,
+        "empty_span": 165,
+        "line_tag": 168,
+        "opaque_text": 228,
+        "sound_identifier": 53,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t01_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 1224,
+        "label": 1,
+        "empty_span": 543,
+        "line_tag": 298,
+        "opaque_text": 704,
+        "sound_identifier": 217,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t01_02@.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 483,
+        "label": 1,
+        "empty_span": 185,
+        "line_tag": 172,
+        "sound_identifier": 62,
+        "opaque_text": 239,
+        "command": 8
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t01_03.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 3,
+        "layout_span": 908,
+        "label": 4,
+        "empty_span": 373,
+        "line_tag": 223,
+        "opaque_text": 502,
+        "sound_identifier": 172,
+        "command": 4
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t02_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 543,
+        "label": 1,
+        "empty_span": 257,
+        "line_tag": 117,
+        "opaque_text": 329,
+        "sound_identifier": 92,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t02_02@.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 259,
+        "label": 1,
+        "empty_span": 74,
+        "line_tag": 98,
+        "sound_identifier": 42,
+        "opaque_text": 109,
+        "command": 8
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t02_03.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 707,
+        "label": 1,
+        "empty_span": 262,
+        "line_tag": 191,
+        "sound_identifier": 138,
+        "opaque_text": 373,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t03_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 3,
+        "layout_span": 1520,
+        "label": 4,
+        "empty_span": 601,
+        "line_tag": 375,
+        "sound_identifier": 307,
+        "opaque_text": 827,
+        "command": 4
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t04_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 424,
+        "label": 1,
+        "empty_span": 180,
+        "line_tag": 108,
+        "sound_identifier": 77,
+        "opaque_text": 234,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t04_02@.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 718,
+        "label": 1,
+        "empty_span": 272,
+        "line_tag": 194,
+        "opaque_text": 388,
+        "sound_identifier": 126,
+        "command": 8
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t04_03.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 446,
+        "label": 1,
+        "empty_span": 178,
+        "line_tag": 116,
+        "sound_identifier": 83,
+        "opaque_text": 242,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t05_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 559,
+        "label": 1,
+        "empty_span": 191,
+        "line_tag": 158,
+        "sound_identifier": 115,
+        "opaque_text": 281,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t05_02@.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 738,
+        "label": 1,
+        "empty_span": 298,
+        "line_tag": 141,
+        "opaque_text": 438,
+        "sound_identifier": 149,
+        "command": 8
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t05_03.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 595,
+        "label": 1,
+        "empty_span": 242,
+        "line_tag": 150,
+        "sound_identifier": 113,
+        "opaque_text": 327,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t06_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 2299,
+        "label": 1,
+        "empty_span": 907,
+        "line_tag": 663,
+        "opaque_text": 1215,
+        "sound_identifier": 416,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t07_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 1453,
+        "label": 1,
+        "empty_span": 510,
+        "line_tag": 436,
+        "opaque_text": 731,
+        "sound_identifier": 281,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t07_02@.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 360,
+        "label": 1,
+        "empty_span": 143,
+        "line_tag": 90,
+        "sound_identifier": 64,
+        "opaque_text": 196,
+        "command": 8
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t07_03.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 401,
+        "label": 1,
+        "empty_span": 162,
+        "line_tag": 113,
+        "sound_identifier": 74,
+        "opaque_text": 209,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t08_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 373,
+        "label": 1,
+        "empty_span": 133,
+        "line_tag": 126,
+        "sound_identifier": 67,
+        "opaque_text": 175,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t08_02@.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 1104,
+        "label": 1,
+        "empty_span": 436,
+        "line_tag": 242,
+        "sound_identifier": 217,
+        "opaque_text": 635,
+        "command": 8
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t08_03.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 644,
+        "label": 1,
+        "empty_span": 260,
+        "line_tag": 211,
+        "sound_identifier": 99,
+        "opaque_text": 329,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t09_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 436,
+        "label": 1,
+        "empty_span": 180,
+        "line_tag": 127,
+        "opaque_text": 230,
+        "sound_identifier": 74,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t09_02@.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 1177,
+        "label": 1,
+        "empty_span": 478,
+        "line_tag": 202,
+        "sound_identifier": 251,
+        "opaque_text": 714,
+        "command": 8
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t09_03.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 223,
+        "label": 1,
+        "empty_span": 109,
+        "line_tag": 74,
+        "opaque_text": 120,
+        "sound_identifier": 24,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t10_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 552,
+        "label": 1,
+        "empty_span": 216,
+        "line_tag": 194,
+        "sound_identifier": 88,
+        "opaque_text": 264,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t11_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 523,
+        "label": 1,
+        "empty_span": 235,
+        "line_tag": 170,
+        "opaque_text": 270,
+        "sound_identifier": 78,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t12_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 1035,
+        "label": 1,
+        "empty_span": 367,
+        "line_tag": 322,
+        "opaque_text": 515,
+        "sound_identifier": 191,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t12_02@.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 1669,
+        "label": 1,
+        "empty_span": 606,
+        "line_tag": 365,
+        "sound_identifier": 353,
+        "opaque_text": 941,
+        "command": 8
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t12_03.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 62,
+        "label": 1,
+        "empty_span": 30,
+        "line_tag": 31,
+        "opaque_text": 22,
+        "sound_identifier": 4,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t13_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 525,
+        "label": 1,
+        "empty_span": 172,
+        "line_tag": 171,
+        "sound_identifier": 100,
+        "opaque_text": 249,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t13_02@.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 1094,
+        "label": 1,
+        "empty_span": 389,
+        "line_tag": 235,
+        "sound_identifier": 237,
+        "opaque_text": 612,
+        "command": 8
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t13_03.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 431,
+        "label": 1,
+        "empty_span": 161,
+        "line_tag": 129,
+        "sound_identifier": 80,
+        "opaque_text": 217,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t14_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 809,
+        "label": 1,
+        "empty_span": 272,
+        "line_tag": 227,
+        "sound_identifier": 167,
+        "opaque_text": 410,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t14_02@.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 735,
+        "label": 1,
+        "empty_span": 280,
+        "line_tag": 171,
+        "opaque_text": 408,
+        "sound_identifier": 146,
+        "command": 8
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t14_03.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 60,
+        "label": 1,
+        "empty_span": 32,
+        "line_tag": 24,
+        "opaque_text": 27,
+        "sound_identifier": 4,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t15_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 515,
+        "label": 1,
+        "empty_span": 211,
+        "line_tag": 143,
+        "sound_identifier": 95,
+        "opaque_text": 272,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t16_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 538,
+        "label": 1,
+        "empty_span": 177,
+        "line_tag": 163,
+        "opaque_text": 261,
+        "sound_identifier": 109,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t16_02@.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 3,
+        "layout_span": 1271,
+        "label": 4,
+        "empty_span": 470,
+        "line_tag": 306,
+        "opaque_text": 700,
+        "sound_identifier": 249,
+        "command": 10
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t16_03.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 1176,
+        "label": 1,
+        "empty_span": 460,
+        "line_tag": 338,
+        "opaque_text": 615,
+        "sound_identifier": 218,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t17_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 3,
+        "layout_span": 1436,
+        "label": 4,
+        "empty_span": 511,
+        "line_tag": 430,
+        "sound_identifier": 271,
+        "opaque_text": 724,
+        "command": 4
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t17_02@.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 996,
+        "label": 1,
+        "empty_span": 372,
+        "line_tag": 231,
+        "sound_identifier": 198,
+        "opaque_text": 557,
+        "command": 8
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t17_03.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 120,
+        "label": 1,
+        "empty_span": 59,
+        "line_tag": 46,
+        "opaque_text": 56,
+        "sound_identifier": 13,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t18_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 3,
+        "layout_span": 968,
+        "label": 4,
+        "empty_span": 389,
+        "line_tag": 267,
+        "sound_identifier": 178,
+        "opaque_text": 512,
+        "command": 4
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t18_01b@.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 306,
+        "label": 1,
+        "empty_span": 116,
+        "line_tag": 87,
+        "sound_identifier": 53,
+        "opaque_text": 156,
+        "command": 8
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t18_02@.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 1130,
+        "label": 1,
+        "empty_span": 415,
+        "line_tag": 236,
+        "sound_identifier": 243,
+        "opaque_text": 641,
+        "command": 8
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t18_03.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 187,
+        "label": 1,
+        "empty_span": 68,
+        "line_tag": 52,
+        "sound_identifier": 34,
+        "opaque_text": 96,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t19a_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 3,
+        "layout_span": 1049,
+        "label": 4,
+        "empty_span": 412,
+        "line_tag": 332,
+        "opaque_text": 533,
+        "sound_identifier": 173,
+        "command": 4
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t19a_02@.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 760,
+        "label": 1,
+        "empty_span": 286,
+        "line_tag": 182,
+        "sound_identifier": 147,
+        "opaque_text": 421,
+        "command": 8
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t19a_03.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 1094,
+        "label": 1,
+        "empty_span": 493,
+        "line_tag": 260,
+        "sound_identifier": 191,
+        "opaque_text": 638,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t19b_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 205,
+        "label": 1,
+        "empty_span": 84,
+        "line_tag": 69,
+        "opaque_text": 100,
+        "sound_identifier": 31,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t19b_02@.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 3,
+        "layout_span": 1173,
+        "label": 4,
+        "empty_span": 438,
+        "line_tag": 289,
+        "sound_identifier": 228,
+        "opaque_text": 640,
+        "command": 10
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t19b_03.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 581,
+        "label": 1,
+        "empty_span": 244,
+        "line_tag": 174,
+        "sound_identifier": 97,
+        "opaque_text": 305,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t19c_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 447,
+        "label": 1,
+        "empty_span": 173,
+        "line_tag": 160,
+        "sound_identifier": 67,
+        "opaque_text": 215,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t20a_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 426,
+        "label": 1,
+        "empty_span": 181,
+        "line_tag": 135,
+        "sound_identifier": 69,
+        "opaque_text": 217,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t21_01omake@.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 667,
+        "label": 1,
+        "empty_span": 256,
+        "line_tag": 144,
+        "opaque_text": 378,
+        "sound_identifier": 135,
+        "command": 8
+      }
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/ted99_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 304,
+        "label": 1,
+        "empty_span": 122,
+        "line_tag": 71,
+        "opaque_text": 193,
+        "sound_identifier": 35,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 31,
+        "include": 3,
+        "layout_span": 181,
+        "label": 6,
+        "command": 171
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_abmpmovie.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 49,
+        "include": 2,
+        "layout_span": 248,
+        "label": 8,
+        "command": 230
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_autoselect.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 14,
+        "label": 4,
+        "layout_span": 79,
+        "command": 73
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_custom.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 100,
+        "include": 14,
+        "layout_span": 507,
+        "label": 26,
+        "command": 421
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_logjump.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 14,
+        "label": 6,
+        "layout_span": 87,
+        "command": 81
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_movie.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 34,
+        "include": 2,
+        "layout_span": 155,
+        "label": 6,
+        "command": 139
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_rewind.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 54,
+        "label": 10,
+        "layout_span": 306,
+        "command": 276
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_route.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 2,
+        "label": 1,
+        "layout_span": 6,
+        "command": 5
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_sceneskip.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 55,
+        "label": 10,
+        "layout_span": 269,
+        "command": 232
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_select.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 23,
+        "include": 1,
+        "layout_span": 110,
+        "label": 7,
+        "command": 95
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_value.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 15,
+        "include": 1,
+        "layout_span": 37,
+        "label": 2,
+        "command": 25
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/footer.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "command": 1,
+        "layout_span": 1
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/header.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 5,
+        "include": 1,
+        "layout_span": 8,
+        "label": 2,
+        "command": 3,
+        "line_tag": 2
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/header_replay.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 3,
+        "include": 1,
+        "layout_span": 6,
+        "label": 2,
+        "command": 3
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 18,
+        "include": 16,
+        "layout_span": 269,
+        "label": 4,
+        "command": 258
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_base.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 56,
+        "label": 14,
+        "layout_span": 310,
+        "command": 273
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_blendmodelist.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "setting_assignment_candidate": 16,
+        "layout_span": 16
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_camera.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 78,
+        "include": 1,
+        "layout_span": 518,
+        "label": 15,
+        "command": 447
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_chara.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 105,
+        "include": 1,
+        "layout_span": 872,
+        "label": 21,
+        "command": 801
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_chara8e.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 130,
+        "include": 1,
+        "layout_span": 1191,
+        "label": 25,
+        "command": 1105
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_charaposlist.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_custom.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 242,
+        "include": 2,
+        "layout_span": 1433,
+        "label": 55,
+        "command": 1348
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_extentionlist.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "setting_assignment_candidate": 1,
+        "layout_span": 1
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_face.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 87,
+        "include": 3,
+        "layout_span": 669,
+        "label": 22,
+        "command": 608
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_face_poslist.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_face_repfile.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "opaque_text": 4,
+        "layout_span": 4
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_face_repid.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "opaque_text": 2,
+        "layout_span": 2
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_fadeeventlist.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "setting_assignment_candidate": 61,
+        "layout_span": 61
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_filterlist.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "setting_assignment_candidate": 9,
+        "layout_span": 9
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_fontlist.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "opaque_text": 20,
+        "layout_span": 20
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_format.s",
+      "setter_spellings": 4,
+      "record_type_counts": {
+        "empty_span": 102,
+        "label": 22,
+        "layout_span": 642,
+        "command": 596
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_generatorfilterlist.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "setting_assignment_candidate": 4,
+        "layout_span": 4
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_gfadelist.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "setting_assignment_candidate": 10,
+        "layout_span": 10
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_gmodelist.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "setting_assignment_candidate": 13,
+        "layout_span": 13,
+        "empty_span": 1
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_gtargetlist.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "setting_assignment_candidate": 4,
+        "layout_span": 4
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_image.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 86,
+        "include": 1,
+        "layout_span": 800,
+        "label": 20,
+        "command": 734
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_imagefilterlist.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "setting_assignment_candidate": 12,
+        "layout_span": 12
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_include.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 19,
+        "label": 6,
+        "layout_span": 94,
+        "command": 80
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_indexlist.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 12,
+        "label": 6,
+        "layout_span": 62,
+        "command": 55
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_information.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 79,
+        "include": 2,
+        "layout_span": 694,
+        "label": 20,
+        "command": 655
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_message.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 70,
+        "include": 2,
+        "layout_span": 659,
+        "label": 19,
+        "command": 625
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_movemodelist.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "setting_assignment_candidate": 18,
+        "layout_span": 18,
+        "empty_span": 2
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_music.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 67,
+        "include": 1,
+        "layout_span": 510,
+        "label": 16,
+        "command": 475
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_namecolorlist.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_nametext.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 61,
+        "include": 2,
+        "layout_span": 573,
+        "label": 15,
+        "command": 544
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_reptextlist.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "opaque_text": 4,
+        "layout_span": 4
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_sentence.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 50,
+        "include": 1,
+        "layout_span": 375,
+        "label": 11,
+        "command": 350
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_sound.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 56,
+        "include": 1,
+        "layout_span": 415,
+        "label": 14,
+        "command": 381
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_soundfilterlist.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "setting_assignment_candidate": 15,
+        "layout_span": 15
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_camera.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "macro_assignment_candidate": 8,
+        "layout_span": 8
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_chara.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_chara8e.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "opaque_text": 4,
+        "layout_span": 15,
+        "macro_assignment_candidate": 11
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_face.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "macro_assignment_candidate": 1,
+        "layout_span": 1
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_format.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_image.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "macro_assignment_candidate": 12,
+        "layout_span": 12
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_information.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {}
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_message.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "macro_assignment_candidate": 7,
+        "layout_span": 7
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_music.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "macro_assignment_candidate": 6,
+        "layout_span": 6
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_nametext.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "macro_assignment_candidate": 1,
+        "layout_span": 1
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_sentence.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "macro_assignment_candidate": 25,
+        "layout_span": 25
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_sound.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "macro_assignment_candidate": 7,
+        "layout_span": 7
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_texturefilterlist.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "setting_assignment_candidate": 4,
+        "layout_span": 4,
+        "empty_span": 2
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/include_route.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 218,
+        "label": 46,
+        "layout_span": 900,
+        "command": 755,
+        "opaque_text": 8
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/prebranch.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "command": 1,
+        "layout_span": 1,
+        "empty_span": 1
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/preselect.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "command": 1,
+        "layout_span": 2,
+        "empty_span": 2,
+        "line_tag": 1
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/projectobjects.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "opaque_text": 29,
+        "layout_span": 29
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/projectsetting.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "setting_assignment_candidate": 36,
+        "layout_span": 36
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/select/layout_select.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 5,
+        "label": 2,
+        "layout_span": 74,
+        "command": 69
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/setting.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 36,
+        "setting_assignment_candidate": 47,
+        "layout_span": 68,
+        "opaque_text": 21
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/uppermenu/layout.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 5,
+        "label": 2,
+        "layout_span": 45,
+        "command": 40
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/uppermenu/main.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "include": 1,
+        "layout_span": 29,
+        "empty_span": 5,
+        "label": 4,
+        "command": 24
+      }
+    },
+    {
+      "source_file": "data7.pack/avg/window/layout_window.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 5,
+        "label": 2,
+        "layout_span": 144,
+        "command": 139
+      }
+    },
+    {
+      "source_file": "data7.pack/misc/mgmisc.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 4,
+        "label": 3,
+        "layout_span": 154,
+        "command": 151
+      }
+    },
+    {
+      "source_file": "data7.pack/misc/misc.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 81,
+        "label": 22,
+        "layout_span": 497,
+        "command": 461
+      }
+    },
+    {
+      "source_file": "data7.pack/misc/misc_systeminfo.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 16,
+        "label": 2,
+        "layout_span": 347,
+        "command": 343
+      }
+    },
+    {
+      "source_file": "data7.pack/misc/value.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 23,
+        "label": 1,
+        "layout_span": 117,
+        "command": 94
+      }
+    },
+    {
+      "source_file": "data7.pack/misc/voicefiletonametable.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 1
+      }
+    },
+    {
+      "source_file": "data7.pack/script/albummode/layout.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 5,
+        "label": 2,
+        "layout_span": 378,
+        "command": 373
+      }
+    },
+    {
+      "source_file": "data7.pack/script/albummode/layout_view.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 5,
+        "label": 2,
+        "layout_span": 72,
+        "command": 67
+      }
+    },
+    {
+      "source_file": "data7.pack/script/albummode/list.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "opaque_text": 38,
+        "layout_span": 38
+      }
+    },
+    {
+      "source_file": "data7.pack/script/albummode/main.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 24,
+        "include": 3,
+        "layout_span": 160,
+        "label": 13,
+        "command": 136
+      }
+    },
+    {
+      "source_file": "data7.pack/script/albummode/viewfunction.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 42,
+        "label": 15,
+        "layout_span": 325,
+        "command": 296
+      }
+    },
+    {
+      "source_file": "data7.pack/script/caution/main.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 6,
+        "label": 3,
+        "layout_span": 33,
+        "command": 27
+      }
+    },
+    {
+      "source_file": "data7.pack/script/config/layout.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 20,
+        "label": 2,
+        "layout_span": 512,
+        "command": 492
+      }
+    },
+    {
+      "source_file": "data7.pack/script/config/main.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 69,
+        "include": 4,
+        "layout_span": 427,
+        "label": 31,
+        "command": 359
+      }
+    },
+    {
+      "source_file": "data7.pack/script/config/value.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 23,
+        "label": 1,
+        "layout_span": 222,
+        "command": 228
+      }
+    },
+    {
+      "source_file": "data7.pack/script/config/valuedefault.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 10,
+        "setting_assignment_candidate": 40,
+        "layout_span": 49,
+        "opaque_text": 9
+      }
+    },
+    {
+      "source_file": "data7.pack/script/dialog/layout_message.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 5,
+        "label": 2,
+        "layout_span": 36,
+        "command": 31
+      }
+    },
+    {
+      "source_file": "data7.pack/script/dialog/layout_yesno.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 5,
+        "label": 2,
+        "layout_span": 49,
+        "command": 44
+      }
+    },
+    {
+      "source_file": "data7.pack/script/dialog/main.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 22,
+        "include": 2,
+        "layout_span": 134,
+        "label": 9,
+        "command": 121
+      }
+    },
+    {
+      "source_file": "data7.pack/script/exceptionbackup/main.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 10,
+        "include": 1,
+        "layout_span": 49,
+        "label": 6,
+        "command": 40
+      }
+    },
+    {
+      "source_file": "data7.pack/script/log/layout.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 5,
+        "label": 2,
+        "layout_span": 93,
+        "command": 88
+      }
+    },
+    {
+      "source_file": "data7.pack/script/log/main.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 63,
+        "include": 3,
+        "layout_span": 521,
+        "label": 26,
+        "command": 479
+      }
+    },
+    {
+      "source_file": "data7.pack/script/log/__layout.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 5,
+        "label": 2,
+        "layout_span": 108,
+        "command": 103
+      }
+    },
+    {
+      "source_file": "data7.pack/script/log/__main.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 39,
+        "include": 3,
+        "layout_span": 289,
+        "label": 16,
+        "command": 258
+      }
+    },
+    {
+      "source_file": "data7.pack/script/makerlogo/main.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 6,
+        "label": 3,
+        "layout_span": 29,
+        "command": 23
+      }
+    },
+    {
+      "source_file": "data7.pack/script/memorymode/layout.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 5,
+        "label": 2,
+        "layout_span": 315,
+        "command": 310
+      }
+    },
+    {
+      "source_file": "data7.pack/script/memorymode/list.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "opaque_text": 17,
+        "layout_span": 17
+      }
+    },
+    {
+      "source_file": "data7.pack/script/memorymode/main.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 26,
+        "include": 2,
+        "layout_span": 168,
+        "label": 14,
+        "command": 145
+      }
+    },
+    {
+      "source_file": "data7.pack/script/memorymode/replayfunction.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "include": 2,
+        "layout_span": 151,
+        "empty_span": 26,
+        "label": 7,
+        "command": 128
+      }
+    },
+    {
+      "source_file": "data7.pack/script/quit/main.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 8,
+        "include": 1,
+        "layout_span": 41,
+        "label": 7,
+        "command": 32
+      }
+    },
+    {
+      "source_file": "data7.pack/script/reset/main.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 8,
+        "include": 1,
+        "layout_span": 41,
+        "label": 7,
+        "command": 32
+      }
+    },
+    {
+      "source_file": "data7.pack/script/saveload/common.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 21,
+        "label": 2,
+        "layout_span": 94,
+        "command": 76
+      }
+    },
+    {
+      "source_file": "data7.pack/script/saveload/layout_load.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 5,
+        "label": 2,
+        "layout_span": 601,
+        "command": 596
+      }
+    },
+    {
+      "source_file": "data7.pack/script/saveload/layout_save.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 5,
+        "label": 2,
+        "layout_span": 590,
+        "command": 585
+      }
+    },
+    {
+      "source_file": "data7.pack/script/saveload/main_load.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 42,
+        "include": 4,
+        "layout_span": 271,
+        "label": 19,
+        "command": 241
+      }
+    },
+    {
+      "source_file": "data7.pack/script/saveload/main_quickload.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 11,
+        "include": 2,
+        "layout_span": 77,
+        "label": 6,
+        "command": 68
+      }
+    },
+    {
+      "source_file": "data7.pack/script/saveload/main_quicksave.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 11,
+        "include": 2,
+        "layout_span": 64,
+        "label": 6,
+        "command": 52
+      }
+    },
+    {
+      "source_file": "data7.pack/script/saveload/main_save.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 39,
+        "include": 4,
+        "layout_span": 250,
+        "label": 16,
+        "command": 218
+      }
+    },
+    {
+      "source_file": "data7.pack/script/sequence/onload.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 9,
+        "label": 4,
+        "layout_span": 38,
+        "command": 28
+      }
+    },
+    {
+      "source_file": "data7.pack/script/sequence/onquit.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 5,
+        "label": 3,
+        "layout_span": 20,
+        "command": 14
+      }
+    },
+    {
+      "source_file": "data7.pack/script/sequence/onreset.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 5,
+        "label": 3,
+        "layout_span": 20,
+        "command": 14
+      }
+    },
+    {
+      "source_file": "data7.pack/script/soundmode/layout.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 5,
+        "label": 2,
+        "layout_span": 432,
+        "command": 427
+      }
+    },
+    {
+      "source_file": "data7.pack/script/soundmode/list.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "opaque_text": 27,
+        "layout_span": 27
+      }
+    },
+    {
+      "source_file": "data7.pack/script/soundmode/main.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 78,
+        "include": 1,
+        "layout_span": 456,
+        "label": 30,
+        "command": 399
+      }
+    },
+    {
+      "source_file": "data7.pack/script/title/layout01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 5,
+        "label": 2,
+        "layout_span": 23,
+        "command": 18
+      }
+    },
+    {
+      "source_file": "data7.pack/script/title/layout02.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 6,
+        "label": 2,
+        "layout_span": 24,
+        "command": 18
+      }
+    },
+    {
+      "source_file": "data7.pack/script/title/layout_select01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 5,
+        "label": 2,
+        "layout_span": 70,
+        "command": 65
+      }
+    },
+    {
+      "source_file": "data7.pack/script/title/layout_select02.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 5,
+        "label": 2,
+        "layout_span": 59,
+        "command": 54
+      }
+    },
+    {
+      "source_file": "data7.pack/script/title/main.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "opaque_text": 1,
+        "layout_span": 264,
+        "empty_span": 48,
+        "include": 6,
+        "label": 23,
+        "command": 221
+      }
+    },
+    {
+      "source_file": "data7.pack/script/unlock/unlock.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 14,
+        "label": 3,
+        "layout_span": 59,
+        "command": 51
+      }
+    },
+    {
+      "source_file": "data7.pack/script/view/layout.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 5,
+        "label": 2,
+        "layout_span": 29,
+        "command": 24
+      }
+    },
+    {
+      "source_file": "data7.pack/script/view/main.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "empty_span": 22,
+        "include": 1,
+        "layout_span": 132,
+        "label": 12,
+        "command": 114
+      }
+    },
+    {
+      "source_file": "data8.pack/1.01パッチ用フォルダ.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {}
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 31,
+        "include": 3,
+        "layout_span": 181,
+        "label": 6,
+        "command": 171
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_abmpmovie.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 49,
+        "include": 2,
+        "layout_span": 248,
+        "label": 8,
+        "command": 230
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_autoselect.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 14,
+        "label": 4,
+        "layout_span": 79,
+        "command": 73
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_custom.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 100,
+        "include": 14,
+        "layout_span": 508,
+        "label": 26,
+        "command": 422
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_logjump.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 14,
+        "label": 6,
+        "layout_span": 87,
+        "command": 81
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_movie.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 34,
+        "include": 2,
+        "layout_span": 155,
+        "label": 6,
+        "command": 139
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_rewind.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 54,
+        "label": 10,
+        "layout_span": 306,
+        "command": 276
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_route.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 2,
+        "label": 1,
+        "layout_span": 6,
+        "command": 5
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_sceneskip.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 55,
+        "label": 10,
+        "layout_span": 269,
+        "command": 232
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_select.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 23,
+        "include": 1,
+        "layout_span": 110,
+        "label": 7,
+        "command": 95
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_value.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 15,
+        "include": 1,
+        "layout_span": 37,
+        "label": 2,
+        "command": 25
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/footer.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "command": 1,
+        "layout_span": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/header.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 5,
+        "include": 1,
+        "layout_span": 8,
+        "label": 2,
+        "command": 3,
+        "line_tag": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/header_replay.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 3,
+        "include": 1,
+        "layout_span": 6,
+        "label": 2,
+        "command": 3
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 18,
+        "include": 16,
+        "layout_span": 269,
+        "label": 4,
+        "command": 258
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_base.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 56,
+        "label": 14,
+        "layout_span": 310,
+        "command": 273
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_blendmodelist.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "setting_assignment_candidate": 16,
+        "layout_span": 16
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_camera.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 78,
+        "include": 1,
+        "layout_span": 518,
+        "label": 15,
+        "command": 447
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_chara.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 105,
+        "include": 1,
+        "layout_span": 872,
+        "label": 21,
+        "command": 801
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_chara8e.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 131,
+        "include": 1,
+        "layout_span": 1197,
+        "label": 25,
+        "command": 1109
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_charaposlist.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_custom.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 242,
+        "include": 2,
+        "layout_span": 1433,
+        "label": 55,
+        "command": 1348
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_extentionlist.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "setting_assignment_candidate": 1,
+        "layout_span": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_face.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 87,
+        "include": 3,
+        "layout_span": 669,
+        "label": 22,
+        "command": 608
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_face_poslist.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_face_repfile.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "opaque_text": 4,
+        "layout_span": 4
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_face_repid.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "opaque_text": 2,
+        "layout_span": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_fadeeventlist.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "setting_assignment_candidate": 61,
+        "layout_span": 61
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_filterlist.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "setting_assignment_candidate": 9,
+        "layout_span": 9
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_fontlist.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "opaque_text": 20,
+        "layout_span": 20
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_format.s",
+      "setter_spellings": 4,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 102,
+        "label": 22,
+        "layout_span": 642,
+        "command": 596
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_generatorfilterlist.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "setting_assignment_candidate": 4,
+        "layout_span": 4
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_gfadelist.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "setting_assignment_candidate": 10,
+        "layout_span": 10
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_gmodelist.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "setting_assignment_candidate": 13,
+        "layout_span": 13,
+        "empty_span": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_gtargetlist.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "setting_assignment_candidate": 4,
+        "layout_span": 4
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_image.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 88,
+        "include": 1,
+        "layout_span": 812,
+        "label": 20,
+        "command": 745
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_imagefilterlist.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "setting_assignment_candidate": 12,
+        "layout_span": 12
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_include.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 19,
+        "label": 6,
+        "layout_span": 94,
+        "command": 80
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_indexlist.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 12,
+        "label": 6,
+        "layout_span": 62,
+        "command": 55
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_information.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 79,
+        "include": 2,
+        "layout_span": 694,
+        "label": 20,
+        "command": 655
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_message.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 70,
+        "include": 2,
+        "layout_span": 659,
+        "label": 19,
+        "command": 625
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_movemodelist.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "setting_assignment_candidate": 18,
+        "layout_span": 18,
+        "empty_span": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_music.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 67,
+        "include": 1,
+        "layout_span": 510,
+        "label": 16,
+        "command": 475
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_namecolorlist.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_nametext.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 61,
+        "include": 2,
+        "layout_span": 573,
+        "label": 15,
+        "command": 544
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_reptextlist.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "opaque_text": 4,
+        "layout_span": 4
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_sentence.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 50,
+        "include": 1,
+        "layout_span": 375,
+        "label": 11,
+        "command": 350
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_sound.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 62,
+        "include": 1,
+        "layout_span": 455,
+        "label": 15,
+        "command": 417
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_soundfilterlist.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "setting_assignment_candidate": 15,
+        "layout_span": 15
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_camera.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "macro_assignment_candidate": 8,
+        "layout_span": 8
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_chara.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_chara8e.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "opaque_text": 4,
+        "layout_span": 15,
+        "macro_assignment_candidate": 11
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_face.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "macro_assignment_candidate": 1,
+        "layout_span": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_format.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_image.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "macro_assignment_candidate": 12,
+        "layout_span": 12
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_information.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_message.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "macro_assignment_candidate": 7,
+        "layout_span": 7
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_music.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "macro_assignment_candidate": 6,
+        "layout_span": 6
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_nametext.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "macro_assignment_candidate": 1,
+        "layout_span": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_sentence.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "macro_assignment_candidate": 25,
+        "layout_span": 25
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_sound.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "macro_assignment_candidate": 7,
+        "layout_span": 7
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_texturefilterlist.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "setting_assignment_candidate": 4,
+        "layout_span": 4,
+        "empty_span": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/include_route.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 218,
+        "label": 46,
+        "layout_span": 900,
+        "command": 755,
+        "opaque_text": 8
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/prebranch.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "command": 1,
+        "layout_span": 1,
+        "empty_span": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/preselect.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "command": 1,
+        "layout_span": 2,
+        "empty_span": 2,
+        "line_tag": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/projectobjects.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "opaque_text": 29,
+        "layout_span": 29
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/projectsetting.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "setting_assignment_candidate": 36,
+        "layout_span": 36
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/select/layout_select.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 5,
+        "label": 2,
+        "layout_span": 74,
+        "command": 69
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/setting.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 36,
+        "setting_assignment_candidate": 47,
+        "layout_span": 68,
+        "opaque_text": 21
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/uppermenu/layout.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 5,
+        "label": 2,
+        "layout_span": 45,
+        "command": 40
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/uppermenu/main.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 1,
+        "layout_span": 29,
+        "empty_span": 5,
+        "label": 4,
+        "command": 24
+      }
+    },
+    {
+      "source_file": "data8.pack/avg/window/layout_window.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 5,
+        "label": 2,
+        "layout_span": 144,
+        "command": 139
+      }
+    },
+    {
+      "source_file": "data8.pack/misc/mgmisc.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 4,
+        "label": 3,
+        "layout_span": 154,
+        "command": 151
+      }
+    },
+    {
+      "source_file": "data8.pack/misc/misc.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 81,
+        "label": 22,
+        "layout_span": 497,
+        "command": 461
+      }
+    },
+    {
+      "source_file": "data8.pack/misc/misc_systeminfo.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 16,
+        "label": 2,
+        "layout_span": 347,
+        "command": 343
+      }
+    },
+    {
+      "source_file": "data8.pack/misc/value.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 23,
+        "label": 1,
+        "layout_span": 117,
+        "command": 94
+      }
+    },
+    {
+      "source_file": "data8.pack/misc/voicefiletonametable.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 1
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t00op_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 454,
+        "label": 1,
+        "empty_span": 165,
+        "line_tag": 168,
+        "opaque_text": 228,
+        "sound_identifier": 53,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t01_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 1224,
+        "label": 1,
+        "empty_span": 543,
+        "line_tag": 298,
+        "opaque_text": 704,
+        "sound_identifier": 217,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t01_02@.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 483,
+        "label": 1,
+        "empty_span": 185,
+        "line_tag": 172,
+        "sound_identifier": 62,
+        "opaque_text": 239,
+        "command": 8
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t01_03.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 3,
+        "layout_span": 908,
+        "label": 4,
+        "empty_span": 373,
+        "line_tag": 223,
+        "opaque_text": 502,
+        "sound_identifier": 172,
+        "command": 4
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t02_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 543,
+        "label": 1,
+        "empty_span": 257,
+        "line_tag": 117,
+        "opaque_text": 329,
+        "sound_identifier": 92,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t02_02@.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 259,
+        "label": 1,
+        "empty_span": 74,
+        "line_tag": 98,
+        "sound_identifier": 42,
+        "opaque_text": 109,
+        "command": 8
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t02_03.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 707,
+        "label": 1,
+        "empty_span": 262,
+        "line_tag": 191,
+        "sound_identifier": 138,
+        "opaque_text": 373,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t03_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 3,
+        "layout_span": 1520,
+        "label": 4,
+        "empty_span": 601,
+        "line_tag": 375,
+        "sound_identifier": 307,
+        "opaque_text": 827,
+        "command": 4
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t04_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 424,
+        "label": 1,
+        "empty_span": 180,
+        "line_tag": 108,
+        "sound_identifier": 77,
+        "opaque_text": 234,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t04_02@.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 718,
+        "label": 1,
+        "empty_span": 272,
+        "line_tag": 194,
+        "opaque_text": 388,
+        "sound_identifier": 126,
+        "command": 8
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t04_03.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 446,
+        "label": 1,
+        "empty_span": 178,
+        "line_tag": 116,
+        "sound_identifier": 83,
+        "opaque_text": 242,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t05_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 559,
+        "label": 1,
+        "empty_span": 191,
+        "line_tag": 158,
+        "sound_identifier": 115,
+        "opaque_text": 281,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t05_02@.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 738,
+        "label": 1,
+        "empty_span": 298,
+        "line_tag": 141,
+        "opaque_text": 438,
+        "sound_identifier": 149,
+        "command": 8
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t05_03.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 595,
+        "label": 1,
+        "empty_span": 242,
+        "line_tag": 150,
+        "sound_identifier": 113,
+        "opaque_text": 327,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t06_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 2299,
+        "label": 1,
+        "empty_span": 907,
+        "line_tag": 663,
+        "opaque_text": 1215,
+        "sound_identifier": 416,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t07_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 1453,
+        "label": 1,
+        "empty_span": 510,
+        "line_tag": 436,
+        "opaque_text": 731,
+        "sound_identifier": 281,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t07_02@.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 360,
+        "label": 1,
+        "empty_span": 143,
+        "line_tag": 90,
+        "sound_identifier": 64,
+        "opaque_text": 196,
+        "command": 8
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t07_03.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 401,
+        "label": 1,
+        "empty_span": 162,
+        "line_tag": 113,
+        "sound_identifier": 74,
+        "opaque_text": 209,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t08_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 373,
+        "label": 1,
+        "empty_span": 133,
+        "line_tag": 126,
+        "sound_identifier": 67,
+        "opaque_text": 175,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t08_02@.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 1104,
+        "label": 1,
+        "empty_span": 436,
+        "line_tag": 242,
+        "sound_identifier": 217,
+        "opaque_text": 635,
+        "command": 8
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t08_03.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 644,
+        "label": 1,
+        "empty_span": 260,
+        "line_tag": 211,
+        "sound_identifier": 99,
+        "opaque_text": 329,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t09_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 436,
+        "label": 1,
+        "empty_span": 180,
+        "line_tag": 127,
+        "opaque_text": 230,
+        "sound_identifier": 74,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t09_02@.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 1177,
+        "label": 1,
+        "empty_span": 478,
+        "line_tag": 202,
+        "sound_identifier": 251,
+        "opaque_text": 714,
+        "command": 8
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t09_03.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 223,
+        "label": 1,
+        "empty_span": 109,
+        "line_tag": 74,
+        "opaque_text": 120,
+        "sound_identifier": 24,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t10_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 552,
+        "label": 1,
+        "empty_span": 216,
+        "line_tag": 194,
+        "sound_identifier": 88,
+        "opaque_text": 264,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t11_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 523,
+        "label": 1,
+        "empty_span": 235,
+        "line_tag": 170,
+        "opaque_text": 270,
+        "sound_identifier": 78,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t12_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 1035,
+        "label": 1,
+        "empty_span": 367,
+        "line_tag": 322,
+        "opaque_text": 515,
+        "sound_identifier": 191,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t12_02@.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 1669,
+        "label": 1,
+        "empty_span": 606,
+        "line_tag": 365,
+        "sound_identifier": 353,
+        "opaque_text": 941,
+        "command": 8
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t12_03.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 62,
+        "label": 1,
+        "empty_span": 30,
+        "line_tag": 31,
+        "opaque_text": 22,
+        "sound_identifier": 4,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t13_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 525,
+        "label": 1,
+        "empty_span": 172,
+        "line_tag": 171,
+        "sound_identifier": 100,
+        "opaque_text": 249,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t13_02@.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 1094,
+        "label": 1,
+        "empty_span": 389,
+        "line_tag": 235,
+        "sound_identifier": 237,
+        "opaque_text": 612,
+        "command": 8
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t13_03.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 431,
+        "label": 1,
+        "empty_span": 161,
+        "line_tag": 129,
+        "sound_identifier": 80,
+        "opaque_text": 217,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t14_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 809,
+        "label": 1,
+        "empty_span": 272,
+        "line_tag": 227,
+        "sound_identifier": 167,
+        "opaque_text": 410,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t14_02@.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 735,
+        "label": 1,
+        "empty_span": 280,
+        "line_tag": 171,
+        "opaque_text": 408,
+        "sound_identifier": 146,
+        "command": 8
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t14_03.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 60,
+        "label": 1,
+        "empty_span": 32,
+        "line_tag": 24,
+        "opaque_text": 27,
+        "sound_identifier": 4,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t15_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 515,
+        "label": 1,
+        "empty_span": 211,
+        "line_tag": 143,
+        "sound_identifier": 95,
+        "opaque_text": 272,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t16_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 538,
+        "label": 1,
+        "empty_span": 177,
+        "line_tag": 163,
+        "opaque_text": 261,
+        "sound_identifier": 109,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t16_02@.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 3,
+        "layout_span": 1271,
+        "label": 4,
+        "empty_span": 470,
+        "line_tag": 306,
+        "opaque_text": 700,
+        "sound_identifier": 249,
+        "command": 10
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t16_03.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 1177,
+        "label": 1,
+        "empty_span": 460,
+        "line_tag": 339,
+        "opaque_text": 615,
+        "sound_identifier": 218,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t17_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 3,
+        "layout_span": 1436,
+        "label": 4,
+        "empty_span": 511,
+        "line_tag": 430,
+        "sound_identifier": 271,
+        "opaque_text": 724,
+        "command": 4
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t17_02@.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 996,
+        "label": 1,
+        "empty_span": 372,
+        "line_tag": 231,
+        "sound_identifier": 198,
+        "opaque_text": 557,
+        "command": 8
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t17_03.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 120,
+        "label": 1,
+        "empty_span": 59,
+        "line_tag": 46,
+        "opaque_text": 56,
+        "sound_identifier": 13,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t18_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 3,
+        "layout_span": 968,
+        "label": 4,
+        "empty_span": 389,
+        "line_tag": 267,
+        "sound_identifier": 178,
+        "opaque_text": 512,
+        "command": 4
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t18_01b@.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 306,
+        "label": 1,
+        "empty_span": 116,
+        "line_tag": 87,
+        "sound_identifier": 53,
+        "opaque_text": 156,
+        "command": 8
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t18_02@.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 1130,
+        "label": 1,
+        "empty_span": 415,
+        "line_tag": 236,
+        "sound_identifier": 243,
+        "opaque_text": 641,
+        "command": 8
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t18_03.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 187,
+        "label": 1,
+        "empty_span": 68,
+        "line_tag": 52,
+        "sound_identifier": 34,
+        "opaque_text": 96,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t19a_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 3,
+        "layout_span": 1049,
+        "label": 4,
+        "empty_span": 412,
+        "line_tag": 332,
+        "opaque_text": 533,
+        "sound_identifier": 173,
+        "command": 4
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t19a_02@.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 760,
+        "label": 1,
+        "empty_span": 286,
+        "line_tag": 182,
+        "sound_identifier": 147,
+        "opaque_text": 421,
+        "command": 8
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t19a_03.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 1094,
+        "label": 1,
+        "empty_span": 493,
+        "line_tag": 260,
+        "sound_identifier": 191,
+        "opaque_text": 638,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t19b_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 205,
+        "label": 1,
+        "empty_span": 84,
+        "line_tag": 69,
+        "opaque_text": 100,
+        "sound_identifier": 31,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t19b_02@.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 3,
+        "layout_span": 1173,
+        "label": 4,
+        "empty_span": 438,
+        "line_tag": 289,
+        "sound_identifier": 228,
+        "opaque_text": 640,
+        "command": 10
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t19b_03.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 582,
+        "label": 1,
+        "empty_span": 244,
+        "line_tag": 175,
+        "sound_identifier": 97,
+        "opaque_text": 305,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t19c_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 447,
+        "label": 1,
+        "empty_span": 173,
+        "line_tag": 160,
+        "sound_identifier": 67,
+        "opaque_text": 215,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t20a_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 428,
+        "label": 1,
+        "empty_span": 182,
+        "line_tag": 137,
+        "sound_identifier": 69,
+        "opaque_text": 217,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t21_01omake@.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 667,
+        "label": 1,
+        "empty_span": 256,
+        "line_tag": 144,
+        "opaque_text": 378,
+        "sound_identifier": 135,
+        "command": 8
+      }
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/ted99_01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 304,
+        "label": 1,
+        "empty_span": 122,
+        "line_tag": 71,
+        "opaque_text": 193,
+        "sound_identifier": 35,
+        "command": 2
+      }
+    },
+    {
+      "source_file": "data8.pack/script/albummode/layout.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 5,
+        "label": 2,
+        "layout_span": 378,
+        "command": 373
+      }
+    },
+    {
+      "source_file": "data8.pack/script/albummode/layout_view.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 5,
+        "label": 2,
+        "layout_span": 72,
+        "command": 67
+      }
+    },
+    {
+      "source_file": "data8.pack/script/albummode/list.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "opaque_text": 38,
+        "layout_span": 38
+      }
+    },
+    {
+      "source_file": "data8.pack/script/albummode/main.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 24,
+        "include": 3,
+        "layout_span": 160,
+        "label": 13,
+        "command": 136
+      }
+    },
+    {
+      "source_file": "data8.pack/script/albummode/viewfunction.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 42,
+        "label": 15,
+        "layout_span": 328,
+        "command": 299
+      }
+    },
+    {
+      "source_file": "data8.pack/script/caution/main.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 6,
+        "label": 3,
+        "layout_span": 33,
+        "command": 27
+      }
+    },
+    {
+      "source_file": "data8.pack/script/config/layout.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 20,
+        "label": 2,
+        "layout_span": 512,
+        "command": 492
+      }
+    },
+    {
+      "source_file": "data8.pack/script/config/main.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 69,
+        "include": 4,
+        "layout_span": 427,
+        "label": 31,
+        "command": 359
+      }
+    },
+    {
+      "source_file": "data8.pack/script/config/value.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 23,
+        "label": 1,
+        "layout_span": 222,
+        "command": 228
+      }
+    },
+    {
+      "source_file": "data8.pack/script/config/valuedefault.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 10,
+        "setting_assignment_candidate": 40,
+        "layout_span": 49,
+        "opaque_text": 9
+      }
+    },
+    {
+      "source_file": "data8.pack/script/dialog/layout_message.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 5,
+        "label": 2,
+        "layout_span": 36,
+        "command": 31
+      }
+    },
+    {
+      "source_file": "data8.pack/script/dialog/layout_yesno.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 5,
+        "label": 2,
+        "layout_span": 49,
+        "command": 44
+      }
+    },
+    {
+      "source_file": "data8.pack/script/dialog/main.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 22,
+        "include": 2,
+        "layout_span": 134,
+        "label": 9,
+        "command": 121
+      }
+    },
+    {
+      "source_file": "data8.pack/script/log/layout.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 5,
+        "label": 2,
+        "layout_span": 93,
+        "command": 88
+      }
+    },
+    {
+      "source_file": "data8.pack/script/log/main.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 63,
+        "include": 3,
+        "layout_span": 521,
+        "label": 26,
+        "command": 479
+      }
+    },
+    {
+      "source_file": "data8.pack/script/makerlogo/main.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 6,
+        "label": 3,
+        "layout_span": 29,
+        "command": 23
+      }
+    },
+    {
+      "source_file": "data8.pack/script/memorymode/layout.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 5,
+        "label": 2,
+        "layout_span": 315,
+        "command": 310
+      }
+    },
+    {
+      "source_file": "data8.pack/script/memorymode/list.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "opaque_text": 17,
+        "layout_span": 17
+      }
+    },
+    {
+      "source_file": "data8.pack/script/memorymode/main.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 26,
+        "include": 2,
+        "layout_span": 168,
+        "label": 14,
+        "command": 145
+      }
+    },
+    {
+      "source_file": "data8.pack/script/memorymode/replayfunction.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "include": 2,
+        "layout_span": 151,
+        "empty_span": 26,
+        "label": 7,
+        "command": 128
+      }
+    },
+    {
+      "source_file": "data8.pack/script/quit/main.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 8,
+        "include": 1,
+        "layout_span": 41,
+        "label": 7,
+        "command": 32
+      }
+    },
+    {
+      "source_file": "data8.pack/script/reset/main.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 8,
+        "include": 1,
+        "layout_span": 41,
+        "label": 7,
+        "command": 32
+      }
+    },
+    {
+      "source_file": "data8.pack/script/saveload/common.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 21,
+        "label": 2,
+        "layout_span": 94,
+        "command": 76
+      }
+    },
+    {
+      "source_file": "data8.pack/script/saveload/layout_load.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 5,
+        "label": 2,
+        "layout_span": 601,
+        "command": 596
+      }
+    },
+    {
+      "source_file": "data8.pack/script/saveload/layout_save.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 5,
+        "label": 2,
+        "layout_span": 590,
+        "command": 585
+      }
+    },
+    {
+      "source_file": "data8.pack/script/saveload/main_load.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 42,
+        "include": 4,
+        "layout_span": 271,
+        "label": 19,
+        "command": 241
+      }
+    },
+    {
+      "source_file": "data8.pack/script/saveload/main_quickload.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 11,
+        "include": 2,
+        "layout_span": 77,
+        "label": 6,
+        "command": 68
+      }
+    },
+    {
+      "source_file": "data8.pack/script/saveload/main_quicksave.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 11,
+        "include": 2,
+        "layout_span": 64,
+        "label": 6,
+        "command": 52
+      }
+    },
+    {
+      "source_file": "data8.pack/script/saveload/main_save.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 39,
+        "include": 4,
+        "layout_span": 250,
+        "label": 16,
+        "command": 218
+      }
+    },
+    {
+      "source_file": "data8.pack/script/sequence/onload.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 9,
+        "label": 4,
+        "layout_span": 38,
+        "command": 28
+      }
+    },
+    {
+      "source_file": "data8.pack/script/sequence/onquit.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 5,
+        "label": 3,
+        "layout_span": 20,
+        "command": 14
+      }
+    },
+    {
+      "source_file": "data8.pack/script/sequence/onreset.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 5,
+        "label": 3,
+        "layout_span": 20,
+        "command": 14
+      }
+    },
+    {
+      "source_file": "data8.pack/script/soundmode/layout.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 5,
+        "label": 2,
+        "layout_span": 432,
+        "command": 427
+      }
+    },
+    {
+      "source_file": "data8.pack/script/soundmode/list.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "opaque_text": 27,
+        "layout_span": 27
+      }
+    },
+    {
+      "source_file": "data8.pack/script/soundmode/main.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 78,
+        "include": 1,
+        "layout_span": 456,
+        "label": 30,
+        "command": 399
+      }
+    },
+    {
+      "source_file": "data8.pack/script/title/layout01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 5,
+        "label": 2,
+        "layout_span": 23,
+        "command": 18
+      }
+    },
+    {
+      "source_file": "data8.pack/script/title/layout02.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 6,
+        "label": 2,
+        "layout_span": 24,
+        "command": 18
+      }
+    },
+    {
+      "source_file": "data8.pack/script/title/layout_select01.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 5,
+        "label": 2,
+        "layout_span": 70,
+        "command": 65
+      }
+    },
+    {
+      "source_file": "data8.pack/script/title/layout_select02.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 5,
+        "label": 2,
+        "layout_span": 59,
+        "command": 54
+      }
+    },
+    {
+      "source_file": "data8.pack/script/title/main.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "opaque_text": 1,
+        "layout_span": 264,
+        "empty_span": 48,
+        "include": 6,
+        "label": 23,
+        "command": 221
+      }
+    },
+    {
+      "source_file": "data8.pack/script/unlock/unlock.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 14,
+        "label": 3,
+        "layout_span": 59,
+        "command": 51
+      }
+    },
+    {
+      "source_file": "data8.pack/script/view/layout.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 5,
+        "label": 2,
+        "layout_span": 29,
+        "command": 24
+      }
+    },
+    {
+      "source_file": "data8.pack/script/view/main.s",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 22,
+        "include": 1,
+        "layout_span": 132,
+        "label": 12,
+        "command": 114
+      }
+    },
+    {
+      "source_file": "data8.pack/system/etc/game.txt",
+      "setter_spellings": 0,
+      "record_type_counts": {
+        "bom": 1,
+        "empty_span": 21,
+        "setting_assignment_candidate": 25,
+        "layout_span": 25
+      }
+    }
+  ],
+  "literal_status_counts": {
+    "inferred": 8
+  },
+  "literal_command_token_counts": {
+    "subp": 4
+  },
+  "generated_command_semantics": "not_tested",
+  "candidate_status_counts": {
+    "inferred": 8
+  },
+  "physical_corpus_files": 379,
+  "all_versions_preserved": true,
+  "namespace_binding": "not_tested",
+  "actual_startup_reachability": "not_tested",
+  "native_mode_values": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "replacement_mode_semantics": "not_tested",
+  "replacement_sort_semantics": "not_tested",
+  "escaped_string_semantics": "not_tested",
+  "text_prefix_configuration": "inferred",
+  "execution_semantics": "not_tested",
+  "runtime_development_ready": false,
+  "original_files_written": false,
+  "external_game_data_uploads": false
+}

@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Five fixed value classes and one four-event record; declarations only, no full ABI",
+  "classes": [
+    {
+      "name": "TValueArrayObject",
+      "vmt": "0x697ce0",
+      "slots": 0
+    },
+    {
+      "name": "TValueArrayCustom",
+      "vmt": "0x696d6c",
+      "slots": 0
+    },
+    {
+      "name": "TImoCalculation",
+      "vmt": "0x69977c",
+      "slots": 0
+    },
+    {
+      "name": "TValue",
+      "vmt": "0x698440",
+      "slots": 0
+    },
+    {
+      "name": "TValueIndex",
+      "vmt": "0x698f30",
+      "slots": 0
+    }
+  ],
+  "records": [
+    {
+      "name": "TValueArrayEventSet",
+      "type_info": "0x697bc0",
+      "fields_count_address": "0x697bde"
+    }
+  ],
+  "negative_class_seeds": []
+}

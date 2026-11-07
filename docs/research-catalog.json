@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "upstreams": {
+    "hiroshil/mangekyoupack": {
+      "declared_features": ["FilePackVer3.1 unpack/repack", "DPNG to PNG", "fourth game named in README"],
+      "upstream_test_coverage": "No automated tests present among repository files; bundled binaries are not used as evidence",
+      "local_status": "unsupported",
+      "local_scope": "Native clang syntax checks fail at io.h; source audit completed; no game or binary execution",
+      "dependencies": ["MSVC Windows CRT", "MMX intrinsics", "16-bit Windows wchar_t", "GDI+", "Shlwapi", "COM streams"],
+      "format_versions": ["FilePackVer3.1", "DPNG"],
+      "reuse_boundary": "GPL v3 obligations require review before distribution; not copied into this project"
+    },
+    "rafi441/qlie-unpack": {
+      "declared_features": ["FilePackVer1.0/2.0/3.0/3.1", "DPNG", "ABMP", "IMOAVI", "embedded/external keys"],
+      "upstream_test_coverage": "34 discovered unittest cases at pinned commit; external proprietary fixtures are optional and skip automatically. README names fourth game but tests do not identify fixture edition/hash",
+      "local_status": "verified",
+      "local_scope": "Synthetic DPNG/BPE and targeted V3.1 fixtures; real 10 V3.1 indexes (10947 entries), 410 selected entries decoded including methods 1/2 and compressed scripts; 6 real DPNG conversions. Full archives and original-engine fidelity not_tested",
+      "dependencies": ["Python >=3.10", "Pillow >=10.0", "setuptools >=68 for packaging", "Tkinter for optional GUI"],
+      "format_versions": ["FilePackVer1.0", "FilePackVer2.0", "FilePackVer3.0", "FilePackVer3.1", "DPNG", "ABMP variants", "IMOAVI"],
+      "reuse_boundary": "No explicit license in tree/pyproject; local source-only research, hash-checked isolated calls; do not vendor or redistribute"
+    },
+    "lifegpc/msg-tool": {
+      "declared_features": ["QLIE .s text parsing/export/import", "QLIE archives", "DPNG and ABMP images"],
+      "upstream_test_coverage": "QLIE script.rs contains test_tag only; no fourth-game corpus proof located in reviewed module. Other repository areas not downloaded as commercial fixtures",
+      "local_status": "verified",
+      "local_scope": "Native ARM64 QLIE-only release build and test_tag passed; 283 real .s explicit exports, 28598 exact message matches, 167 empty-message scripts. No execution semantics implemented",
+      "dependencies": ["Rust 2024 edition toolchain", "anyhow", "clap", "encoding", "serde/serde_json", "msg_tool_macro", "optional png and archive features"],
+      "format_versions": ["QLIE text-line .s; no scenario binary version header specified", "FilePack via optional qlie-arc", "DPNG via qlie-img"],
+      "reuse_boundary": "GPL-3.0-or-later per Cargo.toml; do not presume subprocess use eliminates license duties"
+    },
+    "crystallite/mangekyou_util": {
+      "declared_features": ["First-game FilePackVer3.0 tools", "Python2 script text split/join"],
+      "upstream_test_coverage": "No automated tests in repository tree",
+      "local_status": "unsupported",
+      "local_scope": "exfp3 native syntax check fails at missing as-util.h; splt.py Python3 compilation fails on Python2 print syntax. First-game reference only",
+      "dependencies": ["Python2", "as-util.h (absent)", "mt.h (absent)", "Windows/asmodian utility environment"],
+      "format_versions": ["FilePackVer3.0", "text-line .s (first game)"],
+      "reuse_boundary": "No explicit license; source author attribution alone is not a redistribution license; no code copied"
+    }
+  },
+  "claims": [
+    {"id":"FP-TAIL","status":"verified","scope":"source","repository":"rafi441/qlie-unpack","path":"qlie_unpacker/parser.py","lines":[21,35],"claim":"Footer is 28 bytes: 16-byte signature, u32 count, u64 table offset, little endian"},
+    {"id":"FP-V31","status":"verified","scope":"source","repository":"rafi441/qlie-unpack","path":"qlie_unpacker/parser.py","lines":[94,119],"claim":"V3.1 uses UTF-16 filename units, per-archive key derived from 256 bytes at EOF-0x41c, variable-name index entries"},
+    {"id":"FP-WIDTH","status":"inferred","scope":"source disagreement","repository":"hiroshil/mangekyoupack","path":"filepack31.c","lines":[14,45],"claim":"Old C models high offset DWORD as unknown while Python/Rust read u64; real fourth-game layout still not_tested"},
+    {"id":"FP-UNSAFE","status":"verified","scope":"source","repository":"hiroshil/mangekyoupack","path":"filepack31.c","lines":[933,952],"claim":"Compressed hash path frees hash_data which points inside pack_hash allocation; unsafe to run directly on arbitrary inputs"},
+    {"id":"FP-KEY","status":"verified","scope":"source","repository":"rafi441/qlie-unpack","path":"qlie_unpacker/extractor.py","lines":[55,77],"claim":"V3.1 payload methods 1 and >1 use distinct decryptors; method2 needs suitable key material; extraction success is not established locally"},
+    {"id":"DPNG-LAYOUT","status":"verified","scope":"source","repository":"hiroshil/mangekyoupack","path":"dpng2png.cpp","lines":[19,35],"claim":"20-byte canvas header and 28-byte tile descriptor precede embedded images"},
+    {"id":"DPNG-PASTE","status":"verified","scope":"source and synthetic test","repository":"rafi441/qlie-unpack","path":"qlie_unpacker/dpng.py","lines":[61,85],"claim":"RGBA canvas with per-tile paste; overlaps replace prior pixels; original-engine blending agreement not_tested"},
+    {"id":"S-DETECT-BUG","status":"verified","scope":"source logic","repository":"lifegpc/msg-tool","path":"src/scripts/qlie/script.rs","lines":[59,81],"claim":"Format detector requires one line equal two different strings with &&, making its success condition unreachable"},
+    {"id":"S-GRAMMAR","status":"verified","scope":"source only","repository":"lifegpc/msg-tool","path":"src/scripts/qlie/script.rs","lines":[296,325],"claim":"Parser classifies includes, labels, line tags, backslash commands, names, sound markers, text; not an execution engine"},
+    {"id":"S-EXPORT","status":"verified","scope":"source only","repository":"lifegpc/msg-tool","path":"src/scripts/qlie/script.rs","lines":[429,477],"claim":"Extractor handles name-to-next-text association, [n], select and savetext; does not implement branch evaluation or effect semantics"},
+    {"id":"S-UTF16","status":"inferred","scope":"source risk","repository":"lifegpc/msg-tool","path":"src/scripts/qlie/script.rs","lines":[244,289],"claim":"UTF16 read loop does not reject a one-byte partial read explicitly; malformed-input behavior requires runtime regression test"},
+    {"id":"S-FIRST-GAME","status":"verified","scope":"source only","repository":"crystallite/mangekyou_util","path":"splt.py","lines":[73,114],"claim":"Prefix-based ignore/text filters target localization, not full execution semantics or fourth-game proof"}
+  ],
+  "external_references": [
+    {"url":"https://github.com/morkt/GARbro","status":"verified","scope":"project description","note":"Resource browser/extractor; not evidence of a QLIE-compatible runtime. No code reused"},
+    {"url":"https://github.com/morkt/GARbro/blob/master/ArcFormats/Qlie/ArcQLIE.cs","status":"not_tested","scope":"additional parser lead","note":"Potential independent parser for later cross-check; not pinned, built or used in local validation"},
+    {"url":"https://support.codeweavers.com/en_US/crossover-mac-user-guide","status":"verified","scope":"vendor documentation only","note":"Windows compatibility product documents Apple Silicon support; fourth-game compatibility and performance not_tested"},
+    {"url":"https://qlie.net/","status":"not_tested","scope":"vendor site access","note":"Could not access via browsing tool; no claim about current runtime availability"}
+  ],
+  "routes": [
+    {"route":"A","name":"Reuse compatible QLIE runtime","status":"not_tested","compatibility":"No eligible runtime identified among the four reviewed tools or GARbro; not proof none exists","complexity":"Unknown until an actual runtime is found and licensed","presentation_fidelity":"not_tested","mac_native":"not_tested","cross_platform":"not_tested","maintenance":"Unknown upstream dependency","main_blocker":"No identified, licensed runtime with fourth-game evidence"},
+    {"route":"B","name":"Fourth-game script interpreter","status":"inferred","compatibility":"Potentially high only after command/macro/save semantics established","complexity":"High","presentation_fidelity":"Unknown effects/timing and plugin behavior","mac_native":"Feasible in principle; not implemented","cross_platform":"Possible if host APIs separated","maintenance":"Own semantics implementation and regression corpus","main_blocker":"Real corpus is available; command/macro/variable/save semantics and patch precedence remain unresolved"},
+    {"route":"C","name":"Lossless IR then runtime","status":"inferred","compatibility":"IR preserves evidence; it cannot replace unknown semantics","complexity":"High; converter plus interpreter","presentation_fidelity":"Same unresolved semantics as B, plus conversion equivalence","mac_native":"Feasible in principle; not implemented","cross_platform":"Potentially good","maintenance":"Traceable records support inspection and regression","main_blocker":"Labels/macros/variables/resource binding unresolved; premature normalization can lose behavior"},
+    {"route":"D","name":"Wine/CrossOver original engine baseline","status":"not_tested","compatibility":"Per-game behavior untested","complexity":"Likely lower initial implementation effort, inferred","presentation_fidelity":"Original engine may serve as reference if it runs; not_tested","mac_native":"Does not satisfy native game-core goal","cross_platform":"Depends on compatibility-layer support","maintenance":"Original binary and compatibility-layer dependency","main_blocker":"Game not supplied; execution excluded in P0; not a mandatory final component"}
+  ]
+}

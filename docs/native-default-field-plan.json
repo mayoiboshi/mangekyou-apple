@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Missing field padding, nullable value conversion and selected registration only; no script engine",
+  "queries": [
+    {
+      "name": "command-dispatch",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6aacf8"
+    },
+    {
+      "name": "command-dispatch-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6aacf8"
+    },
+    {
+      "name": "field-split",
+      "operation": "procedure_pseudo_code",
+      "address": "0x699fd0"
+    },
+    {
+      "name": "field-split-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x699fd0"
+    },
+    {
+      "name": "field-padding",
+      "operation": "procedure_pseudo_code",
+      "address": "0x699fa4"
+    },
+    {
+      "name": "field-padding-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x699fa4"
+    },
+    {
+      "name": "registration-dispatch",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6ba248"
+    },
+    {
+      "name": "registration-dispatch-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6ba248"
+    },
+    {
+      "name": "value-wrapper",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6be1d8"
+    },
+    {
+      "name": "value-wrapper-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6be1d8"
+    },
+    {
+      "name": "value-calculation",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69bab4"
+    },
+    {
+      "name": "value-calculation-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69bab4"
+    },
+    {
+      "name": "context-index",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c1ac8"
+    },
+    {
+      "name": "context-index-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6c1ac8"
+    },
+    {
+      "name": "registration-store",
+      "operation": "procedure_pseudo_code",
+      "address": "0x696548"
+    },
+    {
+      "name": "registration-store-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x696548"
+    },
+    {
+      "name": "list-add",
+      "operation": "procedure_pseudo_code",
+      "address": "0x43e8bc"
+    },
+    {
+      "name": "list-add-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x43e8bc"
+    },
+    {
+      "name": "list-add-object",
+      "operation": "procedure_pseudo_code",
+      "address": "0x43e8cc"
+    },
+    {
+      "name": "list-add-object-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x43e8cc"
+    },
+    {
+      "name": "string-assign",
+      "operation": "procedure_pseudo_code",
+      "address": "0x407460"
+    },
+    {
+      "name": "string-assign-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x407460"
+    },
+    {
+      "name": "list-create",
+      "operation": "procedure_pseudo_code",
+      "address": "0x43ef30"
+    },
+    {
+      "name": "list-create-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x43ef30"
+    },
+    {
+      "name": "list-get-owner",
+      "operation": "resolve_containing_procedure",
+      "address": "0x43eb54"
+    },
+    {
+      "name": "list-insert-owner",
+      "operation": "resolve_containing_procedure",
+      "address": "0x43ec84"
+    }
+  ]
+}

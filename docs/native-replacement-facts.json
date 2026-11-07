@@ -1,0 +1,341 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Replacement route, option and comparison static evidence only; no text execution",
+  "facts": [
+    {
+      "id": "mode_two_forwards_to_four",
+      "status": "verified",
+      "evidence": "replacement-alias-assembly",
+      "start": "0x66797e",
+      "end": "0x66799a",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x66797e: MOV EDI, ECX",
+        "0x667980: MOV ESI, EDX",
+        "0x667982: MOV EBX, EAX",
+        "0x667984: MOV EAX, dword ptr [EBP + 0x8]",
+        "0x667987: PUSH EAX",
+        "0x667988: MOV ECX, EDI",
+        "0x66798a: MOV EDX, ESI",
+        "0x66798c: MOV EAX, EBX",
+        "0x66798e: CALL 0x00667918",
+        "0x667997: RET 0x4"
+      ],
+      "observation": "The mode-two helper forwards saved register and stack arguments to the mode-four helper.",
+      "scope": "Selected static instructions only; no runtime equivalence or complete algorithm claim",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "regex_wrapper_option_forward",
+      "status": "verified",
+      "evidence": "regex-wrapper-assembly",
+      "start": "0x667926",
+      "end": "0x66794c",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x667926: MOVZX EBX, byte ptr [0x00667974]",
+        "0x66793b: PUSH EBX",
+        "0x66793c: MOV EAX, dword ptr [EBP + 0x8]",
+        "0x66793f: PUSH EAX",
+        "0x667940: MOV ECX, EDI",
+        "0x667942: MOV EDX, ESI",
+        "0x667944: MOV EAX, dword ptr [EBP + -0x4]",
+        "0x667947: CALL 0x00665ce8"
+      ],
+      "observation": "Load a byte option constant, push it with the output parameter and call the record replacement helper.",
+      "scope": "Selected static instructions only; no runtime equivalence or complete algorithm claim",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "literal_conditional_flags",
+      "status": "verified",
+      "evidence": "literal-wrapper-assembly",
+      "start": "0x4e08fc",
+      "end": "0x4e0939",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x4e0900: CALL 0x004e0880",
+        "0x4e0905: TEST AL, AL",
+        "0x4e0907: JZ 0x004e0922",
+        "0x4e0909: MOVZX EAX, byte ptr [0x004e0940]",
+        "0x4e091b: CALL 0x0041e80c",
+        "0x4e0922: MOVZX EAX, byte ptr [0x004e0944]",
+        "0x4e0934: CALL 0x0041e80c"
+      ],
+      "observation": "Boolean AL from the contains helper selects two separate byte constants for the same literal replacement core.",
+      "scope": "Selected static instructions only; no runtime equivalence or complete algorithm claim",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "contains_lower_and_position",
+      "status": "verified",
+      "evidence": "contains-test-assembly",
+      "start": "0x4e089b",
+      "end": "0x4e08c6",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x4e08a0: CALL 0x0041493c",
+        "0x4e08ae: CALL 0x0041493c",
+        "0x4e08b7: CALL 0x00407f10",
+        "0x4e08bc: TEST EAX, EAX",
+        "0x4e08be: JLE 0x004e08c4",
+        "0x4e08c0: MOV BL, 0x1",
+        "0x4e08c4: XOR EBX, EBX"
+      ],
+      "observation": "Lower two inputs, call a substring-position helper and set BL according to a positive result; normal return lies outside default body.",
+      "scope": "Selected static instructions only; no runtime equivalence or complete algorithm claim",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "ascii_lower_wide_path",
+      "status": "verified",
+      "evidence": "ascii-lower-assembly",
+      "start": "0x41498e",
+      "end": "0x4149ad",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x41498e: MOVZX EAX, word ptr [EBX]",
+        "0x414993: ADD ESI, -0x41",
+        "0x414996: SUB SI, 0x1a",
+        "0x41499a: JNC 0x004149a0",
+        "0x41499c: OR AX, 0x20",
+        "0x4149a0: MOV word ptr [ECX], AX",
+        "0x4149a3: ADD ECX, 0x2",
+        "0x4149a6: ADD EBX, 0x2",
+        "0x4149ac: JNZ 0x0041498e"
+      ],
+      "observation": "Selected wide-character loop folds A-Z with OR 0x20 and advances in two-byte units.",
+      "scope": "Selected static instructions only; no runtime equivalence or complete algorithm claim",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "lookup_ascii_folding",
+      "status": "verified",
+      "evidence": "lookup-compare-assembly",
+      "start": "0x414b85",
+      "end": "0x414bdb",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x414b85: CMP EAX, 0x61",
+        "0x414b8a: CMP EAX, 0x7a",
+        "0x414b8f: SUB EAX, 0x20",
+        "0x414b92: CMP EBX, 0x61",
+        "0x414b97: CMP EBX, 0x7a",
+        "0x414b9c: SUB EBX, 0x20",
+        "0x414b9f: SUB EAX, EBX",
+        "0x414bbe: CMP EAX, 0x61",
+        "0x414bc3: CMP EAX, 0x7a",
+        "0x414bc8: SUB EAX, 0x20",
+        "0x414bcb: CMP EBX, 0x61",
+        "0x414bd0: CMP EBX, 0x7a",
+        "0x414bd5: SUB EBX, 0x20",
+        "0x414bd8: SUB EAX, EBX"
+      ],
+      "observation": "Selected low/high word mismatch paths fold ASCII a-z before subtraction.",
+      "scope": "Selected static instructions only; no runtime equivalence or complete algorithm claim",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "sort_word_subtraction",
+      "status": "verified",
+      "evidence": "sort-compare-assembly",
+      "start": "0x4149f6",
+      "end": "0x414a02",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x4149f6: CMP CX, word ptr [EAX]",
+        "0x4149f9: JZ 0x00414a02",
+        "0x4149fb: MOVZX EAX, word ptr [EAX]",
+        "0x4149fe: SUB EAX, ECX"
+      ],
+      "observation": "First-word mismatch path subtracts UTF-16 words directly; full sort and locale behavior remain untested.",
+      "scope": "Selected static instructions only; no runtime equivalence or complete algorithm claim",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "mode_one_conditional_string_helper",
+      "status": "verified",
+      "evidence": "replacement-core-assembly",
+      "start": "0x695d9f",
+      "end": "0x695dcc",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x695da4: XOR ECX, ECX",
+        "0x695da8: CALL 0x006675f8",
+        "0x695db5: CALL dword ptr [EDX + 0x14]",
+        "0x695db8: TEST EAX, EAX",
+        "0x695dba: JLE 0x00695dcc",
+        "0x695dbf: MOV ECX, dword ptr [ECX]",
+        "0x695dc4: MOV EDX, dword ptr [ESI + 0x4]",
+        "0x695dc7: CALL 0x00407934"
+      ],
+      "observation": "Mode one uses the collection path with zero third argument; only positive list count passes replacement and original text to a two-string helper.",
+      "scope": "Selected static instructions only; no runtime equivalence or complete algorithm claim",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "mode_three_clear_and_concat",
+      "status": "verified",
+      "evidence": "replacement-core-assembly",
+      "start": "0x695dfc",
+      "end": "0x695e67",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x695e03: CALL 0x00667828",
+        "0x695e10: CALL dword ptr [EDX + 0x14]",
+        "0x695e15: JLE 0x00695e67",
+        "0x695e1a: XOR EDX, EDX",
+        "0x695e1c: CALL 0x00407460",
+        "0x695e32: MOV dword ptr [EBP + -0xc], 0x0",
+        "0x695e3c: PUSH dword ptr [EAX]",
+        "0x695e3e: PUSH dword ptr [ESI + 0x4]",
+        "0x695e4c: CALL dword ptr [EDI + 0xc]",
+        "0x695e4f: PUSH dword ptr [EBP + -0x20]",
+        "0x695e55: MOV EDX, 0x3",
+        "0x695e5a: CALL 0x00407a18",
+        "0x695e5f: INC dword ptr [EBP + -0xc]",
+        "0x695e65: JNZ 0x00695e39"
+      ],
+      "observation": "Mode three clears output on a positive list count, then pushes prior output, replacement and each fetched fragment to a three-part helper.",
+      "scope": "Selected static instructions only; no runtime equivalence or complete algorithm claim",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "regex_option_bit_mapping",
+      "status": "verified",
+      "evidence": "regex-options-assembly",
+      "start": "0x66543b",
+      "end": "0x66549c",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x66543b: TEST byte ptr [ESP], 0x1",
+        "0x665443: XOR EDX, EDX",
+        "0x665447: CALL 0x006643e4",
+        "0x66544c: TEST byte ptr [ESP], 0x2",
+        "0x665454: MOV EDX, 0x1",
+        "0x66545b: CALL 0x006643e4",
+        "0x665460: TEST byte ptr [ESP], 0x10",
+        "0x665468: MOV EDX, 0x3",
+        "0x66546f: CALL 0x006643e4",
+        "0x665474: TEST byte ptr [ESP], 0x4",
+        "0x66547c: MOV EDX, 0x2",
+        "0x665483: CALL 0x006643e4",
+        "0x665488: TEST byte ptr [ESP], 0x20",
+        "0x665490: MOV EDX, 0x4",
+        "0x665497: CALL 0x006643e4"
+      ],
+      "observation": "Option bits 1/2/16/4/32 select engine option indices 0/1/3/2/4; names unknown.",
+      "scope": "Selected static instructions only; no runtime equivalence or complete algorithm claim",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "regex_create_compile_gate",
+      "status": "verified",
+      "evidence": "regex-create-assembly",
+      "start": "0x665a18",
+      "end": "0x665a2f",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x665a18: MOVZX EDX, byte ptr [EBP + -0x1]",
+        "0x665a1c: CALL 0x00665434",
+        "0x665a21: TEST byte ptr [EBP + -0x1], 0x8",
+        "0x665a25: JZ 0x00665a2f",
+        "0x665a2a: CALL 0x00662708"
+      ],
+      "observation": "Creation forwards the option byte, then bit eight gates a separate engine helper.",
+      "scope": "Selected static instructions only; no runtime equivalence or complete algorithm claim",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    },
+    {
+      "id": "engine_positive_length_gate",
+      "status": "verified",
+      "evidence": "engine-replace-assembly",
+      "start": "0x663d37",
+      "end": "0x663d4c",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x663d3a: CALL 0x0065df64",
+        "0x663d3f: CALL 0x0065dae4",
+        "0x663d44: TEST EAX, EAX",
+        "0x663d46: JLE 0x00663de4"
+      ],
+      "observation": "Replacement loop branches past its emission block when a selected match-derived helper returns nonpositive; no full zero-length policy claimed.",
+      "scope": "Selected static instructions only; no runtime equivalence or complete algorithm claim",
+      "unknown": [
+        "Original execution not_tested"
+      ]
+    }
+  ],
+  "inferred_contracts": [
+    {
+      "id": "five_route_roles",
+      "status": "inferred",
+      "basis": [
+        "reports/p1/replacement-audit-report.json.native_byte_checks",
+        "mode_two_forwards_to_four",
+        "mode_one_conditional_string_helper",
+        "mode_three_clear_and_concat"
+      ],
+      "meaning": "Five mode routes are distinct at dispatch; two and four share the same lower implementation by a forwarding wrapper.",
+      "regex_syntax": "not_tested",
+      "actual_script_modes": "not_tested"
+    },
+    {
+      "id": "conditional_literal_repeat",
+      "status": "inferred",
+      "basis": [
+        "literal_conditional_flags",
+        "contains_lower_and_position",
+        "ascii_lower_wide_path",
+        "LLVM contains-normal-return"
+      ],
+      "meaning": "Whether replacement contains search text under the helper folding selects first/all flag candidates; original runtime not observed.",
+      "windows_case_equivalence": "not_tested"
+    },
+    {
+      "id": "comparator_difference",
+      "status": "inferred",
+      "basis": [
+        "lookup_ascii_folding",
+        "sort_word_subtraction"
+      ],
+      "meaning": "Lookup has ASCII folding while the selected sort mismatch path is ordinal; neither Python casefold nor insertion order is assumed equivalent.",
+      "full_comparator_ABI": "not_tested"
+    },
+    {
+      "id": "regex_backend_identity",
+      "status": "inferred",
+      "basis": [
+        "reports/p1/replacement-metadata-report.json",
+        "regex_option_bit_mapping",
+        "regex_create_compile_gate"
+      ],
+      "meaning": "TRegEx/TMatch/TGroup declarations refer to TSkRegExp; identity names do not authenticate source revision, license or behavior.",
+      "source_version": "not_tested",
+      "reuse_license": "not_tested"
+    }
+  ]
+}

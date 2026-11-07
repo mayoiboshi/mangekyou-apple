@@ -1,0 +1,327 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "facts": [
+    {
+      "id": "tokenizer_increment_call",
+      "status": "verified",
+      "evidence": "tokenizer-assembly",
+      "start": "0x69c896",
+      "end": "0x69c8ce",
+      "observation": "tokenizer 的此路径先提交当前文本，再以增量 1 调用存取帮助函数。",
+      "scope": "所列静态指令与其列出顺序；实际执行和完整语义未验证",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x69c8ae: CALL dword ptr [ECX + 0x38]",
+        "0x69c8b1: PUSH 0x1",
+        "0x69c8bc: CALL 0x0069fd90"
+      ],
+      "unknown": [
+        "原程序执行等价性未验证"
+      ]
+    },
+    {
+      "id": "tokenizer_decrement_call",
+      "status": "verified",
+      "evidence": "tokenizer-assembly",
+      "start": "0x69c8d3",
+      "end": "0x69c90b",
+      "observation": "另一 tokenizer 路径传入增量 -1。",
+      "scope": "所列静态指令与其列出顺序；实际执行和完整语义未验证",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x69c8eb: CALL dword ptr [ECX + 0x38]",
+        "0x69c8ee: PUSH -0x1",
+        "0x69c8f9: CALL 0x0069fd90"
+      ],
+      "unknown": [
+        "原程序执行等价性未验证"
+      ]
+    },
+    {
+      "id": "update_read_add_write",
+      "status": "verified",
+      "evidence": "postfix-write-assembly",
+      "start": "0x69fe42",
+      "end": "0x69fef1",
+      "observation": "类别 1 路径读取描述符，修改 32 位字段，随后调用写入；其他类别另有分支。",
+      "scope": "所列静态指令与其列出顺序；实际执行和完整语义未验证",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x69fe63: CALL 0x0069f4a4",
+        "0x69feb6: ADD dword ptr [EBP + -0x8], EAX",
+        "0x69feec: CALL 0x0069f6ec"
+      ],
+      "unknown": [
+        "原程序执行等价性未验证"
+      ]
+    },
+    {
+      "id": "tokenizer_precedes_transform",
+      "status": "verified",
+      "evidence": "expression-core-assembly",
+      "start": "0x69bbd0",
+      "end": "0x69bbe6",
+      "observation": "表达式入口先调用 tokenizer，再调用结构变换函数。",
+      "scope": "所列静态指令与其列出顺序；实际执行和完整语义未验证",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x69bbd0: CALL 0x0069c600",
+        "0x69bbe1: CALL 0x0069b418"
+      ],
+      "unknown": [
+        "原程序执行等价性未验证"
+      ]
+    },
+    {
+      "id": "ret_default_count_minus_two",
+      "status": "verified",
+      "evidence": "secondary-assembly",
+      "start": "0x6b72b0",
+      "end": "0x6b72e8",
+      "observation": "参数先经目标解析；空结果路径取上下文数量并连续减二。",
+      "scope": "所列静态指令与其列出顺序；实际执行和完整语义未验证",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6b72c8: CALL 0x006c06f0",
+        "0x6b72cd: CMP dword ptr [EBP + -0x8], 0x0",
+        "0x6b72dc: CALL 0x006c1ac8",
+        "0x6b72e1: DEC EAX",
+        "0x6b72e2: DEC EAX"
+      ],
+      "unknown": [
+        "原程序执行等价性未验证"
+      ]
+    },
+    {
+      "id": "ret_named_context_minus_one",
+      "status": "verified",
+      "evidence": "secondary-assembly",
+      "start": "0x6b72e8",
+      "end": "0x6b7301",
+      "observation": "非空路径以该字符串查找上下文，再减一。",
+      "scope": "所列静态指令与其列出顺序；实际执行和完整语义未验证",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6b72f1: MOV EDX, dword ptr [EBP + -0x8]",
+        "0x6b72f4: CALL 0x006c12e0",
+        "0x6b72f9: DEC EAX"
+      ],
+      "unknown": [
+        "原程序执行等价性未验证"
+      ]
+    },
+    {
+      "id": "ret_restore_then_trim",
+      "status": "verified",
+      "evidence": "secondary-assembly",
+      "start": "0x6b7330",
+      "end": "0x6b73aa",
+      "observation": "先选择记录并恢复不透明文件/位置字段，再调用上下文裁剪。",
+      "scope": "所列静态指令与其列出顺序；实际执行和完整语义未验证",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6b7330: CALL 0x006c1170",
+        "0x6b7337: CALL 0x006c1488",
+        "0x6b734c: CALL 0x0069556c",
+        "0x6b7364: CALL 0x00696134",
+        "0x6b73a5: CALL 0x006c111c"
+      ],
+      "unknown": [
+        "原程序执行等价性未验证"
+      ]
+    },
+    {
+      "id": "ret_optional_aux_restore",
+      "status": "verified",
+      "evidence": "secondary-assembly",
+      "start": "0x6b7369",
+      "end": "0x6b7399",
+      "observation": "记录标志非零时以 +0x68 字段调用额外恢复函数。",
+      "scope": "所列静态指令与其列出顺序；实际执行和完整语义未验证",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6b7379: CMP byte ptr [EAX + 0x8], 0x0",
+        "0x6b737d: JZ 0x006b7399",
+        "0x6b7390: MOV EAX, dword ptr [EAX + 0x68]",
+        "0x6b7393: CALL 0x006b6b10"
+      ],
+      "unknown": [
+        "原程序执行等价性未验证"
+      ]
+    },
+    {
+      "id": "context_trim_pops_to_index_plus_one",
+      "status": "verified",
+      "evidence": "context-trim-assembly",
+      "start": "0x6c1142",
+      "end": "0x6c1157",
+      "observation": "裁剪循环比较数量与目标索引加一，超过时重复移除末项。",
+      "scope": "所列静态指令与其列出顺序；实际执行和完整语义未验证",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6c1144: CALL 0x006c1a40",
+        "0x6c114b: CALL 0x006c1ac8",
+        "0x6c1150: LEA EDX, [ESI + 0x1]",
+        "0x6c1153: CMP EAX, EDX",
+        "0x6c1155: JG 0x006c1142"
+      ],
+      "unknown": [
+        "原程序执行等价性未验证"
+      ]
+    },
+    {
+      "id": "context_remove_free_and_delete",
+      "status": "verified",
+      "evidence": "context-remove-assembly",
+      "start": "0x6c1a70",
+      "end": "0x6c1a89",
+      "observation": "移除操作取得对象、调用释放入口，再删除列表项；完整析构目标仍未知。",
+      "scope": "所列静态指令与其列出顺序；实际执行和完整语义未验证",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6c1a75: CALL 0x0043b514",
+        "0x6c1a7a: CALL 0x004056f8",
+        "0x6c1a84: CALL 0x0043b3ac"
+      ],
+      "unknown": [
+        "原程序执行等价性未验证"
+      ]
+    },
+    {
+      "id": "variable_depth_tracks_context_count_change",
+      "status": "verified",
+      "evidence": "secondary-assembly",
+      "start": "0x6b7a89",
+      "end": "0x6b7abb",
+      "observation": "上下文数量变化后，将新数量减一传给变量上下文裁剪入口。",
+      "scope": "所列静态指令与其列出顺序；实际执行和完整语义未验证",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6b7a92: CALL 0x006c1ac8",
+        "0x6b7a97: CMP EAX, dword ptr [EBP + -0x3c]",
+        "0x6b7aa5: CALL 0x006c1ac8",
+        "0x6b7aac: DEC EDX",
+        "0x6b7ab6: CALL 0x0069f264"
+      ],
+      "unknown": [
+        "原程序执行等价性未验证"
+      ]
+    },
+    {
+      "id": "variable_deeper_levels_cleared",
+      "status": "verified",
+      "evidence": "scope-index-core-assembly",
+      "start": "0x6a00d7",
+      "end": "0x6a00fc",
+      "observation": "对新索引以上的非空层调用清理入口，随后把层数写为新索引加一。",
+      "scope": "所列静态指令与其列出顺序；实际执行和完整语义未验证",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6a00d7: LEA EDI, [EBP + 0x1]",
+        "0x6a00ed: CALL 0x0069a784",
+        "0x6a00f6: LEA EAX, [EBP + 0x1]",
+        "0x6a00f9: MOV dword ptr [EBX + 0x2c], EAX"
+      ],
+      "unknown": [
+        "原程序执行等价性未验证"
+      ]
+    },
+    {
+      "id": "call_argument_slots_and_last_present",
+      "status": "verified",
+      "evidence": "secondary-assembly",
+      "start": "0x6b7832",
+      "end": "0x6b7955",
+      "observation": "从字段 3 加槽位号取参数，遇非零字段更新数量为槽位号加一，循环十六槽。",
+      "scope": "所列静态指令与其列出顺序；实际执行和完整语义未验证",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6b7838: LEA EDX, [EBX + 0x3]",
+        "0x6b7842: CMP dword ptr [EBP + 0xffffff58], 0x0",
+        "0x6b785c: LEA EAX, [EBX + 0x1]",
+        "0x6b785f: MOV dword ptr [EBP + -0x34], EAX",
+        "0x6b794c: CMP EBX, 0x10"
+      ],
+      "unknown": [
+        "原程序执行等价性未验证"
+      ]
+    },
+    {
+      "id": "call_two_virtual_creation_steps",
+      "status": "verified",
+      "evidence": "secondary-assembly",
+      "start": "0x6b7980",
+      "end": "0x6b79b8",
+      "observation": "调用两次虚表 +0xc 创建路径，随后取当前控制记录并写状态 1；虚方法目标尚未确认。",
+      "scope": "所列静态指令与其列出顺序；实际执行和完整语义未验证",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6b798b: CALL dword ptr [EDX + 0xc]",
+        "0x6b799e: CALL dword ptr [EDX + 0xc]",
+        "0x6b79af: CALL 0x006c149c",
+        "0x6b79b4: MOV byte ptr [EAX + 0x34], 0x1"
+      ],
+      "unknown": [
+        "原程序执行等价性未验证"
+      ]
+    },
+    {
+      "id": "subr_optional_record_save",
+      "status": "verified",
+      "evidence": "secondary-assembly",
+      "start": "0x6b7a20",
+      "end": "0x6b7a53",
+      "observation": "编号为 subr 的路径另分配辅助记录并调用保存函数。",
+      "scope": "所列静态指令与其列出顺序；实际执行和完整语义未验证",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6b7a20: CMP dword ptr [EBP + -0x28], 0x72627573",
+        "0x6b7a37: CALL 0x006c17c8",
+        "0x6b7a4b: MOV EAX, dword ptr [EAX + 0x68]",
+        "0x6b7a4e: CALL 0x006b6570"
+      ],
+      "unknown": [
+        "原程序执行等价性未验证"
+      ]
+    },
+    {
+      "id": "ret_selector_sub_chain",
+      "status": "verified",
+      "evidence": "secondary-assembly",
+      "start": "0x6b7134",
+      "end": "0x6b714d",
+      "observation": "连续 SUB/JZ 构成候选编号分派，累计立即数可与 ret 编号交叉检查。",
+      "scope": "静态指令与列出顺序；命令语义映射仍为假设",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6b7134: SUB EAX, 0x6b7262",
+        "0x6b713b: SUB EAX, 0x4fb08",
+        "0x6b7142: SUB EAX, 0x3f808",
+        "0x6b7147: JZ 0x006b72b0"
+      ],
+      "unknown": [
+        "完整执行行为未验证"
+      ]
+    },
+    {
+      "id": "target_literal_or_expression",
+      "status": "verified",
+      "evidence": "target-normalize-assembly",
+      "start": "0x6c077e",
+      "end": "0x6c07c1",
+      "observation": "一条路径检查连续两个 @ 字符并复制原字段，另一条路径调用表达式包装。",
+      "scope": "静态指令与列出顺序；命令语义映射仍为假设",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6c077e: CMP word ptr [EAX], 0x40",
+        "0x6c07a1: CMP word ptr [EAX + 0x2], 0x40",
+        "0x6c07ad: CALL 0x00407460",
+        "0x6c07bc: CALL 0x006be1d8"
+      ],
+      "unknown": [
+        "完整执行行为未验证"
+      ]
+    }
+  ]
+}

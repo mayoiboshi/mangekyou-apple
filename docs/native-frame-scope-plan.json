@@ -1,0 +1,172 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Call-frame initialization, scope isolation and selected return paths; no interpreter",
+  "queries": [
+    {
+      "name": "call-dispatch",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6b70d8"
+    },
+    {
+      "name": "call-dispatch-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6b70d8"
+    },
+    {
+      "name": "base-create",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c19ec"
+    },
+    {
+      "name": "base-create-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6c19ec"
+    },
+    {
+      "name": "routine-create",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c13d4"
+    },
+    {
+      "name": "routine-create-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6c13d4"
+    },
+    {
+      "name": "scope-clear",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c1018"
+    },
+    {
+      "name": "scope-clear-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6c1018"
+    },
+    {
+      "name": "routine-trim",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c111c"
+    },
+    {
+      "name": "routine-trim-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6c111c"
+    },
+    {
+      "name": "routine-pop",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c1a40"
+    },
+    {
+      "name": "routine-pop-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6c1a40"
+    },
+    {
+      "name": "routine-remove",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c1a58"
+    },
+    {
+      "name": "routine-remove-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6c1a58"
+    },
+    {
+      "name": "current-routine",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c1160"
+    },
+    {
+      "name": "current-routine-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6c1160"
+    },
+    {
+      "name": "routine-at",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c1170"
+    },
+    {
+      "name": "routine-at-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6c1170"
+    },
+    {
+      "name": "routine-count",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c1ac8"
+    },
+    {
+      "name": "routine-count-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6c1ac8"
+    },
+    {
+      "name": "block-at",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c1488"
+    },
+    {
+      "name": "block-at-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6c1488"
+    },
+    {
+      "name": "result-record",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c17c8"
+    },
+    {
+      "name": "result-record-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6c17c8"
+    },
+    {
+      "name": "result-save",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6b6570"
+    },
+    {
+      "name": "result-save-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6b6570"
+    },
+    {
+      "name": "result-restore",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6b6b10"
+    },
+    {
+      "name": "result-restore-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6b6b10"
+    },
+    {
+      "name": "file-sync",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c09f0"
+    },
+    {
+      "name": "file-sync-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6c09f0"
+    },
+    {
+      "name": "thread-add-owner",
+      "operation": "resolve_containing_procedure",
+      "address": "0x6c11d4"
+    },
+    {
+      "name": "routine-init-owner",
+      "operation": "resolve_containing_procedure",
+      "address": "0x6c14b4"
+    },
+    {
+      "name": "routine-add-owner",
+      "operation": "resolve_containing_procedure",
+      "address": "0x6c1074"
+    }
+  ]
+}

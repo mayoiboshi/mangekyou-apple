@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Finite observed native functions and explicit coverage queries; does not seed missing functions",
+  "queries": [
+    {
+      "name": "block-create",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c0d50"
+    },
+    {
+      "name": "block-destroy-coverage",
+      "operation": "resolve_containing_procedure",
+      "address": "0x6c0d8c"
+    },
+    {
+      "name": "block-init-coverage",
+      "operation": "resolve_containing_procedure",
+      "address": "0x6c0db4"
+    },
+    {
+      "name": "expression-core-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69bab4"
+    },
+    {
+      "name": "list-create",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c19ec"
+    },
+    {
+      "name": "list-destroy",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c1a94"
+    },
+    {
+      "name": "logical-and-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69db38"
+    },
+    {
+      "name": "logical-and",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69db38"
+    },
+    {
+      "name": "logical-or-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69dba8"
+    },
+    {
+      "name": "logical-or",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69dba8"
+    },
+    {
+      "name": "routine-add-coverage",
+      "operation": "resolve_containing_procedure",
+      "address": "0x6c1074"
+    },
+    {
+      "name": "routine-create",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c13d4"
+    },
+    {
+      "name": "routine-destroy-coverage",
+      "operation": "resolve_containing_procedure",
+      "address": "0x6c145c"
+    },
+    {
+      "name": "routine-init-coverage",
+      "operation": "resolve_containing_procedure",
+      "address": "0x6c14b4"
+    },
+    {
+      "name": "stack-count-xrefs",
+      "operation": "xrefs",
+      "address": "0x6c1ac8"
+    },
+    {
+      "name": "stack-pop-xrefs",
+      "operation": "xrefs",
+      "address": "0x6c1a40"
+    },
+    {
+      "name": "stack-top-xrefs",
+      "operation": "xrefs",
+      "address": "0x6c1160"
+    },
+    {
+      "name": "thread-add-coverage",
+      "operation": "resolve_containing_procedure",
+      "address": "0x6c11d4"
+    },
+    {
+      "name": "thread-selfcell-xrefs",
+      "operation": "xrefs",
+      "address": "0x6a83e8"
+    },
+    {
+      "name": "thread-vmt-xrefs",
+      "operation": "xrefs",
+      "address": "0x6a8440"
+    }
+  ]
+}

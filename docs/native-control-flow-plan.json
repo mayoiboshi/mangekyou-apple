@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "One explicit cleanup continuation model for control-dispatch; no target execution",
+  "functions": [
+    {
+      "name": "control-dispatch",
+      "start": "0x6bb02c",
+      "end_exclusive": "0x6bb997",
+      "cleanup_returns": [
+        "0x6bb984"
+      ],
+      "return_targets": {
+        "0x6bb984": "0x6bb98c"
+      },
+      "expects_value_return": true
+    }
+  ]
+}

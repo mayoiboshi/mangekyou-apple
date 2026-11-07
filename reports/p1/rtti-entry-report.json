@@ -1,0 +1,214 @@
+{
+  "status": "inferred",
+  "authority": "analyst-inference",
+  "target_executed": false,
+  "program_bytes_patched": false,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Ephemeral database flow override experiment; not original execution or unmodified REA Evidence",
+  "functions": [
+    {
+      "name": "thread-add",
+      "source_memory_sha256": "e70770189acd95861154e6347738a65851f073f6cd8ed56270d2c69a9b12a6d7",
+      "metadata_overrides": [],
+      "memory_unchanged": true,
+      "memory_sha256_after": "e70770189acd95861154e6347738a65851f073f6cd8ed56270d2c69a9b12a6d7",
+      "status": "verified",
+      "baseline": {
+        "status": "verified",
+        "error": "",
+        "body_min": "006c11d4",
+        "body_max": "006c123d",
+        "body_bytes": 106,
+        "pseudocode_characters": 853,
+        "pseudocode_sha256": "8ed712cb8bf0a4be4577bab8c49f9554d2ffd8e5fc9e62d1b92f3cf09af9d7d7",
+        "unresolved_jump_markers": 0,
+        "has_value_return": false
+      },
+      "variant": {
+        "status": "verified",
+        "error": "",
+        "body_min": "006c11d4",
+        "body_max": "006c123d",
+        "body_bytes": 106,
+        "pseudocode_characters": 853,
+        "pseudocode_sha256": "8ed712cb8bf0a4be4577bab8c49f9554d2ffd8e5fc9e62d1b92f3cf09af9d7d7",
+        "unresolved_jump_markers": 0,
+        "has_value_return": false
+      }
+    },
+    {
+      "name": "routine-add",
+      "source_memory_sha256": "00fbfa2bb7040a6ba361beb85f869e1c1eb1156c7c3f9fb5f937dc90fe5f6636",
+      "metadata_overrides": [],
+      "memory_unchanged": true,
+      "memory_sha256_after": "00fbfa2bb7040a6ba361beb85f869e1c1eb1156c7c3f9fb5f937dc90fe5f6636",
+      "status": "verified",
+      "baseline": {
+        "status": "verified",
+        "error": "",
+        "body_min": "006c1074",
+        "body_max": "006c10dd",
+        "body_bytes": 106,
+        "pseudocode_characters": 851,
+        "pseudocode_sha256": "cb4e441c478e9ef202d0757636df4dd3e2e53721ebdea13bdaa0d5db1cc26ec2",
+        "unresolved_jump_markers": 0,
+        "has_value_return": false
+      },
+      "variant": {
+        "status": "verified",
+        "error": "",
+        "body_min": "006c1074",
+        "body_max": "006c10dd",
+        "body_bytes": 106,
+        "pseudocode_characters": 851,
+        "pseudocode_sha256": "cb4e441c478e9ef202d0757636df4dd3e2e53721ebdea13bdaa0d5db1cc26ec2",
+        "unresolved_jump_markers": 0,
+        "has_value_return": false
+      }
+    },
+    {
+      "name": "routine-destroy",
+      "source_memory_sha256": "0fddcf137e7f6cdc2436355f93b126a8f70b7f6fd81c96cec4fcde051f378f33",
+      "metadata_overrides": [],
+      "memory_unchanged": true,
+      "memory_sha256_after": "0fddcf137e7f6cdc2436355f93b126a8f70b7f6fd81c96cec4fcde051f378f33",
+      "status": "verified",
+      "baseline": {
+        "status": "verified",
+        "error": "",
+        "body_min": "006c145c",
+        "body_max": "006c1487",
+        "body_bytes": 44,
+        "pseudocode_characters": 270,
+        "pseudocode_sha256": "8abc6dd3fc0d478a22bc693a583e0a11968a3c830932e1e1d5e479f470e72b8f",
+        "unresolved_jump_markers": 0,
+        "has_value_return": false
+      },
+      "variant": {
+        "status": "verified",
+        "error": "",
+        "body_min": "006c145c",
+        "body_max": "006c1487",
+        "body_bytes": 44,
+        "pseudocode_characters": 270,
+        "pseudocode_sha256": "8abc6dd3fc0d478a22bc693a583e0a11968a3c830932e1e1d5e479f470e72b8f",
+        "unresolved_jump_markers": 0,
+        "has_value_return": false
+      }
+    },
+    {
+      "name": "block-destroy",
+      "source_memory_sha256": "d9657980bf3df7b36fccbac71b32b62b63533d6962e71fc91f3b2c042bf59e3e",
+      "metadata_overrides": [],
+      "memory_unchanged": true,
+      "memory_sha256_after": "d9657980bf3df7b36fccbac71b32b62b63533d6962e71fc91f3b2c042bf59e3e",
+      "status": "verified",
+      "baseline": {
+        "status": "verified",
+        "error": "",
+        "body_min": "006c0d8c",
+        "body_max": "006c0db0",
+        "body_bytes": 37,
+        "pseudocode_characters": 231,
+        "pseudocode_sha256": "42e62910cbff43e754648377f0ca1c36d893ddeafadad194857a7c90e1dd6afb",
+        "unresolved_jump_markers": 0,
+        "has_value_return": false
+      },
+      "variant": {
+        "status": "verified",
+        "error": "",
+        "body_min": "006c0d8c",
+        "body_max": "006c0db0",
+        "body_bytes": 37,
+        "pseudocode_characters": 231,
+        "pseudocode_sha256": "42e62910cbff43e754648377f0ca1c36d893ddeafadad194857a7c90e1dd6afb",
+        "unresolved_jump_markers": 0,
+        "has_value_return": false
+      }
+    },
+    {
+      "name": "routine-init",
+      "source_memory_sha256": "523a180df2998ccd70e06e96f3293d11f7f9c331866c59f81fc2fe1049cdd2c6",
+      "metadata_overrides": [],
+      "memory_unchanged": true,
+      "memory_sha256_after": "523a180df2998ccd70e06e96f3293d11f7f9c331866c59f81fc2fe1049cdd2c6",
+      "status": "verified",
+      "baseline": {
+        "status": "verified",
+        "error": "",
+        "body_min": "006c14b4",
+        "body_max": "006c1512",
+        "body_bytes": 95,
+        "pseudocode_characters": 542,
+        "pseudocode_sha256": "fc926fa0be3fe1221526238e8b4e5215baf6ad7e4953cc42dfbb4b4db82fd675",
+        "unresolved_jump_markers": 0,
+        "has_value_return": false
+      },
+      "variant": {
+        "status": "verified",
+        "error": "",
+        "body_min": "006c14b4",
+        "body_max": "006c1512",
+        "body_bytes": 95,
+        "pseudocode_characters": 542,
+        "pseudocode_sha256": "fc926fa0be3fe1221526238e8b4e5215baf6ad7e4953cc42dfbb4b4db82fd675",
+        "unresolved_jump_markers": 0,
+        "has_value_return": false
+      }
+    },
+    {
+      "name": "block-init",
+      "source_memory_sha256": "806dece0058dc131c0da4347c2137b4c49e8363955a0bbee4cff3c93a990c90a",
+      "metadata_overrides": [],
+      "memory_unchanged": true,
+      "memory_sha256_after": "806dece0058dc131c0da4347c2137b4c49e8363955a0bbee4cff3c93a990c90a",
+      "status": "verified",
+      "baseline": {
+        "status": "verified",
+        "error": "",
+        "body_min": "006c0db4",
+        "body_max": "006c0ded",
+        "body_bytes": 58,
+        "pseudocode_characters": 354,
+        "pseudocode_sha256": "96ff32ef4d978dcc403104ce3ef1ab632333f40aa24865bcf26bcc12ffe658cb",
+        "unresolved_jump_markers": 0,
+        "has_value_return": false
+      },
+      "variant": {
+        "status": "verified",
+        "error": "",
+        "body_min": "006c0db4",
+        "body_max": "006c0ded",
+        "body_bytes": 58,
+        "pseudocode_characters": 354,
+        "pseudocode_sha256": "96ff32ef4d978dcc403104ce3ef1ab632333f40aa24865bcf26bcc12ffe658cb",
+        "unresolved_jump_markers": 0,
+        "has_value_return": false
+      }
+    }
+  ],
+  "schema_version": 1,
+  "experiment_status": "verified",
+  "dataset": "real",
+  "decompiler_model_recovery": "verified",
+  "expected_value_returns": {
+    "thread-add": false,
+    "routine-add": false,
+    "routine-destroy": false,
+    "block-destroy": false,
+    "routine-init": false,
+    "block-init": false
+  },
+  "error": null,
+  "game_execution": "not_tested",
+  "original_files_written": false,
+  "target_semantic_equivalence": "not_tested",
+  "script_sha256": "ccbeb1106b70cc659c3eb779563a70c15f7b7842535d2a36b39262b9539cddd1",
+  "limitations": [
+    "Only selected normal-flow hypotheses in a disposable analysis database",
+    "Real-program overrides are analyst inference, not original execution or unmodified REA output",
+    "Synthetic success does not verify game behavior or arbitrary Delphi exception paths"
+  ],
+  "source_file": "美少女万華鏡４.exe",
+  "original_sha256_after": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5"
+}

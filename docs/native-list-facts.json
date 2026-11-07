@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "List and self-path static evidence; no target execution",
+  "facts": [
+    {
+      "id": "list_tag_component_and_case",
+      "status": "verified",
+      "evidence": "list-create-assembly",
+      "start": "0x68e2db",
+      "end": "0x68e2fe",
+      "observation": "List construction writes type 23, installs a TStringList component and passes zero to the selected case flag setter.",
+      "scope": "Selected static instructions only; not original execution equivalence",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x68e2db: CALL 0x0068bc58",
+        "0x68e2e0: MOV byte ptr [EDI + 0xc], 0x17",
+        "0x68e2e6: MOV EAX, [0x00432cf8]",
+        "0x68e2eb: CALL 0x0043ef30",
+        "0x68e2f2: MOV dword ptr [EDI + 0x18], ESI",
+        "0x68e2f7: XOR EDX, EDX",
+        "0x68e2f9: CALL 0x0043efac"
+      ],
+      "unknown": [
+        "Original execution and complete lifetime not tested"
+      ]
+    },
+    {
+      "id": "list_factory_branch",
+      "status": "verified",
+      "evidence": "object-factory-assembly",
+      "start": "0x6bf10f",
+      "end": "0x6bf12e",
+      "observation": "The selected comparison branches to the list constructor using its type cell.",
+      "scope": "Selected static instructions only; not original execution equivalence",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6bf112: MOV EDX, 0x6bf660",
+        "0x6bf117: CALL 0x00407b38",
+        "0x6bf11c: JNZ 0x006bf12e",
+        "0x6bf122: MOV EAX, [0x0068870c]",
+        "0x6bf127: CALL 0x0068e2a4"
+      ],
+      "unknown": [
+        "Original execution and complete lifetime not tested"
+      ]
+    },
+    {
+      "id": "list_flag_offset",
+      "status": "verified",
+      "evidence": "component-flag-assembly",
+      "start": "0x43efaf",
+      "end": "0x43efbb",
+      "observation": "The selected flag setter compares and writes byte offset 42; metadata identifies FCaseSensitive.",
+      "scope": "Selected static instructions only; not original execution equivalence",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x43efaf: CMP DL, byte ptr [EBX + 0x2a]",
+        "0x43efb4: MOV byte ptr [EBX + 0x2a], DL",
+        "0x43efb7: CMP byte ptr [EBX + 0x28], 0x0"
+      ],
+      "unknown": [
+        "Original execution and complete lifetime not tested"
+      ]
+    },
+    {
+      "id": "list_stream_clear_then_load",
+      "status": "verified",
+      "evidence": "list-dispatch-assembly",
+      "start": "0x6cd088",
+      "end": "0x6cd0be",
+      "observation": "A nonzero stream is followed by component clear, virtual stream load, then stream release.",
+      "scope": "Selected static instructions only; not original execution equivalence",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6cd088: CALL 0x006a5880",
+        "0x6cd095: CALL 0x004ec5ac",
+        "0x6cd09d: CMP dword ptr [EBP + -0x30], 0x0",
+        "0x6cd0a8: CALL dword ptr [EDX + 0x44]",
+        "0x6cd0b3: CALL dword ptr [ECX + 0x70]",
+        "0x6cd0b9: CALL 0x004056f8"
+      ],
+      "unknown": [
+        "Original execution and complete lifetime not tested"
+      ]
+    },
+    {
+      "id": "list_query_value_helper",
+      "status": "verified",
+      "evidence": "list-dispatch-assembly",
+      "start": "0x6cd1cc",
+      "end": "0x6cd1e0",
+      "observation": "The selected query calls the name/value helper and tests its returned string pointer.",
+      "scope": "Selected static instructions only; not original execution equivalence",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6cd1cc: LEA ECX, [EBP + -0x8]",
+        "0x6cd1d5: CALL 0x0043d934",
+        "0x6cd1da: CMP dword ptr [EBP + -0x8], 0x0",
+        "0x6cd1de: JZ 0x006cd222"
+      ],
+      "unknown": [
+        "Original execution and complete lifetime not tested"
+      ]
+    },
+    {
+      "id": "list_found_integer_uses_zero_default",
+      "status": "verified",
+      "evidence": "list-dispatch-assembly",
+      "start": "0x6cd1fc",
+      "end": "0x6cd21d",
+      "observation": "Found value writes ResultStr, invokes the distinct conversion helper with two zero words, and forwards EAX to integer result setter.",
+      "scope": "Selected static instructions only; not original execution equivalence",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6cd1fc: CALL 0x006be2cc",
+        "0x6cd201: PUSH 0x0",
+        "0x6cd203: PUSH 0x0",
+        "0x6cd208: CALL 0x00415b0c",
+        "0x6cd20d: PUSH EAX",
+        "0x6cd218: CALL 0x006be294"
+      ],
+      "unknown": [
+        "Original execution and complete lifetime not tested"
+      ]
+    },
+    {
+      "id": "list_missing_uses_saved_default",
+      "status": "verified",
+      "evidence": "list-dispatch-assembly",
+      "start": "0x6cd230",
+      "end": "0x6cd256",
+      "observation": "Missing/empty branch forwards the saved string and integer fields separately.",
+      "scope": "Selected static instructions only; not original execution equivalence",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6cd230: MOV EAX, dword ptr [EBP + -0x4]",
+        "0x6cd23e: CALL 0x006be2cc",
+        "0x6cd243: MOV EAX, dword ptr [EBP + -0x20]",
+        "0x6cd251: CALL 0x006be294"
+      ],
+      "unknown": [
+        "Original execution and complete lifetime not tested"
+      ]
+    }
+  ],
+  "inferred_contracts": [
+    {
+      "id": "list_and_path_candidate",
+      "status": "inferred",
+      "meaning": "Bounded ASCII lookup and self-directory resource candidate; Windows locale, full search prefixes, preprocessing and execution equivalence untested"
+    }
+  ]
+}

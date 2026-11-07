@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Single dimension storage evidence; no original execution",
+  "facts": [
+    {
+      "id": "name_descriptor_zeroes_four_coordinates",
+      "status": "verified",
+      "evidence": "name-index-assembly",
+      "start": "0x69fb9b",
+      "end": "0x69fbbb",
+      "observation": "名称描述符先将四个下标字段置零。",
+      "scope": "Selected static instructions only; original execution not tested",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x69fba0: MOV dword ptr [EAX + 0x4], EDX",
+        "0x69fba8: MOV dword ptr [EAX + 0x8], EDX",
+        "0x69fbb0: MOV dword ptr [EAX + 0xc], EDX",
+        "0x69fbb8: MOV dword ptr [EAX + 0x10], EDX"
+      ],
+      "unknown": [
+        "Full original execution and object lifetime not tested"
+      ]
+    },
+    {
+      "id": "declaration_clamps_four_dimensions_to_one",
+      "status": "verified",
+      "evidence": "declare-assembly",
+      "start": "0x69d0a6",
+      "end": "0x69d0bf",
+      "observation": "声明路径对四个字段循环，小于一则写一。",
+      "scope": "Selected static instructions only; original execution not tested",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x69d0a6: MOV EDX, 0x4",
+        "0x69d0ae: CMP dword ptr [EAX], 0x1",
+        "0x69d0b1: JGE 0x0069d0b9",
+        "0x69d0b3: MOV dword ptr [EAX], 0x1",
+        "0x69d0b9: ADD EAX, 0x4",
+        "0x69d0bd: JNZ 0x0069d0ae"
+      ],
+      "unknown": [
+        "Full original execution and object lifetime not tested"
+      ]
+    },
+    {
+      "id": "storage_binds_integer_and_string_constructors",
+      "status": "verified",
+      "evidence": "storage-add-assembly",
+      "start": "0x69a634",
+      "end": "0x69a658",
+      "observation": "两个分支分别从类型单元取 VMT 并调用整数与字符串构造器。",
+      "scope": "Selected static instructions only; original execution not tested",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x69a638: MOV EAX, [0x006974ac]",
+        "0x69a63d: CALL 0x0069dfb4",
+        "0x69a64b: MOV EAX, [0x0069779c]",
+        "0x69a650: CALL 0x0069e150"
+      ],
+      "unknown": [
+        "Full original execution and object lifetime not tested"
+      ]
+    },
+    {
+      "id": "storage_applies_declared_dimensions",
+      "status": "verified",
+      "evidence": "storage-add-assembly",
+      "start": "0x69a685",
+      "end": "0x69a69b",
+      "observation": "已选存储对象接收四个声明字段并调用维度设置。",
+      "scope": "Selected static instructions only; original execution not tested",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x69a685: MOV EAX, dword ptr [EBP + 0x1c]",
+        "0x69a68d: MOV ECX, dword ptr [EBP + 0x20]",
+        "0x69a690: MOV EDX, dword ptr [EBP + 0x24]",
+        "0x69a696: CALL 0x0069de68"
+      ],
+      "unknown": [
+        "Full original execution and object lifetime not tested"
+      ]
+    },
+    {
+      "id": "flatten_uses_base_and_three_strides",
+      "status": "verified",
+      "evidence": "element-index-assembly",
+      "start": "0x69dd33",
+      "end": "0x69dd4e",
+      "observation": "基下标与三个步长乘加后形成线性下标。",
+      "scope": "Selected static instructions only; original execution not tested",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x69dd33: IMUL ECX, dword ptr [EAX + 0x34]",
+        "0x69dd3c: IMUL ECX, dword ptr [EAX + 0x38]",
+        "0x69dd45: IMUL ECX, dword ptr [EAX + 0x3c]",
+        "0x69dd4b: MOV EAX, EDX"
+      ],
+      "unknown": [
+        "Full original execution and object lifetime not tested"
+      ]
+    },
+    {
+      "id": "read_dispatches_by_linear_bounds",
+      "status": "verified",
+      "evidence": "element-read-assembly",
+      "start": "0x69dd06",
+      "end": "0x69dd23",
+      "observation": "读取先检查线性总长度边界，然后调用虚表加八。",
+      "scope": "Selected static instructions only; original execution not tested",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x69dd06: CALL 0x0069dd30",
+        "0x69dd0d: JL 0x0069dd23",
+        "0x69dd0f: CMP EAX, dword ptr [ESI + 0x14]",
+        "0x69dd1d: CALL dword ptr [EBX + 0x8]"
+      ],
+      "unknown": [
+        "Full original execution and object lifetime not tested"
+      ]
+    },
+    {
+      "id": "base_element_bounds",
+      "status": "verified",
+      "evidence": "element-base-check-assembly",
+      "start": "0x69dddc",
+      "end": "0x69ddeb",
+      "observation": "基础元素方法要求下标非负且小于 FCount。",
+      "scope": "Selected static instructions only; original execution not tested",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x69dddc: TEST EDX, EDX",
+        "0x69ddde: JL 0x0069dde5",
+        "0x69dde0: CMP EDX, dword ptr [EAX + 0x14]",
+        "0x69dde3: JL 0x0069dde8"
+      ],
+      "unknown": [
+        "Full original execution and object lifetime not tested"
+      ]
+    },
+    {
+      "id": "short_numeric_index_fills_first_coordinate",
+      "status": "verified",
+      "evidence": "index-evaluate-assembly",
+      "start": "0x69f9f0",
+      "end": "0x69fa03",
+      "observation": "选定短数值路径将转换结果放入第一个下标字段。",
+      "scope": "Selected static instructions only; original execution not tested",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x69f9f0: XOR EDX, EDX",
+        "0x69f9f5: CALL 0x00415a90",
+        "0x69fa00: MOV dword ptr [EDX + 0x4], EAX"
+      ],
+      "unknown": [
+        "Full original execution and object lifetime not tested"
+      ]
+    }
+  ],
+  "inferred_contracts": [
+    {
+      "id": "single_dimension_candidate",
+      "status": "inferred",
+      "meaning": "Missing dimensions clamp to one; first coordinate selects an array element; no string character indexing is implied"
+    }
+  ]
+}

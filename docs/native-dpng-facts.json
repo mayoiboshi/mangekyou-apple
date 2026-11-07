@@ -1,0 +1,314 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Selected DPNG load, row fill and pixel-copy paths only; original renderer never executed",
+  "facts": [
+    {
+      "id": "magic_peek",
+      "status": "verified",
+      "evidence": "bitmap-loader-assembly",
+      "start": "0x54dfc3",
+      "end": "0x54dff9",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x54dfc3: MOV EDX, ESP",
+        "0x54dfc5: MOV ECX, 0x4",
+        "0x54dfca: MOV EAX, EBX",
+        "0x54dfcc: MOV ESI, dword ptr [EAX]",
+        "0x54dfce: CALL dword ptr [ESI + 0xc]",
+        "0x54dfd1: CMP dword ptr [ESP], 0x474e5089",
+        "0x54dfd8: JZ 0x0054dfe3",
+        "0x54dfda: CMP dword ptr [ESP], 0x474e5044",
+        "0x54dfe1: JNZ 0x0054dff9",
+        "0x54dfe3: MOV EAX, EBX",
+        "0x54dfe5: CALL 0x0043efd4",
+        "0x54dfea: SUB EAX, 0x4",
+        "0x54dfed: SBB EDX, 0x0",
+        "0x54dff0: PUSH EDX",
+        "0x54dff1: PUSH EAX",
+        "0x54dff2: MOV EAX, EBX",
+        "0x54dff4: CALL 0x0043eff4"
+      ],
+      "observation": "Read four bytes, compare PNG and DPNG prefixes and rewind the recognized paths by four; this does not establish rejection of other prefixes.",
+      "scope": "Selected static instruction bytes only; original image pipeline and execution remain not_tested",
+      "unknown": [
+        "Runtime equivalence not_tested"
+      ]
+    },
+    {
+      "id": "bitmap_callbacks",
+      "status": "verified",
+      "evidence": "bitmap-load-stream-assembly",
+      "start": "0x535aa6",
+      "end": "0x535ab9",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x535aa6: PUSH 0x53269c",
+        "0x535aab: MOV ECX, 0x532694",
+        "0x535ab0: MOV EAX, EDX",
+        "0x535ab2: MOV EDX, ESI",
+        "0x535ab4: CALL 0x00530890"
+      ],
+      "observation": "Supply two callback addresses and bitmap context to the stream decoder.",
+      "scope": "Selected static instruction bytes only; original image pipeline and execution remain not_tested",
+      "unknown": [
+        "Runtime equivalence not_tested"
+      ]
+    },
+    {
+      "id": "header_field_gate",
+      "status": "verified",
+      "evidence": "dpng-dispatch-assembly",
+      "start": "0x5309ad",
+      "end": "0x5309ba",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x5309ad: CMP dword ptr [EBP + -0x38], 0x1",
+        "0x5309b1: JLE 0x005309ba",
+        "0x5309b3: XOR EBX, EBX",
+        "0x5309b5: JMP 0x00530b12"
+      ],
+      "observation": "Compare header DWORD at offset four with one using signed JLE; larger signed values take the failure branch. The field is not named as a verified version.",
+      "scope": "Selected static instruction bytes only; original image pipeline and execution remain not_tested",
+      "unknown": [
+        "Runtime equivalence not_tested"
+      ]
+    },
+    {
+      "id": "tile_header_read",
+      "status": "verified",
+      "evidence": "dpng-dispatch-assembly",
+      "start": "0x530a0f",
+      "end": "0x530a1f",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x530a0f: LEA EDX, [EBP + -0x58]",
+        "0x530a12: MOV ECX, 0x1c",
+        "0x530a17: MOV EAX, dword ptr [EBP + -0x4]",
+        "0x530a1a: MOV EDI, dword ptr [EAX]",
+        "0x530a1c: CALL dword ptr [EDI + 0xc]"
+      ],
+      "observation": "Request 28 bytes for each tile header through stream slot +c.",
+      "scope": "Selected static instruction bytes only; original image pipeline and execution remain not_tested",
+      "unknown": [
+        "Runtime equivalence not_tested"
+      ]
+    },
+    {
+      "id": "flag_one_fill_extents",
+      "status": "verified",
+      "evidence": "dpng-dispatch-assembly",
+      "start": "0x530a7c",
+      "end": "0x530a98",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x530a7c: XOR EAX, EAX",
+        "0x530a7e: MOV dword ptr [EBX + 0x1c], EAX",
+        "0x530a81: XOR EAX, EAX",
+        "0x530a83: MOV dword ptr [EBX + 0x20], EAX",
+        "0x530a86: CMP byte ptr [EBP + -0x44], 0x1",
+        "0x530a8a: JNZ 0x00530a98",
+        "0x530a8c: MOV EAX, dword ptr [EBP + -0x20]",
+        "0x530a8f: MOV dword ptr [EBX + 0x1c], EAX",
+        "0x530a92: MOV EAX, dword ptr [EBP + -0x4c]",
+        "0x530a95: MOV dword ptr [EBX + 0x20], EAX"
+      ],
+      "observation": "Low byte of tile field at header+20 equal to one selects canvas width and tile height for the pre-copy work fields; high bytes are not compared here.",
+      "scope": "Selected static instruction bytes only; original image pipeline and execution remain not_tested",
+      "unknown": [
+        "Runtime equivalence not_tested"
+      ]
+    },
+    {
+      "id": "tile_work_order",
+      "status": "verified",
+      "evidence": "tile-work-assembly",
+      "start": "0x530857",
+      "end": "0x53088d",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x530857: MOV EAX, dword ptr [EBX + 0x8]",
+        "0x53085a: PUSH EAX",
+        "0x53085b: MOV EAX, dword ptr [EBX + 0x1c]",
+        "0x53085e: PUSH EAX",
+        "0x53085f: MOV EAX, dword ptr [EBX + 0x20]",
+        "0x530862: PUSH EAX",
+        "0x530863: XOR ECX, ECX",
+        "0x530865: MOV EDX, dword ptr [EBX + 0x14]",
+        "0x530868: MOV EAX, dword ptr [EBX + 0x18]",
+        "0x53086b: CALL 0x0053077c",
+        "0x530870: MOV EAX, dword ptr [EBX + 0x8]",
+        "0x530873: PUSH EAX",
+        "0x530874: MOV EAX, dword ptr [EBX + 0xc]",
+        "0x530877: PUSH EAX",
+        "0x530878: MOV EAX, dword ptr [EBX + 0x10]",
+        "0x53087b: PUSH EAX",
+        "0x53087c: MOV EAX, dword ptr [EBX]",
+        "0x53087e: PUSH EAX",
+        "0x53087f: MOV ECX, dword ptr [EBX + 0x4]",
+        "0x530882: MOV EDX, dword ptr [EBX + 0x14]",
+        "0x530885: MOV EAX, dword ptr [EBX + 0x18]",
+        "0x530888: CALL 0x005307a8"
+      ],
+      "observation": "The selected worker first calls the row-fill gate, then the tile decoder, using separate work-record offsets.",
+      "scope": "Selected static instruction bytes only; original image pipeline and execution remain not_tested",
+      "unknown": [
+        "Runtime equivalence not_tested"
+      ]
+    },
+    {
+      "id": "fill_constant",
+      "status": "verified",
+      "evidence": "row-fill-gate-assembly",
+      "start": "0x530788",
+      "end": "0x5307a0",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x530788: TEST ESI, ESI",
+        "0x53078a: JZ 0x005307a0",
+        "0x53078c: TEST EDI, EDI",
+        "0x53078e: JZ 0x005307a0",
+        "0x530790: MOV EBX, dword ptr [EBP + 0x10]",
+        "0x530793: PUSH EBX",
+        "0x530794: PUSH ESI",
+        "0x530795: PUSH EDI",
+        "0x530796: PUSH 0x888888",
+        "0x53079b: CALL 0x00530388"
+      ],
+      "observation": "Nonzero width and height gate the fill helper; its explicit pixel argument is 0x00888888 rather than zero.",
+      "scope": "Selected static instruction bytes only; original image pipeline and execution remain not_tested",
+      "unknown": [
+        "Runtime equivalence not_tested"
+      ]
+    },
+    {
+      "id": "fill_stores",
+      "status": "verified",
+      "evidence": "row-fill-assembly",
+      "start": "0x5303dc",
+      "end": "0x530403",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x5303dc: MOV EDI, dword ptr [EBP + -0x4]",
+        "0x5303df: MOVQ MM0, qword ptr [EBP + -0xc]",
+        "0x5303e3: MOV ECX, dword ptr [EBP + -0x10]",
+        "0x5303e6: CMP ECX, 0x0",
+        "0x5303e9: JZ 0x005303f4",
+        "0x5303eb: MOVQ qword ptr [EDI], MM0",
+        "0x5303ee: ADD EDI, 0x8",
+        "0x5303f1: DEC ECX",
+        "0x5303f2: JNZ 0x005303eb",
+        "0x5303f4: MOV ECX, dword ptr [EBP + -0x14]",
+        "0x5303f7: CMP ECX, 0x0",
+        "0x5303fa: JZ 0x00530403",
+        "0x5303fc: MOVD dword ptr [EDI], MM0",
+        "0x5303ff: ADD EDI, 0x4",
+        "0x530402: DEC ECX"
+      ],
+      "observation": "The fill loop repeats the supplied DWORD in two-pixel stores plus an optional final pixel.",
+      "scope": "Selected static instruction bytes only; original image pipeline and execution remain not_tested",
+      "unknown": [
+        "Runtime equivalence not_tested"
+      ]
+    },
+    {
+      "id": "rgba_tail_store",
+      "status": "verified",
+      "evidence": "rgba-copy-assembly",
+      "start": "0x530514",
+      "end": "0x53052e",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x530514: MOV AL, byte ptr [ESI]",
+        "0x530516: MOV BL, byte ptr [ESI + 0x2]",
+        "0x530519: MOV AH, byte ptr [ESI + 0x1]",
+        "0x53051c: MOV BH, byte ptr [EDX]",
+        "0x53051e: SHL EBX, 0x10",
+        "0x530521: OR EAX, EBX",
+        "0x530523: MOV dword ptr [EDI], EAX",
+        "0x530525: ADD ESI, 0x3",
+        "0x530528: ADD EDI, 0x4",
+        "0x53052b: ADD EDX, 0x1"
+      ],
+      "observation": "Selected scalar tail packs three RGB bytes and a separate alpha byte into a DWORD and stores directly to the destination; this selected tail does not read destination color.",
+      "scope": "Selected static instruction bytes only; original image pipeline and execution remain not_tested",
+      "unknown": [
+        "Runtime equivalence not_tested"
+      ]
+    },
+    {
+      "id": "rgb_tail_store",
+      "status": "verified",
+      "evidence": "rgb-copy-assembly",
+      "start": "0x530612",
+      "end": "0x530629",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x530612: MOV AL, byte ptr [ESI]",
+        "0x530614: MOV BL, byte ptr [ESI + 0x2]",
+        "0x530617: MOV AH, byte ptr [ESI + 0x1]",
+        "0x53061a: MOV BH, 0xff",
+        "0x53061c: SHL EBX, 0x10",
+        "0x53061f: OR EAX, EBX",
+        "0x530621: MOV dword ptr [EDI], EAX",
+        "0x530623: ADD ESI, 0x3",
+        "0x530626: ADD EDI, 0x4"
+      ],
+      "observation": "Selected scalar RGB tail supplies alpha byte 0xff and stores directly to the destination.",
+      "scope": "Selected static instruction bytes only; original image pipeline and execution remain not_tested",
+      "unknown": [
+        "Runtime equivalence not_tested"
+      ]
+    },
+    {
+      "id": "tile_color_routes",
+      "status": "verified",
+      "evidence": "tile-decode-assembly",
+      "start": "0x5307e2",
+      "end": "0x530840",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x5307e2: MOVZX EAX, byte ptr [EAX + 0x461]",
+        "0x5307e9: SUB AL, 0x2",
+        "0x5307eb: JZ 0x0053080d",
+        "0x5307ed: SUB AL, 0x4",
+        "0x5307ef: JNZ 0x00530829",
+        "0x530806: CALL 0x00530418",
+        "0x530822: CALL 0x0053054c",
+        "0x53083e: CALL 0x00530648"
+      ],
+      "observation": "The selected PNG field routes numeric values two and six to different direct-copy helpers and other values to a fallback.",
+      "scope": "Selected static instruction bytes only; original image pipeline and execution remain not_tested",
+      "unknown": [
+        "Runtime equivalence not_tested"
+      ]
+    }
+  ],
+  "inferred_contracts": [
+    {
+      "id": "flag_one_transparent_gray_rows",
+      "status": "inferred",
+      "basis": [
+        "flag_one_fill_extents",
+        "tile_work_order",
+        "fill_constant",
+        "fill_stores",
+        "LLVM row callback"
+      ],
+      "meaning": "Under the selected callback/parameter binding, flag low byte one fills canvas-width rows at tile y with transparent RGB 136 before copying the tile, including tiles with no payload.",
+      "parallel_order": "not_tested",
+      "subsequent_color_conversion": "not_tested"
+    },
+    {
+      "id": "overwrite_candidate",
+      "status": "inferred",
+      "basis": [
+        "rgba_tail_store",
+        "rgb_tail_store",
+        "tile_color_routes"
+      ],
+      "meaning": "Selected decoded pixel-copy paths support overwrite rather than SourceOver as a local candidate. This is not original-renderer or display equivalence.",
+      "whole_pipeline": "not_tested"
+    }
+  ]
+}

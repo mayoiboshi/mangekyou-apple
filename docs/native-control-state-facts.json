@@ -1,0 +1,240 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "选定状态存储、比较和命令分派门控；高层解释保留 inferred，不执行脚本",
+  "facts": [
+    {
+      "id": "ancestor_threshold",
+      "status": "verified",
+      "evidence": "control-dispatch-assembly",
+      "start": "0x6bb098",
+      "end": "0x6bb0a2",
+      "observation": "将控制块 +0x34 字节与 5 作无符号比较；大于或等于 5 的路径将局部标志置 1。",
+      "scope": "所列指令及顺序；不证明完整可达性、错误终止或执行等价",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6bb098: CMP byte ptr [EAX + 0x34], 0x5",
+        "0x6bb09c: JC 0x006bb0a4",
+        "0x6bb09e: MOV byte ptr [EBP + -0x12], 0x1"
+      ],
+      "unknown": [
+        "执行语义 not_tested"
+      ]
+    },
+    {
+      "id": "skip_overrides_handled",
+      "status": "verified",
+      "evidence": "control-dispatch-assembly",
+      "start": "0x6bb94b",
+      "end": "0x6bb959",
+      "observation": "一条尾路径清零处理标志，外层标志非零时又写 1。",
+      "scope": "所列指令及顺序；不证明完整可达性、错误终止或执行等价",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6bb94b: MOV byte ptr [EBP + -0x11], 0x0",
+        "0x6bb94f: CMP byte ptr [EBP + -0x12], 0x0",
+        "0x6bb953: JZ 0x006bb959",
+        "0x6bb955: MOV byte ptr [EBP + -0x11], 0x1"
+      ],
+      "unknown": [
+        "执行语义 not_tested"
+      ]
+    },
+    {
+      "id": "caller_control_gate",
+      "status": "verified",
+      "evidence": "script-caller-assembly",
+      "start": "0x6aae14",
+      "end": "0x6aae2f",
+      "observation": "调用控制分派后保存 AL；非零时跳过本段后续第二分派调用。",
+      "scope": "所列指令及顺序；不证明完整可达性、错误终止或执行等价",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6aae14: CALL 0x006bb02c",
+        "0x6aae19: MOV byte ptr [EBP + -0x11], AL",
+        "0x6aae1c: CMP byte ptr [EBP + -0x11], 0x0",
+        "0x6aae20: JNZ 0x006aae32",
+        "0x6aae2a: CALL 0x006b70d8"
+      ],
+      "unknown": [
+        "执行语义 not_tested"
+      ]
+    },
+    {
+      "id": "then_compare_and_state",
+      "status": "verified",
+      "evidence": "control-dispatch-assembly",
+      "start": "0x6bb134",
+      "end": "0x6bb150",
+      "observation": "取对象 +0x14，传入常量地址 0x6bb9a4 作比较；按结果写状态 2 或 6。",
+      "scope": "所列指令及顺序；不证明完整可达性、错误终止或执行等价",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6bb134: MOV EAX, dword ptr [EBX + 0x14]",
+        "0x6bb137: MOV EDX, 0x6bb9a4",
+        "0x6bb13c: CALL 0x00407b38",
+        "0x6bb141: JNZ 0x006bb14c",
+        "0x6bb143: MOV byte ptr [EBX + 0x34], 0x2",
+        "0x6bb14c: MOV byte ptr [EBX + 0x34], 0x6"
+      ],
+      "unknown": [
+        "执行语义 not_tested"
+      ]
+    },
+    {
+      "id": "for_exact_one_states",
+      "status": "verified",
+      "evidence": "control-dispatch-assembly",
+      "start": "0x6bb36d",
+      "end": "0x6bb380",
+      "observation": "局部整数与 1 比较，等于时写状态 3，另一分支写 8。",
+      "scope": "所列指令及顺序；不证明完整可达性、错误终止或执行等价",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6bb36d: CMP dword ptr [EBP + -0x8], 0x1",
+        "0x6bb371: JNZ 0x006bb37c",
+        "0x6bb373: MOV byte ptr [EBX + 0x34], 0x3",
+        "0x6bb37c: MOV byte ptr [EBX + 0x34], 0x8"
+      ],
+      "unknown": [
+        "执行语义 not_tested"
+      ]
+    },
+    {
+      "id": "parent_skip_distinct_states",
+      "status": "verified",
+      "evidence": "control-dispatch-assembly",
+      "start": "0x6bb19a",
+      "end": "0x6bb3b1",
+      "observation": "两条创建块调用之后，分别将对象 +0x34 写 7 与 5。",
+      "scope": "所列指令及顺序；不证明完整可达性、错误终止或执行等价",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6bb19a: CALL 0x006c149c",
+        "0x6bb1a1: MOV byte ptr [EBX + 0x34], 0x7",
+        "0x6bb3a6: CALL 0x006c149c",
+        "0x6bb3ad: MOV byte ptr [EBX + 0x34], 0x5"
+      ],
+      "unknown": [
+        "执行语义 not_tested"
+      ]
+    },
+    {
+      "id": "if_numeric_tag_and_assignment_flag",
+      "status": "verified",
+      "evidence": "control-dispatch-assembly",
+      "start": "0x6bb43c",
+      "end": "0x6bb470",
+      "observation": "表达式调用后比较上下文 +0x24 标志，并在一条路径调用诊断函数；随后局部类型字节与零比较。",
+      "scope": "所列指令及顺序；不证明完整可达性、错误终止或执行等价",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6bb43c: CALL 0x006be1d8",
+        "0x6bb447: CMP byte ptr [EAX + 0x24], 0x0",
+        "0x6bb44b: JZ 0x006bb46c",
+        "0x6bb467: CALL 0x006b9fb8",
+        "0x6bb46c: CMP byte ptr [EBP + -0xc], 0x0"
+      ],
+      "unknown": [
+        "执行语义 not_tested"
+      ]
+    },
+    {
+      "id": "if_compare_and_state",
+      "status": "verified",
+      "evidence": "control-dispatch-assembly",
+      "start": "0x6bb47c",
+      "end": "0x6bb4a5",
+      "observation": "整数格式化并保存至选项后，与常量地址 0x6bb9a4 比较，再写状态 2 或 6。",
+      "scope": "所列指令及顺序；不证明完整可达性、错误终止或执行等价",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6bb47c: CALL 0x00415790",
+        "0x6bb487: CALL 0x00407460",
+        "0x6bb48f: MOV EDX, 0x6bb9a4",
+        "0x6bb494: CALL 0x00407b38",
+        "0x6bb499: JNZ 0x006bb4a1",
+        "0x6bb49b: MOV byte ptr [EBX + 0x34], 0x2",
+        "0x6bb4a1: MOV byte ptr [EBX + 0x34], 0x6"
+      ],
+      "unknown": [
+        "执行语义 not_tested"
+      ]
+    },
+    {
+      "id": "else_compare_and_state",
+      "status": "verified",
+      "evidence": "control-dispatch-assembly",
+      "start": "0x6bb55f",
+      "end": "0x6bb59c",
+      "observation": "两条选项比较路径使用常量地址 0x6bba58，分别产生 2/6 和 4/11 状态。",
+      "scope": "所列指令及顺序；不证明完整可达性、错误终止或执行等价",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6bb55f: MOV EAX, dword ptr [EBX + 0x14]",
+        "0x6bb562: MOV EDX, 0x6bba58",
+        "0x6bb567: CALL 0x00407b38",
+        "0x6bb56c: JNZ 0x006bb577",
+        "0x6bb56e: MOV byte ptr [EBX + 0x34], 0x2",
+        "0x6bb577: MOV byte ptr [EBX + 0x34], 0x6",
+        "0x6bb580: MOV EAX, dword ptr [EBX + 0x18]",
+        "0x6bb583: MOV EDX, 0x6bba58",
+        "0x6bb588: CALL 0x00407b38",
+        "0x6bb58d: JNZ 0x006bb598",
+        "0x6bb58f: MOV byte ptr [EBX + 0x34], 0x4",
+        "0x6bb598: MOV byte ptr [EBX + 0x34], 0xb"
+      ],
+      "unknown": [
+        "执行语义 not_tested"
+      ]
+    },
+    {
+      "id": "loop_update_before_condition",
+      "status": "verified",
+      "evidence": "control-dispatch-assembly",
+      "start": "0x6bb8b6",
+      "end": "0x6bb8ec",
+      "observation": "先以选项 +0x18 调用表达式函数，再以 +0x14 调用；比较结果与 1 后，一条路径恢复位置并写状态 3。",
+      "scope": "所列指令及顺序；不证明完整可达性、错误终止或执行等价",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6bb8b6: MOV EDX, dword ptr [EBX + 0x18]",
+        "0x6bb8bb: CALL 0x006be1d8",
+        "0x6bb8c3: MOV EDX, dword ptr [EBX + 0x14]",
+        "0x6bb8c8: CALL 0x006be1d8",
+        "0x6bb8cd: CMP dword ptr [EBP + -0x8], 0x1",
+        "0x6bb8d1: JNZ 0x006bb8ee",
+        "0x6bb8d3: MOV EAX, dword ptr [EBX + 0x3c]",
+        "0x6bb8d7: MOV ECX, dword ptr [EBX + 0x38]",
+        "0x6bb8da: MOV EDX, dword ptr [EBX + 0x4]",
+        "0x6bb8e3: CALL 0x00696134",
+        "0x6bb8e8: MOV byte ptr [EBX + 0x34], 0x3"
+      ],
+      "unknown": [
+        "执行语义 not_tested"
+      ]
+    }
+  ],
+  "inferred_contracts": [
+    {
+      "id": "handled_skip_contract",
+      "status": "inferred",
+      "meaning": "选定命令分派链将外层跳过标志并入处理结果，后续处理器受该结果门控；非命令正文路径未核对。"
+    },
+    {
+      "id": "distinct_control_states",
+      "status": "inferred",
+      "meaning": "声明中的 IfSkip、ForSkip、ForBreak 分别对应 5、7、8；原生写入和阈值证据支持保留这些区别，完整状态机未验证。"
+    },
+    {
+      "id": "exact_one_and_exact_zero",
+      "status": "inferred",
+      "meaning": "选定 then/if 路径与 UTF-16 常量 1 比较，else 路径与 0 比较；不可把所有非零值自动当真。"
+    },
+    {
+      "id": "loop_options_candidate",
+      "status": "inferred",
+      "meaning": "选定循环尾先处理更新候选，再处理条件候选并按精确 1 分支；副作用时序、异常和所有入口未验证。"
+    }
+  ]
+}

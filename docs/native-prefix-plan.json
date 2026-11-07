@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Selected prefix setters and replacement paths only; no regex/replacement runtime",
+  "queries": [
+    {
+      "name": "reader-init",
+      "operation": "procedure_pseudo_code",
+      "address": "0x694be8"
+    },
+    {
+      "name": "reader-init-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x694be8"
+    },
+    {
+      "name": "replacement-core",
+      "operation": "procedure_pseudo_code",
+      "address": "0x695ce4"
+    },
+    {
+      "name": "replacement-core-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x695ce4"
+    },
+    {
+      "name": "replacement-gate",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69687c"
+    },
+    {
+      "name": "replacement-gate-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69687c"
+    },
+    {
+      "name": "replacement-add",
+      "operation": "procedure_pseudo_code",
+      "address": "0x696548"
+    },
+    {
+      "name": "replacement-add-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x696548"
+    },
+    {
+      "name": "replacement-enable",
+      "operation": "procedure_pseudo_code",
+      "address": "0x696670"
+    },
+    {
+      "name": "replacement-enable-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x696670"
+    },
+    {
+      "name": "replacement-sort",
+      "operation": "procedure_pseudo_code",
+      "address": "0x696884"
+    },
+    {
+      "name": "replacement-sort-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x696884"
+    },
+    {
+      "name": "replacement-count",
+      "operation": "procedure_pseudo_code",
+      "address": "0x696860"
+    },
+    {
+      "name": "replacement-count-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x696860"
+    },
+    {
+      "name": "replacement-get",
+      "operation": "procedure_pseudo_code",
+      "address": "0x696868"
+    },
+    {
+      "name": "replacement-get-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x696868"
+    },
+    {
+      "name": "replacement-reset",
+      "operation": "procedure_pseudo_code",
+      "address": "0x695c90"
+    },
+    {
+      "name": "replacement-reset-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x695c90"
+    },
+    {
+      "name": "replacement-explicit",
+      "operation": "procedure_pseudo_code",
+      "address": "0x696a8c"
+    },
+    {
+      "name": "replacement-explicit-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x696a8c"
+    },
+    {
+      "name": "replacement-dispatch",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6ba248"
+    },
+    {
+      "name": "replacement-dispatch-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6ba248"
+    },
+    {
+      "name": "reader-constructor-owner",
+      "operation": "resolve_containing_procedure",
+      "address": "0x694c74"
+    },
+    {
+      "name": "reader-constructor-instruction",
+      "operation": "inspect_native_instruction",
+      "address": "0x694c74"
+    },
+    {
+      "name": "replacement-comparator-owner",
+      "operation": "resolve_containing_procedure",
+      "address": "0x694bdc"
+    },
+    {
+      "name": "replacement-comparator-instruction",
+      "operation": "inspect_native_instruction",
+      "address": "0x694bdc"
+    },
+    {
+      "name": "reader-creation-owner",
+      "operation": "resolve_containing_procedure",
+      "address": "0x6be9d3"
+    },
+    {
+      "name": "reader-creation-instruction",
+      "operation": "inspect_native_instruction",
+      "address": "0x6be9d3"
+    },
+    {
+      "name": "reader-constructor-xrefs",
+      "operation": "xrefs",
+      "address": "0x694c74"
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Logical primitive checks and explicit default Ghidra coverage gaps; no evaluator",
+  "facts": [
+    {
+      "id": "and_resolves_both_operands",
+      "status": "verified",
+      "evidence": "expression-core-assembly",
+      "start": "0x69bf75",
+      "end": "0x69bfa3",
+      "observation": "调用逻辑助手前先后解析两个操作数，中间没有按左值跳过右侧的分支。",
+      "scope": "静态指令及所列顺序，不是完整短路或执行证明",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x69bf7e: CALL 0x0069af88",
+        "0x69bf8c: CALL 0x0069af88",
+        "0x69bf9e: CALL 0x0069db38"
+      ],
+      "unknown": [
+        "完整执行语义未验证"
+      ]
+    },
+    {
+      "id": "or_resolves_both_operands",
+      "status": "verified",
+      "evidence": "expression-core-assembly",
+      "start": "0x69bfce",
+      "end": "0x69bffc",
+      "observation": "另一逻辑路径同样先后解析双方，再调用助手。",
+      "scope": "静态指令及所列顺序，不是完整短路或执行证明",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x69bfd7: CALL 0x0069af88",
+        "0x69bfe5: CALL 0x0069af88",
+        "0x69bff7: CALL 0x0069dba8"
+      ],
+      "unknown": [
+        "完整执行语义未验证"
+      ]
+    },
+    {
+      "id": "and_numeric_tags_and_exact_one",
+      "status": "verified",
+      "evidence": "logical-and-assembly",
+      "start": "0x69db58",
+      "end": "0x69db99",
+      "observation": "要求双方 tag 0；两个数值字段分别与 1 比较，失败路径写 0。",
+      "scope": "静态指令及所列顺序，不是完整短路或执行证明",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x69db58: CMP byte ptr [EBX], 0x0",
+        "0x69db5d: CMP byte ptr [ESI], 0x0",
+        "0x69db7f: CMP dword ptr [EBX + 0x4], 0x1",
+        "0x69db85: CMP dword ptr [ESI + 0x4], 0x1",
+        "0x69db8b: MOV dword ptr [EBX + 0x4], 0x1",
+        "0x69db96: MOV dword ptr [EBX + 0x4], EAX"
+      ],
+      "unknown": [
+        "完整执行语义未验证"
+      ]
+    },
+    {
+      "id": "or_numeric_tags_and_exact_one",
+      "status": "verified",
+      "evidence": "logical-or-assembly",
+      "start": "0x69dbc8",
+      "end": "0x69dc09",
+      "observation": "要求双方 tag 0；任一字段等于 1 的分支写 1，否则写 0。",
+      "scope": "静态指令及所列顺序，不是完整短路或执行证明",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x69dbc8: CMP byte ptr [EBX], 0x0",
+        "0x69dbcd: CMP byte ptr [ESI], 0x0",
+        "0x69dbef: CMP dword ptr [EBX + 0x4], 0x1",
+        "0x69dbf3: JZ 0x0069dbfb",
+        "0x69dbf5: CMP dword ptr [ESI + 0x4], 0x1",
+        "0x69dbfb: MOV dword ptr [EBX + 0x4], 0x1",
+        "0x69dc06: MOV dword ptr [EBX + 0x4], EAX"
+      ],
+      "unknown": [
+        "完整执行语义未验证"
+      ]
+    }
+  ],
+  "inferred_contracts": [
+    {
+      "id": "logical_exact_one",
+      "status": "inferred",
+      "meaning": "Mapped logical operators accept numeric descriptors and use exact integer one, not general nonzero coercion"
+    },
+    {
+      "id": "logical_eager_resolution",
+      "status": "inferred",
+      "meaning": "Both operands are resolved on reviewed logical paths; complete rollback, reachability and all short-circuit behavior remain not_tested"
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "status": "inferred",
+  "authority": "analyst-inference",
+  "target_executed": false,
+  "program_bytes_patched": false,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Ephemeral database flow override experiment; not original execution or unmodified REA Evidence",
+  "functions": [
+    {
+      "name": "command_identifier",
+      "source_memory_sha256": "8b535c9e3d8e306e90534f20544a5ce4bb03e6253b3808f22d9638415903674f",
+      "metadata_overrides": [
+        {
+          "address": "006aa515",
+          "before": "NONE",
+          "after": "BRANCH",
+          "continuation_push": "006aa503",
+          "analyst_single_target": "006aa51d",
+          "target_model_status": "inferred"
+        }
+      ],
+      "memory_unchanged": true,
+      "memory_sha256_after": "8b535c9e3d8e306e90534f20544a5ce4bb03e6253b3808f22d9638415903674f",
+      "status": "verified",
+      "baseline": {
+        "status": "verified",
+        "error": "",
+        "body_min": "006aa43c",
+        "body_max": "006aa515",
+        "body_bytes": 218,
+        "pseudocode_characters": 1437,
+        "pseudocode_sha256": "7ca85c861009cd94406ce98dcc0a28c89596373b5b53a716af6bae987056ac4f",
+        "unresolved_jump_markers": 0,
+        "has_value_return": false
+      },
+      "variant": {
+        "status": "verified",
+        "error": "",
+        "body_min": "006aa43c",
+        "body_max": "006aa525",
+        "body_bytes": 234,
+        "pseudocode_characters": 1836,
+        "pseudocode_sha256": "bf47ce72030ebd6a5b90a8f5e87f714c66f1a6a4e20a4fb82fbc14c77e65bcfa",
+        "unresolved_jump_markers": 0,
+        "has_value_return": true
+      }
+    },
+    {
+      "name": "nested_string_search",
+      "source_memory_sha256": "95dd7aed99f7af98370f1760ae06cf53372e9376c8a05dc39d2d390b5f30e5ed",
+      "metadata_overrides": [
+        {
+          "address": "006c136a",
+          "before": "NONE",
+          "after": "BRANCH",
+          "continuation_push": "006c135d",
+          "analyst_single_target": "006c1372",
+          "target_model_status": "inferred"
+        }
+      ],
+      "memory_unchanged": true,
+      "memory_sha256_after": "95dd7aed99f7af98370f1760ae06cf53372e9376c8a05dc39d2d390b5f30e5ed",
+      "status": "verified",
+      "baseline": {
+        "status": "verified",
+        "error": "",
+        "body_min": "006c12e0",
+        "body_max": "006c136a",
+        "body_bytes": 139,
+        "pseudocode_characters": 1159,
+        "pseudocode_sha256": "48cd7f7efff786da1fbba4d7a18d910bd12e80be6d13138f31e59bde3f50d67f",
+        "unresolved_jump_markers": 0,
+        "has_value_return": false
+      },
+      "variant": {
+        "status": "verified",
+        "error": "",
+        "body_min": "006c12e0",
+        "body_max": "006c1378",
+        "body_bytes": 153,
+        "pseudocode_characters": 1293,
+        "pseudocode_sha256": "af50a0769a415045adddb13b069c533b3d2319ec809b0eae95b710702e7bfc66",
+        "unresolved_jump_markers": 0,
+        "has_value_return": true
+      }
+    }
+  ],
+  "schema_version": 1,
+  "experiment_status": "verified",
+  "dataset": "real",
+  "decompiler_model_recovery": "verified",
+  "error": null,
+  "game_execution": "not_tested",
+  "original_files_written": false,
+  "target_semantic_equivalence": "not_tested",
+  "script_sha256": "ff5dc8145171e2136f9250e09ace679cc38613a14a1307a597623f5750ab60c8",
+  "limitations": [
+    "Only selected normal-flow hypotheses in a disposable analysis database",
+    "Real-program overrides are analyst inference, not original execution or unmodified REA output",
+    "Synthetic success does not verify game behavior or arbitrary Delphi exception paths"
+  ],
+  "source_file": "美少女万華鏡４.exe",
+  "original_sha256_after": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5"
+}

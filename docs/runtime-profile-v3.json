@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "profile": "experimental_static_contracts_v3",
+  "status": "inferred",
+  "basis_profile": "docs/runtime-profile-v2.json",
+  "original_engine_equivalence": "not_tested",
+  "scope": "Bounded int/string/table execution with pinned resource snapshots; not complete QLIE compatibility",
+  "basis": [
+    "docs/28-object-scope-and-registry-flags.md",
+    "docs/29-frame-scope-initialization-and-return.md",
+    "reports/p1/table-native-report.json",
+    "reports/p1/table-helper-native-report.json",
+    "reports/p1/encoding-native-report.json"
+  ],
+  "contracts": [
+    {"id": "typed_storage", "status": "inferred", "implemented": "int zero, str empty, table handle; exact scalar assignment types; local/global/system lookup", "unsupported": ["array dimensions and indices", "object assignment and aliases", "native ownership and destruction"]},
+    {"id": "table_scope", "status": "inferred", "implemented": "Up to 16 explicitly evaluated table handles, zero selectors clears, called frame starts empty and caller scope survives return", "unsupported": ["string object lookup", "raw empty slot mapping", "non-table object dispatch"]},
+    {"id": "table_load", "status": "inferred", "implemented": "Pinned catalog resource; first equals separator, no trim, first ASCII-case-folded name value, double slash admission filter, empty marker", "windows_locale_and_codepage_equivalence": "not_tested", "different_byte_variants": "Explicit choice required; no inferred package precedence"},
+    {"id": "table_query", "status": "inferred", "implemented": "String key with optional simple string or canonical decimal default; empty/missing uses defaults; found value and candidate integer cache write global ResultStr/ResultInt", "auxiliary_result_flags": "not_tested", "unsupported": ["dynamic defaults", "complete native coercion", "non-ASCII name comparison"]},
+    {"id": "snapshot_and_commit", "status": "inferred", "implemented": "Immutable pinned resources; atomic instruction commit and stop on failure; hashes and byte references in traces", "native_error_rollback": "not_tested", "physical_archive_access": "unsupported"}
+  ],
+  "limits": {
+    "table_objects": 512,
+    "variables": 4096,
+    "string_utf8_bytes_each": 8192,
+    "strings_utf8_bytes_total": 8388608,
+    "table_source_bytes_each": 1048576,
+    "table_source_lines_each": 10000,
+    "table_source_bytes_total": 8388608,
+    "table_source_lines_total": 50000,
+    "table_entries_total": 100000,
+    "source_snapshots": 512,
+    "source_snapshot_bytes": 134217728,
+    "call_frames": 64
+  },
+  "owned_tests": "native/Tests/MangekyouCoreTests/TableTests.swift",
+  "real_validation": "reports/p1/table-execution-report.json",
+  "full_game_compatibility": "not_tested",
+  "original_files_written": false,
+  "commercial_assets_bundled": false
+}

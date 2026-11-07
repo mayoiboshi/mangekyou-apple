@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "dataset": "real",
+  "scope": "user-provided mixed installation; metadata only",
+  "original_files_written": false,
+  "official_edition_authenticity": "not_tested",
+  "report_policy": "No decoded prose, full resource payloads, keys, CG or media; only bounded signatures and metadata",
+  "status": "inferred",
+  "p0_scope": "static_research_only",
+  "real_archive_index": "verified",
+  "selected_resource_decoding": "verified",
+  "script_physical_order": "verified",
+  "full_game_compatibility": "not_tested",
+  "execution_semantics": "unsupported",
+  "p0_fully_passed": true,
+  "acceptance_scope": "P0 static reconnaissance, not game compatibility",
+  "routes": [
+    {
+      "route": "A",
+      "name": "Reuse compatible QLIE runtime",
+      "status": "not_tested",
+      "compatibility": "No eligible runtime identified among the four reviewed tools or GARbro; not proof none exists",
+      "complexity": "Unknown until an actual runtime is found and licensed",
+      "presentation_fidelity": "not_tested",
+      "mac_native": "not_tested",
+      "cross_platform": "not_tested",
+      "maintenance": "Unknown upstream dependency",
+      "main_blocker": "No identified, licensed runtime with fourth-game evidence"
+    },
+    {
+      "route": "B",
+      "name": "Fourth-game script interpreter",
+      "status": "inferred",
+      "compatibility": "Potentially high only after command/macro/save semantics established",
+      "complexity": "High",
+      "presentation_fidelity": "Unknown effects/timing and plugin behavior",
+      "mac_native": "Feasible in principle; not implemented",
+      "cross_platform": "Possible if host APIs separated",
+      "maintenance": "Own semantics implementation and regression corpus",
+      "main_blocker": "Real corpus is available; command/macro/variable/save semantics and patch precedence remain unresolved"
+    },
+    {
+      "route": "C",
+      "name": "Lossless IR then runtime",
+      "status": "inferred",
+      "compatibility": "IR preserves evidence; it cannot replace unknown semantics",
+      "complexity": "High; converter plus interpreter",
+      "presentation_fidelity": "Same unresolved semantics as B, plus conversion equivalence",
+      "mac_native": "Feasible in principle; not implemented",
+      "cross_platform": "Potentially good",
+      "maintenance": "Traceable records support inspection and regression",
+      "main_blocker": "Labels/macros/variables/resource binding unresolved; premature normalization can lose behavior"
+    },
+    {
+      "route": "D",
+      "name": "Wine/CrossOver original engine baseline",
+      "status": "not_tested",
+      "compatibility": "Per-game behavior untested",
+      "complexity": "Likely lower initial implementation effort, inferred",
+      "presentation_fidelity": "Original engine may serve as reference if it runs; not_tested",
+      "mac_native": "Does not satisfy native game-core goal",
+      "cross_platform": "Depends on compatibility-layer support",
+      "maintenance": "Original binary and compatibility-layer dependency",
+      "main_blocker": "Game not supplied; execution excluded in P0; not a mandatory final component"
+    }
+  ],
+  "blockers": [
+    "169 lexical command/tag tokens have no verified full semantics",
+    "Same logical scripts/resources occur in multiple PACKs; load/patch precedence unverified",
+    "Variables, macros, calls/returns, conditions and save state need semantic evidence",
+    "ABMP12 internals, animation timing and semi-transparent overlapping DPNG fidelity not validated",
+    "User tree includes translations and patches; official clean edition authenticity unverified",
+    "qlie-unpack has no explicit license at pinned commit"
+  ],
+  "recommendation": "Enter P1 for real corpus normalization, text cross-check, patch precedence and lossless lexical IR only; defer runtime and language choice"
+}

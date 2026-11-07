@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "upstream_commit": "0356bb93be7c1f5b11ec22864919200cf7455e33",
+  "status": "verified",
+  "feature_scope": "--no-default-features --features qlie; not archive/image features",
+  "native_architecture": "arm64",
+  "commands": [
+    {
+      "command": [
+        "/Users/wanzhenyu/Documents/ChatGPT/个人开发/.research/cargo/bin/cargo",
+        "--version"
+      ],
+      "exit_code": 0,
+      "stdout": "cargo 1.99.1 (5f94df478 2026-08-27)\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/Users/wanzhenyu/Documents/ChatGPT/个人开发/.research/cargo/bin/cargo",
+        "build",
+        "--manifest-path",
+        "/Users/wanzhenyu/Documents/ChatGPT/个人开发/.research/upstream/msg-tool/Cargo.toml",
+        "--locked",
+        "--no-default-features",
+        "--features",
+        "qlie",
+        "--target-dir",
+        ".research/git-msg/target",
+        "--release"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "   Compiling msg_tool v0.4.0-alpha.3 (/Users/wanzhenyu/Documents/ChatGPT/个人开发/.research/upstream/msg-tool)\nwarning: unused variable: `stack_size`\n   --> build.rs:168:9\n    |\n168 |     let stack_size = parse_size::parse_size(stack_size).unwrap();\n    |         ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_stack_size`\n    |\n    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default\n\nwarning: `msg_tool` (build script) generated 1 warning\n    Finished `release` profile [optimized] target(s) in 6.27s\n"
+    },
+    {
+      "command": [
+        "/Users/wanzhenyu/Documents/ChatGPT/个人开发/.research/cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/wanzhenyu/Documents/ChatGPT/个人开发/.research/upstream/msg-tool/Cargo.toml",
+        "--locked",
+        "--no-default-features",
+        "--features",
+        "qlie",
+        "--target-dir",
+        ".research/git-msg/target",
+        "test_tag"
+      ],
+      "exit_code": 0,
+      "stdout": "\nrunning 1 test\ntest scripts::qlie::script::test_tag ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 18 filtered out; finished in 0.00s\n\n\nrunning 1 test\ntest scripts::qlie::script::test_tag ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 18 filtered out; finished in 0.00s\n\n",
+      "stderr": "   Compiling msg_tool v0.4.0-alpha.3 (/Users/wanzhenyu/Documents/ChatGPT/个人开发/.research/upstream/msg-tool)\nwarning: unused variable: `stack_size`\n   --> build.rs:168:9\n    |\n168 |     let stack_size = parse_size::parse_size(stack_size).unwrap();\n    |         ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_stack_size`\n    |\n    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default\n\nwarning: `msg_tool` (build script) generated 1 warning\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.86s\n     Running unittests src/lib.rs (.research/git-msg/target/debug/deps/msg_tool-22293d63a69ee2ec)\n     Running unittests src/main.rs (.research/git-msg/target/debug/deps/msg_tool-dd380e20ecb8e5aa)\n"
+    }
+  ],
+  "binary_sha256": "dec94daac6f40cc033d67f8f1255aa6de8b149ea772283b662094e458033d10b",
+  "note": "test_tag is one source test compiled in both lib and bin test targets; do not call this two independent test cases"
+}

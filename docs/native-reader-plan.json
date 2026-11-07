@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Selected reader/dispatcher evidence and explicit default coverage gaps; no game execution",
+  "queries": [
+    {
+      "name": "command-call-xrefs",
+      "operation": "xrefs",
+      "address": "0x6aacf8"
+    },
+    {
+      "name": "chunk-reader-xrefs",
+      "operation": "xrefs",
+      "address": "0x695a7c"
+    },
+    {
+      "name": "wrapper-call-owner",
+      "operation": "resolve_containing_procedure",
+      "address": "0x6bed0f"
+    },
+    {
+      "name": "function-call-owner",
+      "operation": "resolve_containing_procedure",
+      "address": "0x6d180b"
+    },
+    {
+      "name": "reader-main-owner",
+      "operation": "resolve_containing_procedure",
+      "address": "0x6ac512"
+    },
+    {
+      "name": "reader-main-instruction",
+      "operation": "inspect_native_instruction",
+      "address": "0x6ac512"
+    },
+    {
+      "name": "command-extra-a-owner",
+      "operation": "resolve_containing_procedure",
+      "address": "0x6ab95d"
+    },
+    {
+      "name": "command-extra-a-instruction",
+      "operation": "inspect_native_instruction",
+      "address": "0x6ab95d"
+    },
+    {
+      "name": "command-extra-b-owner",
+      "operation": "resolve_containing_procedure",
+      "address": "0x6ac51e"
+    },
+    {
+      "name": "command-extra-b-instruction",
+      "operation": "inspect_native_instruction",
+      "address": "0x6ac51e"
+    },
+    {
+      "name": "command-extra-c-owner",
+      "operation": "resolve_containing_procedure",
+      "address": "0x6adb0c"
+    },
+    {
+      "name": "command-extra-c-instruction",
+      "operation": "inspect_native_instruction",
+      "address": "0x6adb0c"
+    },
+    {
+      "name": "command-extra-d-owner",
+      "operation": "resolve_containing_procedure",
+      "address": "0x6adbb7"
+    },
+    {
+      "name": "command-extra-d-instruction",
+      "operation": "inspect_native_instruction",
+      "address": "0x6adbb7"
+    },
+    {
+      "name": "command-extra-e-owner",
+      "operation": "resolve_containing_procedure",
+      "address": "0x6c9aef"
+    },
+    {
+      "name": "command-extra-e-instruction",
+      "operation": "inspect_native_instruction",
+      "address": "0x6c9aef"
+    },
+    {
+      "name": "chunk-reader",
+      "operation": "procedure_pseudo_code",
+      "address": "0x695a7c"
+    },
+    {
+      "name": "chunk-reader-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x695a7c"
+    },
+    {
+      "name": "line-loader",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69630c"
+    },
+    {
+      "name": "line-loader-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69630c"
+    },
+    {
+      "name": "line-advance",
+      "operation": "procedure_pseudo_code",
+      "address": "0x695c24"
+    },
+    {
+      "name": "line-advance-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x695c24"
+    },
+    {
+      "name": "generic-dispatch",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6af4f8"
+    },
+    {
+      "name": "generic-dispatch-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6af4f8"
+    },
+    {
+      "name": "command-wrapper",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6bec70"
+    },
+    {
+      "name": "command-wrapper-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6bec70"
+    },
+    {
+      "name": "function-loop",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6d1758"
+    },
+    {
+      "name": "function-loop-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6d1758"
+    }
+  ]
+}

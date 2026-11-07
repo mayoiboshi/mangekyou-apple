@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Exploratory encoding preamble windows; boundaries inferred",
+  "windows": [
+    {
+      "name": "unicode-preamble",
+      "start": "0x422924",
+      "end_exclusive": "0x42294c"
+    },
+    {
+      "name": "be-preamble",
+      "start": "0x4229bc",
+      "end_exclusive": "0x4229e4"
+    },
+    {
+      "name": "utf8-preamble",
+      "start": "0x422860",
+      "end_exclusive": "0x422890"
+    }
+  ]
+}

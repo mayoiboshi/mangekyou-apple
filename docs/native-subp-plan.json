@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Selected subp packing, field grouping, builtin rep and dispatch evidence only; no runtime",
+  "queries": [
+    {
+      "name": "call-dispatch",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6b70d8"
+    },
+    {
+      "name": "call-dispatch-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6b70d8"
+    },
+    {
+      "name": "field-split",
+      "operation": "procedure_pseudo_code",
+      "address": "0x699fd0"
+    },
+    {
+      "name": "field-split-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x699fd0"
+    },
+    {
+      "name": "field-padding",
+      "operation": "procedure_pseudo_code",
+      "address": "0x699fa4"
+    },
+    {
+      "name": "field-padding-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x699fa4"
+    },
+    {
+      "name": "call-padding",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6caf0c"
+    },
+    {
+      "name": "call-padding-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6caf0c"
+    },
+    {
+      "name": "builtin-register",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6bca4c"
+    },
+    {
+      "name": "builtin-register-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6bca4c"
+    },
+    {
+      "name": "type-factory",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6befa8"
+    },
+    {
+      "name": "type-factory-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6befa8"
+    },
+    {
+      "name": "register-wrapper",
+      "operation": "procedure_pseudo_code",
+      "address": "0x69a5c4"
+    },
+    {
+      "name": "register-wrapper-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x69a5c4"
+    },
+    {
+      "name": "rep-constructor",
+      "operation": "procedure_pseudo_code",
+      "address": "0x68d738"
+    },
+    {
+      "name": "rep-constructor-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x68d738"
+    },
+    {
+      "name": "object-dispatch",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6aacf8"
+    },
+    {
+      "name": "object-dispatch-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6aacf8"
+    },
+    {
+      "name": "type-diagnostic",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6aa528"
+    },
+    {
+      "name": "type-diagnostic-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6aa528"
+    },
+    {
+      "name": "list-put",
+      "operation": "procedure_pseudo_code",
+      "address": "0x43ed00"
+    },
+    {
+      "name": "list-put-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x43ed00"
+    },
+    {
+      "name": "rep-diagnostic-xrefs",
+      "operation": "xrefs",
+      "address": "0x6aaa70"
+    },
+    {
+      "name": "rep-diagnostic-owner",
+      "operation": "resolve_containing_procedure",
+      "address": "0x6aa709"
+    },
+    {
+      "name": "rep-register-xrefs",
+      "operation": "xrefs",
+      "address": "0x6bd81c"
+    },
+    {
+      "name": "rep-register-owner",
+      "operation": "resolve_containing_procedure",
+      "address": "0x6bcc2c"
+    },
+    {
+      "name": "rep-factory-xrefs",
+      "operation": "xrefs",
+      "address": "0x6bf7b0"
+    },
+    {
+      "name": "rep-factory-owner",
+      "operation": "resolve_containing_procedure",
+      "address": "0x6bf38a"
+    },
+    {
+      "name": "list-get-owner",
+      "operation": "resolve_containing_procedure",
+      "address": "0x43eb54"
+    },
+    {
+      "name": "list-get-instruction",
+      "operation": "inspect_native_instruction",
+      "address": "0x43eb54"
+    }
+  ]
+}

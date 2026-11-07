@@ -1,0 +1,2 @@
+# Optional image decoding / upstream verification only. Core scan uses stdlib.
+Pillow==12.0.0

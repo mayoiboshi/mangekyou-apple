@@ -1,0 +1,1041 @@
+{
+  "schema_version": 1,
+  "status": "verified",
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "size": 3915264,
+  "pe": {
+    "status": "verified",
+    "machine": "i386",
+    "image_base": 4194304,
+    "entry_rva": 3080188,
+    "sections": [
+      {
+        "name": ".text",
+        "rva": 4096,
+        "virtual_size": 3043980,
+        "raw_offset": 1024,
+        "raw_size": 3044352,
+        "executable": true,
+        "flags": "0x60000020"
+      },
+      {
+        "name": ".itext",
+        "rva": 3051520,
+        "virtual_size": 28760,
+        "raw_offset": 3045376,
+        "raw_size": 29184,
+        "executable": true,
+        "flags": "0x60000020"
+      },
+      {
+        "name": ".data",
+        "rva": 3084288,
+        "virtual_size": 117848,
+        "raw_offset": 3074560,
+        "raw_size": 118272,
+        "executable": false,
+        "flags": "0xc0000040"
+      },
+      {
+        "name": ".bss",
+        "rva": 3203072,
+        "virtual_size": 49460,
+        "raw_offset": 3192832,
+        "raw_size": 0,
+        "executable": false,
+        "flags": "0xc0000000"
+      },
+      {
+        "name": ".idata",
+        "rva": 3256320,
+        "virtual_size": 15208,
+        "raw_offset": 3192832,
+        "raw_size": 15360,
+        "executable": false,
+        "flags": "0xc0000040"
+      },
+      {
+        "name": ".didata",
+        "rva": 3272704,
+        "virtual_size": 934,
+        "raw_offset": 3208192,
+        "raw_size": 1024,
+        "executable": false,
+        "flags": "0xc0000040"
+      },
+      {
+        "name": ".tls",
+        "rva": 3276800,
+        "virtual_size": 72,
+        "raw_offset": 3209216,
+        "raw_size": 0,
+        "executable": false,
+        "flags": "0xc0000000"
+      },
+      {
+        "name": ".rdata",
+        "rva": 3280896,
+        "virtual_size": 24,
+        "raw_offset": 3209216,
+        "raw_size": 512,
+        "executable": false,
+        "flags": "0x40000040"
+      },
+      {
+        "name": ".reloc",
+        "rva": 3284992,
+        "virtual_size": 229052,
+        "raw_offset": 3209728,
+        "raw_size": 229376,
+        "executable": false,
+        "flags": "0x42000040"
+      },
+      {
+        "name": ".rsrc",
+        "rva": 3514368,
+        "virtual_size": 476160,
+        "raw_offset": 3439104,
+        "raw_size": 476160,
+        "executable": false,
+        "flags": "0x40000040"
+      }
+    ],
+    "authenticity": "not_tested",
+    "execution": "not_tested"
+  },
+  "literal_patterns": [
+    {
+      "needle": "FilePackVer",
+      "encoding": "ascii",
+      "total_matches": 1,
+      "retained_limit": 32,
+      "locations": [
+        {
+          "file_offset": 955740,
+          "length": 11,
+          "rva": 958812,
+          "va": 5153116,
+          "section": ".text",
+          "executable_section": true
+        }
+      ],
+      "meaning": "byte occurrence only; executable section may also contain literal data"
+    },
+    {
+      "needle": "GameData",
+      "encoding": "ascii",
+      "total_matches": 8,
+      "retained_limit": 32,
+      "locations": [
+        {
+          "file_offset": 2639811,
+          "length": 8,
+          "rva": 2642883,
+          "va": 6837187,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2639892,
+          "length": 8,
+          "rva": 2642964,
+          "va": 6837268,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2786976,
+          "length": 8,
+          "rva": 2790048,
+          "va": 6984352,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2789429,
+          "length": 8,
+          "rva": 2792501,
+          "va": 6986805,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2789542,
+          "length": 8,
+          "rva": 2792614,
+          "va": 6986918,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2789629,
+          "length": 8,
+          "rva": 2792701,
+          "va": 6987005,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2789693,
+          "length": 8,
+          "rva": 2792765,
+          "va": 6987069,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2789757,
+          "length": 8,
+          "rva": 2792829,
+          "va": 6987133,
+          "section": ".text",
+          "executable_section": true
+        }
+      ],
+      "meaning": "byte occurrence only; executable section may also contain literal data"
+    },
+    {
+      "needle": "GameData",
+      "encoding": "utf-16-le",
+      "total_matches": 9,
+      "retained_limit": 32,
+      "locations": [
+        {
+          "file_offset": 1037988,
+          "length": 16,
+          "rva": 1041060,
+          "va": 5235364,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 1038268,
+          "length": 16,
+          "rva": 1041340,
+          "va": 5235644,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2823140,
+          "length": 16,
+          "rva": 2826212,
+          "va": 7020516,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2950744,
+          "length": 16,
+          "rva": 2953816,
+          "va": 7148120,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2958256,
+          "length": 16,
+          "rva": 2961328,
+          "va": 7155632,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2995876,
+          "length": 16,
+          "rva": 2998948,
+          "va": 7193252,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2998816,
+          "length": 16,
+          "rva": 3001888,
+          "va": 7196192,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 3003664,
+          "length": 16,
+          "rva": 3006736,
+          "va": 7201040,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 3004036,
+          "length": 16,
+          "rva": 3007108,
+          "va": 7201412,
+          "section": ".text",
+          "executable_section": true
+        }
+      ],
+      "meaning": "byte occurrence only; executable section may also contain literal data"
+    },
+    {
+      "needle": ".pack",
+      "encoding": "utf-16-le",
+      "total_matches": 4,
+      "retained_limit": 32,
+      "locations": [
+        {
+          "file_offset": 956728,
+          "length": 10,
+          "rva": 959800,
+          "va": 5154104,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 957176,
+          "length": 10,
+          "rva": 960248,
+          "va": 5154552,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 964676,
+          "length": 10,
+          "rva": 967748,
+          "va": 5162052,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 1942020,
+          "length": 10,
+          "rva": 1945092,
+          "va": 6139396,
+          "section": ".text",
+          "executable_section": true
+        }
+      ],
+      "meaning": "byte occurrence only; executable section may also contain literal data"
+    },
+    {
+      "needle": "ParamInt",
+      "encoding": "ascii",
+      "total_matches": 1,
+      "retained_limit": 32,
+      "locations": [
+        {
+          "file_offset": 1761501,
+          "length": 8,
+          "rva": 1764573,
+          "va": 5958877,
+          "section": ".text",
+          "executable_section": true
+        }
+      ],
+      "meaning": "byte occurrence only; executable section may also contain literal data"
+    },
+    {
+      "needle": "ParamInt",
+      "encoding": "utf-16-le",
+      "total_matches": 1,
+      "retained_limit": 32,
+      "locations": [
+        {
+          "file_offset": 2846756,
+          "length": 16,
+          "rva": 2849828,
+          "va": 7044132,
+          "section": ".text",
+          "executable_section": true
+        }
+      ],
+      "meaning": "byte occurrence only; executable section may also contain literal data"
+    },
+    {
+      "needle": "ParamStr",
+      "encoding": "ascii",
+      "total_matches": 1,
+      "retained_limit": 32,
+      "locations": [
+        {
+          "file_offset": 1761521,
+          "length": 8,
+          "rva": 1764593,
+          "va": 5958897,
+          "section": ".text",
+          "executable_section": true
+        }
+      ],
+      "meaning": "byte occurrence only; executable section may also contain literal data"
+    },
+    {
+      "needle": "ParamStr",
+      "encoding": "utf-16-le",
+      "total_matches": 1,
+      "retained_limit": 32,
+      "locations": [
+        {
+          "file_offset": 2846808,
+          "length": 16,
+          "rva": 2849880,
+          "va": 7044184,
+          "section": ".text",
+          "executable_section": true
+        }
+      ],
+      "meaning": "byte occurrence only; executable section may also contain literal data"
+    },
+    {
+      "needle": "IMOSYSDATA",
+      "encoding": "ascii",
+      "total_matches": 1,
+      "retained_limit": 32,
+      "locations": [
+        {
+          "file_offset": 2810204,
+          "length": 10,
+          "rva": 2813276,
+          "va": 7007580,
+          "section": ".text",
+          "executable_section": true
+        }
+      ],
+      "meaning": "byte occurrence only; executable section may also contain literal data"
+    },
+    {
+      "needle": "IMOSYSDATA",
+      "encoding": "utf-16-le",
+      "total_matches": 1,
+      "retained_limit": 32,
+      "locations": [
+        {
+          "file_offset": 2809568,
+          "length": 20,
+          "rva": 2812640,
+          "va": 7006944,
+          "section": ".text",
+          "executable_section": true
+        }
+      ],
+      "meaning": "byte occurrence only; executable section may also contain literal data"
+    },
+    {
+      "needle": "SystemData",
+      "encoding": "ascii",
+      "total_matches": 8,
+      "retained_limit": 32,
+      "locations": [
+        {
+          "file_offset": 1031860,
+          "length": 10,
+          "rva": 1034932,
+          "va": 5229236,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 1031900,
+          "length": 10,
+          "rva": 1034972,
+          "va": 5229276,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 1031940,
+          "length": 10,
+          "rva": 1035012,
+          "va": 5229316,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 1031979,
+          "length": 10,
+          "rva": 1035051,
+          "va": 5229355,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2640095,
+          "length": 10,
+          "rva": 2643167,
+          "va": 6837471,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2640180,
+          "length": 10,
+          "rva": 2643252,
+          "va": 6837556,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2789825,
+          "length": 10,
+          "rva": 2792897,
+          "va": 6987201,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2789907,
+          "length": 10,
+          "rva": 2792979,
+          "va": 6987283,
+          "section": ".text",
+          "executable_section": true
+        }
+      ],
+      "meaning": "byte occurrence only; executable section may also contain literal data"
+    },
+    {
+      "needle": "SystemData",
+      "encoding": "utf-16-le",
+      "total_matches": 5,
+      "retained_limit": 32,
+      "locations": [
+        {
+          "file_offset": 2807356,
+          "length": 20,
+          "rva": 2810428,
+          "va": 7004732,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2808644,
+          "length": 20,
+          "rva": 2811716,
+          "va": 7006020,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2833988,
+          "length": 20,
+          "rva": 2837060,
+          "va": 7031364,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2855372,
+          "length": 20,
+          "rva": 2858444,
+          "va": 7052748,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2875448,
+          "length": 20,
+          "rva": 2878520,
+          "va": 7072824,
+          "section": ".text",
+          "executable_section": true
+        }
+      ],
+      "meaning": "byte occurrence only; executable section may also contain literal data"
+    },
+    {
+      "needle": "SaveData",
+      "encoding": "ascii",
+      "total_matches": 46,
+      "retained_limit": 32,
+      "locations": [
+        {
+          "file_offset": 1201555,
+          "length": 8,
+          "rva": 1204627,
+          "va": 5398931,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 1328076,
+          "length": 8,
+          "rva": 1331148,
+          "va": 5525452,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 1550846,
+          "length": 8,
+          "rva": 1553918,
+          "va": 5748222,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 1689681,
+          "length": 8,
+          "rva": 1692753,
+          "va": 5887057,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 1689953,
+          "length": 8,
+          "rva": 1693025,
+          "va": 5887329,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 1690824,
+          "length": 8,
+          "rva": 1693896,
+          "va": 5888200,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 1693148,
+          "length": 8,
+          "rva": 1696220,
+          "va": 5890524,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 1735813,
+          "length": 8,
+          "rva": 1738885,
+          "va": 5933189,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 1769714,
+          "length": 8,
+          "rva": 1772786,
+          "va": 5967090,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 1770605,
+          "length": 8,
+          "rva": 1773677,
+          "va": 5967981,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 1773260,
+          "length": 8,
+          "rva": 1776332,
+          "va": 5970636,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 1773515,
+          "length": 8,
+          "rva": 1776587,
+          "va": 5970891,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 1773546,
+          "length": 8,
+          "rva": 1776618,
+          "va": 5970922,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 1773575,
+          "length": 8,
+          "rva": 1776647,
+          "va": 5970951,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 1773787,
+          "length": 8,
+          "rva": 1776859,
+          "va": 5971163,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 1773899,
+          "length": 8,
+          "rva": 1776971,
+          "va": 5971275,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 1774475,
+          "length": 8,
+          "rva": 1777547,
+          "va": 5971851,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 1774502,
+          "length": 8,
+          "rva": 1777574,
+          "va": 5971878,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2577813,
+          "length": 8,
+          "rva": 2580885,
+          "va": 6775189,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2578011,
+          "length": 8,
+          "rva": 2581083,
+          "va": 6775387,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2580217,
+          "length": 8,
+          "rva": 2583289,
+          "va": 6777593,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2601849,
+          "length": 8,
+          "rva": 2604921,
+          "va": 6799225,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2604921,
+          "length": 8,
+          "rva": 2607993,
+          "va": 6802297,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2624301,
+          "length": 8,
+          "rva": 2627373,
+          "va": 6821677,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2628741,
+          "length": 8,
+          "rva": 2631813,
+          "va": 6826117,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2682660,
+          "length": 8,
+          "rva": 2685732,
+          "va": 6880036,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2682685,
+          "length": 8,
+          "rva": 2685757,
+          "va": 6880061,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2682879,
+          "length": 8,
+          "rva": 2685951,
+          "va": 6880255,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2683262,
+          "length": 8,
+          "rva": 2686334,
+          "va": 6880638,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2684110,
+          "length": 8,
+          "rva": 2687182,
+          "va": 6881486,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2684132,
+          "length": 8,
+          "rva": 2687204,
+          "va": 6881508,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2700273,
+          "length": 8,
+          "rva": 2703345,
+          "va": 6897649,
+          "section": ".text",
+          "executable_section": true
+        }
+      ],
+      "meaning": "byte occurrence only; executable section may also contain literal data"
+    },
+    {
+      "needle": "SaveData",
+      "encoding": "utf-16-le",
+      "total_matches": 19,
+      "retained_limit": 32,
+      "locations": [
+        {
+          "file_offset": 1326860,
+          "length": 16,
+          "rva": 1329932,
+          "va": 5524236,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2807400,
+          "length": 16,
+          "rva": 2810472,
+          "va": 7004776,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2808688,
+          "length": 16,
+          "rva": 2811760,
+          "va": 7006064,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2809536,
+          "length": 16,
+          "rva": 2812608,
+          "va": 7006912,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2810272,
+          "length": 16,
+          "rva": 2813344,
+          "va": 7007648,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2833080,
+          "length": 16,
+          "rva": 2836152,
+          "va": 7030456,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2834064,
+          "length": 16,
+          "rva": 2837136,
+          "va": 7031440,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2871564,
+          "length": 16,
+          "rva": 2874636,
+          "va": 7068940,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2871616,
+          "length": 16,
+          "rva": 2874688,
+          "va": 7068992,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2871666,
+          "length": 16,
+          "rva": 2874738,
+          "va": 7069042,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2881444,
+          "length": 16,
+          "rva": 2884516,
+          "va": 7078820,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2881588,
+          "length": 16,
+          "rva": 2884660,
+          "va": 7078964,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2881724,
+          "length": 16,
+          "rva": 2884796,
+          "va": 7079100,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2947800,
+          "length": 16,
+          "rva": 2950872,
+          "va": 7145176,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2951904,
+          "length": 16,
+          "rva": 2954976,
+          "va": 7149280,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2973508,
+          "length": 16,
+          "rva": 2976580,
+          "va": 7170884,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2976280,
+          "length": 16,
+          "rva": 2979352,
+          "va": 7173656,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 2995956,
+          "length": 16,
+          "rva": 2999028,
+          "va": 7193332,
+          "section": ".text",
+          "executable_section": true
+        },
+        {
+          "file_offset": 3003980,
+          "length": 16,
+          "rva": 3007052,
+          "va": 7201356,
+          "section": ".text",
+          "executable_section": true
+        }
+      ],
+      "meaning": "byte occurrence only; executable section may also contain literal data"
+    }
+  ],
+  "variable_category_patterns": [
+    {
+      "token": "svar",
+      "file_offset": 2821816,
+      "length": 11,
+      "rva": 2824888,
+      "va": 7019192,
+      "section": ".text",
+      "executable_section": true,
+      "pattern_sha256": "afeefe703724e21e3b8731e5ee4866ecfbf80db205043071d2a0f36eb4f252ac",
+      "local_slot_displacement": -48,
+      "selected_bl_u8": 1,
+      "byte_pattern_status": "verified",
+      "dispatch_role": "inferred",
+      "number_meaning": "not_tested",
+      "reachability": "not_tested",
+      "candidate_instructions": [
+        "cmp dword [ebp+disp8], token_imm32",
+        "jne +2",
+        "mov bl, category_u8"
+      ]
+    },
+    {
+      "token": "gvar",
+      "file_offset": 2821827,
+      "length": 11,
+      "rva": 2824899,
+      "va": 7019203,
+      "section": ".text",
+      "executable_section": true,
+      "pattern_sha256": "9d2e6cab83bf999da49144c79278b056e7fe0a17bcf55890ce51ae094d1cb4e5",
+      "local_slot_displacement": -48,
+      "selected_bl_u8": 2,
+      "byte_pattern_status": "verified",
+      "dispatch_role": "inferred",
+      "number_meaning": "not_tested",
+      "reachability": "not_tested",
+      "candidate_instructions": [
+        "cmp dword [ebp+disp8], token_imm32",
+        "jne +2",
+        "mov bl, category_u8"
+      ]
+    },
+    {
+      "token": "var",
+      "file_offset": 2821838,
+      "length": 11,
+      "rva": 2824910,
+      "va": 7019214,
+      "section": ".text",
+      "executable_section": true,
+      "pattern_sha256": "d8ade45e3514a0e127852f2ce9f290f1f6ab7ee0aefc21802569e8b2a44d4f65",
+      "local_slot_displacement": -48,
+      "selected_bl_u8": 3,
+      "byte_pattern_status": "verified",
+      "dispatch_role": "inferred",
+      "number_meaning": "not_tested",
+      "reachability": "not_tested",
+      "candidate_instructions": [
+        "cmp dword [ebp+disp8], token_imm32",
+        "jne +2",
+        "mov bl, category_u8"
+      ]
+    }
+  ],
+  "archive_load_precedence": "not_tested",
+  "variable_scope_semantics": "not_tested",
+  "execution": "not_tested",
+  "source_file": "美少女万華鏡４.exe",
+  "inventory_sha256_status": "verified",
+  "scope": "User-supplied plain-named EXE candidate only; translation EXEs not inspected"
+}

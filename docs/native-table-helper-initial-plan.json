@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Selected temporary-list encoding/comparison and substring helpers; no execution",
+  "queries": [
+    {
+      "name": "name-position",
+      "operation": "procedure_pseudo_code",
+      "address": "0x41de2c"
+    },
+    {
+      "name": "name-position-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x41de2c"
+    },
+    {
+      "name": "slash-position",
+      "operation": "procedure_pseudo_code",
+      "address": "0x407f10"
+    },
+    {
+      "name": "slash-position-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x407f10"
+    },
+    {
+      "name": "name-compare",
+      "operation": "procedure_pseudo_code",
+      "address": "0x43ef14"
+    },
+    {
+      "name": "name-compare-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x43ef14"
+    },
+    {
+      "name": "text-stream-load",
+      "operation": "procedure_pseudo_code",
+      "address": "0x43dc60"
+    },
+    {
+      "name": "text-stream-load-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x43dc60"
+    }
+  ]
+}

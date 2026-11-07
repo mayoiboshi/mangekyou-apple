@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "minimum_count": 9,
+  "mode_field_index": 3,
+  "minimum_load": "0x6aadd4",
+  "split_call": "0x6aade0",
+  "split_target": "0x699fd0",
+  "mode_index_load": "0x6ba3fa",
+  "list_vmt": "0x432d50",
+  "list_name": "TStringList",
+  "slots": [
+    {
+      "offset": 12,
+      "target": "0x43eb54"
+    },
+    {
+      "offset": 20,
+      "target": "0x43eb88"
+    },
+    {
+      "offset": 56,
+      "target": "0x43e8bc"
+    },
+    {
+      "offset": 60,
+      "target": "0x43e8cc"
+    },
+    {
+      "offset": 152,
+      "target": "0x43ec84"
+    }
+  ],
+  "return_record": {
+    "name": "TReturnValue",
+    "type_info": "0x696c58",
+    "fields_count_address": "0x696c77"
+  }
+}

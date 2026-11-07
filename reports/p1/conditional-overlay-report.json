@@ -1,0 +1,479 @@
+{
+  "schema_version": 1,
+  "dataset": "real",
+  "status": "inferred",
+  "scope": "Conditional static corpus view only; no authoritative runtime version selection",
+  "files": 379,
+  "logical_paths": 202,
+  "duplicate_groups": 177,
+  "conditional_selected": 202,
+  "unknown_groups": 0,
+  "status_counts": {
+    "inferred": 202
+  },
+  "items": [
+    {
+      "status": "inferred",
+      "conditional_winner": {
+        "source_file": "data8.pack/avg/avgsystem_custom.s",
+        "sha256": "72b825bb2df65c4e91d8016edc7e47548602aa1b6046b439462feb3a78f735b3",
+        "archive": "GameData/data8.pack",
+        "archive_sha256": "f796a90c498de7325d8968d8ce99ef17b71753b7ce101521e390167649c83509",
+        "index": 5,
+        "slot": 8
+      },
+      "candidates": [
+        {
+          "source_file": "data8.pack/avg/avgsystem_custom.s",
+          "sha256": "72b825bb2df65c4e91d8016edc7e47548602aa1b6046b439462feb3a78f735b3",
+          "archive": "GameData/data8.pack",
+          "archive_sha256": "f796a90c498de7325d8968d8ce99ef17b71753b7ce101521e390167649c83509",
+          "index": 5,
+          "slot": 8
+        },
+        {
+          "source_file": "data7.pack/avg/avgsystem_custom.s",
+          "sha256": "a720ae35cee47a46d9278812c7ead9de3027c657598cb682324b3295550af377",
+          "archive": "GameData/data7.pack",
+          "archive_sha256": "29d04ca1f627438ddccc066873a6651bd2c46e9561e070c780d4a64244a4f06c",
+          "index": 4,
+          "slot": 7
+        }
+      ],
+      "unknown": [],
+      "effective_runtime_winner": "not_tested",
+      "preconditions": {
+        "no_matching_loose_file": "not_tested",
+        "secondary_mounts": "not_tested",
+        "mapping": "inferred",
+        "requested_slot": -1
+      },
+      "note": "Conditional winner assumes dataN maps to primary slot N; untested preconditions are never treated as actual runtime facts",
+      "logical_path": "avg/avgsystem_custom.s",
+      "variant_count": 2,
+      "changed_duplicate": true
+    },
+    {
+      "status": "inferred",
+      "conditional_winner": {
+        "source_file": "data8.pack/avg/imoscripter_chara8e.s",
+        "sha256": "9924e37461dc89d1fe4e70c9276ba0f97057b28a47cfc3d2400a006be01ac98e",
+        "archive": "GameData/data8.pack",
+        "archive_sha256": "f796a90c498de7325d8968d8ce99ef17b71753b7ce101521e390167649c83509",
+        "index": 21,
+        "slot": 8
+      },
+      "candidates": [
+        {
+          "source_file": "data8.pack/avg/imoscripter_chara8e.s",
+          "sha256": "9924e37461dc89d1fe4e70c9276ba0f97057b28a47cfc3d2400a006be01ac98e",
+          "archive": "GameData/data8.pack",
+          "archive_sha256": "f796a90c498de7325d8968d8ce99ef17b71753b7ce101521e390167649c83509",
+          "index": 21,
+          "slot": 8
+        },
+        {
+          "source_file": "data7.pack/avg/imoscripter_chara8e.s",
+          "sha256": "3e37cb31ed7841f5771ff14f6fe8d277e1d2ffa9a53d131f6616887dbb9b7242",
+          "archive": "GameData/data7.pack",
+          "archive_sha256": "29d04ca1f627438ddccc066873a6651bd2c46e9561e070c780d4a64244a4f06c",
+          "index": 20,
+          "slot": 7
+        }
+      ],
+      "unknown": [],
+      "effective_runtime_winner": "not_tested",
+      "preconditions": {
+        "no_matching_loose_file": "not_tested",
+        "secondary_mounts": "not_tested",
+        "mapping": "inferred",
+        "requested_slot": -1
+      },
+      "note": "Conditional winner assumes dataN maps to primary slot N; untested preconditions are never treated as actual runtime facts",
+      "logical_path": "avg/imoscripter_chara8e.s",
+      "variant_count": 2,
+      "changed_duplicate": true
+    },
+    {
+      "status": "inferred",
+      "conditional_winner": {
+        "source_file": "data8.pack/avg/imoscripter_image.s",
+        "sha256": "826542755a4356b7475ce6afd9dd4557e57aa5f9c1f253580e932f8dfb30afb9",
+        "archive": "GameData/data8.pack",
+        "archive_sha256": "f796a90c498de7325d8968d8ce99ef17b71753b7ce101521e390167649c83509",
+        "index": 37,
+        "slot": 8
+      },
+      "candidates": [
+        {
+          "source_file": "data8.pack/avg/imoscripter_image.s",
+          "sha256": "826542755a4356b7475ce6afd9dd4557e57aa5f9c1f253580e932f8dfb30afb9",
+          "archive": "GameData/data8.pack",
+          "archive_sha256": "f796a90c498de7325d8968d8ce99ef17b71753b7ce101521e390167649c83509",
+          "index": 37,
+          "slot": 8
+        },
+        {
+          "source_file": "data7.pack/avg/imoscripter_image.s",
+          "sha256": "fda6d55a0ec9745011b94c7b308543f566740b2068258187153674f67522edf3",
+          "archive": "GameData/data7.pack",
+          "archive_sha256": "29d04ca1f627438ddccc066873a6651bd2c46e9561e070c780d4a64244a4f06c",
+          "index": 36,
+          "slot": 7
+        }
+      ],
+      "unknown": [],
+      "effective_runtime_winner": "not_tested",
+      "preconditions": {
+        "no_matching_loose_file": "not_tested",
+        "secondary_mounts": "not_tested",
+        "mapping": "inferred",
+        "requested_slot": -1
+      },
+      "note": "Conditional winner assumes dataN maps to primary slot N; untested preconditions are never treated as actual runtime facts",
+      "logical_path": "avg/imoscripter_image.s",
+      "variant_count": 2,
+      "changed_duplicate": true
+    },
+    {
+      "status": "inferred",
+      "conditional_winner": {
+        "source_file": "data8.pack/avg/imoscripter_reptextlist.txt",
+        "sha256": "b06cbc7e0227bb96ee2d21fdb07878aa0dc2a09a9b41d74414ede66d26997c0f",
+        "archive": "GameData/data8.pack",
+        "archive_sha256": "f796a90c498de7325d8968d8ce99ef17b71753b7ce101521e390167649c83509",
+        "index": 47,
+        "slot": 8
+      },
+      "candidates": [
+        {
+          "source_file": "data8.pack/avg/imoscripter_reptextlist.txt",
+          "sha256": "b06cbc7e0227bb96ee2d21fdb07878aa0dc2a09a9b41d74414ede66d26997c0f",
+          "archive": "GameData/data8.pack",
+          "archive_sha256": "f796a90c498de7325d8968d8ce99ef17b71753b7ce101521e390167649c83509",
+          "index": 47,
+          "slot": 8
+        },
+        {
+          "source_file": "data7.pack/avg/imoscripter_reptextlist.txt",
+          "sha256": "d6c47f5126acc4c8e915b6b83a2774a6f06dadff36f7afb40a7e27323a04fa2b",
+          "archive": "GameData/data7.pack",
+          "archive_sha256": "29d04ca1f627438ddccc066873a6651bd2c46e9561e070c780d4a64244a4f06c",
+          "index": 46,
+          "slot": 7
+        }
+      ],
+      "unknown": [],
+      "effective_runtime_winner": "not_tested",
+      "preconditions": {
+        "no_matching_loose_file": "not_tested",
+        "secondary_mounts": "not_tested",
+        "mapping": "inferred",
+        "requested_slot": -1
+      },
+      "note": "Conditional winner assumes dataN maps to primary slot N; untested preconditions are never treated as actual runtime facts",
+      "logical_path": "avg/imoscripter_reptextlist.txt",
+      "variant_count": 2,
+      "changed_duplicate": true
+    },
+    {
+      "status": "inferred",
+      "conditional_winner": {
+        "source_file": "data8.pack/avg/imoscripter_sound.s",
+        "sha256": "daf40e209bf971d646bb50073419a8ab3591ff4d40f76c784dc7cccfad238d67",
+        "archive": "GameData/data8.pack",
+        "archive_sha256": "f796a90c498de7325d8968d8ce99ef17b71753b7ce101521e390167649c83509",
+        "index": 49,
+        "slot": 8
+      },
+      "candidates": [
+        {
+          "source_file": "data8.pack/avg/imoscripter_sound.s",
+          "sha256": "daf40e209bf971d646bb50073419a8ab3591ff4d40f76c784dc7cccfad238d67",
+          "archive": "GameData/data8.pack",
+          "archive_sha256": "f796a90c498de7325d8968d8ce99ef17b71753b7ce101521e390167649c83509",
+          "index": 49,
+          "slot": 8
+        },
+        {
+          "source_file": "data7.pack/avg/imoscripter_sound.s",
+          "sha256": "ffbf30f25a9ecabc3fb7198b23cfff734588f46d3533c7ee8416828a34e11aec",
+          "archive": "GameData/data7.pack",
+          "archive_sha256": "29d04ca1f627438ddccc066873a6651bd2c46e9561e070c780d4a64244a4f06c",
+          "index": 48,
+          "slot": 7
+        }
+      ],
+      "unknown": [],
+      "effective_runtime_winner": "not_tested",
+      "preconditions": {
+        "no_matching_loose_file": "not_tested",
+        "secondary_mounts": "not_tested",
+        "mapping": "inferred",
+        "requested_slot": -1
+      },
+      "note": "Conditional winner assumes dataN maps to primary slot N; untested preconditions are never treated as actual runtime facts",
+      "logical_path": "avg/imoscripter_sound.s",
+      "variant_count": 2,
+      "changed_duplicate": true
+    },
+    {
+      "status": "inferred",
+      "conditional_winner": {
+        "source_file": "data8.pack/scenario/本編/t16_03.s",
+        "sha256": "80d32248c382ddc6e2c799869db394f8b565c730c4ce3b0aca87a0670b69dea3",
+        "archive": "GameData/data8.pack",
+        "archive_sha256": "f796a90c498de7325d8968d8ce99ef17b71753b7ce101521e390167649c83509",
+        "index": 193,
+        "slot": 8
+      },
+      "candidates": [
+        {
+          "source_file": "data8.pack/scenario/本編/t16_03.s",
+          "sha256": "80d32248c382ddc6e2c799869db394f8b565c730c4ce3b0aca87a0670b69dea3",
+          "archive": "GameData/data8.pack",
+          "archive_sha256": "f796a90c498de7325d8968d8ce99ef17b71753b7ce101521e390167649c83509",
+          "index": 193,
+          "slot": 8
+        },
+        {
+          "source_file": "data6.pack/scenario/本編/t16_03.s",
+          "sha256": "f46e285e87ce00facedc47885ccbdc94f4a9b4062597525e4f73bc6e587b1446",
+          "archive": "GameData/data6.pack",
+          "archive_sha256": "c8f6e1e1821ecc5bccea2db9737e2915c0bf2f2e185df6f40ad1b5e7fb3c1006",
+          "index": 54,
+          "slot": 6
+        }
+      ],
+      "unknown": [],
+      "effective_runtime_winner": "not_tested",
+      "preconditions": {
+        "no_matching_loose_file": "not_tested",
+        "secondary_mounts": "not_tested",
+        "mapping": "inferred",
+        "requested_slot": -1
+      },
+      "note": "Conditional winner assumes dataN maps to primary slot N; untested preconditions are never treated as actual runtime facts",
+      "logical_path": "scenario/本編/t16_03.s",
+      "variant_count": 2,
+      "changed_duplicate": true
+    },
+    {
+      "status": "inferred",
+      "conditional_winner": {
+        "source_file": "data8.pack/scenario/本編/t19a_03.s",
+        "sha256": "1b3eebdb6754cb5e29e0d95d524a30003c33249296d8efb405241c64970d22c7",
+        "archive": "GameData/data8.pack",
+        "archive_sha256": "f796a90c498de7325d8968d8ce99ef17b71753b7ce101521e390167649c83509",
+        "index": 203,
+        "slot": 8
+      },
+      "candidates": [
+        {
+          "source_file": "data8.pack/scenario/本編/t19a_03.s",
+          "sha256": "1b3eebdb6754cb5e29e0d95d524a30003c33249296d8efb405241c64970d22c7",
+          "archive": "GameData/data8.pack",
+          "archive_sha256": "f796a90c498de7325d8968d8ce99ef17b71753b7ce101521e390167649c83509",
+          "index": 203,
+          "slot": 8
+        },
+        {
+          "source_file": "data6.pack/scenario/本編/t19a_03.s",
+          "sha256": "561296fb5dae00fc2e55d1ca4bf93af8ac1d8e1868093d7dad2352f66d50a92c",
+          "archive": "GameData/data6.pack",
+          "archive_sha256": "c8f6e1e1821ecc5bccea2db9737e2915c0bf2f2e185df6f40ad1b5e7fb3c1006",
+          "index": 64,
+          "slot": 6
+        }
+      ],
+      "unknown": [],
+      "effective_runtime_winner": "not_tested",
+      "preconditions": {
+        "no_matching_loose_file": "not_tested",
+        "secondary_mounts": "not_tested",
+        "mapping": "inferred",
+        "requested_slot": -1
+      },
+      "note": "Conditional winner assumes dataN maps to primary slot N; untested preconditions are never treated as actual runtime facts",
+      "logical_path": "scenario/本編/t19a_03.s",
+      "variant_count": 2,
+      "changed_duplicate": true
+    },
+    {
+      "status": "inferred",
+      "conditional_winner": {
+        "source_file": "data8.pack/scenario/本編/t19b_03.s",
+        "sha256": "c94bbd4bd75365a2837703fb3ca8ece5bedffddcf92154294e8a40bff6ed981a",
+        "archive": "GameData/data8.pack",
+        "archive_sha256": "f796a90c498de7325d8968d8ce99ef17b71753b7ce101521e390167649c83509",
+        "index": 206,
+        "slot": 8
+      },
+      "candidates": [
+        {
+          "source_file": "data8.pack/scenario/本編/t19b_03.s",
+          "sha256": "c94bbd4bd75365a2837703fb3ca8ece5bedffddcf92154294e8a40bff6ed981a",
+          "archive": "GameData/data8.pack",
+          "archive_sha256": "f796a90c498de7325d8968d8ce99ef17b71753b7ce101521e390167649c83509",
+          "index": 206,
+          "slot": 8
+        },
+        {
+          "source_file": "data6.pack/scenario/本編/t19b_03.s",
+          "sha256": "f1920315e1cb77c7c9f9df95fe1529b83dcc00616608517a836021c99c5673d3",
+          "archive": "GameData/data6.pack",
+          "archive_sha256": "c8f6e1e1821ecc5bccea2db9737e2915c0bf2f2e185df6f40ad1b5e7fb3c1006",
+          "index": 67,
+          "slot": 6
+        }
+      ],
+      "unknown": [],
+      "effective_runtime_winner": "not_tested",
+      "preconditions": {
+        "no_matching_loose_file": "not_tested",
+        "secondary_mounts": "not_tested",
+        "mapping": "inferred",
+        "requested_slot": -1
+      },
+      "note": "Conditional winner assumes dataN maps to primary slot N; untested preconditions are never treated as actual runtime facts",
+      "logical_path": "scenario/本編/t19b_03.s",
+      "variant_count": 2,
+      "changed_duplicate": true
+    },
+    {
+      "status": "inferred",
+      "conditional_winner": {
+        "source_file": "data8.pack/scenario/本編/t20a_01.s",
+        "sha256": "e38f63bf72e5d4ea0f14f66a4b1105735ecec4c1c241beb49494ba3e1b9f6428",
+        "archive": "GameData/data8.pack",
+        "archive_sha256": "f796a90c498de7325d8968d8ce99ef17b71753b7ce101521e390167649c83509",
+        "index": 208,
+        "slot": 8
+      },
+      "candidates": [
+        {
+          "source_file": "data8.pack/scenario/本編/t20a_01.s",
+          "sha256": "e38f63bf72e5d4ea0f14f66a4b1105735ecec4c1c241beb49494ba3e1b9f6428",
+          "archive": "GameData/data8.pack",
+          "archive_sha256": "f796a90c498de7325d8968d8ce99ef17b71753b7ce101521e390167649c83509",
+          "index": 208,
+          "slot": 8
+        },
+        {
+          "source_file": "data6.pack/scenario/本編/t20a_01.s",
+          "sha256": "a917666318f5a7f2c9107296c5724e2357f838c52f6305b6eb55e9e7f980dc0f",
+          "archive": "GameData/data6.pack",
+          "archive_sha256": "c8f6e1e1821ecc5bccea2db9737e2915c0bf2f2e185df6f40ad1b5e7fb3c1006",
+          "index": 69,
+          "slot": 6
+        }
+      ],
+      "unknown": [],
+      "effective_runtime_winner": "not_tested",
+      "preconditions": {
+        "no_matching_loose_file": "not_tested",
+        "secondary_mounts": "not_tested",
+        "mapping": "inferred",
+        "requested_slot": -1
+      },
+      "note": "Conditional winner assumes dataN maps to primary slot N; untested preconditions are never treated as actual runtime facts",
+      "logical_path": "scenario/本編/t20a_01.s",
+      "variant_count": 2,
+      "changed_duplicate": true
+    },
+    {
+      "status": "inferred",
+      "conditional_winner": {
+        "source_file": "data8.pack/script/albummode/viewfunction.s",
+        "sha256": "bd2f6bd7af440ce72de0a34f11f1b6495279ca138dd1a246aa58f52e2bb84ad8",
+        "archive": "GameData/data8.pack",
+        "archive_sha256": "f796a90c498de7325d8968d8ce99ef17b71753b7ce101521e390167649c83509",
+        "index": 215,
+        "slot": 8
+      },
+      "candidates": [
+        {
+          "source_file": "data8.pack/script/albummode/viewfunction.s",
+          "sha256": "bd2f6bd7af440ce72de0a34f11f1b6495279ca138dd1a246aa58f52e2bb84ad8",
+          "archive": "GameData/data8.pack",
+          "archive_sha256": "f796a90c498de7325d8968d8ce99ef17b71753b7ce101521e390167649c83509",
+          "index": 215,
+          "slot": 8
+        },
+        {
+          "source_file": "data7.pack/script/albummode/viewfunction.s",
+          "sha256": "9dbf3fd242f0576d0aa64eda0db16a3c9c71971061cdc56ec4c96a770e9424c6",
+          "archive": "GameData/data7.pack",
+          "archive_sha256": "29d04ca1f627438ddccc066873a6651bd2c46e9561e070c780d4a64244a4f06c",
+          "index": 172,
+          "slot": 7
+        }
+      ],
+      "unknown": [],
+      "effective_runtime_winner": "not_tested",
+      "preconditions": {
+        "no_matching_loose_file": "not_tested",
+        "secondary_mounts": "not_tested",
+        "mapping": "inferred",
+        "requested_slot": -1
+      },
+      "note": "Conditional winner assumes dataN maps to primary slot N; untested preconditions are never treated as actual runtime facts",
+      "logical_path": "script/albummode/viewfunction.s",
+      "variant_count": 2,
+      "changed_duplicate": true
+    },
+    {
+      "status": "inferred",
+      "conditional_winner": {
+        "source_file": "data8.pack/system/etc/game.txt",
+        "sha256": "6a8cef98af452ed67e85df7dc57ebcb2d79c20b5897a37bc336b8db7ac5fe8da",
+        "archive": "GameData/data8.pack",
+        "archive_sha256": "f796a90c498de7325d8968d8ce99ef17b71753b7ce101521e390167649c83509",
+        "index": 254,
+        "slot": 8
+      },
+      "candidates": [
+        {
+          "source_file": "data8.pack/system/etc/game.txt",
+          "sha256": "6a8cef98af452ed67e85df7dc57ebcb2d79c20b5897a37bc336b8db7ac5fe8da",
+          "archive": "GameData/data8.pack",
+          "archive_sha256": "f796a90c498de7325d8968d8ce99ef17b71753b7ce101521e390167649c83509",
+          "index": 254,
+          "slot": 8
+        },
+        {
+          "source_file": "data0.pack/system/etc/game.txt",
+          "sha256": "17898151e9c555a17c8841a91775e2e34dc762ce092b4b29f8d7e65130b5857c",
+          "archive": "GameData/data0.pack",
+          "archive_sha256": "53f84595e304a757bd6ef9e590e6c8a74e198ca8420232d586aef900514d3d74",
+          "index": 4,
+          "slot": 0
+        }
+      ],
+      "unknown": [],
+      "effective_runtime_winner": "not_tested",
+      "preconditions": {
+        "no_matching_loose_file": "not_tested",
+        "secondary_mounts": "not_tested",
+        "mapping": "inferred",
+        "requested_slot": -1
+      },
+      "note": "Conditional winner assumes dataN maps to primary slot N; untested preconditions are never treated as actual runtime facts",
+      "logical_path": "system/etc/game.txt",
+      "variant_count": 2,
+      "changed_duplicate": true
+    }
+  ],
+  "full_execution": "not_tested",
+  "source_variants_deleted": false,
+  "original_files_written": false,
+  "preconditions": [
+    "All relevant dataN archives mounted in primary slot N",
+    "No matching loose file at the engine-resolved path",
+    "Unrestricted slot (-1) lookup, or the stated restricted slot",
+    "Other mount roots, callbacks and dynamic mutation do not change this lookup"
+  ],
+  "evidence_report": "reports/p1/native-round3-report.json",
+  "public_scope": "All group counts and all changed-duplicate metadata; remaining rows in private report",
+  "private_metadata_report": "private/p1-round3/conditional-corpus.json"
+}

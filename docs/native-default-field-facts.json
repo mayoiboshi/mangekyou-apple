@@ -1,0 +1,298 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Missing field and registration static path only; no interpreter or complete list ABI",
+  "facts": [
+    {
+      "id": "command_minimum_nine",
+      "status": "verified",
+      "evidence": "command-dispatch-assembly",
+      "start": "0x6aadd4",
+      "end": "0x6aade8",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6aadd4: MOV ECX, 0x9",
+        "0x6aadd9: MOV DX, 0x2c",
+        "0x6aaddd: MOV EAX, dword ptr [EBP + -0x4]",
+        "0x6aade0: CALL 0x00699fd0",
+        "0x6aade5: MOV dword ptr [EBP + -0x10], EAX"
+      ],
+      "observation": "Selected command route calls the comma splitter with ECX nine and retains the returned list.",
+      "scope": "Selected instruction bytes/order only; conditional static path, no original execution",
+      "unknown": [
+        "Original runtime reachability not_tested"
+      ]
+    },
+    {
+      "id": "split_saves_parent_count",
+      "status": "verified",
+      "evidence": "field-split-assembly",
+      "start": "0x699fe3",
+      "end": "0x69a009",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x699fe3: MOV dword ptr [EBP + -0x4], ECX",
+        "0x699fe6: MOV word ptr [EBP + -0xa], DX",
+        "0x699ffc: MOV EAX, [0x00432cf8]",
+        "0x69a001: CALL 0x0043ef30",
+        "0x69a006: MOV dword ptr [EBP + -0x1c], EAX"
+      ],
+      "observation": "Save requested count at parent frame -4, construct the selected list and retain it at -1c.",
+      "scope": "Selected instruction bytes/order only; conditional static path, no original execution",
+      "unknown": [
+        "Original runtime reachability not_tested"
+      ]
+    },
+    {
+      "id": "split_calls_padding",
+      "status": "verified",
+      "evidence": "field-split-assembly",
+      "start": "0x69a15f",
+      "end": "0x69a169",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x69a15f: PUSH EBP",
+        "0x69a160: LEA EAX, [EBP + -0x1c]",
+        "0x69a163: CALL 0x00699fa4",
+        "0x69a168: POP ECX"
+      ],
+      "observation": "Nonempty parse tail passes the current frame and list address to the padding helper.",
+      "scope": "Selected instruction bytes/order only; conditional static path, no original execution",
+      "unknown": [
+        "Original runtime reachability not_tested"
+      ]
+    },
+    {
+      "id": "padding_parent_count",
+      "status": "verified",
+      "evidence": "field-padding-assembly",
+      "start": "0x699fab",
+      "end": "0x699fca",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x699fab: MOV EAX, dword ptr [EBP + 0x8]",
+        "0x699fae: MOV EBX, dword ptr [EAX + -0x4]",
+        "0x699fb5: CALL dword ptr [EDX + 0x14]",
+        "0x699fb8: DEC EBX",
+        "0x699fb9: SUB EBX, EAX",
+        "0x699fbb: JL 0x00699fca",
+        "0x699fbd: INC EBX",
+        "0x699fc0: XOR EDX, EDX",
+        "0x699fc4: CALL dword ptr [ECX + 0x38]",
+        "0x699fc8: JNZ 0x00699fbe"
+      ],
+      "observation": "Load requested count from parent -4, subtract current Count and append zero through slot +38 for the missing positions.",
+      "scope": "Selected instruction bytes/order only; conditional static path, no original execution",
+      "unknown": [
+        "Original runtime reachability not_tested"
+      ]
+    },
+    {
+      "id": "list_add_forwards",
+      "status": "verified",
+      "evidence": "list-add-assembly",
+      "start": "0x43e8bc",
+      "end": "0x43e8cc",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x43e8bc: PUSH EBX",
+        "0x43e8c0: XOR ECX, ECX",
+        "0x43e8c4: MOV EBX, dword ptr [EAX]"
+      ],
+      "observation": "List Add delegates through virtual slot +3c, with zero object argument.",
+      "scope": "Selected instruction bytes/order only; conditional static path, no original execution",
+      "unknown": [
+        "Original runtime reachability not_tested"
+      ]
+    },
+    {
+      "id": "unsorted_list_add_index",
+      "status": "verified",
+      "evidence": "list-add-object-assembly",
+      "start": "0x43e8d7",
+      "end": "0x43e8e5",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x43e8d7: CMP byte ptr [EBX + 0x28], 0x0",
+        "0x43e8db: JNZ 0x0043e8e5",
+        "0x43e8dd: MOV EAX, dword ptr [EBX + 0x20]",
+        "0x43e8e0: MOV dword ptr [ESP], EAX",
+        "0x43e8e3: JMP 0x0043e914"
+      ],
+      "observation": "On the zero +28 path, insertion index comes from +20 Count; sorted behavior is separate.",
+      "scope": "Selected instruction bytes/order only; conditional static path, no original execution",
+      "unknown": [
+        "Original runtime reachability not_tested"
+      ]
+    },
+    {
+      "id": "nil_string_assignment",
+      "status": "verified",
+      "evidence": "string-assign-assembly",
+      "start": "0x407460",
+      "end": "0x40749a",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x407460: TEST EDX, EDX",
+        "0x407462: JZ 0x00407496",
+        "0x407496: XCHG dword ptr [EAX], EDX",
+        "0x407498: TEST EDX, EDX"
+      ],
+      "observation": "A zero source jumps to pointer exchange and replaces the destination with zero; cleanup may still act on the old destination.",
+      "scope": "Selected instruction bytes/order only; conditional static path, no original execution",
+      "unknown": [
+        "Original runtime reachability not_tested"
+      ]
+    },
+    {
+      "id": "value_wrapper_preserves_output",
+      "status": "verified",
+      "evidence": "value-wrapper-assembly",
+      "start": "0x6be1db",
+      "end": "0x6be1fd",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6be1db: MOV EDI, ECX",
+        "0x6be1dd: MOV ESI, EDX",
+        "0x6be1e1: PUSH EDI",
+        "0x6be1e8: CALL 0x006c1ac8",
+        "0x6be1ed: MOV ECX, EAX",
+        "0x6be1ef: DEC ECX",
+        "0x6be1f0: MOV EDX, ESI",
+        "0x6be1f8: CALL 0x0069bab4"
+      ],
+      "observation": "Wrapper preserves output pointer on the stack and forwards source plus context index minus one to calculation.",
+      "scope": "Selected instruction bytes/order only; conditional static path, no original execution",
+      "unknown": [
+        "Original runtime reachability not_tested"
+      ]
+    },
+    {
+      "id": "null_value_result",
+      "status": "verified",
+      "evidence": "value-calculation-assembly",
+      "start": "0x69bb17",
+      "end": "0x69bb3d",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x69bb17: CMP dword ptr [EBP + -0x20], 0x0",
+        "0x69bb1b: JNZ 0x0069bb3d",
+        "0x69bb1d: MOV EAX, dword ptr [EBP + 0x8]",
+        "0x69bb20: MOV byte ptr [EAX], 0x0",
+        "0x69bb23: MOV EAX, dword ptr [EBP + 0x8]",
+        "0x69bb26: XOR EDX, EDX",
+        "0x69bb28: MOV dword ptr [EAX + 0x4], EDX",
+        "0x69bb2b: MOV EAX, dword ptr [EBP + 0x8]",
+        "0x69bb2e: ADD EAX, 0x8",
+        "0x69bb31: XOR EDX, EDX",
+        "0x69bb33: CALL 0x00407460",
+        "0x69bb38: JMP 0x0069c51d"
+      ],
+      "observation": "The zero-source branch writes tag zero, integer zero and a null string, then jumps to common cleanup.",
+      "scope": "Selected instruction bytes/order only; conditional static path, no original execution",
+      "unknown": [
+        "Original runtime reachability not_tested"
+      ]
+    },
+    {
+      "id": "registration_mode_source",
+      "status": "verified",
+      "evidence": "registration-dispatch-assembly",
+      "start": "0x6ba3f7",
+      "end": "0x6ba429",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6ba3fa: MOV EDX, 0x3",
+        "0x6ba404: CALL dword ptr [EDI + 0xc]",
+        "0x6ba407: MOV EDX, dword ptr [EBP + -0x2c]",
+        "0x6ba40a: LEA ECX, [EBP + -0x14]",
+        "0x6ba40f: CALL 0x006be1d8",
+        "0x6ba414: MOV EDI, dword ptr [EBP + -0x10]",
+        "0x6ba417: PUSH EDI",
+        "0x6ba424: CALL 0x00696548"
+      ],
+      "observation": "Get list field three, convert into the local return record and pass its integer field as the registration stack argument.",
+      "scope": "Selected instruction bytes/order only; conditional static path, no original execution",
+      "unknown": [
+        "Original runtime reachability not_tested"
+      ]
+    },
+    {
+      "id": "registration_mode_store",
+      "status": "verified",
+      "evidence": "registration-store-assembly",
+      "start": "0x6965a8",
+      "end": "0x6965f9",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6965af: MOV EDX, dword ptr [EBP + 0x8]",
+        "0x6965b2: MOV dword ptr [EAX + 0x8], EDX",
+        "0x6965e4: MOV EAX, dword ptr [EBP + 0x8]",
+        "0x6965e7: MOV dword ptr [ESI + 0x8], EAX",
+        "0x6965ef: CALL 0x0043b354",
+        "0x6965f6: CALL 0x00696884"
+      ],
+      "observation": "Selected update and insertion paths both store the supplied mode at record+8; insertion separately sorts.",
+      "scope": "Selected instruction bytes/order only; conditional static path, no original execution",
+      "unknown": [
+        "Original runtime reachability not_tested"
+      ]
+    },
+    {
+      "id": "null_cleanup_continuation",
+      "status": "verified",
+      "evidence": "value-calculation-assembly",
+      "start": "0x69c51d",
+      "end": "0x69c54b",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x69c51d: XOR EAX, EAX",
+        "0x69c522: MOV dword ptr FS:[EAX], EDX",
+        "0x69c525: PUSH 0x69c552",
+        "0x69c52a: LEA EAX, [EBP + -0x54]",
+        "0x69c532: CALL 0x00407458",
+        "0x69c537: LEA EAX, [EBP + -0x1c]",
+        "0x69c540: MOV ECX, 0x2",
+        "0x69c545: CALL 0x004082ec",
+        "0x69c54a: RET"
+      ],
+      "observation": "The null branch cleanup prepares the normal continuation 0x69c552 and cleans local fields; default body ends at a cleanup RET.",
+      "scope": "Selected instructions only; normal-return continuation is separately decoded, exceptions remain unknown",
+      "unknown": [
+        "Complete cleanup equivalence not_tested"
+      ]
+    }
+  ],
+  "inferred_contracts": [
+    {
+      "id": "omitted_mode_candidate_zero",
+      "status": "inferred",
+      "basis": [
+        "command_minimum_nine",
+        "split_saves_parent_count",
+        "split_calls_padding",
+        "padding_parent_count",
+        "nil_string_assignment",
+        "null_value_result",
+        "registration_mode_source",
+        "registration_mode_store",
+        "reports/p1/default-field-metadata-report.json"
+      ],
+      "meaning": "If a two-argument source candidate reaches this path without mutation or failure, missing field three is padded null and the selected conversion produces integer zero for the mode.",
+      "actual_script_registration": "not_tested",
+      "preprocessor_equivalence": "not_tested"
+    },
+    {
+      "id": "list_normal_path",
+      "status": "inferred",
+      "basis": [
+        "list_add_forwards",
+        "unsorted_list_add_index",
+        "LLVM list-insert and field-list-get",
+        "reports/p1/default-field-audit-report.json"
+      ],
+      "meaning": "Selected list slots link padded inputs to bounded retrieval; callbacks, exceptions, sorted-state initialization and all allocation behavior are not fully proved.",
+      "complete_list_ABI": "not_tested"
+    }
+  ]
+}

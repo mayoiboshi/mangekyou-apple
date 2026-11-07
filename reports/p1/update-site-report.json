@@ -1,0 +1,5010 @@
+{
+  "schema_version": 1,
+  "dataset": "real",
+  "status": "inferred",
+  "scope": "All cal/if/for/case fields re-lexed from bounded source copies; syntactic candidate roles only",
+  "files": 379,
+  "expression_fields": 8130,
+  "field_status_counts": {
+    "inferred": 8128,
+    "unsupported": 2
+  },
+  "node_count": 37322,
+  "operation_counts": {
+    "assignment_candidate": 5088,
+    "update_candidate": 407
+  },
+  "target_shape_counts": [
+    {
+      "operation_kind": "assignment_candidate",
+      "target_kind": "identifier_candidate",
+      "count": 4407
+    },
+    {
+      "operation_kind": "assignment_candidate",
+      "target_kind": "index_candidate",
+      "count": 681
+    },
+    {
+      "operation_kind": "update_candidate",
+      "target_kind": "identifier_candidate",
+      "count": 407
+    }
+  ],
+  "nested_operation_candidates": 6,
+  "nested_operation_counts": {
+    "update_candidate": 6
+  },
+  "identifier_role_counts": {
+    "assignment_base_candidate": 5088,
+    "value_identifier_candidate": 7509,
+    "update_base_candidate": 407,
+    "index_operand_candidate": 466
+  },
+  "command_operation_counts": [
+    {
+      "command": "cal",
+      "operation_kind": "assignment_candidate",
+      "count": 4713
+    },
+    {
+      "command": "cal",
+      "operation_kind": "update_candidate",
+      "count": 38
+    },
+    {
+      "command": "for",
+      "operation_kind": "assignment_candidate",
+      "count": 375
+    },
+    {
+      "command": "for",
+      "operation_kind": "update_candidate",
+      "count": 369
+    }
+  ],
+  "issues": [
+    {
+      "source_file": "data7.pack/avg/imoscripter_sound.s",
+      "source_sha256": "ffbf30f25a9ecabc3fb7198b23cfff734588f46d3533c7ee8416828a34e11aec",
+      "byte_offset": 2276,
+      "byte_length": 0,
+      "raw_bytes_reference": {
+        "offset": 2276,
+        "length": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "command": "cal",
+      "operand_index": 2,
+      "record_byte_offset": 2206,
+      "status": "unsupported",
+      "unknown_reason": "missing_or_unverified_prefix_operand",
+      "error_char_offset": 0,
+      "error_byte_offset": 2276,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_sound.s",
+      "source_sha256": "daf40e209bf971d646bb50073419a8ab3591ff4d40f76c784dc7cccfad238d67",
+      "byte_offset": 4590,
+      "byte_length": 0,
+      "raw_bytes_reference": {
+        "offset": 4590,
+        "length": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "command": "cal",
+      "operand_index": 2,
+      "record_byte_offset": 4450,
+      "status": "unsupported",
+      "unknown_reason": "missing_or_unverified_prefix_operand",
+      "error_char_offset": 0,
+      "error_byte_offset": 4590,
+      "execution_semantics": "not_tested"
+    }
+  ],
+  "issue_count": 2,
+  "examples": [
+    {
+      "operation_kind": "assignment_candidate",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 21,
+      "source_file": "data0.pack/startup.s",
+      "source_sha256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1",
+      "byte_offset": 102,
+      "byte_length": 42,
+      "raw_bytes_reference": {
+        "offset": 102,
+        "length": 42,
+        "sha256": "8277e83c3e8ae0c282ae3ea75213e93d6b91061517b9faeb510762c81eef3a23"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 9,
+        "source_file": "data0.pack/startup.s",
+        "source_sha256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1",
+        "byte_offset": 102,
+        "byte_length": 18,
+        "raw_bytes_reference": {
+          "offset": 102,
+          "length": 18,
+          "sha256": "2c7757f0b7ec58f4989ba97385c36f2451a7908127008d0ff76b71e760ccfb76"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "cbfc81c3d0d79eda6ce792a735dabfd1eff28d68ce72f6e5dc081c32b20de1a3",
+      "command": "cal",
+      "operand_index": 0,
+      "record_byte_offset": 92,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "assignment_candidate",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 18,
+      "source_file": "data0.pack/startup.s",
+      "source_sha256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1",
+      "byte_offset": 222,
+      "byte_length": 36,
+      "raw_bytes_reference": {
+        "offset": 222,
+        "length": 36,
+        "sha256": "92eb5deaa8b727e072cf1a264d51eb553c7e7446ac209ff227f547ce577a0764"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 9,
+        "source_file": "data0.pack/startup.s",
+        "source_sha256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1",
+        "byte_offset": 222,
+        "byte_length": 18,
+        "raw_bytes_reference": {
+          "offset": 222,
+          "length": 18,
+          "sha256": "2c7757f0b7ec58f4989ba97385c36f2451a7908127008d0ff76b71e760ccfb76"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "cbfc81c3d0d79eda6ce792a735dabfd1eff28d68ce72f6e5dc081c32b20de1a3",
+      "command": "cal",
+      "operand_index": 0,
+      "record_byte_offset": 212,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "assignment_candidate",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 19,
+      "source_file": "data0.pack/startup.s",
+      "source_sha256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1",
+      "byte_offset": 334,
+      "byte_length": 38,
+      "raw_bytes_reference": {
+        "offset": 334,
+        "length": 38,
+        "sha256": "ae06a884a94ff070eb28c5407bfe259ae7ddc46b2c8fea09610560d335fb8856"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 16,
+        "source_file": "data0.pack/startup.s",
+        "source_sha256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1",
+        "byte_offset": 334,
+        "byte_length": 32,
+        "raw_bytes_reference": {
+          "offset": 334,
+          "length": 32,
+          "sha256": "4e7eef55da89ddf3ccfe024d8f1792e2fcc5973a4872380541f5cc017106baf3"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "43da1d7b32fc2e87fe53ba076e0301036cb5852ea4377f99b58bc8805363a59c",
+      "command": "cal",
+      "operand_index": 0,
+      "record_byte_offset": 324,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "assignment_candidate",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 14,
+      "source_file": "data6.pack/scenario/root.s",
+      "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+      "byte_offset": 8578,
+      "byte_length": 28,
+      "raw_bytes_reference": {
+        "offset": 8578,
+        "length": 28,
+        "sha256": "ab9f3129ac22c5c912e770f99e861dfc5a09a58bae3589b5e3d90f64cd7d68c9"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 12,
+        "source_file": "data6.pack/scenario/root.s",
+        "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+        "byte_offset": 8578,
+        "byte_length": 24,
+        "raw_bytes_reference": {
+          "offset": 8578,
+          "length": 24,
+          "sha256": "133cf63c94bd28321c2a32c4216c7be74625eb2faebb4ad3f1b57c74519b35a0"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "8e1c804684b871ab9136908bf0dd67dc4bac403685e9dd3e6bd1b6e9ed538428",
+      "command": "cal",
+      "operand_index": 0,
+      "record_byte_offset": 8568,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "assignment_candidate",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 13,
+      "source_file": "data6.pack/scenario/root.s",
+      "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+      "byte_offset": 8620,
+      "byte_length": 26,
+      "raw_bytes_reference": {
+        "offset": 8620,
+        "length": 26,
+        "sha256": "3744b71e967f593726f6b04c4c5ab05f412fe789fa0d6f127aa5f0c621cf40e4"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 11,
+        "source_file": "data6.pack/scenario/root.s",
+        "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+        "byte_offset": 8620,
+        "byte_length": 22,
+        "raw_bytes_reference": {
+          "offset": 8620,
+          "length": 22,
+          "sha256": "cafb423896f5c2c4ef22559d38fd7e78f8bba7e8b62f61d32c0c7adb8cc37535"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "a4196dfaa8b6e158c434922fe037ececa45e03ef51c3b0dc2896641f3edcc4a2",
+      "command": "cal",
+      "operand_index": 0,
+      "record_byte_offset": 8610,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "assignment_candidate",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 14,
+      "source_file": "data6.pack/scenario/root.s",
+      "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+      "byte_offset": 9928,
+      "byte_length": 28,
+      "raw_bytes_reference": {
+        "offset": 9928,
+        "length": 28,
+        "sha256": "585a1c681c02815e49c09b043010878e5cbfa06f86cacd8241f30b02ef774fb8"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 12,
+        "source_file": "data6.pack/scenario/root.s",
+        "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+        "byte_offset": 9928,
+        "byte_length": 24,
+        "raw_bytes_reference": {
+          "offset": 9928,
+          "length": 24,
+          "sha256": "50733fae2c9f87decf976f4f743b32834d3b88fb304a09346def46e269abea29"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "3fd38f5017267c286683a7ec275aff1cc548faedfe3374b1100f79eecb4252c8",
+      "command": "cal",
+      "operand_index": 0,
+      "record_byte_offset": 9918,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "assignment_candidate",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 13,
+      "source_file": "data6.pack/scenario/root.s",
+      "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+      "byte_offset": 9970,
+      "byte_length": 26,
+      "raw_bytes_reference": {
+        "offset": 9970,
+        "length": 26,
+        "sha256": "3744b71e967f593726f6b04c4c5ab05f412fe789fa0d6f127aa5f0c621cf40e4"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 11,
+        "source_file": "data6.pack/scenario/root.s",
+        "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+        "byte_offset": 9970,
+        "byte_length": 22,
+        "raw_bytes_reference": {
+          "offset": 9970,
+          "length": 22,
+          "sha256": "cafb423896f5c2c4ef22559d38fd7e78f8bba7e8b62f61d32c0c7adb8cc37535"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "a4196dfaa8b6e158c434922fe037ececa45e03ef51c3b0dc2896641f3edcc4a2",
+      "command": "cal",
+      "operand_index": 0,
+      "record_byte_offset": 9960,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "assignment_candidate",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 14,
+      "source_file": "data6.pack/scenario/root.s",
+      "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+      "byte_offset": 11592,
+      "byte_length": 28,
+      "raw_bytes_reference": {
+        "offset": 11592,
+        "length": 28,
+        "sha256": "637d5ab4ac2e34494118282ba706c48a92b2e9a01b7af25139f73363eb269c54"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 12,
+        "source_file": "data6.pack/scenario/root.s",
+        "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+        "byte_offset": 11592,
+        "byte_length": 24,
+        "raw_bytes_reference": {
+          "offset": 11592,
+          "length": 24,
+          "sha256": "730114092cf790ac0598828cdfd94966d40bf219e203311a3f0519eb3f13406b"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "6aad943b981e6120b905672f3b406e7c16f3737d3ed1469266b30d58bfecb562",
+      "command": "cal",
+      "operand_index": 0,
+      "record_byte_offset": 11582,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "assignment_candidate",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 13,
+      "source_file": "data6.pack/scenario/root.s",
+      "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+      "byte_offset": 11634,
+      "byte_length": 26,
+      "raw_bytes_reference": {
+        "offset": 11634,
+        "length": 26,
+        "sha256": "3744b71e967f593726f6b04c4c5ab05f412fe789fa0d6f127aa5f0c621cf40e4"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 11,
+        "source_file": "data6.pack/scenario/root.s",
+        "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+        "byte_offset": 11634,
+        "byte_length": 22,
+        "raw_bytes_reference": {
+          "offset": 11634,
+          "length": 22,
+          "sha256": "cafb423896f5c2c4ef22559d38fd7e78f8bba7e8b62f61d32c0c7adb8cc37535"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "a4196dfaa8b6e158c434922fe037ececa45e03ef51c3b0dc2896641f3edcc4a2",
+      "command": "cal",
+      "operand_index": 0,
+      "record_byte_offset": 11624,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "assignment_candidate",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 14,
+      "source_file": "data6.pack/scenario/root.s",
+      "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+      "byte_offset": 12088,
+      "byte_length": 28,
+      "raw_bytes_reference": {
+        "offset": 12088,
+        "length": 28,
+        "sha256": "c5094e2a014c5ad1627e0064c1294632a1ce38816804b3e9d679ea23306d753f"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 12,
+        "source_file": "data6.pack/scenario/root.s",
+        "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+        "byte_offset": 12088,
+        "byte_length": 24,
+        "raw_bytes_reference": {
+          "offset": 12088,
+          "length": 24,
+          "sha256": "3de8a8a6ce7fe23fbbaedf174a1fb198ac4bae3eafc8c6f8c5b7da2659d9f77e"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "620ca61ffc41cb30e2317a45b354a2f82c3ae4271d3493b3a895a199464981dd",
+      "command": "cal",
+      "operand_index": 0,
+      "record_byte_offset": 12078,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "assignment_candidate",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 13,
+      "source_file": "data6.pack/scenario/root.s",
+      "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+      "byte_offset": 12130,
+      "byte_length": 26,
+      "raw_bytes_reference": {
+        "offset": 12130,
+        "length": 26,
+        "sha256": "3744b71e967f593726f6b04c4c5ab05f412fe789fa0d6f127aa5f0c621cf40e4"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 11,
+        "source_file": "data6.pack/scenario/root.s",
+        "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+        "byte_offset": 12130,
+        "byte_length": 22,
+        "raw_bytes_reference": {
+          "offset": 12130,
+          "length": 22,
+          "sha256": "cafb423896f5c2c4ef22559d38fd7e78f8bba7e8b62f61d32c0c7adb8cc37535"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "a4196dfaa8b6e158c434922fe037ececa45e03ef51c3b0dc2896641f3edcc4a2",
+      "command": "cal",
+      "operand_index": 0,
+      "record_byte_offset": 12120,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "assignment_candidate",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 3,
+      "source_file": "data6.pack/scenario/scenereplay.s",
+      "source_sha256": "34c171a5d03b907e30f83a3034047cf979a8578105dc970073da69f002bc23fc",
+      "byte_offset": 806,
+      "byte_length": 6,
+      "raw_bytes_reference": {
+        "offset": 806,
+        "length": 6,
+        "sha256": "78eb755db826139aa6699616d3a47ca3e20afa2562472c50a0116197ec1a61e4"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 1,
+        "source_file": "data6.pack/scenario/scenereplay.s",
+        "source_sha256": "34c171a5d03b907e30f83a3034047cf979a8578105dc970073da69f002bc23fc",
+        "byte_offset": 806,
+        "byte_length": 2,
+        "raw_bytes_reference": {
+          "offset": 806,
+          "length": 2,
+          "sha256": "e8902c7331527e223bf3d97d077ed97fcd7ac3d38f289b5b3ba4d97ea510db05"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7",
+      "command": "for",
+      "operand_index": 0,
+      "record_byte_offset": 796,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "update_candidate",
+      "operator": "++",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 3,
+      "source_file": "data6.pack/scenario/scenereplay.s",
+      "source_sha256": "34c171a5d03b907e30f83a3034047cf979a8578105dc970073da69f002bc23fc",
+      "byte_offset": 824,
+      "byte_length": 6,
+      "raw_bytes_reference": {
+        "offset": 824,
+        "length": 6,
+        "sha256": "61a9c27a493ff189910a2b50c0b8bff966f3bc1d373b4217da00588550511f9e"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 1,
+        "source_file": "data6.pack/scenario/scenereplay.s",
+        "source_sha256": "34c171a5d03b907e30f83a3034047cf979a8578105dc970073da69f002bc23fc",
+        "byte_offset": 824,
+        "byte_length": 2,
+        "raw_bytes_reference": {
+          "offset": 824,
+          "length": 2,
+          "sha256": "e8902c7331527e223bf3d97d077ed97fcd7ac3d38f289b5b3ba4d97ea510db05"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7",
+      "phase_hypothesis": "tokenization_write_candidate",
+      "phase_status": "inferred",
+      "phase_evidence": {
+        "status": "inferred",
+        "scope": "Static tokenization-update hypothesis only; values and execution order remain unknown",
+        "report_reference": {
+          "path": "reports/p1/call-update-report.json",
+          "sha256": "d51a539f88ae1e9271ea773edaa62c2db3c887fe3728483a099ba3907d05620b"
+        },
+        "source_binary_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "machine_fact_ids": [
+          "tokenizer_decrement_call",
+          "tokenizer_increment_call",
+          "tokenizer_precedes_transform",
+          "update_read_add_write"
+        ],
+        "old_value_capture": "not_tested",
+        "error_rollback": "not_tested"
+      },
+      "command": "for",
+      "operand_index": 2,
+      "record_byte_offset": 796,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "assignment_candidate",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 14,
+      "source_file": "data7.pack/avg/avgsystem.s",
+      "source_sha256": "07f87498ae009d829d0176eec1f6402be1b58ffb06fe4f17fa3ed111db2f5f30",
+      "byte_offset": 194,
+      "byte_length": 14,
+      "raw_bytes_reference": {
+        "offset": 194,
+        "length": 14,
+        "sha256": "63ef2d9c2cee8c57396f5024976601cfc5b783a7dd27e83fa4c00534f2363d95"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 12,
+        "source_file": "data7.pack/avg/avgsystem.s",
+        "source_sha256": "07f87498ae009d829d0176eec1f6402be1b58ffb06fe4f17fa3ed111db2f5f30",
+        "byte_offset": 194,
+        "byte_length": 12,
+        "raw_bytes_reference": {
+          "offset": 194,
+          "length": 12,
+          "sha256": "ad70b2ec21f7ac9168d2698e4d62f3004821d8803a5ecaf4382e2fcac098792b"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "ad70b2ec21f7ac9168d2698e4d62f3004821d8803a5ecaf4382e2fcac098792b",
+      "command": "cal",
+      "operand_index": 0,
+      "record_byte_offset": 189,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "assignment_candidate",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 19,
+      "source_file": "data7.pack/avg/avgsystem.s",
+      "source_sha256": "07f87498ae009d829d0176eec1f6402be1b58ffb06fe4f17fa3ed111db2f5f30",
+      "byte_offset": 246,
+      "byte_length": 19,
+      "raw_bytes_reference": {
+        "offset": 246,
+        "length": 19,
+        "sha256": "b18179bcb10a185766fdfa081bd09e90f8227e14c2f2f22ff19e4d7780a0e88a"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 17,
+        "source_file": "data7.pack/avg/avgsystem.s",
+        "source_sha256": "07f87498ae009d829d0176eec1f6402be1b58ffb06fe4f17fa3ed111db2f5f30",
+        "byte_offset": 246,
+        "byte_length": 17,
+        "raw_bytes_reference": {
+          "offset": 246,
+          "length": 17,
+          "sha256": "c004f442efae17b078e018df78693e7c5910b13a205a6eac1955c1cee68a6851"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "c004f442efae17b078e018df78693e7c5910b13a205a6eac1955c1cee68a6851",
+      "command": "cal",
+      "operand_index": 0,
+      "record_byte_offset": 241,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "assignment_candidate",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 14,
+      "source_file": "data7.pack/avg/avgsystem.s",
+      "source_sha256": "07f87498ae009d829d0176eec1f6402be1b58ffb06fe4f17fa3ed111db2f5f30",
+      "byte_offset": 573,
+      "byte_length": 14,
+      "raw_bytes_reference": {
+        "offset": 573,
+        "length": 14,
+        "sha256": "0532d7dbfcb75c778c7cdafd149a59a89089fdf072c014b71c01d791d184f17c"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 12,
+        "source_file": "data7.pack/avg/avgsystem.s",
+        "source_sha256": "07f87498ae009d829d0176eec1f6402be1b58ffb06fe4f17fa3ed111db2f5f30",
+        "byte_offset": 573,
+        "byte_length": 12,
+        "raw_bytes_reference": {
+          "offset": 573,
+          "length": 12,
+          "sha256": "ad70b2ec21f7ac9168d2698e4d62f3004821d8803a5ecaf4382e2fcac098792b"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "ad70b2ec21f7ac9168d2698e4d62f3004821d8803a5ecaf4382e2fcac098792b",
+      "command": "cal",
+      "operand_index": 0,
+      "record_byte_offset": 568,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "assignment_candidate",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 14,
+      "source_file": "data7.pack/avg/avgsystem.s",
+      "source_sha256": "07f87498ae009d829d0176eec1f6402be1b58ffb06fe4f17fa3ed111db2f5f30",
+      "byte_offset": 1074,
+      "byte_length": 14,
+      "raw_bytes_reference": {
+        "offset": 1074,
+        "length": 14,
+        "sha256": "12b50cea5d83a3c13371955d991feb2d4415c686d8d72805b80f68124b83ff87"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 1,
+        "source_file": "data7.pack/avg/avgsystem.s",
+        "source_sha256": "07f87498ae009d829d0176eec1f6402be1b58ffb06fe4f17fa3ed111db2f5f30",
+        "byte_offset": 1074,
+        "byte_length": 1,
+        "raw_bytes_reference": {
+          "offset": 1074,
+          "length": 1,
+          "sha256": "1b16b1df538ba12dc3f97edbb85caa7050d46c148134290feba80f8236c83db9"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "1b16b1df538ba12dc3f97edbb85caa7050d46c148134290feba80f8236c83db9",
+      "command": "cal",
+      "operand_index": 0,
+      "record_byte_offset": 1069,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "assignment_candidate",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 3,
+      "source_file": "data7.pack/avg/avgsystem.s",
+      "source_sha256": "07f87498ae009d829d0176eec1f6402be1b58ffb06fe4f17fa3ed111db2f5f30",
+      "byte_offset": 1096,
+      "byte_length": 3,
+      "raw_bytes_reference": {
+        "offset": 1096,
+        "length": 3,
+        "sha256": "37ccaeb6c802802a43058fbad833287a7a45843937ef4068a3f789aa08a7b186"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 1,
+        "source_file": "data7.pack/avg/avgsystem.s",
+        "source_sha256": "07f87498ae009d829d0176eec1f6402be1b58ffb06fe4f17fa3ed111db2f5f30",
+        "byte_offset": 1096,
+        "byte_length": 1,
+        "raw_bytes_reference": {
+          "offset": 1096,
+          "length": 1,
+          "sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7",
+      "command": "for",
+      "operand_index": 0,
+      "record_byte_offset": 1091,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "update_candidate",
+      "operator": "++",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 3,
+      "source_file": "data7.pack/avg/avgsystem.s",
+      "source_sha256": "07f87498ae009d829d0176eec1f6402be1b58ffb06fe4f17fa3ed111db2f5f30",
+      "byte_offset": 1104,
+      "byte_length": 3,
+      "raw_bytes_reference": {
+        "offset": 1104,
+        "length": 3,
+        "sha256": "e8dee0e1e379cafdc77c9d2c35f6a8f877fa07fc34e296e75bd3718b48984110"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 1,
+        "source_file": "data7.pack/avg/avgsystem.s",
+        "source_sha256": "07f87498ae009d829d0176eec1f6402be1b58ffb06fe4f17fa3ed111db2f5f30",
+        "byte_offset": 1104,
+        "byte_length": 1,
+        "raw_bytes_reference": {
+          "offset": 1104,
+          "length": 1,
+          "sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7",
+      "phase_hypothesis": "tokenization_write_candidate",
+      "phase_status": "inferred",
+      "phase_evidence": {
+        "status": "inferred",
+        "scope": "Static tokenization-update hypothesis only; values and execution order remain unknown",
+        "report_reference": {
+          "path": "reports/p1/call-update-report.json",
+          "sha256": "d51a539f88ae1e9271ea773edaa62c2db3c887fe3728483a099ba3907d05620b"
+        },
+        "source_binary_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "machine_fact_ids": [
+          "tokenizer_decrement_call",
+          "tokenizer_increment_call",
+          "tokenizer_precedes_transform",
+          "update_read_add_write"
+        ],
+        "old_value_capture": "not_tested",
+        "error_rollback": "not_tested"
+      },
+      "command": "for",
+      "operand_index": 2,
+      "record_byte_offset": 1091,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "assignment_candidate",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 14,
+      "source_file": "data7.pack/avg/avgsystem.s",
+      "source_sha256": "07f87498ae009d829d0176eec1f6402be1b58ffb06fe4f17fa3ed111db2f5f30",
+      "byte_offset": 2497,
+      "byte_length": 14,
+      "raw_bytes_reference": {
+        "offset": 2497,
+        "length": 14,
+        "sha256": "ba342fd3bef91c61cb4c1439a52d6d50b7a6981413347daaf469dfd2924a76d5"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 1,
+        "source_file": "data7.pack/avg/avgsystem.s",
+        "source_sha256": "07f87498ae009d829d0176eec1f6402be1b58ffb06fe4f17fa3ed111db2f5f30",
+        "byte_offset": 2497,
+        "byte_length": 1,
+        "raw_bytes_reference": {
+          "offset": 2497,
+          "length": 1,
+          "sha256": "62c66a7a5dd70c3146618063c344e531e6d4b59e379808443ce962b3abd63c5a"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "62c66a7a5dd70c3146618063c344e531e6d4b59e379808443ce962b3abd63c5a",
+      "command": "cal",
+      "operand_index": 0,
+      "record_byte_offset": 2492,
+      "execution_semantics": "not_tested"
+    }
+  ],
+  "example_limit": 20,
+  "operation_total": 5495,
+  "per_file": [
+    {
+      "source_file": "data0.pack/startup.s",
+      "operations": 3,
+      "identifier_uses": 5,
+      "issues": 0
+    },
+    {
+      "source_file": "data0.pack/sysstartup.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data0.pack/system/etc/game.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data0.pack/system/etc/gui.u.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data0.pack/system/etc/message.u.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data0.pack/system/font/fontdata.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data0.pack/system/voice/voicedata.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/include/allclear.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/include/allset.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/include/dayend.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/include/dayend_nf.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/include/fileend.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/include/fileend_nf.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/include/fileend_nfm.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/include/fileend_nfmm.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/include/last1.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/include/last2.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/include/longend.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/ed_movie.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/root.s",
+      "operations": 8,
+      "identifier_uses": 13,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/scenereplay.s",
+      "operations": 2,
+      "identifier_uses": 3,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/select.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t00op_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t01_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t01_02@.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t01_03.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t02_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t02_02@.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t02_03.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t03_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t04_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t04_02@.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t04_03.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t05_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t05_02@.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t05_03.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t06_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t07_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t07_02@.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t07_03.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t08_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t08_02@.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t08_03.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t09_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t09_02@.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t09_03.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t10_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t11_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t12_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t12_02@.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t12_03.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t13_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t13_02@.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t13_03.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t14_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t14_02@.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t14_03.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t15_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t16_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t16_02@.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t16_03.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t17_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t17_02@.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t17_03.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t18_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t18_01b@.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t18_02@.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t18_03.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t19a_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t19a_02@.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t19a_03.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t19b_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t19b_02@.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t19b_03.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t19c_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t20a_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t21_01omake@.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/ted99_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem.s",
+      "operations": 9,
+      "identifier_uses": 37,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_abmpmovie.s",
+      "operations": 28,
+      "identifier_uses": 81,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_autoselect.s",
+      "operations": 13,
+      "identifier_uses": 31,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_custom.s",
+      "operations": 36,
+      "identifier_uses": 91,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_logjump.s",
+      "operations": 14,
+      "identifier_uses": 35,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_movie.s",
+      "operations": 17,
+      "identifier_uses": 47,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_rewind.s",
+      "operations": 64,
+      "identifier_uses": 153,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_route.s",
+      "operations": 1,
+      "identifier_uses": 2,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_sceneskip.s",
+      "operations": 45,
+      "identifier_uses": 92,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_select.s",
+      "operations": 17,
+      "identifier_uses": 37,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_value.s",
+      "operations": 3,
+      "identifier_uses": 5,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/footer.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/header.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/header_replay.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter.s",
+      "operations": 34,
+      "identifier_uses": 77,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_base.s",
+      "operations": 65,
+      "identifier_uses": 143,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_blendmodelist.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_camera.s",
+      "operations": 88,
+      "identifier_uses": 176,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_chara.s",
+      "operations": 170,
+      "identifier_uses": 395,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_chara8e.s",
+      "operations": 213,
+      "identifier_uses": 507,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_charaposlist.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_custom.s",
+      "operations": 192,
+      "identifier_uses": 563,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_extentionlist.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_face.s",
+      "operations": 131,
+      "identifier_uses": 305,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_face_poslist.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_face_repfile.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_face_repid.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_fadeeventlist.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_filterlist.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_fontlist.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_format.s",
+      "operations": 137,
+      "identifier_uses": 373,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_generatorfilterlist.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_gfadelist.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_gmodelist.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_gtargetlist.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_image.s",
+      "operations": 128,
+      "identifier_uses": 282,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_imagefilterlist.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_include.s",
+      "operations": 10,
+      "identifier_uses": 23,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_indexlist.s",
+      "operations": 8,
+      "identifier_uses": 22,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_information.s",
+      "operations": 106,
+      "identifier_uses": 271,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_message.s",
+      "operations": 119,
+      "identifier_uses": 297,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_movemodelist.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_music.s",
+      "operations": 89,
+      "identifier_uses": 222,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_namecolorlist.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_nametext.s",
+      "operations": 91,
+      "identifier_uses": 224,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_reptextlist.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_sentence.s",
+      "operations": 80,
+      "identifier_uses": 160,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_sound.s",
+      "operations": 64,
+      "identifier_uses": 155,
+      "issues": 1
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_soundfilterlist.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_camera.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_chara.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_chara8e.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_face.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_format.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_image.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_information.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_message.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_music.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_nametext.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_sentence.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_sound.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_texturefilterlist.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/include_route.s",
+      "operations": 114,
+      "identifier_uses": 311,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/prebranch.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/preselect.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/projectobjects.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/projectsetting.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/select/layout_select.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/setting.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/uppermenu/layout.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/uppermenu/main.s",
+      "operations": 6,
+      "identifier_uses": 12,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/window/layout_window.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/misc/mgmisc.s",
+      "operations": 40,
+      "identifier_uses": 70,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/misc/misc.s",
+      "operations": 81,
+      "identifier_uses": 228,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/misc/misc_systeminfo.s",
+      "operations": 33,
+      "identifier_uses": 70,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/misc/value.s",
+      "operations": 22,
+      "identifier_uses": 43,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/misc/voicefiletonametable.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/albummode/layout.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/albummode/layout_view.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/albummode/list.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/albummode/main.s",
+      "operations": 17,
+      "identifier_uses": 45,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/albummode/viewfunction.s",
+      "operations": 57,
+      "identifier_uses": 139,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/caution/main.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/config/layout.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/config/main.s",
+      "operations": 45,
+      "identifier_uses": 105,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/config/value.s",
+      "operations": 30,
+      "identifier_uses": 87,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/config/valuedefault.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/dialog/layout_message.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/dialog/layout_yesno.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/dialog/main.s",
+      "operations": 12,
+      "identifier_uses": 27,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/exceptionbackup/main.s",
+      "operations": 0,
+      "identifier_uses": 3,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/log/layout.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/log/main.s",
+      "operations": 80,
+      "identifier_uses": 185,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/log/__layout.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/log/__main.s",
+      "operations": 41,
+      "identifier_uses": 94,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/makerlogo/main.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/memorymode/layout.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/memorymode/list.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/memorymode/main.s",
+      "operations": 18,
+      "identifier_uses": 49,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/memorymode/replayfunction.s",
+      "operations": 21,
+      "identifier_uses": 49,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/quit/main.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/reset/main.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/saveload/common.s",
+      "operations": 9,
+      "identifier_uses": 21,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/saveload/layout_load.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/saveload/layout_save.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/saveload/main_load.s",
+      "operations": 26,
+      "identifier_uses": 70,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/saveload/main_quickload.s",
+      "operations": 3,
+      "identifier_uses": 7,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/saveload/main_quicksave.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/saveload/main_save.s",
+      "operations": 23,
+      "identifier_uses": 64,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/sequence/onload.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/sequence/onquit.s",
+      "operations": 2,
+      "identifier_uses": 3,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/sequence/onreset.s",
+      "operations": 2,
+      "identifier_uses": 3,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/soundmode/layout.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/soundmode/list.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/soundmode/main.s",
+      "operations": 49,
+      "identifier_uses": 125,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/title/layout01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/title/layout02.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/title/layout_select01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/title/layout_select02.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/title/main.s",
+      "operations": 24,
+      "identifier_uses": 51,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/unlock/unlock.s",
+      "operations": 9,
+      "identifier_uses": 23,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/view/layout.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/view/main.s",
+      "operations": 17,
+      "identifier_uses": 44,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/1.01パッチ用フォルダ.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem.s",
+      "operations": 9,
+      "identifier_uses": 37,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_abmpmovie.s",
+      "operations": 28,
+      "identifier_uses": 81,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_autoselect.s",
+      "operations": 13,
+      "identifier_uses": 31,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_custom.s",
+      "operations": 36,
+      "identifier_uses": 91,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_logjump.s",
+      "operations": 14,
+      "identifier_uses": 35,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_movie.s",
+      "operations": 17,
+      "identifier_uses": 47,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_rewind.s",
+      "operations": 64,
+      "identifier_uses": 153,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_route.s",
+      "operations": 1,
+      "identifier_uses": 2,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_sceneskip.s",
+      "operations": 45,
+      "identifier_uses": 92,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_select.s",
+      "operations": 17,
+      "identifier_uses": 37,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_value.s",
+      "operations": 3,
+      "identifier_uses": 5,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/footer.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/header.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/header_replay.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter.s",
+      "operations": 34,
+      "identifier_uses": 77,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_base.s",
+      "operations": 65,
+      "identifier_uses": 143,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_blendmodelist.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_camera.s",
+      "operations": 88,
+      "identifier_uses": 176,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_chara.s",
+      "operations": 170,
+      "identifier_uses": 395,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_chara8e.s",
+      "operations": 215,
+      "identifier_uses": 509,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_charaposlist.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_custom.s",
+      "operations": 192,
+      "identifier_uses": 563,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_extentionlist.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_face.s",
+      "operations": 131,
+      "identifier_uses": 305,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_face_poslist.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_face_repfile.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_face_repid.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_fadeeventlist.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_filterlist.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_fontlist.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_format.s",
+      "operations": 137,
+      "identifier_uses": 373,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_generatorfilterlist.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_gfadelist.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_gmodelist.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_gtargetlist.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_image.s",
+      "operations": 130,
+      "identifier_uses": 286,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_imagefilterlist.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_include.s",
+      "operations": 10,
+      "identifier_uses": 23,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_indexlist.s",
+      "operations": 8,
+      "identifier_uses": 22,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_information.s",
+      "operations": 106,
+      "identifier_uses": 271,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_message.s",
+      "operations": 119,
+      "identifier_uses": 297,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_movemodelist.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_music.s",
+      "operations": 89,
+      "identifier_uses": 222,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_namecolorlist.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_nametext.s",
+      "operations": 91,
+      "identifier_uses": 224,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_reptextlist.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_sentence.s",
+      "operations": 80,
+      "identifier_uses": 160,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_sound.s",
+      "operations": 77,
+      "identifier_uses": 184,
+      "issues": 1
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_soundfilterlist.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_camera.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_chara.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_chara8e.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_face.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_format.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_image.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_information.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_message.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_music.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_nametext.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_sentence.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_sound.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_texturefilterlist.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/include_route.s",
+      "operations": 114,
+      "identifier_uses": 311,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/prebranch.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/preselect.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/projectobjects.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/projectsetting.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/select/layout_select.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/setting.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/uppermenu/layout.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/uppermenu/main.s",
+      "operations": 6,
+      "identifier_uses": 12,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/window/layout_window.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/misc/mgmisc.s",
+      "operations": 40,
+      "identifier_uses": 70,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/misc/misc.s",
+      "operations": 81,
+      "identifier_uses": 228,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/misc/misc_systeminfo.s",
+      "operations": 33,
+      "identifier_uses": 70,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/misc/value.s",
+      "operations": 22,
+      "identifier_uses": 43,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/misc/voicefiletonametable.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t00op_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t01_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t01_02@.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t01_03.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t02_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t02_02@.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t02_03.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t03_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t04_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t04_02@.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t04_03.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t05_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t05_02@.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t05_03.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t06_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t07_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t07_02@.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t07_03.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t08_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t08_02@.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t08_03.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t09_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t09_02@.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t09_03.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t10_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t11_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t12_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t12_02@.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t12_03.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t13_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t13_02@.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t13_03.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t14_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t14_02@.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t14_03.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t15_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t16_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t16_02@.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t16_03.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t17_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t17_02@.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t17_03.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t18_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t18_01b@.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t18_02@.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t18_03.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t19a_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t19a_02@.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t19a_03.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t19b_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t19b_02@.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t19b_03.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t19c_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t20a_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t21_01omake@.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/ted99_01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/albummode/layout.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/albummode/layout_view.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/albummode/list.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/albummode/main.s",
+      "operations": 17,
+      "identifier_uses": 45,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/albummode/viewfunction.s",
+      "operations": 57,
+      "identifier_uses": 139,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/caution/main.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/config/layout.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/config/main.s",
+      "operations": 45,
+      "identifier_uses": 105,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/config/value.s",
+      "operations": 30,
+      "identifier_uses": 87,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/config/valuedefault.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/dialog/layout_message.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/dialog/layout_yesno.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/dialog/main.s",
+      "operations": 12,
+      "identifier_uses": 27,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/log/layout.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/log/main.s",
+      "operations": 80,
+      "identifier_uses": 185,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/makerlogo/main.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/memorymode/layout.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/memorymode/list.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/memorymode/main.s",
+      "operations": 18,
+      "identifier_uses": 49,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/memorymode/replayfunction.s",
+      "operations": 21,
+      "identifier_uses": 49,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/quit/main.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/reset/main.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/saveload/common.s",
+      "operations": 9,
+      "identifier_uses": 21,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/saveload/layout_load.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/saveload/layout_save.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/saveload/main_load.s",
+      "operations": 26,
+      "identifier_uses": 70,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/saveload/main_quickload.s",
+      "operations": 3,
+      "identifier_uses": 7,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/saveload/main_quicksave.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/saveload/main_save.s",
+      "operations": 23,
+      "identifier_uses": 64,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/sequence/onload.s",
+      "operations": 0,
+      "identifier_uses": 1,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/sequence/onquit.s",
+      "operations": 2,
+      "identifier_uses": 3,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/sequence/onreset.s",
+      "operations": 2,
+      "identifier_uses": 3,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/soundmode/layout.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/soundmode/list.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/soundmode/main.s",
+      "operations": 49,
+      "identifier_uses": 125,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/title/layout01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/title/layout02.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/title/layout_select01.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/title/layout_select02.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/title/main.s",
+      "operations": 24,
+      "identifier_uses": 51,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/unlock/unlock.s",
+      "operations": 9,
+      "identifier_uses": 23,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/view/layout.s",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/view/main.s",
+      "operations": 17,
+      "identifier_uses": 44,
+      "issues": 0
+    },
+    {
+      "source_file": "data8.pack/system/etc/game.txt",
+      "operations": 0,
+      "identifier_uses": 0,
+      "issues": 0
+    }
+  ],
+  "private_details": "private/p1-round8/value-uses",
+  "excluded_command_counts": {
+    "svar": 117,
+    "then": 2121,
+    "end": 2639,
+    "sub": 1804,
+    "go": 95,
+    "scp": 6014,
+    "d": 194,
+    "e": 720,
+    "ret": 1912,
+    "srct": 78,
+    "p": 883,
+    "?p": 81,
+    "thrd": 34,
+    "wait": 13,
+    "clk": 87,
+    "jmp": 450,
+    "r": 6,
+    "lk": 112,
+    "i": 289,
+    "c": 99,
+    "var": 1437,
+    "v": 2101,
+    "?sr": 38,
+    "vexs": 118,
+    "gvar": 752,
+    "eve": 4,
+    "?v": 1695,
+    "stid": 124,
+    "tz": 6,
+    "zero": 94,
+    "del": 671,
+    "draw": 34,
+    "ad": 40,
+    "?c": 169,
+    "?s": 148,
+    "a": 563,
+    "n2": 20,
+    "else": 357,
+    "tef": 4,
+    "rep": 80,
+    "fexs": 44,
+    "derr": 26,
+    "?g": 52,
+    "s": 42,
+    "?skp": 22,
+    "l": 946,
+    "vtn": 435,
+    "tf": 24,
+    "sc": 18,
+    "ost": 2,
+    "?tt": 10,
+    "?nt": 6,
+    "brk": 24,
+    "fdi": 80,
+    "stop": 41,
+    "play": 151,
+    "?ver": 26,
+    "ddlg": 8,
+    "bsub": 10,
+    "trim": 4,
+    "garr": 44,
+    "?sc": 2,
+    "fo": 54,
+    "t": 6,
+    "cc": 47,
+    "fmt": 148,
+    "o": 218,
+    "mc": 39,
+    "m": 78,
+    "?lkc": 28,
+    "lkc": 38,
+    "mge": 8,
+    "swe": 14,
+    "?mrd": 10,
+    "cnt": 17,
+    "ui": 274,
+    "skip": 46,
+    "?gs": 12,
+    "exv": 20,
+    "?lk": 34,
+    "ts": 167,
+    "mi": 36,
+    "in": 62,
+    "out": 56,
+    "lim": 2,
+    "pp": 4,
+    "ss": 2,
+    "vget": 4,
+    "div": 90,
+    "vset": 4,
+    "pos": 34,
+    "cfe": 12,
+    "dthm": 2,
+    "efn": 10,
+    "ap": 14,
+    "gbc": 25,
+    "init": 2,
+    "of": 408,
+    "?n": 64,
+    "sort": 72,
+    "brep": 18,
+    "comb": 60,
+    "cpy": 14,
+    "asn": 36,
+    "pri": 4,
+    "mm": 26,
+    "col": 16,
+    "bm": 10,
+    "g": 12,
+    "g2": 10,
+    "dc": 22,
+    "?i": 2,
+    "bpos": 22,
+    "alg2": 18,
+    "ps": 20,
+    "li": 524,
+    "?e": 8,
+    "p4": 28,
+    "?p4": 2,
+    "midx": 4,
+    "sk": 10,
+    "?k2": 12,
+    "?mcw": 2,
+    "?ap": 2,
+    "?m": 2,
+    "?mt": 2,
+    "?tmg": 4,
+    "?tp": 4,
+    "?tda": 4,
+    "skp": 4,
+    "et": 4,
+    "nt": 4,
+    "subp": 4,
+    "copy": 6,
+    "prm": 2,
+    "swap": 8,
+    "pan": 16,
+    "?dc": 2,
+    "exr": 10,
+    "?r": 2,
+    "exop": 4,
+    "as": 6,
+    "kwe": 7,
+    "ns": 11,
+    "?t": 2,
+    "tmg": 6,
+    "?mc": 2,
+    "?l": 4,
+    "p2": 22,
+    "fdm": 4,
+    "fdp": 4,
+    "bg": 6,
+    "dskp": 4,
+    "ans": 69,
+    "rnd": 4,
+    "dd": 28,
+    "gsf": 14,
+    "stf": 10,
+    "lff": 10,
+    "ls": 790,
+    "tab": 435,
+    "sp": 359,
+    "ds": 8,
+    "us": 443,
+    "tsub": 8,
+    "?cv": 2,
+    "?cvv": 4,
+    "?cvm": 7,
+    "vtv": 12,
+    "vtm": 10,
+    "fn2": 4,
+    "fst2": 4,
+    "faa2": 4,
+    "fsc2": 4,
+    "?fn": 2,
+    "?faa": 2,
+    "?fst": 2,
+    "?fsc": 2,
+    "nsw": 3,
+    "kwl": 6,
+    "kwb": 3,
+    "?gd": 6,
+    "sw": 2,
+    "zenc": 2,
+    "?fcs": 6,
+    "gcd": 2,
+    "fsha": 2,
+    "glpk": 2,
+    "?fs": 4,
+    "?fdm": 2,
+    "?blt": 6,
+    "?fps": 2,
+    "?sb": 2,
+    "?cs": 2,
+    "?gim": 2,
+    "?sfs": 2,
+    "info": 78,
+    "sl": 14,
+    "alg": 4,
+    "gsc": 15,
+    "k2": 29,
+    "ck": 50,
+    "?wh": 2,
+    "?mp": 6,
+    "dbrk": 7,
+    "l2": 24,
+    "mv": 35,
+    "vt": 25,
+    "fs": 2,
+    "smr": 2,
+    "il": 4,
+    "ma2": 6,
+    "ms": 4,
+    "mtw": 4,
+    "mcw": 4,
+    "f": 2,
+    "cvm": 6,
+    "?us": 8,
+    "cvv": 2,
+    "?il": 2,
+    "?ma": 2,
+    "?ms": 2,
+    "?mtw": 2,
+    "?in": 2,
+    "?vi": 10,
+    "vi": 8,
+    "swp": 2,
+    "?mw": 4,
+    "?swp": 2,
+    "sarr": 8,
+    "anc": 10,
+    "max": 2,
+    "?mv": 1,
+    "?o": 1,
+    "sr": 2,
+    "bmat": 4,
+    "?ck": 4,
+    "?sk": 8,
+    "?vtv": 2,
+    "efe": 2,
+    "mp": 2
+  },
+  "excluded_record_type_counts": {
+    "bom": 254,
+    "empty_span": 37655,
+    "label": 1868,
+    "layout_span": 127615,
+    "setting_assignment_candidate": 725,
+    "opaque_text": 44372,
+    "line_tag": 22172,
+    "include": 442,
+    "sound_identifier": 15190,
+    "macro_assignment_candidate": 156
+  },
+  "no_operand_records": [
+    {
+      "source_file": "data7.pack/avg/avgsystem_autoselect.s",
+      "source_sha256": "22cba96295fc658b36e4a15432bfa30bac0eb16e5721807e37eb346f4697aa56",
+      "command": "for",
+      "byte_offset": 420,
+      "byte_length": 4,
+      "status": "not_tested",
+      "reason": "No expression operand; no default invented"
+    },
+    {
+      "source_file": "data7.pack/avg/include_route.s",
+      "source_sha256": "5871a8c1d967c23f1e6ffefb4de2ba6cf7d22d5488b44887e874f814d73bb4f5",
+      "command": "for",
+      "byte_offset": 6080,
+      "byte_length": 4,
+      "status": "not_tested",
+      "reason": "No expression operand; no default invented"
+    },
+    {
+      "source_file": "data7.pack/avg/include_route.s",
+      "source_sha256": "5871a8c1d967c23f1e6ffefb4de2ba6cf7d22d5488b44887e874f814d73bb4f5",
+      "command": "for",
+      "byte_offset": 8369,
+      "byte_length": 4,
+      "status": "not_tested",
+      "reason": "No expression operand; no default invented"
+    },
+    {
+      "source_file": "data7.pack/avg/include_route.s",
+      "source_sha256": "5871a8c1d967c23f1e6ffefb4de2ba6cf7d22d5488b44887e874f814d73bb4f5",
+      "command": "for",
+      "byte_offset": 14470,
+      "byte_length": 4,
+      "status": "not_tested",
+      "reason": "No expression operand; no default invented"
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_autoselect.s",
+      "source_sha256": "58a4a6733fda24d0c9ffea1c4ea012f0eb4327886a648b564e5d58821cc18d5c",
+      "command": "for",
+      "byte_offset": 842,
+      "byte_length": 8,
+      "status": "not_tested",
+      "reason": "No expression operand; no default invented"
+    },
+    {
+      "source_file": "data8.pack/avg/include_route.s",
+      "source_sha256": "a44cdd6c1e82ca633f499f64748700140d54a5844777acfd183ccc36eac261c2",
+      "command": "for",
+      "byte_offset": 12150,
+      "byte_length": 8,
+      "status": "not_tested",
+      "reason": "No expression operand; no default invented"
+    },
+    {
+      "source_file": "data8.pack/avg/include_route.s",
+      "source_sha256": "a44cdd6c1e82ca633f499f64748700140d54a5844777acfd183ccc36eac261c2",
+      "command": "for",
+      "byte_offset": 16728,
+      "byte_length": 8,
+      "status": "not_tested",
+      "reason": "No expression operand; no default invented"
+    },
+    {
+      "source_file": "data8.pack/avg/include_route.s",
+      "source_sha256": "a44cdd6c1e82ca633f499f64748700140d54a5844777acfd183ccc36eac261c2",
+      "command": "for",
+      "byte_offset": 28926,
+      "byte_length": 8,
+      "status": "not_tested",
+      "reason": "No expression operand; no default invented"
+    }
+  ],
+  "phase_profile": {
+    "status": "inferred",
+    "scope": "Static tokenization-update hypothesis only; values and execution order remain unknown",
+    "report_reference": {
+      "path": "reports/p1/call-update-report.json",
+      "sha256": "d51a539f88ae1e9271ea773edaa62c2db3c887fe3728483a099ba3907d05620b"
+    },
+    "source_binary_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+    "machine_fact_ids": [
+      "tokenizer_decrement_call",
+      "tokenizer_increment_call",
+      "tokenizer_precedes_transform",
+      "update_read_add_write"
+    ],
+    "old_value_capture": "not_tested",
+    "error_rollback": "not_tested"
+  },
+  "phase_annotation_counts": {
+    "tokenization_write_candidate": 407
+  },
+  "phase_examples": [
+    {
+      "operation_kind": "update_candidate",
+      "operator": "++",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 3,
+      "source_file": "data6.pack/scenario/scenereplay.s",
+      "source_sha256": "34c171a5d03b907e30f83a3034047cf979a8578105dc970073da69f002bc23fc",
+      "byte_offset": 824,
+      "byte_length": 6,
+      "raw_bytes_reference": {
+        "offset": 824,
+        "length": 6,
+        "sha256": "61a9c27a493ff189910a2b50c0b8bff966f3bc1d373b4217da00588550511f9e"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 1,
+        "source_file": "data6.pack/scenario/scenereplay.s",
+        "source_sha256": "34c171a5d03b907e30f83a3034047cf979a8578105dc970073da69f002bc23fc",
+        "byte_offset": 824,
+        "byte_length": 2,
+        "raw_bytes_reference": {
+          "offset": 824,
+          "length": 2,
+          "sha256": "e8902c7331527e223bf3d97d077ed97fcd7ac3d38f289b5b3ba4d97ea510db05"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7",
+      "phase_hypothesis": "tokenization_write_candidate",
+      "phase_status": "inferred",
+      "phase_evidence": {
+        "status": "inferred",
+        "scope": "Static tokenization-update hypothesis only; values and execution order remain unknown",
+        "report_reference": {
+          "path": "reports/p1/call-update-report.json",
+          "sha256": "d51a539f88ae1e9271ea773edaa62c2db3c887fe3728483a099ba3907d05620b"
+        },
+        "source_binary_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "machine_fact_ids": [
+          "tokenizer_decrement_call",
+          "tokenizer_increment_call",
+          "tokenizer_precedes_transform",
+          "update_read_add_write"
+        ],
+        "old_value_capture": "not_tested",
+        "error_rollback": "not_tested"
+      },
+      "command": "for",
+      "operand_index": 2,
+      "record_byte_offset": 796,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "update_candidate",
+      "operator": "++",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 3,
+      "source_file": "data7.pack/avg/avgsystem.s",
+      "source_sha256": "07f87498ae009d829d0176eec1f6402be1b58ffb06fe4f17fa3ed111db2f5f30",
+      "byte_offset": 1104,
+      "byte_length": 3,
+      "raw_bytes_reference": {
+        "offset": 1104,
+        "length": 3,
+        "sha256": "e8dee0e1e379cafdc77c9d2c35f6a8f877fa07fc34e296e75bd3718b48984110"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 1,
+        "source_file": "data7.pack/avg/avgsystem.s",
+        "source_sha256": "07f87498ae009d829d0176eec1f6402be1b58ffb06fe4f17fa3ed111db2f5f30",
+        "byte_offset": 1104,
+        "byte_length": 1,
+        "raw_bytes_reference": {
+          "offset": 1104,
+          "length": 1,
+          "sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7",
+      "phase_hypothesis": "tokenization_write_candidate",
+      "phase_status": "inferred",
+      "phase_evidence": {
+        "status": "inferred",
+        "scope": "Static tokenization-update hypothesis only; values and execution order remain unknown",
+        "report_reference": {
+          "path": "reports/p1/call-update-report.json",
+          "sha256": "d51a539f88ae1e9271ea773edaa62c2db3c887fe3728483a099ba3907d05620b"
+        },
+        "source_binary_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "machine_fact_ids": [
+          "tokenizer_decrement_call",
+          "tokenizer_increment_call",
+          "tokenizer_precedes_transform",
+          "update_read_add_write"
+        ],
+        "old_value_capture": "not_tested",
+        "error_rollback": "not_tested"
+      },
+      "command": "for",
+      "operand_index": 2,
+      "record_byte_offset": 1091,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "update_candidate",
+      "operator": "++",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 3,
+      "source_file": "data7.pack/avg/avgsystem_abmpmovie.s",
+      "source_sha256": "fd39d4691bdc9b5d512ca0b9f144b6a0e1825eb48466450bdc072e83184b7ac3",
+      "byte_offset": 3098,
+      "byte_length": 3,
+      "raw_bytes_reference": {
+        "offset": 3098,
+        "length": 3,
+        "sha256": "e8dee0e1e379cafdc77c9d2c35f6a8f877fa07fc34e296e75bd3718b48984110"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 1,
+        "source_file": "data7.pack/avg/avgsystem_abmpmovie.s",
+        "source_sha256": "fd39d4691bdc9b5d512ca0b9f144b6a0e1825eb48466450bdc072e83184b7ac3",
+        "byte_offset": 3098,
+        "byte_length": 1,
+        "raw_bytes_reference": {
+          "offset": 3098,
+          "length": 1,
+          "sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7",
+      "phase_hypothesis": "tokenization_write_candidate",
+      "phase_status": "inferred",
+      "phase_evidence": {
+        "status": "inferred",
+        "scope": "Static tokenization-update hypothesis only; values and execution order remain unknown",
+        "report_reference": {
+          "path": "reports/p1/call-update-report.json",
+          "sha256": "d51a539f88ae1e9271ea773edaa62c2db3c887fe3728483a099ba3907d05620b"
+        },
+        "source_binary_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "machine_fact_ids": [
+          "tokenizer_decrement_call",
+          "tokenizer_increment_call",
+          "tokenizer_precedes_transform",
+          "update_read_add_write"
+        ],
+        "old_value_capture": "not_tested",
+        "error_rollback": "not_tested"
+      },
+      "command": "for",
+      "operand_index": 2,
+      "record_byte_offset": 3084,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "update_candidate",
+      "operator": "++",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 3,
+      "source_file": "data7.pack/avg/avgsystem_autoselect.s",
+      "source_sha256": "22cba96295fc658b36e4a15432bfa30bac0eb16e5721807e37eb346f4697aa56",
+      "byte_offset": 1110,
+      "byte_length": 3,
+      "raw_bytes_reference": {
+        "offset": 1110,
+        "length": 3,
+        "sha256": "e8dee0e1e379cafdc77c9d2c35f6a8f877fa07fc34e296e75bd3718b48984110"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 1,
+        "source_file": "data7.pack/avg/avgsystem_autoselect.s",
+        "source_sha256": "22cba96295fc658b36e4a15432bfa30bac0eb16e5721807e37eb346f4697aa56",
+        "byte_offset": 1110,
+        "byte_length": 1,
+        "raw_bytes_reference": {
+          "offset": 1110,
+          "length": 1,
+          "sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7",
+      "phase_hypothesis": "tokenization_write_candidate",
+      "phase_status": "inferred",
+      "phase_evidence": {
+        "status": "inferred",
+        "scope": "Static tokenization-update hypothesis only; values and execution order remain unknown",
+        "report_reference": {
+          "path": "reports/p1/call-update-report.json",
+          "sha256": "d51a539f88ae1e9271ea773edaa62c2db3c887fe3728483a099ba3907d05620b"
+        },
+        "source_binary_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "machine_fact_ids": [
+          "tokenizer_decrement_call",
+          "tokenizer_increment_call",
+          "tokenizer_precedes_transform",
+          "update_read_add_write"
+        ],
+        "old_value_capture": "not_tested",
+        "error_rollback": "not_tested"
+      },
+      "command": "for",
+      "operand_index": 2,
+      "record_byte_offset": 1097,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "update_candidate",
+      "operator": "++",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 3,
+      "source_file": "data7.pack/avg/avgsystem_custom.s",
+      "source_sha256": "a720ae35cee47a46d9278812c7ead9de3027c657598cb682324b3295550af377",
+      "byte_offset": 6096,
+      "byte_length": 3,
+      "raw_bytes_reference": {
+        "offset": 6096,
+        "length": 3,
+        "sha256": "e8dee0e1e379cafdc77c9d2c35f6a8f877fa07fc34e296e75bd3718b48984110"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 1,
+        "source_file": "data7.pack/avg/avgsystem_custom.s",
+        "source_sha256": "a720ae35cee47a46d9278812c7ead9de3027c657598cb682324b3295550af377",
+        "byte_offset": 6096,
+        "byte_length": 1,
+        "raw_bytes_reference": {
+          "offset": 6096,
+          "length": 1,
+          "sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7",
+      "phase_hypothesis": "tokenization_write_candidate",
+      "phase_status": "inferred",
+      "phase_evidence": {
+        "status": "inferred",
+        "scope": "Static tokenization-update hypothesis only; values and execution order remain unknown",
+        "report_reference": {
+          "path": "reports/p1/call-update-report.json",
+          "sha256": "d51a539f88ae1e9271ea773edaa62c2db3c887fe3728483a099ba3907d05620b"
+        },
+        "source_binary_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "machine_fact_ids": [
+          "tokenizer_decrement_call",
+          "tokenizer_increment_call",
+          "tokenizer_precedes_transform",
+          "update_read_add_write"
+        ],
+        "old_value_capture": "not_tested",
+        "error_rollback": "not_tested"
+      },
+      "command": "for",
+      "operand_index": 2,
+      "record_byte_offset": 6083,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "update_candidate",
+      "operator": "++",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 3,
+      "source_file": "data7.pack/avg/avgsystem_custom.s",
+      "source_sha256": "a720ae35cee47a46d9278812c7ead9de3027c657598cb682324b3295550af377",
+      "byte_offset": 6923,
+      "byte_length": 3,
+      "raw_bytes_reference": {
+        "offset": 6923,
+        "length": 3,
+        "sha256": "e8dee0e1e379cafdc77c9d2c35f6a8f877fa07fc34e296e75bd3718b48984110"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 1,
+        "source_file": "data7.pack/avg/avgsystem_custom.s",
+        "source_sha256": "a720ae35cee47a46d9278812c7ead9de3027c657598cb682324b3295550af377",
+        "byte_offset": 6923,
+        "byte_length": 1,
+        "raw_bytes_reference": {
+          "offset": 6923,
+          "length": 1,
+          "sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7",
+      "phase_hypothesis": "tokenization_write_candidate",
+      "phase_status": "inferred",
+      "phase_evidence": {
+        "status": "inferred",
+        "scope": "Static tokenization-update hypothesis only; values and execution order remain unknown",
+        "report_reference": {
+          "path": "reports/p1/call-update-report.json",
+          "sha256": "d51a539f88ae1e9271ea773edaa62c2db3c887fe3728483a099ba3907d05620b"
+        },
+        "source_binary_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "machine_fact_ids": [
+          "tokenizer_decrement_call",
+          "tokenizer_increment_call",
+          "tokenizer_precedes_transform",
+          "update_read_add_write"
+        ],
+        "old_value_capture": "not_tested",
+        "error_rollback": "not_tested"
+      },
+      "command": "for",
+      "operand_index": 2,
+      "record_byte_offset": 6910,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "update_candidate",
+      "operator": "++",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 3,
+      "source_file": "data7.pack/avg/avgsystem_custom.s",
+      "source_sha256": "a720ae35cee47a46d9278812c7ead9de3027c657598cb682324b3295550af377",
+      "byte_offset": 7098,
+      "byte_length": 3,
+      "raw_bytes_reference": {
+        "offset": 7098,
+        "length": 3,
+        "sha256": "e8dee0e1e379cafdc77c9d2c35f6a8f877fa07fc34e296e75bd3718b48984110"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 1,
+        "source_file": "data7.pack/avg/avgsystem_custom.s",
+        "source_sha256": "a720ae35cee47a46d9278812c7ead9de3027c657598cb682324b3295550af377",
+        "byte_offset": 7098,
+        "byte_length": 1,
+        "raw_bytes_reference": {
+          "offset": 7098,
+          "length": 1,
+          "sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7",
+      "phase_hypothesis": "tokenization_write_candidate",
+      "phase_status": "inferred",
+      "phase_evidence": {
+        "status": "inferred",
+        "scope": "Static tokenization-update hypothesis only; values and execution order remain unknown",
+        "report_reference": {
+          "path": "reports/p1/call-update-report.json",
+          "sha256": "d51a539f88ae1e9271ea773edaa62c2db3c887fe3728483a099ba3907d05620b"
+        },
+        "source_binary_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "machine_fact_ids": [
+          "tokenizer_decrement_call",
+          "tokenizer_increment_call",
+          "tokenizer_precedes_transform",
+          "update_read_add_write"
+        ],
+        "old_value_capture": "not_tested",
+        "error_rollback": "not_tested"
+      },
+      "command": "for",
+      "operand_index": 2,
+      "record_byte_offset": 7085,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "update_candidate",
+      "operator": "++",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 3,
+      "source_file": "data7.pack/avg/avgsystem_custom.s",
+      "source_sha256": "a720ae35cee47a46d9278812c7ead9de3027c657598cb682324b3295550af377",
+      "byte_offset": 7593,
+      "byte_length": 3,
+      "raw_bytes_reference": {
+        "offset": 7593,
+        "length": 3,
+        "sha256": "e8dee0e1e379cafdc77c9d2c35f6a8f877fa07fc34e296e75bd3718b48984110"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 1,
+        "source_file": "data7.pack/avg/avgsystem_custom.s",
+        "source_sha256": "a720ae35cee47a46d9278812c7ead9de3027c657598cb682324b3295550af377",
+        "byte_offset": 7593,
+        "byte_length": 1,
+        "raw_bytes_reference": {
+          "offset": 7593,
+          "length": 1,
+          "sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7",
+      "phase_hypothesis": "tokenization_write_candidate",
+      "phase_status": "inferred",
+      "phase_evidence": {
+        "status": "inferred",
+        "scope": "Static tokenization-update hypothesis only; values and execution order remain unknown",
+        "report_reference": {
+          "path": "reports/p1/call-update-report.json",
+          "sha256": "d51a539f88ae1e9271ea773edaa62c2db3c887fe3728483a099ba3907d05620b"
+        },
+        "source_binary_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "machine_fact_ids": [
+          "tokenizer_decrement_call",
+          "tokenizer_increment_call",
+          "tokenizer_precedes_transform",
+          "update_read_add_write"
+        ],
+        "old_value_capture": "not_tested",
+        "error_rollback": "not_tested"
+      },
+      "command": "for",
+      "operand_index": 2,
+      "record_byte_offset": 7580,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "update_candidate",
+      "operator": "++",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 3,
+      "source_file": "data7.pack/avg/avgsystem_rewind.s",
+      "source_sha256": "b3c7e33772e5c92da2f3cbb09c027334dd2efc2025ba968bcf05e245ede2e3a5",
+      "byte_offset": 1372,
+      "byte_length": 3,
+      "raw_bytes_reference": {
+        "offset": 1372,
+        "length": 3,
+        "sha256": "e8dee0e1e379cafdc77c9d2c35f6a8f877fa07fc34e296e75bd3718b48984110"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 1,
+        "source_file": "data7.pack/avg/avgsystem_rewind.s",
+        "source_sha256": "b3c7e33772e5c92da2f3cbb09c027334dd2efc2025ba968bcf05e245ede2e3a5",
+        "byte_offset": 1372,
+        "byte_length": 1,
+        "raw_bytes_reference": {
+          "offset": 1372,
+          "length": 1,
+          "sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7",
+      "phase_hypothesis": "tokenization_write_candidate",
+      "phase_status": "inferred",
+      "phase_evidence": {
+        "status": "inferred",
+        "scope": "Static tokenization-update hypothesis only; values and execution order remain unknown",
+        "report_reference": {
+          "path": "reports/p1/call-update-report.json",
+          "sha256": "d51a539f88ae1e9271ea773edaa62c2db3c887fe3728483a099ba3907d05620b"
+        },
+        "source_binary_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "machine_fact_ids": [
+          "tokenizer_decrement_call",
+          "tokenizer_increment_call",
+          "tokenizer_precedes_transform",
+          "update_read_add_write"
+        ],
+        "old_value_capture": "not_tested",
+        "error_rollback": "not_tested"
+      },
+      "command": "for",
+      "operand_index": 2,
+      "record_byte_offset": 1359,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "update_candidate",
+      "operator": "++",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 3,
+      "source_file": "data7.pack/avg/avgsystem_rewind.s",
+      "source_sha256": "b3c7e33772e5c92da2f3cbb09c027334dd2efc2025ba968bcf05e245ede2e3a5",
+      "byte_offset": 1828,
+      "byte_length": 3,
+      "raw_bytes_reference": {
+        "offset": 1828,
+        "length": 3,
+        "sha256": "e8dee0e1e379cafdc77c9d2c35f6a8f877fa07fc34e296e75bd3718b48984110"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 1,
+        "source_file": "data7.pack/avg/avgsystem_rewind.s",
+        "source_sha256": "b3c7e33772e5c92da2f3cbb09c027334dd2efc2025ba968bcf05e245ede2e3a5",
+        "byte_offset": 1828,
+        "byte_length": 1,
+        "raw_bytes_reference": {
+          "offset": 1828,
+          "length": 1,
+          "sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7",
+      "phase_hypothesis": "tokenization_write_candidate",
+      "phase_status": "inferred",
+      "phase_evidence": {
+        "status": "inferred",
+        "scope": "Static tokenization-update hypothesis only; values and execution order remain unknown",
+        "report_reference": {
+          "path": "reports/p1/call-update-report.json",
+          "sha256": "d51a539f88ae1e9271ea773edaa62c2db3c887fe3728483a099ba3907d05620b"
+        },
+        "source_binary_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "machine_fact_ids": [
+          "tokenizer_decrement_call",
+          "tokenizer_increment_call",
+          "tokenizer_precedes_transform",
+          "update_read_add_write"
+        ],
+        "old_value_capture": "not_tested",
+        "error_rollback": "not_tested"
+      },
+      "command": "for",
+      "operand_index": 2,
+      "record_byte_offset": 1814,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "update_candidate",
+      "operator": "++",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 3,
+      "source_file": "data7.pack/avg/avgsystem_rewind.s",
+      "source_sha256": "b3c7e33772e5c92da2f3cbb09c027334dd2efc2025ba968bcf05e245ede2e3a5",
+      "byte_offset": 1956,
+      "byte_length": 3,
+      "raw_bytes_reference": {
+        "offset": 1956,
+        "length": 3,
+        "sha256": "84588e6add192755d201a2460eb702dbb7eeaa79389ade5471133ade8d1d16a3"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 1,
+        "source_file": "data7.pack/avg/avgsystem_rewind.s",
+        "source_sha256": "b3c7e33772e5c92da2f3cbb09c027334dd2efc2025ba968bcf05e245ede2e3a5",
+        "byte_offset": 1956,
+        "byte_length": 1,
+        "raw_bytes_reference": {
+          "offset": 1956,
+          "length": 1,
+          "sha256": "189f40034be7a199f1fa9891668ee3ab6049f82d38c68be70f596eab2e1857b7"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "189f40034be7a199f1fa9891668ee3ab6049f82d38c68be70f596eab2e1857b7",
+      "phase_hypothesis": "tokenization_write_candidate",
+      "phase_status": "inferred",
+      "phase_evidence": {
+        "status": "inferred",
+        "scope": "Static tokenization-update hypothesis only; values and execution order remain unknown",
+        "report_reference": {
+          "path": "reports/p1/call-update-report.json",
+          "sha256": "d51a539f88ae1e9271ea773edaa62c2db3c887fe3728483a099ba3907d05620b"
+        },
+        "source_binary_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "machine_fact_ids": [
+          "tokenizer_decrement_call",
+          "tokenizer_increment_call",
+          "tokenizer_precedes_transform",
+          "update_read_add_write"
+        ],
+        "old_value_capture": "not_tested",
+        "error_rollback": "not_tested"
+      },
+      "command": "for",
+      "operand_index": 2,
+      "record_byte_offset": 1942,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "update_candidate",
+      "operator": "++",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 19,
+      "source_file": "data7.pack/avg/avgsystem_sceneskip.s",
+      "source_sha256": "cbfb7fdaad2bc3e4674bcbca2f35030f58e24519664a247c1f35b533056ed845",
+      "byte_offset": 2069,
+      "byte_length": 19,
+      "raw_bytes_reference": {
+        "offset": 2069,
+        "length": 19,
+        "sha256": "6f93d47b1db6de3529ffffbd2c9a3ff9ede8c0b486d27682951adcbf604f9dff"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 17,
+        "source_file": "data7.pack/avg/avgsystem_sceneskip.s",
+        "source_sha256": "cbfb7fdaad2bc3e4674bcbca2f35030f58e24519664a247c1f35b533056ed845",
+        "byte_offset": 2069,
+        "byte_length": 17,
+        "raw_bytes_reference": {
+          "offset": 2069,
+          "length": 17,
+          "sha256": "584c9aabbc1d3fb5fdcc73f77ef0680ae3d6257218231e24f0532c3940510ab4"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "584c9aabbc1d3fb5fdcc73f77ef0680ae3d6257218231e24f0532c3940510ab4",
+      "phase_hypothesis": "tokenization_write_candidate",
+      "phase_status": "inferred",
+      "phase_evidence": {
+        "status": "inferred",
+        "scope": "Static tokenization-update hypothesis only; values and execution order remain unknown",
+        "report_reference": {
+          "path": "reports/p1/call-update-report.json",
+          "sha256": "d51a539f88ae1e9271ea773edaa62c2db3c887fe3728483a099ba3907d05620b"
+        },
+        "source_binary_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "machine_fact_ids": [
+          "tokenizer_decrement_call",
+          "tokenizer_increment_call",
+          "tokenizer_precedes_transform",
+          "update_read_add_write"
+        ],
+        "old_value_capture": "not_tested",
+        "error_rollback": "not_tested"
+      },
+      "command": "cal",
+      "operand_index": 0,
+      "record_byte_offset": 2064,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "update_candidate",
+      "operator": "++",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 3,
+      "source_file": "data7.pack/avg/avgsystem_sceneskip.s",
+      "source_sha256": "cbfb7fdaad2bc3e4674bcbca2f35030f58e24519664a247c1f35b533056ed845",
+      "byte_offset": 2509,
+      "byte_length": 3,
+      "raw_bytes_reference": {
+        "offset": 2509,
+        "length": 3,
+        "sha256": "e8dee0e1e379cafdc77c9d2c35f6a8f877fa07fc34e296e75bd3718b48984110"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 1,
+        "source_file": "data7.pack/avg/avgsystem_sceneskip.s",
+        "source_sha256": "cbfb7fdaad2bc3e4674bcbca2f35030f58e24519664a247c1f35b533056ed845",
+        "byte_offset": 2509,
+        "byte_length": 1,
+        "raw_bytes_reference": {
+          "offset": 2509,
+          "length": 1,
+          "sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7",
+      "phase_hypothesis": "tokenization_write_candidate",
+      "phase_status": "inferred",
+      "phase_evidence": {
+        "status": "inferred",
+        "scope": "Static tokenization-update hypothesis only; values and execution order remain unknown",
+        "report_reference": {
+          "path": "reports/p1/call-update-report.json",
+          "sha256": "d51a539f88ae1e9271ea773edaa62c2db3c887fe3728483a099ba3907d05620b"
+        },
+        "source_binary_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "machine_fact_ids": [
+          "tokenizer_decrement_call",
+          "tokenizer_increment_call",
+          "tokenizer_precedes_transform",
+          "update_read_add_write"
+        ],
+        "old_value_capture": "not_tested",
+        "error_rollback": "not_tested"
+      },
+      "command": "for",
+      "operand_index": 2,
+      "record_byte_offset": 2496,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "update_candidate",
+      "operator": "++",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 3,
+      "source_file": "data7.pack/avg/avgsystem_sceneskip.s",
+      "source_sha256": "cbfb7fdaad2bc3e4674bcbca2f35030f58e24519664a247c1f35b533056ed845",
+      "byte_offset": 2592,
+      "byte_length": 3,
+      "raw_bytes_reference": {
+        "offset": 2592,
+        "length": 3,
+        "sha256": "e8dee0e1e379cafdc77c9d2c35f6a8f877fa07fc34e296e75bd3718b48984110"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 1,
+        "source_file": "data7.pack/avg/avgsystem_sceneskip.s",
+        "source_sha256": "cbfb7fdaad2bc3e4674bcbca2f35030f58e24519664a247c1f35b533056ed845",
+        "byte_offset": 2592,
+        "byte_length": 1,
+        "raw_bytes_reference": {
+          "offset": 2592,
+          "length": 1,
+          "sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7",
+      "phase_hypothesis": "tokenization_write_candidate",
+      "phase_status": "inferred",
+      "phase_evidence": {
+        "status": "inferred",
+        "scope": "Static tokenization-update hypothesis only; values and execution order remain unknown",
+        "report_reference": {
+          "path": "reports/p1/call-update-report.json",
+          "sha256": "d51a539f88ae1e9271ea773edaa62c2db3c887fe3728483a099ba3907d05620b"
+        },
+        "source_binary_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "machine_fact_ids": [
+          "tokenizer_decrement_call",
+          "tokenizer_increment_call",
+          "tokenizer_precedes_transform",
+          "update_read_add_write"
+        ],
+        "old_value_capture": "not_tested",
+        "error_rollback": "not_tested"
+      },
+      "command": "for",
+      "operand_index": 2,
+      "record_byte_offset": 2579,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "update_candidate",
+      "operator": "++",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 3,
+      "source_file": "data7.pack/avg/avgsystem_sceneskip.s",
+      "source_sha256": "cbfb7fdaad2bc3e4674bcbca2f35030f58e24519664a247c1f35b533056ed845",
+      "byte_offset": 2899,
+      "byte_length": 3,
+      "raw_bytes_reference": {
+        "offset": 2899,
+        "length": 3,
+        "sha256": "e8dee0e1e379cafdc77c9d2c35f6a8f877fa07fc34e296e75bd3718b48984110"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 1,
+        "source_file": "data7.pack/avg/avgsystem_sceneskip.s",
+        "source_sha256": "cbfb7fdaad2bc3e4674bcbca2f35030f58e24519664a247c1f35b533056ed845",
+        "byte_offset": 2899,
+        "byte_length": 1,
+        "raw_bytes_reference": {
+          "offset": 2899,
+          "length": 1,
+          "sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7",
+      "phase_hypothesis": "tokenization_write_candidate",
+      "phase_status": "inferred",
+      "phase_evidence": {
+        "status": "inferred",
+        "scope": "Static tokenization-update hypothesis only; values and execution order remain unknown",
+        "report_reference": {
+          "path": "reports/p1/call-update-report.json",
+          "sha256": "d51a539f88ae1e9271ea773edaa62c2db3c887fe3728483a099ba3907d05620b"
+        },
+        "source_binary_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "machine_fact_ids": [
+          "tokenizer_decrement_call",
+          "tokenizer_increment_call",
+          "tokenizer_precedes_transform",
+          "update_read_add_write"
+        ],
+        "old_value_capture": "not_tested",
+        "error_rollback": "not_tested"
+      },
+      "command": "for",
+      "operand_index": 2,
+      "record_byte_offset": 2886,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "update_candidate",
+      "operator": "++",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 3,
+      "source_file": "data7.pack/avg/avgsystem_sceneskip.s",
+      "source_sha256": "cbfb7fdaad2bc3e4674bcbca2f35030f58e24519664a247c1f35b533056ed845",
+      "byte_offset": 3456,
+      "byte_length": 3,
+      "raw_bytes_reference": {
+        "offset": 3456,
+        "length": 3,
+        "sha256": "e8dee0e1e379cafdc77c9d2c35f6a8f877fa07fc34e296e75bd3718b48984110"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 1,
+        "source_file": "data7.pack/avg/avgsystem_sceneskip.s",
+        "source_sha256": "cbfb7fdaad2bc3e4674bcbca2f35030f58e24519664a247c1f35b533056ed845",
+        "byte_offset": 3456,
+        "byte_length": 1,
+        "raw_bytes_reference": {
+          "offset": 3456,
+          "length": 1,
+          "sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7",
+      "phase_hypothesis": "tokenization_write_candidate",
+      "phase_status": "inferred",
+      "phase_evidence": {
+        "status": "inferred",
+        "scope": "Static tokenization-update hypothesis only; values and execution order remain unknown",
+        "report_reference": {
+          "path": "reports/p1/call-update-report.json",
+          "sha256": "d51a539f88ae1e9271ea773edaa62c2db3c887fe3728483a099ba3907d05620b"
+        },
+        "source_binary_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "machine_fact_ids": [
+          "tokenizer_decrement_call",
+          "tokenizer_increment_call",
+          "tokenizer_precedes_transform",
+          "update_read_add_write"
+        ],
+        "old_value_capture": "not_tested",
+        "error_rollback": "not_tested"
+      },
+      "command": "for",
+      "operand_index": 2,
+      "record_byte_offset": 3443,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "update_candidate",
+      "operator": "++",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 3,
+      "source_file": "data7.pack/avg/avgsystem_sceneskip.s",
+      "source_sha256": "cbfb7fdaad2bc3e4674bcbca2f35030f58e24519664a247c1f35b533056ed845",
+      "byte_offset": 4290,
+      "byte_length": 3,
+      "raw_bytes_reference": {
+        "offset": 4290,
+        "length": 3,
+        "sha256": "e8dee0e1e379cafdc77c9d2c35f6a8f877fa07fc34e296e75bd3718b48984110"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 1,
+        "source_file": "data7.pack/avg/avgsystem_sceneskip.s",
+        "source_sha256": "cbfb7fdaad2bc3e4674bcbca2f35030f58e24519664a247c1f35b533056ed845",
+        "byte_offset": 4290,
+        "byte_length": 1,
+        "raw_bytes_reference": {
+          "offset": 4290,
+          "length": 1,
+          "sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7",
+      "phase_hypothesis": "tokenization_write_candidate",
+      "phase_status": "inferred",
+      "phase_evidence": {
+        "status": "inferred",
+        "scope": "Static tokenization-update hypothesis only; values and execution order remain unknown",
+        "report_reference": {
+          "path": "reports/p1/call-update-report.json",
+          "sha256": "d51a539f88ae1e9271ea773edaa62c2db3c887fe3728483a099ba3907d05620b"
+        },
+        "source_binary_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "machine_fact_ids": [
+          "tokenizer_decrement_call",
+          "tokenizer_increment_call",
+          "tokenizer_precedes_transform",
+          "update_read_add_write"
+        ],
+        "old_value_capture": "not_tested",
+        "error_rollback": "not_tested"
+      },
+      "command": "for",
+      "operand_index": 2,
+      "record_byte_offset": 4277,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "update_candidate",
+      "operator": "++",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 3,
+      "source_file": "data7.pack/avg/avgsystem_sceneskip.s",
+      "source_sha256": "cbfb7fdaad2bc3e4674bcbca2f35030f58e24519664a247c1f35b533056ed845",
+      "byte_offset": 4373,
+      "byte_length": 3,
+      "raw_bytes_reference": {
+        "offset": 4373,
+        "length": 3,
+        "sha256": "e8dee0e1e379cafdc77c9d2c35f6a8f877fa07fc34e296e75bd3718b48984110"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 1,
+        "source_file": "data7.pack/avg/avgsystem_sceneskip.s",
+        "source_sha256": "cbfb7fdaad2bc3e4674bcbca2f35030f58e24519664a247c1f35b533056ed845",
+        "byte_offset": 4373,
+        "byte_length": 1,
+        "raw_bytes_reference": {
+          "offset": 4373,
+          "length": 1,
+          "sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7",
+      "phase_hypothesis": "tokenization_write_candidate",
+      "phase_status": "inferred",
+      "phase_evidence": {
+        "status": "inferred",
+        "scope": "Static tokenization-update hypothesis only; values and execution order remain unknown",
+        "report_reference": {
+          "path": "reports/p1/call-update-report.json",
+          "sha256": "d51a539f88ae1e9271ea773edaa62c2db3c887fe3728483a099ba3907d05620b"
+        },
+        "source_binary_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "machine_fact_ids": [
+          "tokenizer_decrement_call",
+          "tokenizer_increment_call",
+          "tokenizer_precedes_transform",
+          "update_read_add_write"
+        ],
+        "old_value_capture": "not_tested",
+        "error_rollback": "not_tested"
+      },
+      "command": "for",
+      "operand_index": 2,
+      "record_byte_offset": 4360,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "update_candidate",
+      "operator": "++",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 3,
+      "source_file": "data7.pack/avg/avgsystem_select.s",
+      "source_sha256": "1b6fc11ce2aef91436935ecb89bb99d2c57272a3c8263c9fef2d5cab6c763fb1",
+      "byte_offset": 592,
+      "byte_length": 3,
+      "raw_bytes_reference": {
+        "offset": 592,
+        "length": 3,
+        "sha256": "e8dee0e1e379cafdc77c9d2c35f6a8f877fa07fc34e296e75bd3718b48984110"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 1,
+        "source_file": "data7.pack/avg/avgsystem_select.s",
+        "source_sha256": "1b6fc11ce2aef91436935ecb89bb99d2c57272a3c8263c9fef2d5cab6c763fb1",
+        "byte_offset": 592,
+        "byte_length": 1,
+        "raw_bytes_reference": {
+          "offset": 592,
+          "length": 1,
+          "sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7",
+      "phase_hypothesis": "tokenization_write_candidate",
+      "phase_status": "inferred",
+      "phase_evidence": {
+        "status": "inferred",
+        "scope": "Static tokenization-update hypothesis only; values and execution order remain unknown",
+        "report_reference": {
+          "path": "reports/p1/call-update-report.json",
+          "sha256": "d51a539f88ae1e9271ea773edaa62c2db3c887fe3728483a099ba3907d05620b"
+        },
+        "source_binary_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "machine_fact_ids": [
+          "tokenizer_decrement_call",
+          "tokenizer_increment_call",
+          "tokenizer_precedes_transform",
+          "update_read_add_write"
+        ],
+        "old_value_capture": "not_tested",
+        "error_rollback": "not_tested"
+      },
+      "command": "for",
+      "operand_index": 2,
+      "record_byte_offset": 579,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "update_candidate",
+      "operator": "++",
+      "nested": false,
+      "char_start": 0,
+      "char_end": 3,
+      "source_file": "data7.pack/avg/avgsystem_select.s",
+      "source_sha256": "1b6fc11ce2aef91436935ecb89bb99d2c57272a3c8263c9fef2d5cab6c763fb1",
+      "byte_offset": 1501,
+      "byte_length": 3,
+      "raw_bytes_reference": {
+        "offset": 1501,
+        "length": 3,
+        "sha256": "e8dee0e1e379cafdc77c9d2c35f6a8f877fa07fc34e296e75bd3718b48984110"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 0,
+        "char_end": 1,
+        "source_file": "data7.pack/avg/avgsystem_select.s",
+        "source_sha256": "1b6fc11ce2aef91436935ecb89bb99d2c57272a3c8263c9fef2d5cab6c763fb1",
+        "byte_offset": 1501,
+        "byte_length": 1,
+        "raw_bytes_reference": {
+          "offset": 1501,
+          "length": 1,
+          "sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7",
+      "phase_hypothesis": "tokenization_write_candidate",
+      "phase_status": "inferred",
+      "phase_evidence": {
+        "status": "inferred",
+        "scope": "Static tokenization-update hypothesis only; values and execution order remain unknown",
+        "report_reference": {
+          "path": "reports/p1/call-update-report.json",
+          "sha256": "d51a539f88ae1e9271ea773edaa62c2db3c887fe3728483a099ba3907d05620b"
+        },
+        "source_binary_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "machine_fact_ids": [
+          "tokenizer_decrement_call",
+          "tokenizer_increment_call",
+          "tokenizer_precedes_transform",
+          "update_read_add_write"
+        ],
+        "old_value_capture": "not_tested",
+        "error_rollback": "not_tested"
+      },
+      "command": "for",
+      "operand_index": 2,
+      "record_byte_offset": 1479,
+      "execution_semantics": "not_tested"
+    }
+  ],
+  "nested_update_phase_examples": [
+    {
+      "operation_kind": "update_candidate",
+      "operator": "++",
+      "nested": true,
+      "char_start": 2,
+      "char_end": 5,
+      "source_file": "data7.pack/avg/include_route.s",
+      "source_sha256": "5871a8c1d967c23f1e6ffefb4de2ba6cf7d22d5488b44887e874f814d73bb4f5",
+      "byte_offset": 15880,
+      "byte_length": 3,
+      "raw_bytes_reference": {
+        "offset": 15880,
+        "length": 3,
+        "sha256": "e8dee0e1e379cafdc77c9d2c35f6a8f877fa07fc34e296e75bd3718b48984110"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 2,
+        "char_end": 3,
+        "source_file": "data7.pack/avg/include_route.s",
+        "source_sha256": "5871a8c1d967c23f1e6ffefb4de2ba6cf7d22d5488b44887e874f814d73bb4f5",
+        "byte_offset": 15880,
+        "byte_length": 1,
+        "raw_bytes_reference": {
+          "offset": 15880,
+          "length": 1,
+          "sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7",
+      "phase_hypothesis": "tokenization_write_candidate",
+      "phase_status": "inferred",
+      "phase_evidence": {
+        "status": "inferred",
+        "scope": "Static tokenization-update hypothesis only; values and execution order remain unknown",
+        "report_reference": {
+          "path": "reports/p1/call-update-report.json",
+          "sha256": "d51a539f88ae1e9271ea773edaa62c2db3c887fe3728483a099ba3907d05620b"
+        },
+        "source_binary_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "machine_fact_ids": [
+          "tokenizer_decrement_call",
+          "tokenizer_increment_call",
+          "tokenizer_precedes_transform",
+          "update_read_add_write"
+        ],
+        "old_value_capture": "not_tested",
+        "error_rollback": "not_tested"
+      },
+      "command": "for",
+      "operand_index": 2,
+      "record_byte_offset": 15862,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "update_candidate",
+      "operator": "++",
+      "nested": true,
+      "char_start": 2,
+      "char_end": 5,
+      "source_file": "data7.pack/avg/include_route.s",
+      "source_sha256": "5871a8c1d967c23f1e6ffefb4de2ba6cf7d22d5488b44887e874f814d73bb4f5",
+      "byte_offset": 16561,
+      "byte_length": 3,
+      "raw_bytes_reference": {
+        "offset": 16561,
+        "length": 3,
+        "sha256": "e8dee0e1e379cafdc77c9d2c35f6a8f877fa07fc34e296e75bd3718b48984110"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 2,
+        "char_end": 3,
+        "source_file": "data7.pack/avg/include_route.s",
+        "source_sha256": "5871a8c1d967c23f1e6ffefb4de2ba6cf7d22d5488b44887e874f814d73bb4f5",
+        "byte_offset": 16561,
+        "byte_length": 1,
+        "raw_bytes_reference": {
+          "offset": 16561,
+          "length": 1,
+          "sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7",
+      "phase_hypothesis": "tokenization_write_candidate",
+      "phase_status": "inferred",
+      "phase_evidence": {
+        "status": "inferred",
+        "scope": "Static tokenization-update hypothesis only; values and execution order remain unknown",
+        "report_reference": {
+          "path": "reports/p1/call-update-report.json",
+          "sha256": "d51a539f88ae1e9271ea773edaa62c2db3c887fe3728483a099ba3907d05620b"
+        },
+        "source_binary_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "machine_fact_ids": [
+          "tokenizer_decrement_call",
+          "tokenizer_increment_call",
+          "tokenizer_precedes_transform",
+          "update_read_add_write"
+        ],
+        "old_value_capture": "not_tested",
+        "error_rollback": "not_tested"
+      },
+      "command": "for",
+      "operand_index": 2,
+      "record_byte_offset": 16543,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "update_candidate",
+      "operator": "++",
+      "nested": true,
+      "char_start": 2,
+      "char_end": 5,
+      "source_file": "data7.pack/avg/include_route.s",
+      "source_sha256": "5871a8c1d967c23f1e6ffefb4de2ba6cf7d22d5488b44887e874f814d73bb4f5",
+      "byte_offset": 17256,
+      "byte_length": 3,
+      "raw_bytes_reference": {
+        "offset": 17256,
+        "length": 3,
+        "sha256": "e8dee0e1e379cafdc77c9d2c35f6a8f877fa07fc34e296e75bd3718b48984110"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 2,
+        "char_end": 3,
+        "source_file": "data7.pack/avg/include_route.s",
+        "source_sha256": "5871a8c1d967c23f1e6ffefb4de2ba6cf7d22d5488b44887e874f814d73bb4f5",
+        "byte_offset": 17256,
+        "byte_length": 1,
+        "raw_bytes_reference": {
+          "offset": 17256,
+          "length": 1,
+          "sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7",
+      "phase_hypothesis": "tokenization_write_candidate",
+      "phase_status": "inferred",
+      "phase_evidence": {
+        "status": "inferred",
+        "scope": "Static tokenization-update hypothesis only; values and execution order remain unknown",
+        "report_reference": {
+          "path": "reports/p1/call-update-report.json",
+          "sha256": "d51a539f88ae1e9271ea773edaa62c2db3c887fe3728483a099ba3907d05620b"
+        },
+        "source_binary_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "machine_fact_ids": [
+          "tokenizer_decrement_call",
+          "tokenizer_increment_call",
+          "tokenizer_precedes_transform",
+          "update_read_add_write"
+        ],
+        "old_value_capture": "not_tested",
+        "error_rollback": "not_tested"
+      },
+      "command": "for",
+      "operand_index": 2,
+      "record_byte_offset": 17238,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "update_candidate",
+      "operator": "++",
+      "nested": true,
+      "char_start": 2,
+      "char_end": 5,
+      "source_file": "data8.pack/avg/include_route.s",
+      "source_sha256": "a44cdd6c1e82ca633f499f64748700140d54a5844777acfd183ccc36eac261c2",
+      "byte_offset": 31702,
+      "byte_length": 6,
+      "raw_bytes_reference": {
+        "offset": 31702,
+        "length": 6,
+        "sha256": "61a9c27a493ff189910a2b50c0b8bff966f3bc1d373b4217da00588550511f9e"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 2,
+        "char_end": 3,
+        "source_file": "data8.pack/avg/include_route.s",
+        "source_sha256": "a44cdd6c1e82ca633f499f64748700140d54a5844777acfd183ccc36eac261c2",
+        "byte_offset": 31702,
+        "byte_length": 2,
+        "raw_bytes_reference": {
+          "offset": 31702,
+          "length": 2,
+          "sha256": "e8902c7331527e223bf3d97d077ed97fcd7ac3d38f289b5b3ba4d97ea510db05"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7",
+      "phase_hypothesis": "tokenization_write_candidate",
+      "phase_status": "inferred",
+      "phase_evidence": {
+        "status": "inferred",
+        "scope": "Static tokenization-update hypothesis only; values and execution order remain unknown",
+        "report_reference": {
+          "path": "reports/p1/call-update-report.json",
+          "sha256": "d51a539f88ae1e9271ea773edaa62c2db3c887fe3728483a099ba3907d05620b"
+        },
+        "source_binary_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "machine_fact_ids": [
+          "tokenizer_decrement_call",
+          "tokenizer_increment_call",
+          "tokenizer_precedes_transform",
+          "update_read_add_write"
+        ],
+        "old_value_capture": "not_tested",
+        "error_rollback": "not_tested"
+      },
+      "command": "for",
+      "operand_index": 2,
+      "record_byte_offset": 31666,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "update_candidate",
+      "operator": "++",
+      "nested": true,
+      "char_start": 2,
+      "char_end": 5,
+      "source_file": "data8.pack/avg/include_route.s",
+      "source_sha256": "a44cdd6c1e82ca633f499f64748700140d54a5844777acfd183ccc36eac261c2",
+      "byte_offset": 33036,
+      "byte_length": 6,
+      "raw_bytes_reference": {
+        "offset": 33036,
+        "length": 6,
+        "sha256": "61a9c27a493ff189910a2b50c0b8bff966f3bc1d373b4217da00588550511f9e"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 2,
+        "char_end": 3,
+        "source_file": "data8.pack/avg/include_route.s",
+        "source_sha256": "a44cdd6c1e82ca633f499f64748700140d54a5844777acfd183ccc36eac261c2",
+        "byte_offset": 33036,
+        "byte_length": 2,
+        "raw_bytes_reference": {
+          "offset": 33036,
+          "length": 2,
+          "sha256": "e8902c7331527e223bf3d97d077ed97fcd7ac3d38f289b5b3ba4d97ea510db05"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7",
+      "phase_hypothesis": "tokenization_write_candidate",
+      "phase_status": "inferred",
+      "phase_evidence": {
+        "status": "inferred",
+        "scope": "Static tokenization-update hypothesis only; values and execution order remain unknown",
+        "report_reference": {
+          "path": "reports/p1/call-update-report.json",
+          "sha256": "d51a539f88ae1e9271ea773edaa62c2db3c887fe3728483a099ba3907d05620b"
+        },
+        "source_binary_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "machine_fact_ids": [
+          "tokenizer_decrement_call",
+          "tokenizer_increment_call",
+          "tokenizer_precedes_transform",
+          "update_read_add_write"
+        ],
+        "old_value_capture": "not_tested",
+        "error_rollback": "not_tested"
+      },
+      "command": "for",
+      "operand_index": 2,
+      "record_byte_offset": 33000,
+      "execution_semantics": "not_tested"
+    },
+    {
+      "operation_kind": "update_candidate",
+      "operator": "++",
+      "nested": true,
+      "char_start": 2,
+      "char_end": 5,
+      "source_file": "data8.pack/avg/include_route.s",
+      "source_sha256": "a44cdd6c1e82ca633f499f64748700140d54a5844777acfd183ccc36eac261c2",
+      "byte_offset": 34402,
+      "byte_length": 6,
+      "raw_bytes_reference": {
+        "offset": 34402,
+        "length": 6,
+        "sha256": "61a9c27a493ff189910a2b50c0b8bff966f3bc1d373b4217da00588550511f9e"
+      },
+      "target_kind": "identifier_candidate",
+      "target_reference": {
+        "char_start": 2,
+        "char_end": 3,
+        "source_file": "data8.pack/avg/include_route.s",
+        "source_sha256": "a44cdd6c1e82ca633f499f64748700140d54a5844777acfd183ccc36eac261c2",
+        "byte_offset": 34402,
+        "byte_length": 2,
+        "raw_bytes_reference": {
+          "offset": 34402,
+          "length": 2,
+          "sha256": "e8902c7331527e223bf3d97d077ed97fcd7ac3d38f289b5b3ba4d97ea510db05"
+        }
+      },
+      "nested_index_syntax_count": 0,
+      "subscripts": [],
+      "status": "inferred",
+      "target_name_sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7",
+      "phase_hypothesis": "tokenization_write_candidate",
+      "phase_status": "inferred",
+      "phase_evidence": {
+        "status": "inferred",
+        "scope": "Static tokenization-update hypothesis only; values and execution order remain unknown",
+        "report_reference": {
+          "path": "reports/p1/call-update-report.json",
+          "sha256": "d51a539f88ae1e9271ea773edaa62c2db3c887fe3728483a099ba3907d05620b"
+        },
+        "source_binary_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "machine_fact_ids": [
+          "tokenizer_decrement_call",
+          "tokenizer_increment_call",
+          "tokenizer_precedes_transform",
+          "update_read_add_write"
+        ],
+        "old_value_capture": "not_tested",
+        "error_rollback": "not_tested"
+      },
+      "command": "for",
+      "operand_index": 2,
+      "record_byte_offset": 34366,
+      "execution_semantics": "not_tested"
+    }
+  ],
+  "grammar_coverage_status": "unsupported",
+  "execution_semantics": "not_tested",
+  "variable_bindings": "not_tested",
+  "evaluation_order": "not_tested",
+  "nested_index_syntax_is_runtime_rank": false,
+  "original_files_written": false,
+  "external_game_data_uploads": false
+}

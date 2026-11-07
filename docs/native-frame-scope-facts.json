@@ -1,0 +1,309 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Frame creation and conditional return scope contracts only; no interpreter",
+  "facts": [
+    {
+      "id": "base_calls_virtual_init",
+      "status": "verified",
+      "evidence": "base-create-assembly",
+      "start": "0x6c1a0d",
+      "end": "0x6c1a23",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6c1a0d: MOV dword ptr [EDI + 0x4], ESI",
+        "0x6c1a12: MOV EDX, 0x80",
+        "0x6c1a17: CALL 0x0043b7b8",
+        "0x6c1a1c: MOV EAX, EDI",
+        "0x6c1a1e: MOV EDX, dword ptr [EAX]",
+        "0x6c1a20: CALL dword ptr [EDX + 0x8]"
+      ],
+      "observation": "Base constructor installs its container and calls instance virtual slot +8.",
+      "scope": "Selected instructions/order only; class dispatch and normal execution remain conditional",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "routine_calls_base_create",
+      "status": "verified",
+      "evidence": "routine-create-assembly",
+      "start": "0x6c13e2",
+      "end": "0x6c13fc",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6c13e4: MOV ESI, EAX",
+        "0x6c13e6: XOR EDX, EDX",
+        "0x6c13e8: MOV EAX, ESI",
+        "0x6c13ea: CALL 0x006c19ec",
+        "0x6c13ef: MOV byte ptr [ESI + 0x4c], 0x0",
+        "0x6c13f5: MOV dword ptr [ESI + 0x68], EAX",
+        "0x6c13f8: MOV byte ptr [ESI + 0x8], 0x0"
+      ],
+      "observation": "Routine constructor passes the same instance to the base constructor, then resets state, result pointer and restore flag.",
+      "scope": "Selected instructions/order only; class dispatch and normal execution remain conditional",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "scope_clear_sixteen",
+      "status": "verified",
+      "evidence": "scope-clear-assembly",
+      "start": "0x6c101c",
+      "end": "0x6c102f",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6c101c: XOR EBX, EBX",
+        "0x6c101e: LEA EAX, [ESI + EBX*0x4 + 0xc]",
+        "0x6c1022: XOR EDX, EDX",
+        "0x6c1024: CALL 0x00407460",
+        "0x6c1029: INC EBX",
+        "0x6c102a: CMP EBX, 0x10",
+        "0x6c102d: JNZ 0x006c101e"
+      ],
+      "observation": "Scope clear writes zero strings to sixteen slots from instance+0xc.",
+      "scope": "Selected instructions/order only; class dispatch and normal execution remain conditional",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "call_creates_two_layers",
+      "status": "verified",
+      "evidence": "call-dispatch-assembly",
+      "start": "0x6b7980",
+      "end": "0x6b79a1",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6b7983: MOV EAX, dword ptr [EAX + 0x118]",
+        "0x6b7989: MOV EDX, dword ptr [EAX]",
+        "0x6b798b: CALL dword ptr [EDX + 0xc]",
+        "0x6b7991: MOV EAX, dword ptr [EAX + 0x118]",
+        "0x6b7997: CALL 0x006c1160",
+        "0x6b799c: MOV EDX, dword ptr [EAX]",
+        "0x6b799e: CALL dword ptr [EDX + 0xc]"
+      ],
+      "observation": "Selected call path invokes thread slot +c, then current-routine slot +c.",
+      "scope": "Selected instructions/order only; class dispatch and normal execution remain conditional",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "call_saves_block_location",
+      "status": "verified",
+      "evidence": "call-dispatch-assembly",
+      "start": "0x6b79a1",
+      "end": "0x6b7a20",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6b79aa: CALL 0x006c1160",
+        "0x6b79af: CALL 0x006c149c",
+        "0x6b79b4: MOV byte ptr [EAX + 0x34], 0x1",
+        "0x6b79c6: CALL 0x006c149c",
+        "0x6b79ce: CALL 0x006c0fbc",
+        "0x6b79e1: CALL 0x006c149c",
+        "0x6b79e9: CALL 0x006c0f60",
+        "0x6b79fc: CALL 0x006c149c",
+        "0x6b7a04: MOV dword ptr [EAX + 0x38], EDX",
+        "0x6b7a15: CALL 0x006c149c",
+        "0x6b7a1d: MOV dword ptr [EAX + 0x3c], EDX"
+      ],
+      "observation": "The first new block receives state one, saved string fields and two position fields.",
+      "scope": "Selected instructions/order only; class dispatch and normal execution remain conditional",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "return_selects_first_removed",
+      "status": "verified",
+      "evidence": "call-dispatch-assembly",
+      "start": "0x6b7321",
+      "end": "0x6b733e",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6b7321: MOV ESI, dword ptr [EBP + -0x34]",
+        "0x6b7324: INC ESI",
+        "0x6b7325: MOV EDX, ESI",
+        "0x6b732a: MOV EAX, dword ptr [EAX + 0x118]",
+        "0x6b7330: CALL 0x006c1170",
+        "0x6b7335: XOR EDX, EDX",
+        "0x6b7337: CALL 0x006c1488",
+        "0x6b733c: MOV EBX, EAX"
+      ],
+      "observation": "Return source routine is target index plus one, and its block zero supplies resume data.",
+      "scope": "Selected instructions/order only; class dispatch and normal execution remain conditional",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "return_result_flag_source",
+      "status": "verified",
+      "evidence": "call-dispatch-assembly",
+      "start": "0x6b7369",
+      "end": "0x6b7399",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6b7369: MOV EDX, ESI",
+        "0x6b7374: CALL 0x006c1170",
+        "0x6b7379: CMP byte ptr [EAX + 0x8], 0x0",
+        "0x6b737d: JZ 0x006b7399",
+        "0x6b738b: CALL 0x006c1170",
+        "0x6b7390: MOV EAX, dword ptr [EAX + 0x68]",
+        "0x6b7393: CALL 0x006b6b10",
+        "0x6b7398: POP ECX"
+      ],
+      "observation": "The same source routine restore flag gates restoring its result record before trimming.",
+      "scope": "Selected instructions/order only; class dispatch and normal execution remain conditional",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "return_trims_after_restore",
+      "status": "verified",
+      "evidence": "call-dispatch-assembly",
+      "start": "0x6b7399",
+      "end": "0x6b73aa",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6b7399: MOV EAX, dword ptr [EBP + -0x4]",
+        "0x6b739c: MOV EAX, dword ptr [EAX + 0x118]",
+        "0x6b73a2: MOV EDX, dword ptr [EBP + -0x34]",
+        "0x6b73a5: CALL 0x006c111c"
+      ],
+      "observation": "Trim is called with the retained target index after the selected restore path.",
+      "scope": "Selected instructions/order only; class dispatch and normal execution remain conditional",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "trim_retains_target",
+      "status": "verified",
+      "evidence": "routine-trim-assembly",
+      "start": "0x6c1142",
+      "end": "0x6c1157",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6c1144: CALL 0x006c1a40",
+        "0x6c114b: CALL 0x006c1ac8",
+        "0x6c1150: LEA EDX, [ESI + 0x1]",
+        "0x6c1153: CMP EAX, EDX",
+        "0x6c1155: JG 0x006c1142"
+      ],
+      "observation": "Pop while container Count is greater than target+1; do not assume a single pop for a named target.",
+      "scope": "Selected instructions/order only; class dispatch and normal execution remain conditional",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "current_routine_is_last",
+      "status": "verified",
+      "evidence": "current-routine-assembly",
+      "start": "0x6c1160",
+      "end": "0x6c116d",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6c1160: MOV EDX, dword ptr [EAX + 0x4]",
+        "0x6c1163: MOV EDX, dword ptr [EDX + 0x8]",
+        "0x6c1166: DEC EDX",
+        "0x6c1167: CALL 0x006c1170",
+        "0x6c116c: RET"
+      ],
+      "observation": "Current-routine wrapper selects container Count minus one.",
+      "scope": "Selected instructions/order only; class dispatch and normal execution remain conditional",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "subr_snapshot_gate",
+      "status": "verified",
+      "evidence": "call-dispatch-assembly",
+      "start": "0x6b7a20",
+      "end": "0x6b7a54",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6b7a20: CMP dword ptr [EBP + -0x28], 0x72627573",
+        "0x6b7a27: JNZ 0x006b7a7b",
+        "0x6b7a32: CALL 0x006c1160",
+        "0x6b7a37: CALL 0x006c17c8",
+        "0x6b7a46: CALL 0x006c1160",
+        "0x6b7a4b: MOV EAX, dword ptr [EAX + 0x68]",
+        "0x6b7a4e: CALL 0x006b6570",
+        "0x6b7a53: POP ECX"
+      ],
+      "observation": "Only the selected subr comparison path allocates the auxiliary record and invokes the save helper here.",
+      "scope": "Selected instructions/order only; class dispatch and normal execution remain conditional",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "result_record_size_and_flag",
+      "status": "verified",
+      "evidence": "result-record-assembly",
+      "start": "0x6c17dd",
+      "end": "0x6c17f4",
+      "require_anchor_order": true,
+      "anchors": [
+        "0x6c17dd: MOV EDX, dword ptr [0x006a7e50]",
+        "0x6c17e3: MOV EAX, 0x10c",
+        "0x6c17e8: CALL 0x00408784",
+        "0x6c17ed: MOV dword ptr [EBX + 0x68], EAX",
+        "0x6c17f0: MOV byte ptr [EBX + 0x8], 0x1"
+      ],
+      "observation": "Allocate 0x10c bytes, retain pointer at +68 and set restore flag +8.",
+      "scope": "Selected instructions/order only; class dispatch and normal execution remain conditional",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    }
+  ],
+  "inferred_contracts": [
+    {
+      "id": "new_routine_scope_initialization",
+      "status": "inferred",
+      "basis": [
+        "routine_calls_base_create",
+        "base_calls_virtual_init",
+        "scope_clear_sixteen",
+        "call_creates_two_layers",
+        "LLVM thread-add and routine-init",
+        "reports/p1/frame-scope-metadata-report.json"
+      ],
+      "meaning": "Under the observed class/slot bindings, the new routine initialization clears its own scope; the selected add path contains no explicit caller-scope copy.",
+      "actual_runtime_scope": "not_tested",
+      "callbacks_and_aliasing": "not_tested"
+    },
+    {
+      "id": "return_scope_owner",
+      "status": "inferred",
+      "basis": [
+        "return_selects_first_removed",
+        "return_trims_after_restore",
+        "trim_retains_target",
+        "current_routine_is_last"
+      ],
+      "meaning": "After a successful trim, the retained target routine becomes current, providing its own scope; no scope restoration memcpy is observed on this reviewed return path.",
+      "destructor_equivalence": "not_tested"
+    },
+    {
+      "id": "nonlocal_result_source",
+      "status": "inferred",
+      "basis": [
+        "return_selects_first_removed",
+        "return_result_flag_source",
+        "subr_snapshot_gate",
+        "result_record_size_and_flag"
+      ],
+      "meaning": "Return data and optional snapshot restoration use the first removed routine rather than necessarily the topmost routine; snapshots of other removed frames are not interpreted.",
+      "all_result_register_semantics": "not_tested"
+    }
+  ]
+}

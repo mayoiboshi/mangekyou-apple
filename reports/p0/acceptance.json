@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "dataset": "real",
+  "scope": "user-provided mixed installation; metadata only",
+  "original_files_written": false,
+  "official_edition_authenticity": "not_tested",
+  "report_policy": "No decoded prose, full resource payloads, keys, CG or media; only bounded signatures and metadata",
+  "status": "verified",
+  "p0_fully_passed": true,
+  "scope_limit": "Static P0 acceptance only",
+  "criteria": [
+    {
+      "name": "repeatable_scan",
+      "status": "verified",
+      "evidence": "tests/test_probes.py; private real rescan"
+    },
+    {
+      "name": "actual_pack_versions_and_indexes",
+      "status": "verified",
+      "evidence": "archive-report.json: 10 V3.1 indexes, 10947 entries"
+    },
+    {
+      "name": "resource_decode_path",
+      "status": "verified",
+      "evidence": "asset-report.json; 410 selected resources"
+    },
+    {
+      "name": "traceable_script_structure_or_tool_insufficiency",
+      "status": "verified",
+      "evidence": "script-report.json byte references; msg-tool source S-EXPORT/S-DETECT-BUG"
+    },
+    {
+      "name": "major_formats_and_unknowns_identified",
+      "status": "verified",
+      "evidence": "asset-report.json, nested ABMP12 not_tested"
+    },
+    {
+      "name": "next_stage_scope_and_risks",
+      "status": "verified",
+      "evidence": "docs/05; docs/06"
+    },
+    {
+      "name": "original_archives_unchanged",
+      "status": "verified",
+      "evidence": "pre/post sampling archive SHA-256"
+    },
+    {
+      "name": "commercial_bytes_excluded_from_git",
+      "status": "verified",
+      "evidence": "private/ and .research/ ignored; published reports metadata-only"
+    },
+    {
+      "name": "automated_tests",
+      "status": "verified",
+      "evidence": "test-results.json; verification.json"
+    }
+  ]
+}

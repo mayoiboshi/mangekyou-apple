@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Object scope selection and lookup static paths only; no script interpreter",
+  "queries": [
+    {
+      "name": "generic-dispatch",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6af4f8"
+    },
+    {
+      "name": "generic-dispatch-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6af4f8"
+    },
+    {
+      "name": "object-dispatch",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6aacf8"
+    },
+    {
+      "name": "object-dispatch-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6aacf8"
+    },
+    {
+      "name": "scope-clear",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c1018"
+    },
+    {
+      "name": "scope-clear-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6c1018"
+    },
+    {
+      "name": "current-routine",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c1160"
+    },
+    {
+      "name": "current-routine-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6c1160"
+    },
+    {
+      "name": "routine-wrapper",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c1170"
+    },
+    {
+      "name": "routine-wrapper-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6c1170"
+    },
+    {
+      "name": "routine-get",
+      "operation": "procedure_pseudo_code",
+      "address": "0x6c1ad0"
+    },
+    {
+      "name": "routine-get-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x6c1ad0"
+    },
+    {
+      "name": "registry-get",
+      "operation": "procedure_pseudo_code",
+      "address": "0x68adc8"
+    },
+    {
+      "name": "registry-get-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x68adc8"
+    },
+    {
+      "name": "registry-index",
+      "operation": "procedure_pseudo_code",
+      "address": "0x68acc0"
+    },
+    {
+      "name": "registry-index-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x68acc0"
+    },
+    {
+      "name": "registry-cache",
+      "operation": "procedure_pseudo_code",
+      "address": "0x4e6ba0"
+    },
+    {
+      "name": "registry-cache-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x4e6ba0"
+    },
+    {
+      "name": "registry-add",
+      "operation": "procedure_pseudo_code",
+      "address": "0x68a0b4"
+    },
+    {
+      "name": "registry-add-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x68a0b4"
+    },
+    {
+      "name": "name-equality",
+      "operation": "procedure_pseudo_code",
+      "address": "0x407b38"
+    },
+    {
+      "name": "name-equality-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x407b38"
+    },
+    {
+      "name": "ascii-lower",
+      "operation": "procedure_pseudo_code",
+      "address": "0x41493c"
+    },
+    {
+      "name": "ascii-lower-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x41493c"
+    }
+  ]
+}

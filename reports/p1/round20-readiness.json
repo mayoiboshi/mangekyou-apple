@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "status": "verified",
+  "dataset": "real",
+  "stage": "round20",
+  "scope": "Research checks only; not full P1 acceptance, execution equivalence or a completed native port",
+  "artifacts": [
+    {
+      "path": "reports/p1/native-app-foundation.json",
+      "status": "verified",
+      "declared_status": "inferred",
+      "sha256": "b90813f073bf06cba44c5c283b9ce58e7b8ed6b04b6b58746c33e96eb3a7c72e",
+      "scope": "Working ARM64 app foundation; original game execution and complete game compatibility remain unimplemented",
+      "qualifiers": {},
+      "meaning": "Report shape and declared research status only; inferred semantics are not promoted"
+    }
+  ],
+  "tests": "reports/p1/round20-tests.json",
+  "original_integrity": {
+    "status": "verified",
+    "items": [
+      {
+        "source_file": "DLL/SystemInfo.dll",
+        "status": "verified",
+        "expected_sha256": "4595143df3019fad60818447bda326a0b996abc7589c1dd7f850d4a47d8fd522",
+        "observed_sha256": "4595143df3019fad60818447bda326a0b996abc7589c1dd7f850d4a47d8fd522"
+      },
+      {
+        "source_file": "DLL/TheoraLib.dll",
+        "status": "verified",
+        "expected_sha256": "9ef27127f90bb7aa869a23965e77c5609ec3976bf3ec2ed6b4f889f94f0b5fc5",
+        "observed_sha256": "9ef27127f90bb7aa869a23965e77c5609ec3976bf3ec2ed6b4f889f94f0b5fc5"
+      },
+      {
+        "source_file": "DLL/wuvorbis.dll",
+        "status": "verified",
+        "expected_sha256": "60996d622b30dc0af15bd85a1b701f84fc8a34e7a8f1877c917e0eb63fa9eb2b",
+        "observed_sha256": "60996d622b30dc0af15bd85a1b701f84fc8a34e7a8f1877c917e0eb63fa9eb2b"
+      },
+      {
+        "source_file": "GameData/data0.pack",
+        "status": "verified",
+        "expected_sha256": "53f84595e304a757bd6ef9e590e6c8a74e198ca8420232d586aef900514d3d74",
+        "observed_sha256": "53f84595e304a757bd6ef9e590e6c8a74e198ca8420232d586aef900514d3d74"
+      },
+      {
+        "source_file": "GameData/data1.pack",
+        "status": "verified",
+        "expected_sha256": "cb712faa03bd8aa5693198ab7d41d3e7231004ac8970a067888f25db916bf819",
+        "observed_sha256": "cb712faa03bd8aa5693198ab7d41d3e7231004ac8970a067888f25db916bf819"
+      },
+      {
+        "source_file": "GameData/data2.pack",
+        "status": "verified",
+        "expected_sha256": "a12e76df9ac19690fb4582b3280470ed8ecabd3ff4e8ba20349a6ccfe834ba71",
+        "observed_sha256": "a12e76df9ac19690fb4582b3280470ed8ecabd3ff4e8ba20349a6ccfe834ba71"
+      },
+      {
+        "source_file": "GameData/data3.pack",
+        "status": "verified",
+        "expected_sha256": "47053b06b036ad58d4bea6c5465f952c617da1561b4a2fce59a71633fea13409",
+        "observed_sha256": "47053b06b036ad58d4bea6c5465f952c617da1561b4a2fce59a71633fea13409"
+      },
+      {
+        "source_file": "GameData/data4.pack",
+        "status": "verified",
+        "expected_sha256": "6dbfa65c8eb9c701ab546a125d82fcbbcfd5ff173c3c263f69d8111117ee2ccf",
+        "observed_sha256": "6dbfa65c8eb9c701ab546a125d82fcbbcfd5ff173c3c263f69d8111117ee2ccf"
+      },
+      {
+        "source_file": "GameData/data5.pack",
+        "status": "verified",
+        "expected_sha256": "0d6b3183a62d5e2b69af06f66b23123212ce55ccfbfb992be4eb9da8339380f6",
+        "observed_sha256": "0d6b3183a62d5e2b69af06f66b23123212ce55ccfbfb992be4eb9da8339380f6"
+      },
+      {
+        "source_file": "GameData/data6.pack",
+        "status": "verified",
+        "expected_sha256": "c8f6e1e1821ecc5bccea2db9737e2915c0bf2f2e185df6f40ad1b5e7fb3c1006",
+        "observed_sha256": "c8f6e1e1821ecc5bccea2db9737e2915c0bf2f2e185df6f40ad1b5e7fb3c1006"
+      },
+      {
+        "source_file": "GameData/data7.pack",
+        "status": "verified",
+        "expected_sha256": "29d04ca1f627438ddccc066873a6651bd2c46e9561e070c780d4a64244a4f06c",
+        "observed_sha256": "29d04ca1f627438ddccc066873a6651bd2c46e9561e070c780d4a64244a4f06c"
+      },
+      {
+        "source_file": "GameData/data8.pack",
+        "status": "verified",
+        "expected_sha256": "f796a90c498de7325d8968d8ce99ef17b71753b7ce101521e390167649c83509",
+        "observed_sha256": "f796a90c498de7325d8968d8ce99ef17b71753b7ce101521e390167649c83509"
+      },
+      {
+        "source_file": "UnInstall.exe",
+        "status": "verified",
+        "expected_sha256": "f299a61315c930921793af65366f9cb3bf60d2f2d78c4172376f88dc730a5f70",
+        "observed_sha256": "f299a61315c930921793af65366f9cb3bf60d2f2d78c4172376f88dc730a5f70"
+      },
+      {
+        "source_file": "UnInstallData.pack",
+        "status": "verified",
+        "expected_sha256": "c02a6cc7454932f48f0c8d49c5db6982a4538501b1dd43494ad4cc2c6739617d",
+        "observed_sha256": "c02a6cc7454932f48f0c8d49c5db6982a4538501b1dd43494ad4cc2c6739617d"
+      },
+      {
+        "source_file": "libeay32.dll",
+        "status": "verified",
+        "expected_sha256": "05ba6d1ef9ada95a0c7ee98c1777068d0683471d1f69222342e8064a8a4f255f",
+        "observed_sha256": "05ba6d1ef9ada95a0c7ee98c1777068d0683471d1f69222342e8064a8a4f255f"
+      },
+      {
+        "source_file": "ssleay32.dll",
+        "status": "verified",
+        "expected_sha256": "23045a2207721b2b7152216f82dbc25ac9fb33bb9d87d1d820c70f5c4dc2beab",
+        "observed_sha256": "23045a2207721b2b7152216f82dbc25ac9fb33bb9d87d1d820c70f5c4dc2beab"
+      },
+      {
+        "source_file": "エンジン設定.exe",
+        "status": "verified",
+        "expected_sha256": "60c02c95d9f1eb6c009a0877a7e694788be4f7e70ae39438ae5952311b83a89d",
+        "observed_sha256": "60c02c95d9f1eb6c009a0877a7e694788be4f7e70ae39438ae5952311b83a89d"
+      },
+      {
+        "source_file": "美少女万华镜４(瑞树×萌你妹).exe",
+        "status": "verified",
+        "expected_sha256": "d259f82de8e31abcc7d8e35b4a8a0461339a6e676d0e85c74589160787421302",
+        "observed_sha256": "d259f82de8e31abcc7d8e35b4a8a0461339a6e676d0e85c74589160787421302"
+      },
+      {
+        "source_file": "美少女万华镜４(脸肿汉化组).exe",
+        "status": "verified",
+        "expected_sha256": "5c28e7983c0b5786b5d1fbcea7e1ec4a2c6534dc99fc6ade93b249a23825bb01",
+        "observed_sha256": "5c28e7983c0b5786b5d1fbcea7e1ec4a2c6534dc99fc6ade93b249a23825bb01"
+      },
+      {
+        "source_file": "美少女万華鏡４.exe",
+        "status": "verified",
+        "expected_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+        "observed_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5"
+      }
+    ]
+  },
+  "p0_reports_unchanged": "verified",
+  "runtime_development_ready": false,
+  "full_native_port": "not_tested",
+  "game_execution": "not_tested",
+  "original_files_written": false,
+  "external_game_data_uploads": false
+}

@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "status": "inferred",
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Selected linear code spans; boundaries inferred, no execution",
+  "windows": [
+    {
+      "name": "object-value-get",
+      "start": "0x69e5d0",
+      "end_exclusive": "0x69e60c"
+    },
+    {
+      "name": "object-create-call",
+      "start": "0x69e8aa",
+      "end_exclusive": "0x69e8ff"
+    },
+    {
+      "name": "event-initializer",
+      "start": "0x6beb3a",
+      "end_exclusive": "0x6beb77"
+    },
+    {
+      "name": "create-event-bridge",
+      "start": "0x6bee50",
+      "end_exclusive": "0x6bee98"
+    },
+    {
+      "name": "load-event-bridge",
+      "start": "0x6bef28",
+      "end_exclusive": "0x6bef7c"
+    }
+  ]
+}

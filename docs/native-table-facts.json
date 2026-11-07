@@ -1,0 +1,522 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Table object, selected name/value helpers and result writes; static observations only",
+  "facts": [
+    {
+      "id": "table_tag_and_list",
+      "status": "verified",
+      "evidence": "table-create-assembly",
+      "start": "0x68f21e",
+      "end": "0x68f236",
+      "anchors": [
+        "0x68f21e: CALL 0x0068bc58",
+        "0x68f223: MOV byte ptr [ESI + 0xc], 0x24",
+        "0x68f229: MOV EAX, [0x00562ca8]",
+        "0x68f22e: CALL 0x00563784",
+        "0x68f233: MOV dword ptr [ESI + 0x18], EAX"
+      ],
+      "require_anchor_order": true,
+      "observation": "Selected constructor writes type byte 36 and stores a newly constructed component at object +24.",
+      "scope": "Selected static instructions only; full original execution and exception behavior not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "load_command_branch",
+      "status": "verified",
+      "evidence": "table-dispatch-assembly",
+      "start": "0x6cdd93",
+      "end": "0x6cddae",
+      "anchors": [
+        "0x6cdd93: SUB EDI, 0x64",
+        "0x6cdd96: JZ 0x006ce32a",
+        "0x6cdd9c: SUB EDI, 0x5",
+        "0x6cdd9f: JZ 0x006ce31b",
+        "0x6cdda5: SUB EDI, 0x3",
+        "0x6cdda8: JZ 0x006ce268"
+      ],
+      "require_anchor_order": true,
+      "observation": "The subtract/equality chain reaches the selected load branch for identifier 0x6c.",
+      "scope": "Selected static instructions only; full original execution and exception behavior not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "query_command_branch",
+      "status": "verified",
+      "evidence": "table-dispatch-assembly",
+      "start": "0x6cddbc",
+      "end": "0x6cddec",
+      "anchors": [
+        "0x6cddbc: SUB EDI, 0x633f",
+        "0x6cddc2: JZ 0x006ce2f2",
+        "0x6cddc8: SUB EDI, 0xb00",
+        "0x6cddce: JZ 0x006ce150",
+        "0x6cddd4: SUB EDI, 0x500",
+        "0x6cddda: JZ 0x006ce058",
+        "0x6cdde0: SUB EDI, 0x300",
+        "0x6cdde6: JZ 0x006cded1"
+      ],
+      "require_anchor_order": true,
+      "observation": "The subtract/equality chain reaches the selected query branch for identifier 0x763f.",
+      "scope": "Selected static instructions only; full original execution and exception behavior not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "load_stream_then_clear",
+      "status": "verified",
+      "evidence": "table-dispatch-assembly",
+      "start": "0x6ce29c",
+      "end": "0x6ce2ca",
+      "anchors": [
+        "0x6ce29c: OR ECX, 0xffffffff",
+        "0x6ce29f: MOV DL, 0x1",
+        "0x6ce2a4: CALL 0x004ec5ac",
+        "0x6ce2ab: TEST EDI, EDI",
+        "0x6ce2ad: JZ 0x006ce2cf",
+        "0x6ce2af: XOR EDX, EDX",
+        "0x6ce2b1: MOV EAX, dword ptr [EBP + -0x20]",
+        "0x6ce2b4: CALL 0x00563680",
+        "0x6ce2b9: MOV EDX, EDI",
+        "0x6ce2bb: MOV EAX, dword ptr [EBP + -0x20]",
+        "0x6ce2be: CALL 0x00563a68",
+        "0x6ce2c5: CALL 0x004056f8"
+      ],
+      "require_anchor_order": true,
+      "observation": "On a nonzero resource stream the selected component is cleared, passed to stream load, and the stream is freed. Clearing uses the component pointer, not a decompiler temporary falsely rendered as zero.",
+      "scope": "Selected static instructions only; full original execution and exception behavior not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "stream_virtual_load",
+      "status": "verified",
+      "evidence": "stream-load-assembly",
+      "start": "0x563a96",
+      "end": "0x563aa0",
+      "anchors": [
+        "0x563a96: MOV EDX, ESI",
+        "0x563a98: MOV EAX, dword ptr [EBP + -0x8]",
+        "0x563a9b: MOV ECX, dword ptr [EAX]",
+        "0x563a9d: CALL dword ptr [ECX + 0x70]"
+      ],
+      "require_anchor_order": true,
+      "observation": "The temporary string-list object receives the stream through virtual slot +112; this fact does not establish encoding rules.",
+      "scope": "Selected static instructions only; full original execution and exception behavior not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "stream_line_bridge",
+      "status": "verified",
+      "evidence": "stream-load-assembly",
+      "start": "0x563ac3",
+      "end": "0x563ad2",
+      "anchors": [
+        "0x563ac3: MOV ECX, 0x563af4",
+        "0x563ac8: MOV EDX, dword ptr [EBP + -0x8]",
+        "0x563acb: MOV EAX, EBX",
+        "0x563acd: CALL 0x00563b80"
+      ],
+      "require_anchor_order": true,
+      "observation": "The string-list loader passes the literal at 0x563af4 as ECX into the line-list loader.",
+      "scope": "Selected static instructions only; full original execution and exception behavior not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "line_loader_order",
+      "status": "verified",
+      "evidence": "line-load-assembly",
+      "start": "0x563bae",
+      "end": "0x563c12",
+      "anchors": [
+        "0x563bb3: CALL 0x00563680",
+        "0x563bd0: CALL 0x0043d6e4",
+        "0x563bd5: CMP dword ptr [EBP + -0x8], 0x0",
+        "0x563bd9: JZ 0x00563c12",
+        "0x563bde: MOV EDX, dword ptr [EBP + -0x8]",
+        "0x563be3: CALL 0x0043d934",
+        "0x563bee: CALL 0x00563b08",
+        "0x563bf3: TEST AL, AL",
+        "0x563bf5: JZ 0x00563c12",
+        "0x563bfe: CALL 0x00563b50",
+        "0x563c0d: CALL 0x00564644"
+      ],
+      "require_anchor_order": true,
+      "observation": "The list is cleared; each nonempty name is used for a separate value-by-name lookup, followed by filter, marker conversion and upsert.",
+      "scope": "Selected static instructions only; full original execution and exception behavior not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "slash_filter",
+      "status": "verified",
+      "evidence": "reject-slashes-assembly",
+      "start": "0x563b0f",
+      "end": "0x563b35",
+      "anchors": [
+        "0x563b0f: XOR EBX, EBX",
+        "0x563b13: MOV EAX, 0x563b48",
+        "0x563b18: CALL 0x00407f10",
+        "0x563b1d: TEST EAX, EAX",
+        "0x563b1f: JG 0x00563b33",
+        "0x563b23: MOV EAX, 0x563b48",
+        "0x563b28: CALL 0x00407f10",
+        "0x563b2d: TEST EAX, EAX",
+        "0x563b2f: JG 0x00563b33",
+        "0x563b31: MOV BL, 0x1"
+      ],
+      "require_anchor_order": true,
+      "observation": "Both inputs are searched for the same literal; a positive position branches around the true result.",
+      "scope": "Selected static instructions only; full original execution and exception behavior not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "marker_null_branch",
+      "status": "verified",
+      "evidence": "empty-marker-assembly",
+      "start": "0x563b59",
+      "end": "0x563b7c",
+      "anchors": [
+        "0x563b5b: MOV EDX, dword ptr [EBP + 0x8]",
+        "0x563b5e: MOV EDX, dword ptr [EDX + -0x4]",
+        "0x563b61: CALL 0x00407b38",
+        "0x563b66: JNZ 0x00563b73",
+        "0x563b6a: XOR EDX, EDX",
+        "0x563b6c: CALL 0x00407460",
+        "0x563b71: JMP 0x00563b7c",
+        "0x563b75: MOV EDX, EBX",
+        "0x563b77: CALL 0x00407460"
+      ],
+      "require_anchor_order": true,
+      "observation": "The value is compared with the parent-frame marker; equal uses a null input to string assignment, unequal preserves the input.",
+      "scope": "Selected static instructions only; full original execution and exception behavior not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "empty_optimization_gate",
+      "status": "verified",
+      "evidence": "list-upsert-assembly",
+      "start": "0x564659",
+      "end": "0x56469d",
+      "anchors": [
+        "0x564659: CMP ESI, -0x1",
+        "0x56465c: JNZ 0x00564675",
+        "0x56465e: CMP byte ptr [EBX + 0x8], 0x0",
+        "0x564664: TEST EDI, EDI",
+        "0x564666: JZ 0x0056469d",
+        "0x56466e: CALL 0x00563540",
+        "0x564675: CMP byte ptr [EBX + 0x8], 0x0",
+        "0x56467b: TEST EDI, EDI",
+        "0x56467d: JNZ 0x0056468a",
+        "0x564683: CALL 0x005637c0",
+        "0x564698: CALL 0x00407460"
+      ],
+      "require_anchor_order": true,
+      "observation": "Missing versus existing entries and component byte +8 select add, delete or string replacement. The live byte value is not established.",
+      "scope": "Selected static instructions only; full original execution and exception behavior not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "search_normalized_hash",
+      "status": "verified",
+      "evidence": "list-search-assembly",
+      "start": "0x564550",
+      "end": "0x56459e",
+      "anchors": [
+        "0x564555: CALL 0x0041493c",
+        "0x56455d: CALL 0x004e3178",
+        "0x564589: CMP EAX, dword ptr [EBP + -0x10]",
+        "0x56458c: JNZ 0x005645a0",
+        "0x564594: CALL 0x00407b38",
+        "0x564599: JNZ 0x005645a0",
+        "0x56459b: MOV dword ptr [EBP + -0xc], EDI"
+      ],
+      "require_anchor_order": true,
+      "observation": "Lookup uses the normalization helper, a hash comparison and an immediate equality branch before storing a matching index.",
+      "scope": "Selected static instructions only; full original execution and exception behavior not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "get_missing_null",
+      "status": "verified",
+      "evidence": "list-get-assembly",
+      "start": "0x5639e7",
+      "end": "0x563a14",
+      "anchors": [
+        "0x5639e9: CALL 0x00564524",
+        "0x5639f0: CMP ESI, -0x1",
+        "0x5639f3: JZ 0x00563a0b",
+        "0x5639ff: MOV EDX, dword ptr [EAX + 0xc]",
+        "0x563a04: CALL 0x00407460",
+        "0x563a09: JMP 0x00563a14",
+        "0x563a0d: XOR EDX, EDX",
+        "0x563a0f: CALL 0x00407460"
+      ],
+      "require_anchor_order": true,
+      "observation": "Found index returns entry +12; missing index supplies null to output-string assignment.",
+      "scope": "Selected static instructions only; full original execution and exception behavior not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "query_default_pair",
+      "status": "verified",
+      "evidence": "table-dispatch-assembly",
+      "start": "0x6cded1",
+      "end": "0x6cdf22",
+      "anchors": [
+        "0x6cded4: XOR EDX, EDX",
+        "0x6cded6: CALL 0x004074b4",
+        "0x6cdedb: XOR EAX, EAX",
+        "0x6cdedd: MOV dword ptr [EBP + -0x1c], EAX",
+        "0x6cdee3: MOV EDX, 0x2",
+        "0x6cdeef: CMP dword ptr [EBP + -0x2c], 0x0",
+        "0x6cdef3: JZ 0x006cdf22",
+        "0x6cdf0c: CALL 0x006be1d8",
+        "0x6cdf11: MOV EAX, dword ptr [EBP + -0x10]",
+        "0x6cdf14: MOV dword ptr [EBP + -0x1c], EAX",
+        "0x6cdf1a: MOV EDX, dword ptr [EBP + -0xc]",
+        "0x6cdf1d: CALL 0x004074b4"
+      ],
+      "require_anchor_order": true,
+      "observation": "The selected query path initializes an empty/default-zero pair; when field two exists its evaluated descriptor supplies integer and string defaults.",
+      "scope": "Selected static instructions only; full original execution and exception behavior not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "query_missing_results",
+      "status": "verified",
+      "evidence": "table-dispatch-assembly",
+      "start": "0x6cdf47",
+      "end": "0x6cdf83",
+      "anchors": [
+        "0x6cdf47: CALL 0x005639e0",
+        "0x6cdf4c: CMP dword ptr [EBP + -0x8], 0x0",
+        "0x6cdf50: JNZ 0x006cdf88",
+        "0x6cdf5a: CALL 0x006c1be4",
+        "0x6cdf5f: MOV EAX, dword ptr [EBP + -0x4]",
+        "0x6cdf65: MOV EDX, 0x6ce72c",
+        "0x6cdf6c: CALL 0x006be2cc",
+        "0x6cdf71: MOV EAX, dword ptr [EBP + -0x1c]",
+        "0x6cdf77: MOV EDX, 0x6ce74c",
+        "0x6cdf7e: CALL 0x006be294"
+      ],
+      "require_anchor_order": true,
+      "observation": "Null lookup output takes the default string and integer setter paths with the two named result literals.",
+      "scope": "Selected static instructions only; full original execution and exception behavior not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "query_found_results",
+      "status": "verified",
+      "evidence": "table-dispatch-assembly",
+      "start": "0x6cdf88",
+      "end": "0x6cdfc1",
+      "anchors": [
+        "0x6cdf90: CALL 0x006c1be4",
+        "0x6cdf95: MOV EAX, dword ptr [EBP + -0x8]",
+        "0x6cdf9b: MOV EDX, 0x6ce72c",
+        "0x6cdfa2: CALL 0x006be2cc",
+        "0x6cdfa7: MOV EDX, dword ptr [EBP + -0x1c]",
+        "0x6cdfaa: MOV EAX, dword ptr [EBP + -0x8]",
+        "0x6cdfad: CALL 0x00415a90",
+        "0x6cdfb5: MOV EDX, 0x6ce74c",
+        "0x6cdfbc: CALL 0x006be294"
+      ],
+      "require_anchor_order": true,
+      "observation": "Non-null output writes the found string and passes it with the default integer to conversion before the integer setter. Auxiliary helper flags are the same as in the missing branch.",
+      "scope": "Selected static instructions only; full original execution and exception behavior not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "result_integer_storage",
+      "status": "verified",
+      "evidence": "result-int-assembly",
+      "start": "0x6be2ac",
+      "end": "0x6be2c2",
+      "anchors": [
+        "0x6be2ac: PUSH 0x1",
+        "0x6be2ae: MOV EAX, dword ptr [EBX + 0xe8]",
+        "0x6be2b4: CALL 0x0069f278",
+        "0x6be2b9: MOV ECX, EDI",
+        "0x6be2bb: MOV EDX, ESI",
+        "0x6be2bd: CALL 0x0069d2c8"
+      ],
+      "require_anchor_order": true,
+      "observation": "The integer result wrapper uses context +232 with lookup helper 0x69f278, then integer setter 0x69d2c8.",
+      "scope": "Selected static instructions only; full original execution and exception behavior not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "result_string_storage",
+      "status": "verified",
+      "evidence": "result-str-assembly",
+      "start": "0x6be2e4",
+      "end": "0x6be2fa",
+      "anchors": [
+        "0x6be2e4: PUSH 0x1",
+        "0x6be2e6: MOV EAX, dword ptr [EBX + 0xe8]",
+        "0x6be2ec: CALL 0x0069f278",
+        "0x6be2f1: MOV ECX, EDI",
+        "0x6be2f3: MOV EDX, ESI",
+        "0x6be2f5: CALL 0x0069d35c"
+      ],
+      "require_anchor_order": true,
+      "observation": "The string result wrapper uses the same context field and lookup helper, then string setter 0x69d35c.",
+      "scope": "Selected static instructions only; full original execution and exception behavior not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "name_separator_default",
+      "status": "verified",
+      "evidence": "line-separator-assembly",
+      "start": "0x43e697",
+      "end": "0x43e6ac",
+      "anchors": [
+        "0x43e697: TEST byte ptr [EBX + 0x4], 0x4",
+        "0x43e69b: JNZ 0x0043e6a8",
+        "0x43e69d: MOV DX, 0x3d",
+        "0x43e6a3: CALL 0x0043e6b0",
+        "0x43e6a8: MOVZX EAX, word ptr [EBX + 0xe]"
+      ],
+      "require_anchor_order": true,
+      "observation": "Unless the selected flag is set, the separator helper sets character 0x3d and returns the separator word.",
+      "scope": "Selected static instructions only; full original execution and exception behavior not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "name_first_separator",
+      "status": "verified",
+      "evidence": "line-name-assembly",
+      "start": "0x43d36d",
+      "end": "0x43d3a1",
+      "anchors": [
+        "0x43d36f: CALL 0x0043e694",
+        "0x43d383: CALL 0x0041de2c",
+        "0x43d388: TEST EAX, EAX",
+        "0x43d38a: JZ 0x0043d398",
+        "0x43d38e: DEC EDX",
+        "0x43d391: CALL 0x004077dc",
+        "0x43d39a: XOR EDX, EDX",
+        "0x43d39c: CALL 0x004077dc"
+      ],
+      "require_anchor_order": true,
+      "observation": "The name helper obtains a separator position and truncates before it, otherwise returns zero length. No trim call appears in this selected path.",
+      "scope": "Selected static instructions only; full original execution and exception behavior not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "value_uses_virtual_index",
+      "status": "verified",
+      "evidence": "value-by-name-assembly",
+      "start": "0x43d95f",
+      "end": "0x43d9c3",
+      "anchors": [
+        "0x43d966: CALL dword ptr [ECX + 0x58]",
+        "0x43d969: MOV EBX, EAX",
+        "0x43d96b: TEST EBX, EBX",
+        "0x43d96d: JL 0x0043d9b9",
+        "0x43d978: CALL dword ptr [EBX + 0xc]",
+        "0x43d9a7: LEA EDX, [EBX + 0x2]",
+        "0x43d9b2: CALL 0x00407ba0",
+        "0x43d9b7: JMP 0x0043d9c3",
+        "0x43d9bc: XOR EDX, EDX",
+        "0x43d9be: CALL 0x00407460"
+      ],
+      "require_anchor_order": true,
+      "observation": "Value-by-name uses virtual index slot +88; a found row is sliced after the requested name length plus delimiter, otherwise null is returned.",
+      "scope": "Selected static instructions only; full original execution and exception behavior not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    }
+  ],
+  "inferred_contracts": [
+    {
+      "id": "table_text_load",
+      "status": "inferred",
+      "basis": [
+        "table_tag_and_list",
+        "load_command_branch",
+        "load_stream_then_clear",
+        "stream_virtual_load",
+        "stream_line_bridge",
+        "line_loader_order"
+      ],
+      "meaning": "Table construction and the l branch lead to a name/value text-list load. Encoding selection and exceptional partial mutation remain unknown.",
+      "original_execution": "not_tested"
+    },
+    {
+      "id": "filter_and_marker",
+      "status": "inferred",
+      "basis": [
+        "slash_filter",
+        "marker_null_branch",
+        "empty_optimization_gate"
+      ],
+      "meaning": "The slash literal excludes a complete name/value pair; the empty marker becomes a null string. Stored-empty versus absent depends on the component flag and is not equated here.",
+      "original_execution": "not_tested"
+    },
+    {
+      "id": "query_result_pair",
+      "status": "inferred",
+      "basis": [
+        "query_command_branch",
+        "get_missing_null",
+        "query_default_pair",
+        "query_missing_results",
+        "query_found_results",
+        "result_integer_storage",
+        "result_string_storage"
+      ],
+      "meaning": "The selected ?v path writes named string/integer results, using defaults when lookup output is null. Shared auxiliary flags do not prove a found boolean.",
+      "original_execution": "not_tested"
+    },
+    {
+      "id": "first_name_value_candidate",
+      "status": "inferred",
+      "basis": [
+        "line_loader_order",
+        "name_separator_default",
+        "name_first_separator",
+        "value_uses_virtual_index"
+      ],
+      "meaning": "A line name is resolved again through the temporary list index before insertion; first matching row is a candidate from the separate bounded loop window, with locale/case comparison still unverified.",
+      "original_execution": "not_tested"
+    }
+  ]
+}

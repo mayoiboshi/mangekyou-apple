@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Selected PE32 event setup and direct factory calls only",
+  "record": {
+    "type_info": "0x697bc0",
+    "fields_count_address": "0x697bde"
+  },
+  "initializer": "0x6beb3a",
+  "factory": "0x6befa8",
+  "factory_calls": [
+    {
+      "event": "ObjectCreate",
+      "bridge": "0x6bee50",
+      "call": "0x6bee67"
+    },
+    {
+      "event": "ObjectLoad",
+      "bridge": "0x6bef28",
+      "call": "0x6bef41"
+    }
+  ],
+  "value_type_cell": "0x696bec",
+  "parameter_symbols": [
+    [
+      "0x6b7c24",
+      "ParamInt"
+    ],
+    [
+      "0x6b7c58",
+      "ParamStr"
+    ]
+  ]
+}

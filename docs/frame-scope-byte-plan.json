@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "classes": [
+    {
+      "name": "TScriptThread",
+      "vmt": "0x6a8440",
+      "slots": [
+        {
+          "offset": 12,
+          "target": "0x6c11d4"
+        }
+      ]
+    },
+    {
+      "name": "TScriptRoutine",
+      "vmt": "0x6a802c",
+      "slots": [
+        {
+          "offset": 8,
+          "target": "0x6c14b4"
+        },
+        {
+          "offset": 12,
+          "target": "0x6c1074"
+        }
+      ]
+    }
+  ],
+  "result_record": {
+    "name": "TScriptRoutineResult",
+    "type_info": "0x6a7e54",
+    "fields_count_address": "0x6a7e9b"
+  },
+  "base_init_call": "0x6c1a20",
+  "scope_init_call": "0x6c14c0",
+  "scope_init_target": "0x6c1018",
+  "subr_compare": "0x6b7a20"
+}

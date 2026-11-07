@@ -1,0 +1,4633 @@
+{
+  "schema_version": 1,
+  "dataset": "real",
+  "status": "inferred",
+  "scope": "Selected native stores and same-file lexical blocks linked to declared enum names; not execution edges",
+  "source_file": "美少女万華鏡４.exe",
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "enum_declaration": {
+    "status": "inferred",
+    "ordinal_type_u8": 1,
+    "minimum_i32": 0,
+    "maximum_i32": 11,
+    "base_type_cell": "0x6a724c",
+    "header_reference": {
+      "offset": 2778723,
+      "length": 13,
+      "sha256": "aebb5fe0dd1860d0ba9b75c166845b38760d5a5ecca060c7d9c086c37817c358"
+    },
+    "members": [
+      {
+        "value": 0,
+        "name": "rsNone",
+        "raw_bytes_reference": {
+          "offset": 2778736,
+          "length": 7,
+          "sha256": "74ebc8713cad34093e69bdce251c0757ce81aeb8fdf584a70e7ee3a627d49366"
+        }
+      },
+      {
+        "value": 1,
+        "name": "rsSub",
+        "raw_bytes_reference": {
+          "offset": 2778743,
+          "length": 6,
+          "sha256": "5854dba6c76998e0da880740d88ab604906853bef4603b4408ce06f4cdb345bc"
+        }
+      },
+      {
+        "value": 2,
+        "name": "rsIfThen",
+        "raw_bytes_reference": {
+          "offset": 2778749,
+          "length": 9,
+          "sha256": "89ae0689ec35b97bae975d58b01c927d40c62bbae16bb39683b7f1ef157fc33b"
+        }
+      },
+      {
+        "value": 3,
+        "name": "rsForThen",
+        "raw_bytes_reference": {
+          "offset": 2778758,
+          "length": 10,
+          "sha256": "5c255d21b1482ffbc86da14e6bee8ae02fac5228780b94e34248a94fe2072e81"
+        }
+      },
+      {
+        "value": 4,
+        "name": "rsSwitchThen",
+        "raw_bytes_reference": {
+          "offset": 2778768,
+          "length": 13,
+          "sha256": "d6ad060c5d2a12b6a8993f923da94b51e68dff4f21f6cd924ae1ac679574fbe1"
+        }
+      },
+      {
+        "value": 5,
+        "name": "rsIfSkip",
+        "raw_bytes_reference": {
+          "offset": 2778781,
+          "length": 9,
+          "sha256": "ea1c9b909485305fe53f36ea8cfe3f7c770e651cd595c0df917a4f6ba3655759"
+        }
+      },
+      {
+        "value": 6,
+        "name": "rsIfElse",
+        "raw_bytes_reference": {
+          "offset": 2778790,
+          "length": 9,
+          "sha256": "26fda4b47f839a3ebf9d1105d8047da82962e77e565b8374f1397ae42cf52742"
+        }
+      },
+      {
+        "value": 7,
+        "name": "rsForSkip",
+        "raw_bytes_reference": {
+          "offset": 2778799,
+          "length": 10,
+          "sha256": "7d5f43258b53faf09e8097d282ef1b1d5b9cac85b3f8a507d529926d75e2aca6"
+        }
+      },
+      {
+        "value": 8,
+        "name": "rsForBreak",
+        "raw_bytes_reference": {
+          "offset": 2778809,
+          "length": 11,
+          "sha256": "a02120b7ffd3b27ab1a0e667d29f4377736ac50de82918bae5bb19d45a6a07e7"
+        }
+      },
+      {
+        "value": 9,
+        "name": "rsForContinue",
+        "raw_bytes_reference": {
+          "offset": 2778820,
+          "length": 14,
+          "sha256": "be9c2860ab7604bb8651b00d910ab192f090326c445a8ffb83bad1056fcb012e"
+        }
+      },
+      {
+        "value": 10,
+        "name": "rsSwitchSkip",
+        "raw_bytes_reference": {
+          "offset": 2778834,
+          "length": 13,
+          "sha256": "8f4616349818f5309276ffd37976744327db76b029b4f48045ef17e3bdd4a6c0"
+        }
+      },
+      {
+        "value": 11,
+        "name": "rsSwitchElse",
+        "raw_bytes_reference": {
+          "offset": 2778847,
+          "length": 13,
+          "sha256": "e9ce99a31777da294fa04df4d95c35dbd63e1f0cc646c273c8d4bd45f0dac91a"
+        }
+      }
+    ],
+    "declaration_bytes_status": "verified",
+    "execution_semantics": "not_tested",
+    "scope": "Only bounded self-base enum declarations; no state-machine behavior inferred from names"
+  },
+  "native_sources": [
+    {
+      "name": "control-dispatch-assembly",
+      "evidence_id": "ev_52198adc12ec886d3bd9c6e4a08af80d156b9b7248b52fcf3ce00858cab254ce",
+      "instructions": 608,
+      "state_stores": 17
+    },
+    {
+      "name": "secondary-dispatch-assembly",
+      "evidence_id": "ev_5922536b6c284af1346dad9d15a9e52b8dadf09db111e402cbef654e3c823f67",
+      "instructions": 746,
+      "state_stores": 3
+    },
+    {
+      "name": "script-caller-assembly",
+      "evidence_id": "ev_ed31596d6f8364343724dba49691d22915655a0a1c131bdb8a86cb3f4ee5a0b5",
+      "instructions": 490,
+      "state_stores": 0
+    },
+    {
+      "name": "block-init",
+      "evidence_id": "local-llvm:461053a6164913296f441622cb03e11fb92eec85adac28e8437ee78d5201525b",
+      "instructions": 25,
+      "state_stores": 1
+    }
+  ],
+  "native_state_stores": [
+    {
+      "address": "0x6bb143",
+      "field_offset": 52,
+      "owner_register": "EBX",
+      "field_binding_status": "inferred",
+      "execution_semantics": "not_tested",
+      "value_u8": 2,
+      "raw_bytes_reference": {
+        "offset": 2860355,
+        "length": 4,
+        "sha256": "018f06c7740b0022263029e677190b6361cd628e5b01e38c06230041917984df"
+      },
+      "status": "verified",
+      "scope": "Instruction encoding and declared value/name only; object identity inferred",
+      "declared_name": "rsIfThen",
+      "enum_member_reference": {
+        "offset": 2778749,
+        "length": 9,
+        "sha256": "89ae0689ec35b97bae975d58b01c927d40c62bbae16bb39683b7f1ef157fc33b"
+      },
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_52198adc12ec886d3bd9c6e4a08af80d156b9b7248b52fcf3ce00858cab254ce",
+      "function": "0x6bb02c"
+    },
+    {
+      "address": "0x6bb14c",
+      "field_offset": 52,
+      "owner_register": "EBX",
+      "field_binding_status": "inferred",
+      "execution_semantics": "not_tested",
+      "value_u8": 6,
+      "raw_bytes_reference": {
+        "offset": 2860364,
+        "length": 4,
+        "sha256": "670413cbead6133c3c89b3189cba90db0bb0e02ed303553927eaa554dda6a3e7"
+      },
+      "status": "verified",
+      "scope": "Instruction encoding and declared value/name only; object identity inferred",
+      "declared_name": "rsIfElse",
+      "enum_member_reference": {
+        "offset": 2778790,
+        "length": 9,
+        "sha256": "26fda4b47f839a3ebf9d1105d8047da82962e77e565b8374f1397ae42cf52742"
+      },
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_52198adc12ec886d3bd9c6e4a08af80d156b9b7248b52fcf3ce00858cab254ce",
+      "function": "0x6bb02c"
+    },
+    {
+      "address": "0x6bb1a1",
+      "field_offset": 52,
+      "owner_register": "EBX",
+      "field_binding_status": "inferred",
+      "execution_semantics": "not_tested",
+      "value_u8": 7,
+      "raw_bytes_reference": {
+        "offset": 2860449,
+        "length": 4,
+        "sha256": "6da59c4d15dd385f1ea4eb22bc21dad7d276d4473ee167e5a53a63b20454f0fd"
+      },
+      "status": "verified",
+      "scope": "Instruction encoding and declared value/name only; object identity inferred",
+      "declared_name": "rsForSkip",
+      "enum_member_reference": {
+        "offset": 2778799,
+        "length": 10,
+        "sha256": "7d5f43258b53faf09e8097d282ef1b1d5b9cac85b3f8a507d529926d75e2aca6"
+      },
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_52198adc12ec886d3bd9c6e4a08af80d156b9b7248b52fcf3ce00858cab254ce",
+      "function": "0x6bb02c"
+    },
+    {
+      "address": "0x6bb373",
+      "field_offset": 52,
+      "owner_register": "EBX",
+      "field_binding_status": "inferred",
+      "execution_semantics": "not_tested",
+      "value_u8": 3,
+      "raw_bytes_reference": {
+        "offset": 2860915,
+        "length": 4,
+        "sha256": "66eb91f69d06f01596bb862faebb0454fd42e02111e39ce90ca69ab7e8288ba4"
+      },
+      "status": "verified",
+      "scope": "Instruction encoding and declared value/name only; object identity inferred",
+      "declared_name": "rsForThen",
+      "enum_member_reference": {
+        "offset": 2778758,
+        "length": 10,
+        "sha256": "5c255d21b1482ffbc86da14e6bee8ae02fac5228780b94e34248a94fe2072e81"
+      },
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_52198adc12ec886d3bd9c6e4a08af80d156b9b7248b52fcf3ce00858cab254ce",
+      "function": "0x6bb02c"
+    },
+    {
+      "address": "0x6bb37c",
+      "field_offset": 52,
+      "owner_register": "EBX",
+      "field_binding_status": "inferred",
+      "execution_semantics": "not_tested",
+      "value_u8": 8,
+      "raw_bytes_reference": {
+        "offset": 2860924,
+        "length": 4,
+        "sha256": "70aa3b81d7b0c03070cbaad813b3fafd5b83bec13105b540705f3dfc012feb30"
+      },
+      "status": "verified",
+      "scope": "Instruction encoding and declared value/name only; object identity inferred",
+      "declared_name": "rsForBreak",
+      "enum_member_reference": {
+        "offset": 2778809,
+        "length": 11,
+        "sha256": "a02120b7ffd3b27ab1a0e667d29f4377736ac50de82918bae5bb19d45a6a07e7"
+      },
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_52198adc12ec886d3bd9c6e4a08af80d156b9b7248b52fcf3ce00858cab254ce",
+      "function": "0x6bb02c"
+    },
+    {
+      "address": "0x6bb3ad",
+      "field_offset": 52,
+      "owner_register": "EBX",
+      "field_binding_status": "inferred",
+      "execution_semantics": "not_tested",
+      "value_u8": 5,
+      "raw_bytes_reference": {
+        "offset": 2860973,
+        "length": 4,
+        "sha256": "de3563cb0d4c5322969071f23568709a1eaa5387c07e5aa042f12dc6100c912c"
+      },
+      "status": "verified",
+      "scope": "Instruction encoding and declared value/name only; object identity inferred",
+      "declared_name": "rsIfSkip",
+      "enum_member_reference": {
+        "offset": 2778781,
+        "length": 9,
+        "sha256": "ea1c9b909485305fe53f36ea8cfe3f7c770e651cd595c0df917a4f6ba3655759"
+      },
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_52198adc12ec886d3bd9c6e4a08af80d156b9b7248b52fcf3ce00858cab254ce",
+      "function": "0x6bb02c"
+    },
+    {
+      "address": "0x6bb49b",
+      "field_offset": 52,
+      "owner_register": "EBX",
+      "field_binding_status": "inferred",
+      "execution_semantics": "not_tested",
+      "value_u8": 2,
+      "raw_bytes_reference": {
+        "offset": 2861211,
+        "length": 4,
+        "sha256": "018f06c7740b0022263029e677190b6361cd628e5b01e38c06230041917984df"
+      },
+      "status": "verified",
+      "scope": "Instruction encoding and declared value/name only; object identity inferred",
+      "declared_name": "rsIfThen",
+      "enum_member_reference": {
+        "offset": 2778749,
+        "length": 9,
+        "sha256": "89ae0689ec35b97bae975d58b01c927d40c62bbae16bb39683b7f1ef157fc33b"
+      },
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_52198adc12ec886d3bd9c6e4a08af80d156b9b7248b52fcf3ce00858cab254ce",
+      "function": "0x6bb02c"
+    },
+    {
+      "address": "0x6bb4a1",
+      "field_offset": 52,
+      "owner_register": "EBX",
+      "field_binding_status": "inferred",
+      "execution_semantics": "not_tested",
+      "value_u8": 6,
+      "raw_bytes_reference": {
+        "offset": 2861217,
+        "length": 4,
+        "sha256": "670413cbead6133c3c89b3189cba90db0bb0e02ed303553927eaa554dda6a3e7"
+      },
+      "status": "verified",
+      "scope": "Instruction encoding and declared value/name only; object identity inferred",
+      "declared_name": "rsIfElse",
+      "enum_member_reference": {
+        "offset": 2778790,
+        "length": 9,
+        "sha256": "26fda4b47f839a3ebf9d1105d8047da82962e77e565b8374f1397ae42cf52742"
+      },
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_52198adc12ec886d3bd9c6e4a08af80d156b9b7248b52fcf3ce00858cab254ce",
+      "function": "0x6bb02c"
+    },
+    {
+      "address": "0x6bb56e",
+      "field_offset": 52,
+      "owner_register": "EBX",
+      "field_binding_status": "inferred",
+      "execution_semantics": "not_tested",
+      "value_u8": 2,
+      "raw_bytes_reference": {
+        "offset": 2861422,
+        "length": 4,
+        "sha256": "018f06c7740b0022263029e677190b6361cd628e5b01e38c06230041917984df"
+      },
+      "status": "verified",
+      "scope": "Instruction encoding and declared value/name only; object identity inferred",
+      "declared_name": "rsIfThen",
+      "enum_member_reference": {
+        "offset": 2778749,
+        "length": 9,
+        "sha256": "89ae0689ec35b97bae975d58b01c927d40c62bbae16bb39683b7f1ef157fc33b"
+      },
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_52198adc12ec886d3bd9c6e4a08af80d156b9b7248b52fcf3ce00858cab254ce",
+      "function": "0x6bb02c"
+    },
+    {
+      "address": "0x6bb577",
+      "field_offset": 52,
+      "owner_register": "EBX",
+      "field_binding_status": "inferred",
+      "execution_semantics": "not_tested",
+      "value_u8": 6,
+      "raw_bytes_reference": {
+        "offset": 2861431,
+        "length": 4,
+        "sha256": "670413cbead6133c3c89b3189cba90db0bb0e02ed303553927eaa554dda6a3e7"
+      },
+      "status": "verified",
+      "scope": "Instruction encoding and declared value/name only; object identity inferred",
+      "declared_name": "rsIfElse",
+      "enum_member_reference": {
+        "offset": 2778790,
+        "length": 9,
+        "sha256": "26fda4b47f839a3ebf9d1105d8047da82962e77e565b8374f1397ae42cf52742"
+      },
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_52198adc12ec886d3bd9c6e4a08af80d156b9b7248b52fcf3ce00858cab254ce",
+      "function": "0x6bb02c"
+    },
+    {
+      "address": "0x6bb58f",
+      "field_offset": 52,
+      "owner_register": "EBX",
+      "field_binding_status": "inferred",
+      "execution_semantics": "not_tested",
+      "value_u8": 4,
+      "raw_bytes_reference": {
+        "offset": 2861455,
+        "length": 4,
+        "sha256": "d8888ce18a92e9d2f4298fedc8102a6346220083380c88bf0f78454ca0845687"
+      },
+      "status": "verified",
+      "scope": "Instruction encoding and declared value/name only; object identity inferred",
+      "declared_name": "rsSwitchThen",
+      "enum_member_reference": {
+        "offset": 2778768,
+        "length": 13,
+        "sha256": "d6ad060c5d2a12b6a8993f923da94b51e68dff4f21f6cd924ae1ac679574fbe1"
+      },
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_52198adc12ec886d3bd9c6e4a08af80d156b9b7248b52fcf3ce00858cab254ce",
+      "function": "0x6bb02c"
+    },
+    {
+      "address": "0x6bb598",
+      "field_offset": 52,
+      "owner_register": "EBX",
+      "field_binding_status": "inferred",
+      "execution_semantics": "not_tested",
+      "value_u8": 11,
+      "raw_bytes_reference": {
+        "offset": 2861464,
+        "length": 4,
+        "sha256": "0a33418152af20d49879ef1f965162938a920cad0e4e5dab385dac1c925bedaf"
+      },
+      "status": "verified",
+      "scope": "Instruction encoding and declared value/name only; object identity inferred",
+      "declared_name": "rsSwitchElse",
+      "enum_member_reference": {
+        "offset": 2778847,
+        "length": 13,
+        "sha256": "e9ce99a31777da294fa04df4d95c35dbd63e1f0cc646c273c8d4bd45f0dac91a"
+      },
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_52198adc12ec886d3bd9c6e4a08af80d156b9b7248b52fcf3ce00858cab254ce",
+      "function": "0x6bb02c"
+    },
+    {
+      "address": "0x6bb5ed",
+      "field_offset": 52,
+      "owner_register": "EBX",
+      "field_binding_status": "inferred",
+      "execution_semantics": "not_tested",
+      "value_u8": 10,
+      "raw_bytes_reference": {
+        "offset": 2861549,
+        "length": 4,
+        "sha256": "6c17aafe1594b9d6d8ebeffd5ced46b22f088bb18e04ce3419d99cb28199b678"
+      },
+      "status": "verified",
+      "scope": "Instruction encoding and declared value/name only; object identity inferred",
+      "declared_name": "rsSwitchSkip",
+      "enum_member_reference": {
+        "offset": 2778834,
+        "length": 13,
+        "sha256": "8f4616349818f5309276ffd37976744327db76b029b4f48045ef17e3bdd4a6c0"
+      },
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_52198adc12ec886d3bd9c6e4a08af80d156b9b7248b52fcf3ce00858cab254ce",
+      "function": "0x6bb02c"
+    },
+    {
+      "address": "0x6bb6ce",
+      "field_offset": 52,
+      "owner_register": "EBX",
+      "field_binding_status": "inferred",
+      "execution_semantics": "not_tested",
+      "value_u8": 11,
+      "raw_bytes_reference": {
+        "offset": 2861774,
+        "length": 4,
+        "sha256": "0a33418152af20d49879ef1f965162938a920cad0e4e5dab385dac1c925bedaf"
+      },
+      "status": "verified",
+      "scope": "Instruction encoding and declared value/name only; object identity inferred",
+      "declared_name": "rsSwitchElse",
+      "enum_member_reference": {
+        "offset": 2778847,
+        "length": 13,
+        "sha256": "e9ce99a31777da294fa04df4d95c35dbd63e1f0cc646c273c8d4bd45f0dac91a"
+      },
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_52198adc12ec886d3bd9c6e4a08af80d156b9b7248b52fcf3ce00858cab254ce",
+      "function": "0x6bb02c"
+    },
+    {
+      "address": "0x6bb76d",
+      "field_offset": 52,
+      "owner_register": "EAX",
+      "field_binding_status": "inferred",
+      "execution_semantics": "not_tested",
+      "value_u8": 11,
+      "raw_bytes_reference": {
+        "offset": 2861933,
+        "length": 4,
+        "sha256": "ccb1fc4cf691a9f67b4e5d35c264e7c94eb66e5d9709ee52d07e82c85047df93"
+      },
+      "status": "verified",
+      "scope": "Instruction encoding and declared value/name only; object identity inferred",
+      "declared_name": "rsSwitchElse",
+      "enum_member_reference": {
+        "offset": 2778847,
+        "length": 13,
+        "sha256": "e9ce99a31777da294fa04df4d95c35dbd63e1f0cc646c273c8d4bd45f0dac91a"
+      },
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_52198adc12ec886d3bd9c6e4a08af80d156b9b7248b52fcf3ce00858cab254ce",
+      "function": "0x6bb02c"
+    },
+    {
+      "address": "0x6bb7ef",
+      "field_offset": 52,
+      "owner_register": "EAX",
+      "field_binding_status": "inferred",
+      "execution_semantics": "not_tested",
+      "value_u8": 4,
+      "raw_bytes_reference": {
+        "offset": 2862063,
+        "length": 4,
+        "sha256": "8ea26198545dc825ff5ed19228efe3584b6ec190134cd516eac537b1ee6aac6a"
+      },
+      "status": "verified",
+      "scope": "Instruction encoding and declared value/name only; object identity inferred",
+      "declared_name": "rsSwitchThen",
+      "enum_member_reference": {
+        "offset": 2778768,
+        "length": 13,
+        "sha256": "d6ad060c5d2a12b6a8993f923da94b51e68dff4f21f6cd924ae1ac679574fbe1"
+      },
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_52198adc12ec886d3bd9c6e4a08af80d156b9b7248b52fcf3ce00858cab254ce",
+      "function": "0x6bb02c"
+    },
+    {
+      "address": "0x6bb8e8",
+      "field_offset": 52,
+      "owner_register": "EBX",
+      "field_binding_status": "inferred",
+      "execution_semantics": "not_tested",
+      "value_u8": 3,
+      "raw_bytes_reference": {
+        "offset": 2862312,
+        "length": 4,
+        "sha256": "66eb91f69d06f01596bb862faebb0454fd42e02111e39ce90ca69ab7e8288ba4"
+      },
+      "status": "verified",
+      "scope": "Instruction encoding and declared value/name only; object identity inferred",
+      "declared_name": "rsForThen",
+      "enum_member_reference": {
+        "offset": 2778758,
+        "length": 10,
+        "sha256": "5c255d21b1482ffbc86da14e6bee8ae02fac5228780b94e34248a94fe2072e81"
+      },
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_52198adc12ec886d3bd9c6e4a08af80d156b9b7248b52fcf3ce00858cab254ce",
+      "function": "0x6bb02c"
+    },
+    {
+      "address": "0x6b7186",
+      "field_offset": 52,
+      "owner_register": "EAX",
+      "field_binding_status": "inferred",
+      "execution_semantics": "not_tested",
+      "value_u8": 8,
+      "raw_bytes_reference": {
+        "offset": 2844038,
+        "length": 4,
+        "sha256": "f89e6c7ca323392fc1c345d7b1199929073049740e9cf877f14b25b6b60ecc03"
+      },
+      "status": "verified",
+      "scope": "Instruction encoding and declared value/name only; object identity inferred",
+      "declared_name": "rsForBreak",
+      "enum_member_reference": {
+        "offset": 2778809,
+        "length": 11,
+        "sha256": "a02120b7ffd3b27ab1a0e667d29f4377736ac50de82918bae5bb19d45a6a07e7"
+      },
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_5922536b6c284af1346dad9d15a9e52b8dadf09db111e402cbef654e3c823f67",
+      "function": "0x6b70d8"
+    },
+    {
+      "address": "0x6b7457",
+      "field_offset": 52,
+      "owner_register": "EAX",
+      "field_binding_status": "inferred",
+      "execution_semantics": "not_tested",
+      "value_u8": 9,
+      "raw_bytes_reference": {
+        "offset": 2844759,
+        "length": 4,
+        "sha256": "ac7e7c735a346ab89952077d338f64ed3b2902d88129daf468a88d5cc2984ae5"
+      },
+      "status": "verified",
+      "scope": "Instruction encoding and declared value/name only; object identity inferred",
+      "declared_name": "rsForContinue",
+      "enum_member_reference": {
+        "offset": 2778820,
+        "length": 14,
+        "sha256": "be9c2860ab7604bb8651b00d910ab192f090326c445a8ffb83bad1056fcb012e"
+      },
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_5922536b6c284af1346dad9d15a9e52b8dadf09db111e402cbef654e3c823f67",
+      "function": "0x6b70d8"
+    },
+    {
+      "address": "0x6b79b4",
+      "field_offset": 52,
+      "owner_register": "EAX",
+      "field_binding_status": "inferred",
+      "execution_semantics": "not_tested",
+      "value_u8": 1,
+      "raw_bytes_reference": {
+        "offset": 2846132,
+        "length": 4,
+        "sha256": "d0fd42ed66fbb0ca3c4ae5d359f1457cfd0c2e37946332aac2d924cf1a66bf9a"
+      },
+      "status": "verified",
+      "scope": "Instruction encoding and declared value/name only; object identity inferred",
+      "declared_name": "rsSub",
+      "enum_member_reference": {
+        "offset": 2778743,
+        "length": 6,
+        "sha256": "5854dba6c76998e0da880740d88ab604906853bef4603b4408ce06f4cdb345bc"
+      },
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "ev_5922536b6c284af1346dad9d15a9e52b8dadf09db111e402cbef654e3c823f67",
+      "function": "0x6b70d8"
+    },
+    {
+      "address": "0x6c0dc1",
+      "field_offset": 52,
+      "owner_register": "ESI",
+      "field_binding_status": "inferred",
+      "execution_semantics": "not_tested",
+      "value_u8": 0,
+      "raw_bytes_reference": {
+        "offset": 2884033,
+        "length": 4,
+        "sha256": "06223082083fae66dbe58c3618dea5a94c3d552b627040e63cd4efb48e9f6844"
+      },
+      "status": "verified",
+      "scope": "Instruction encoding and declared value/name only; object identity inferred",
+      "declared_name": "rsNone",
+      "enum_member_reference": {
+        "offset": 2778736,
+        "length": 7,
+        "sha256": "74ebc8713cad34093e69bdce251c0757ce81aeb8fdf584a70e7ee3a627d49366"
+      },
+      "source_file": "美少女万華鏡４.exe",
+      "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+      "evidence_id": "local-llvm:461053a6164913296f441622cb03e11fb92eec85adac28e8437ee78d5201525b",
+      "function": "0x6c0db4"
+    }
+  ],
+  "primitive_literals": [
+    {
+      "address": "0x6bb9a4",
+      "status": "verified",
+      "value": "1",
+      "encoding": "utf-16le",
+      "raw_bytes_reference": {
+        "offset": 2862500,
+        "length": 4,
+        "sha256": "60864aae264519399c7a7379382e411d40a3bd0f1641e669fb73183d223f6bd0"
+      },
+      "scope": "Two primitive constant bytes only; comparison semantics remain inferred"
+    },
+    {
+      "address": "0x6bba58",
+      "status": "verified",
+      "value": "0",
+      "encoding": "utf-16le",
+      "raw_bytes_reference": {
+        "offset": 2862680,
+        "length": 4,
+        "sha256": "4f8320d91e97d546dc799848e8d218e18050af7a7964e0414de9e5479006d7e3"
+      },
+      "scope": "Two primitive constant bytes only; comparison semantics remain inferred"
+    }
+  ],
+  "linear_windows": {
+    "status": "unsupported",
+    "scope": "Linear window observations only; decoded trailing bytes are not asserted executable",
+    "observations": [
+      {
+        "name": "control-tail",
+        "evidence_id": "local-llvm:b38a20c169e5c160f235d7bb69b668b9f0074b57e5c1a8162569d52f31f114ad",
+        "raw_bytes_reference": {
+          "source_file": "美少女万華鏡４.exe",
+          "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+          "sha256": "31decd1a788c292549337213d3366e2bbf3a7dad58a15e652a6a9286a58bf189",
+          "offset": 2862411,
+          "length": 76
+        },
+        "address_range": {
+          "start": "0x6bb94b",
+          "end_exclusive": "0x6bb997"
+        },
+        "boundary_status": "inferred",
+        "unknown_instruction_addresses": [],
+        "decode_coverage_status": "verified"
+      },
+      {
+        "name": "script-caller-head",
+        "evidence_id": "local-llvm:f77f4615068be1fd1ce743b67646f3b3c622ea5a16d93b954215a0ca047c080a",
+        "raw_bytes_reference": {
+          "source_file": "美少女万華鏡４.exe",
+          "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+          "sha256": "fd7ee8619789dbdaf87553c64bb12e79ba313ee81bbb8b5fb640f4dbe2531729",
+          "offset": 2793720,
+          "length": 520
+        },
+        "address_range": {
+          "start": "0x6aacf8",
+          "end_exclusive": "0x6aaf00"
+        },
+        "boundary_status": "inferred",
+        "unknown_instruction_addresses": [
+          "0x6aaed1"
+        ],
+        "decode_coverage_status": "unsupported"
+      },
+      {
+        "name": "block-init",
+        "evidence_id": "local-llvm:461053a6164913296f441622cb03e11fb92eec85adac28e8437ee78d5201525b",
+        "raw_bytes_reference": {
+          "source_file": "美少女万華鏡４.exe",
+          "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+          "sha256": "806dece0058dc131c0da4347c2137b4c49e8363955a0bbee4cff3c93a990c90a",
+          "offset": 2884020,
+          "length": 60
+        },
+        "address_range": {
+          "start": "0x6c0db4",
+          "end_exclusive": "0x6c0df0"
+        },
+        "boundary_status": "inferred",
+        "unknown_instruction_addresses": [],
+        "decode_coverage_status": "verified"
+      }
+    ]
+  },
+  "linear_window_coverage_status": "unsupported",
+  "native_store_count": 21,
+  "unknown_store_count": 0,
+  "native_coverage_status": "verified",
+  "lexical_blocks": 2639,
+  "family_counts": {
+    "if": 2137,
+    "for": 377,
+    "case": 125
+  },
+  "block_examples": [
+    {
+      "kind": "if",
+      "depth": 1,
+      "opener": {
+        "source_file": "data0.pack/startup.s",
+        "source_sha256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1",
+        "byte_offset": 150,
+        "byte_length": 44,
+        "record_sha256": "3dfb875d1bfa5628d5143351daac64c7007352b1c4d9c2d6910d62228b25821d"
+      },
+      "closer": {
+        "source_file": "data0.pack/startup.s",
+        "source_sha256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1",
+        "byte_offset": 264,
+        "byte_length": 8,
+        "record_sha256": "32240088876e22f11cedeb73352983e2a632fdfe22419835948f372b03a46e52"
+      },
+      "status": "inferred",
+      "execution_edges": "not_tested",
+      "then_marker_count": 1,
+      "else_marker_count": 0,
+      "state_family_candidates": [
+        {
+          "value": 2,
+          "name": "rsIfThen",
+          "declaration_reference": {
+            "offset": 2778749,
+            "length": 9,
+            "sha256": "89ae0689ec35b97bae975d58b01c927d40c62bbae16bb39683b7f1ef157fc33b"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 5,
+          "name": "rsIfSkip",
+          "declaration_reference": {
+            "offset": 2778781,
+            "length": 9,
+            "sha256": "ea1c9b909485305fe53f36ea8cfe3f7c770e651cd595c0df917a4f6ba3655759"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 6,
+          "name": "rsIfElse",
+          "declaration_reference": {
+            "offset": 2778790,
+            "length": 9,
+            "sha256": "26fda4b47f839a3ebf9d1105d8047da82962e77e565b8374f1397ae42cf52742"
+          },
+          "confidence": "inferred"
+        }
+      ]
+    },
+    {
+      "kind": "if",
+      "depth": 1,
+      "opener": {
+        "source_file": "data0.pack/sysstartup.s",
+        "source_sha256": "46e460168ff4d5bae70e1c13be00882e518087d9b7d2021f6401c4ff0474104d",
+        "byte_offset": 3146,
+        "byte_length": 38,
+        "record_sha256": "efa9135b0aa5b0553e1c14fa31f91b42b53527a93bee24e8945d688e8b542efb"
+      },
+      "closer": {
+        "source_file": "data0.pack/sysstartup.s",
+        "source_sha256": "46e460168ff4d5bae70e1c13be00882e518087d9b7d2021f6401c4ff0474104d",
+        "byte_offset": 3302,
+        "byte_length": 8,
+        "record_sha256": "32240088876e22f11cedeb73352983e2a632fdfe22419835948f372b03a46e52"
+      },
+      "status": "inferred",
+      "execution_edges": "not_tested",
+      "then_marker_count": 1,
+      "else_marker_count": 0,
+      "state_family_candidates": [
+        {
+          "value": 2,
+          "name": "rsIfThen",
+          "declaration_reference": {
+            "offset": 2778749,
+            "length": 9,
+            "sha256": "89ae0689ec35b97bae975d58b01c927d40c62bbae16bb39683b7f1ef157fc33b"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 5,
+          "name": "rsIfSkip",
+          "declaration_reference": {
+            "offset": 2778781,
+            "length": 9,
+            "sha256": "ea1c9b909485305fe53f36ea8cfe3f7c770e651cd595c0df917a4f6ba3655759"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 6,
+          "name": "rsIfElse",
+          "declaration_reference": {
+            "offset": 2778790,
+            "length": 9,
+            "sha256": "26fda4b47f839a3ebf9d1105d8047da82962e77e565b8374f1397ae42cf52742"
+          },
+          "confidence": "inferred"
+        }
+      ]
+    },
+    {
+      "kind": "if",
+      "depth": 1,
+      "opener": {
+        "source_file": "data6.pack/scenario/root.s",
+        "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+        "byte_offset": 7782,
+        "byte_length": 40,
+        "record_sha256": "cdab3a1d29443656e8ce914973f91b8f542d91f84496df11bc8c228e7a6c0102"
+      },
+      "closer": {
+        "source_file": "data6.pack/scenario/root.s",
+        "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+        "byte_offset": 7924,
+        "byte_length": 8,
+        "record_sha256": "32240088876e22f11cedeb73352983e2a632fdfe22419835948f372b03a46e52"
+      },
+      "status": "inferred",
+      "execution_edges": "not_tested",
+      "then_marker_count": 1,
+      "else_marker_count": 0,
+      "state_family_candidates": [
+        {
+          "value": 2,
+          "name": "rsIfThen",
+          "declaration_reference": {
+            "offset": 2778749,
+            "length": 9,
+            "sha256": "89ae0689ec35b97bae975d58b01c927d40c62bbae16bb39683b7f1ef157fc33b"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 5,
+          "name": "rsIfSkip",
+          "declaration_reference": {
+            "offset": 2778781,
+            "length": 9,
+            "sha256": "ea1c9b909485305fe53f36ea8cfe3f7c770e651cd595c0df917a4f6ba3655759"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 6,
+          "name": "rsIfElse",
+          "declaration_reference": {
+            "offset": 2778790,
+            "length": 9,
+            "sha256": "26fda4b47f839a3ebf9d1105d8047da82962e77e565b8374f1397ae42cf52742"
+          },
+          "confidence": "inferred"
+        }
+      ]
+    },
+    {
+      "kind": "if",
+      "depth": 1,
+      "opener": {
+        "source_file": "data6.pack/scenario/root.s",
+        "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+        "byte_offset": 9124,
+        "byte_length": 40,
+        "record_sha256": "cdab3a1d29443656e8ce914973f91b8f542d91f84496df11bc8c228e7a6c0102"
+      },
+      "closer": {
+        "source_file": "data6.pack/scenario/root.s",
+        "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+        "byte_offset": 9268,
+        "byte_length": 8,
+        "record_sha256": "32240088876e22f11cedeb73352983e2a632fdfe22419835948f372b03a46e52"
+      },
+      "status": "inferred",
+      "execution_edges": "not_tested",
+      "then_marker_count": 1,
+      "else_marker_count": 0,
+      "state_family_candidates": [
+        {
+          "value": 2,
+          "name": "rsIfThen",
+          "declaration_reference": {
+            "offset": 2778749,
+            "length": 9,
+            "sha256": "89ae0689ec35b97bae975d58b01c927d40c62bbae16bb39683b7f1ef157fc33b"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 5,
+          "name": "rsIfSkip",
+          "declaration_reference": {
+            "offset": 2778781,
+            "length": 9,
+            "sha256": "ea1c9b909485305fe53f36ea8cfe3f7c770e651cd595c0df917a4f6ba3655759"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 6,
+          "name": "rsIfElse",
+          "declaration_reference": {
+            "offset": 2778790,
+            "length": 9,
+            "sha256": "26fda4b47f839a3ebf9d1105d8047da82962e77e565b8374f1397ae42cf52742"
+          },
+          "confidence": "inferred"
+        }
+      ]
+    },
+    {
+      "kind": "if",
+      "depth": 1,
+      "opener": {
+        "source_file": "data6.pack/scenario/root.s",
+        "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+        "byte_offset": 10788,
+        "byte_length": 40,
+        "record_sha256": "cdab3a1d29443656e8ce914973f91b8f542d91f84496df11bc8c228e7a6c0102"
+      },
+      "closer": {
+        "source_file": "data6.pack/scenario/root.s",
+        "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+        "byte_offset": 10932,
+        "byte_length": 8,
+        "record_sha256": "32240088876e22f11cedeb73352983e2a632fdfe22419835948f372b03a46e52"
+      },
+      "status": "inferred",
+      "execution_edges": "not_tested",
+      "then_marker_count": 1,
+      "else_marker_count": 0,
+      "state_family_candidates": [
+        {
+          "value": 2,
+          "name": "rsIfThen",
+          "declaration_reference": {
+            "offset": 2778749,
+            "length": 9,
+            "sha256": "89ae0689ec35b97bae975d58b01c927d40c62bbae16bb39683b7f1ef157fc33b"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 5,
+          "name": "rsIfSkip",
+          "declaration_reference": {
+            "offset": 2778781,
+            "length": 9,
+            "sha256": "ea1c9b909485305fe53f36ea8cfe3f7c770e651cd595c0df917a4f6ba3655759"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 6,
+          "name": "rsIfElse",
+          "declaration_reference": {
+            "offset": 2778790,
+            "length": 9,
+            "sha256": "26fda4b47f839a3ebf9d1105d8047da82962e77e565b8374f1397ae42cf52742"
+          },
+          "confidence": "inferred"
+        }
+      ]
+    },
+    {
+      "kind": "if",
+      "depth": 2,
+      "opener": {
+        "source_file": "data6.pack/scenario/root.s",
+        "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+        "byte_offset": 12780,
+        "byte_length": 40,
+        "record_sha256": "cdab3a1d29443656e8ce914973f91b8f542d91f84496df11bc8c228e7a6c0102"
+      },
+      "closer": {
+        "source_file": "data6.pack/scenario/root.s",
+        "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+        "byte_offset": 12940,
+        "byte_length": 8,
+        "record_sha256": "32240088876e22f11cedeb73352983e2a632fdfe22419835948f372b03a46e52"
+      },
+      "status": "inferred",
+      "execution_edges": "not_tested",
+      "then_marker_count": 1,
+      "else_marker_count": 0,
+      "state_family_candidates": [
+        {
+          "value": 2,
+          "name": "rsIfThen",
+          "declaration_reference": {
+            "offset": 2778749,
+            "length": 9,
+            "sha256": "89ae0689ec35b97bae975d58b01c927d40c62bbae16bb39683b7f1ef157fc33b"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 5,
+          "name": "rsIfSkip",
+          "declaration_reference": {
+            "offset": 2778781,
+            "length": 9,
+            "sha256": "ea1c9b909485305fe53f36ea8cfe3f7c770e651cd595c0df917a4f6ba3655759"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 6,
+          "name": "rsIfElse",
+          "declaration_reference": {
+            "offset": 2778790,
+            "length": 9,
+            "sha256": "26fda4b47f839a3ebf9d1105d8047da82962e77e565b8374f1397ae42cf52742"
+          },
+          "confidence": "inferred"
+        }
+      ]
+    },
+    {
+      "kind": "if",
+      "depth": 1,
+      "opener": {
+        "source_file": "data6.pack/scenario/root.s",
+        "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+        "byte_offset": 12662,
+        "byte_length": 40,
+        "record_sha256": "cdab3a1d29443656e8ce914973f91b8f542d91f84496df11bc8c228e7a6c0102"
+      },
+      "closer": {
+        "source_file": "data6.pack/scenario/root.s",
+        "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+        "byte_offset": 12952,
+        "byte_length": 8,
+        "record_sha256": "32240088876e22f11cedeb73352983e2a632fdfe22419835948f372b03a46e52"
+      },
+      "status": "inferred",
+      "execution_edges": "not_tested",
+      "then_marker_count": 1,
+      "else_marker_count": 0,
+      "state_family_candidates": [
+        {
+          "value": 2,
+          "name": "rsIfThen",
+          "declaration_reference": {
+            "offset": 2778749,
+            "length": 9,
+            "sha256": "89ae0689ec35b97bae975d58b01c927d40c62bbae16bb39683b7f1ef157fc33b"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 5,
+          "name": "rsIfSkip",
+          "declaration_reference": {
+            "offset": 2778781,
+            "length": 9,
+            "sha256": "ea1c9b909485305fe53f36ea8cfe3f7c770e651cd595c0df917a4f6ba3655759"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 6,
+          "name": "rsIfElse",
+          "declaration_reference": {
+            "offset": 2778790,
+            "length": 9,
+            "sha256": "26fda4b47f839a3ebf9d1105d8047da82962e77e565b8374f1397ae42cf52742"
+          },
+          "confidence": "inferred"
+        }
+      ]
+    },
+    {
+      "kind": "for",
+      "depth": 1,
+      "opener": {
+        "source_file": "data6.pack/scenario/scenereplay.s",
+        "source_sha256": "34c171a5d03b907e30f83a3034047cf979a8578105dc970073da69f002bc23fc",
+        "byte_offset": 796,
+        "byte_length": 34,
+        "record_sha256": "0d858047773438ffce36894bd9184a0e67343daeccae14f673cd69344494658c"
+      },
+      "closer": {
+        "source_file": "data6.pack/scenario/scenereplay.s",
+        "source_sha256": "34c171a5d03b907e30f83a3034047cf979a8578105dc970073da69f002bc23fc",
+        "byte_offset": 884,
+        "byte_length": 8,
+        "record_sha256": "32240088876e22f11cedeb73352983e2a632fdfe22419835948f372b03a46e52"
+      },
+      "status": "inferred",
+      "execution_edges": "not_tested",
+      "then_marker_count": 0,
+      "else_marker_count": 0,
+      "state_family_candidates": [
+        {
+          "value": 3,
+          "name": "rsForThen",
+          "declaration_reference": {
+            "offset": 2778758,
+            "length": 10,
+            "sha256": "5c255d21b1482ffbc86da14e6bee8ae02fac5228780b94e34248a94fe2072e81"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 7,
+          "name": "rsForSkip",
+          "declaration_reference": {
+            "offset": 2778799,
+            "length": 10,
+            "sha256": "7d5f43258b53faf09e8097d282ef1b1d5b9cac85b3f8a507d529926d75e2aca6"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 8,
+          "name": "rsForBreak",
+          "declaration_reference": {
+            "offset": 2778809,
+            "length": 11,
+            "sha256": "a02120b7ffd3b27ab1a0e667d29f4377736ac50de82918bae5bb19d45a6a07e7"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 9,
+          "name": "rsForContinue",
+          "declaration_reference": {
+            "offset": 2778820,
+            "length": 14,
+            "sha256": "be9c2860ab7604bb8651b00d910ab192f090326c445a8ffb83bad1056fcb012e"
+          },
+          "confidence": "inferred"
+        }
+      ]
+    },
+    {
+      "kind": "if",
+      "depth": 1,
+      "opener": {
+        "source_file": "data6.pack/scenario/本編/t01_02@.s",
+        "source_sha256": "4ed62dcc860dec335aa4290e6120a17d4fe10d7ad4677c31a5cf79f7934a55a2",
+        "byte_offset": 32530,
+        "byte_length": 40,
+        "record_sha256": "b99b616d3fda54c5daa5c08d8a2a966c614362ef91c1f6545d70e8913638cef5"
+      },
+      "closer": {
+        "source_file": "data6.pack/scenario/本編/t01_02@.s",
+        "source_sha256": "4ed62dcc860dec335aa4290e6120a17d4fe10d7ad4677c31a5cf79f7934a55a2",
+        "byte_offset": 32598,
+        "byte_length": 8,
+        "record_sha256": "32240088876e22f11cedeb73352983e2a632fdfe22419835948f372b03a46e52"
+      },
+      "status": "inferred",
+      "execution_edges": "not_tested",
+      "then_marker_count": 1,
+      "else_marker_count": 0,
+      "state_family_candidates": [
+        {
+          "value": 2,
+          "name": "rsIfThen",
+          "declaration_reference": {
+            "offset": 2778749,
+            "length": 9,
+            "sha256": "89ae0689ec35b97bae975d58b01c927d40c62bbae16bb39683b7f1ef157fc33b"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 5,
+          "name": "rsIfSkip",
+          "declaration_reference": {
+            "offset": 2778781,
+            "length": 9,
+            "sha256": "ea1c9b909485305fe53f36ea8cfe3f7c770e651cd595c0df917a4f6ba3655759"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 6,
+          "name": "rsIfElse",
+          "declaration_reference": {
+            "offset": 2778790,
+            "length": 9,
+            "sha256": "26fda4b47f839a3ebf9d1105d8047da82962e77e565b8374f1397ae42cf52742"
+          },
+          "confidence": "inferred"
+        }
+      ]
+    },
+    {
+      "kind": "if",
+      "depth": 1,
+      "opener": {
+        "source_file": "data6.pack/scenario/本編/t02_02@.s",
+        "source_sha256": "efee4a63deeae777fb106ebf3d715f3bd466d3644b7ea7d7d2c3d9f443d84e1c",
+        "byte_offset": 15564,
+        "byte_length": 40,
+        "record_sha256": "b99b616d3fda54c5daa5c08d8a2a966c614362ef91c1f6545d70e8913638cef5"
+      },
+      "closer": {
+        "source_file": "data6.pack/scenario/本編/t02_02@.s",
+        "source_sha256": "efee4a63deeae777fb106ebf3d715f3bd466d3644b7ea7d7d2c3d9f443d84e1c",
+        "byte_offset": 15632,
+        "byte_length": 8,
+        "record_sha256": "32240088876e22f11cedeb73352983e2a632fdfe22419835948f372b03a46e52"
+      },
+      "status": "inferred",
+      "execution_edges": "not_tested",
+      "then_marker_count": 1,
+      "else_marker_count": 0,
+      "state_family_candidates": [
+        {
+          "value": 2,
+          "name": "rsIfThen",
+          "declaration_reference": {
+            "offset": 2778749,
+            "length": 9,
+            "sha256": "89ae0689ec35b97bae975d58b01c927d40c62bbae16bb39683b7f1ef157fc33b"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 5,
+          "name": "rsIfSkip",
+          "declaration_reference": {
+            "offset": 2778781,
+            "length": 9,
+            "sha256": "ea1c9b909485305fe53f36ea8cfe3f7c770e651cd595c0df917a4f6ba3655759"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 6,
+          "name": "rsIfElse",
+          "declaration_reference": {
+            "offset": 2778790,
+            "length": 9,
+            "sha256": "26fda4b47f839a3ebf9d1105d8047da82962e77e565b8374f1397ae42cf52742"
+          },
+          "confidence": "inferred"
+        }
+      ]
+    },
+    {
+      "kind": "if",
+      "depth": 1,
+      "opener": {
+        "source_file": "data6.pack/scenario/本編/t04_02@.s",
+        "source_sha256": "aea6d8f77582c3828f11ace99d3b48a0c3274da3ab1f8cba9374be9487caeba2",
+        "byte_offset": 45690,
+        "byte_length": 40,
+        "record_sha256": "b99b616d3fda54c5daa5c08d8a2a966c614362ef91c1f6545d70e8913638cef5"
+      },
+      "closer": {
+        "source_file": "data6.pack/scenario/本編/t04_02@.s",
+        "source_sha256": "aea6d8f77582c3828f11ace99d3b48a0c3274da3ab1f8cba9374be9487caeba2",
+        "byte_offset": 45758,
+        "byte_length": 8,
+        "record_sha256": "32240088876e22f11cedeb73352983e2a632fdfe22419835948f372b03a46e52"
+      },
+      "status": "inferred",
+      "execution_edges": "not_tested",
+      "then_marker_count": 1,
+      "else_marker_count": 0,
+      "state_family_candidates": [
+        {
+          "value": 2,
+          "name": "rsIfThen",
+          "declaration_reference": {
+            "offset": 2778749,
+            "length": 9,
+            "sha256": "89ae0689ec35b97bae975d58b01c927d40c62bbae16bb39683b7f1ef157fc33b"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 5,
+          "name": "rsIfSkip",
+          "declaration_reference": {
+            "offset": 2778781,
+            "length": 9,
+            "sha256": "ea1c9b909485305fe53f36ea8cfe3f7c770e651cd595c0df917a4f6ba3655759"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 6,
+          "name": "rsIfElse",
+          "declaration_reference": {
+            "offset": 2778790,
+            "length": 9,
+            "sha256": "26fda4b47f839a3ebf9d1105d8047da82962e77e565b8374f1397ae42cf52742"
+          },
+          "confidence": "inferred"
+        }
+      ]
+    },
+    {
+      "kind": "if",
+      "depth": 1,
+      "opener": {
+        "source_file": "data6.pack/scenario/本編/t05_02@.s",
+        "source_sha256": "a3a08ecc83147e46d6f66b27795ea27e47c748ac69d85daec4456ef9456603e3",
+        "byte_offset": 49096,
+        "byte_length": 40,
+        "record_sha256": "b99b616d3fda54c5daa5c08d8a2a966c614362ef91c1f6545d70e8913638cef5"
+      },
+      "closer": {
+        "source_file": "data6.pack/scenario/本編/t05_02@.s",
+        "source_sha256": "a3a08ecc83147e46d6f66b27795ea27e47c748ac69d85daec4456ef9456603e3",
+        "byte_offset": 49164,
+        "byte_length": 8,
+        "record_sha256": "32240088876e22f11cedeb73352983e2a632fdfe22419835948f372b03a46e52"
+      },
+      "status": "inferred",
+      "execution_edges": "not_tested",
+      "then_marker_count": 1,
+      "else_marker_count": 0,
+      "state_family_candidates": [
+        {
+          "value": 2,
+          "name": "rsIfThen",
+          "declaration_reference": {
+            "offset": 2778749,
+            "length": 9,
+            "sha256": "89ae0689ec35b97bae975d58b01c927d40c62bbae16bb39683b7f1ef157fc33b"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 5,
+          "name": "rsIfSkip",
+          "declaration_reference": {
+            "offset": 2778781,
+            "length": 9,
+            "sha256": "ea1c9b909485305fe53f36ea8cfe3f7c770e651cd595c0df917a4f6ba3655759"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 6,
+          "name": "rsIfElse",
+          "declaration_reference": {
+            "offset": 2778790,
+            "length": 9,
+            "sha256": "26fda4b47f839a3ebf9d1105d8047da82962e77e565b8374f1397ae42cf52742"
+          },
+          "confidence": "inferred"
+        }
+      ]
+    },
+    {
+      "kind": "if",
+      "depth": 1,
+      "opener": {
+        "source_file": "data6.pack/scenario/本編/t07_02@.s",
+        "source_sha256": "f18fa4974e84477333fc36fdf39ddba609e904fe0ad9ffcbf2b94059fe662c55",
+        "byte_offset": 24682,
+        "byte_length": 40,
+        "record_sha256": "b99b616d3fda54c5daa5c08d8a2a966c614362ef91c1f6545d70e8913638cef5"
+      },
+      "closer": {
+        "source_file": "data6.pack/scenario/本編/t07_02@.s",
+        "source_sha256": "f18fa4974e84477333fc36fdf39ddba609e904fe0ad9ffcbf2b94059fe662c55",
+        "byte_offset": 24750,
+        "byte_length": 8,
+        "record_sha256": "32240088876e22f11cedeb73352983e2a632fdfe22419835948f372b03a46e52"
+      },
+      "status": "inferred",
+      "execution_edges": "not_tested",
+      "then_marker_count": 1,
+      "else_marker_count": 0,
+      "state_family_candidates": [
+        {
+          "value": 2,
+          "name": "rsIfThen",
+          "declaration_reference": {
+            "offset": 2778749,
+            "length": 9,
+            "sha256": "89ae0689ec35b97bae975d58b01c927d40c62bbae16bb39683b7f1ef157fc33b"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 5,
+          "name": "rsIfSkip",
+          "declaration_reference": {
+            "offset": 2778781,
+            "length": 9,
+            "sha256": "ea1c9b909485305fe53f36ea8cfe3f7c770e651cd595c0df917a4f6ba3655759"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 6,
+          "name": "rsIfElse",
+          "declaration_reference": {
+            "offset": 2778790,
+            "length": 9,
+            "sha256": "26fda4b47f839a3ebf9d1105d8047da82962e77e565b8374f1397ae42cf52742"
+          },
+          "confidence": "inferred"
+        }
+      ]
+    },
+    {
+      "kind": "if",
+      "depth": 1,
+      "opener": {
+        "source_file": "data6.pack/scenario/本編/t08_02@.s",
+        "source_sha256": "79508f724f8a9bc93a010f7269faec919d579deb3e2200910f1542397f6e6132",
+        "byte_offset": 74150,
+        "byte_length": 40,
+        "record_sha256": "b99b616d3fda54c5daa5c08d8a2a966c614362ef91c1f6545d70e8913638cef5"
+      },
+      "closer": {
+        "source_file": "data6.pack/scenario/本編/t08_02@.s",
+        "source_sha256": "79508f724f8a9bc93a010f7269faec919d579deb3e2200910f1542397f6e6132",
+        "byte_offset": 74218,
+        "byte_length": 8,
+        "record_sha256": "32240088876e22f11cedeb73352983e2a632fdfe22419835948f372b03a46e52"
+      },
+      "status": "inferred",
+      "execution_edges": "not_tested",
+      "then_marker_count": 1,
+      "else_marker_count": 0,
+      "state_family_candidates": [
+        {
+          "value": 2,
+          "name": "rsIfThen",
+          "declaration_reference": {
+            "offset": 2778749,
+            "length": 9,
+            "sha256": "89ae0689ec35b97bae975d58b01c927d40c62bbae16bb39683b7f1ef157fc33b"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 5,
+          "name": "rsIfSkip",
+          "declaration_reference": {
+            "offset": 2778781,
+            "length": 9,
+            "sha256": "ea1c9b909485305fe53f36ea8cfe3f7c770e651cd595c0df917a4f6ba3655759"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 6,
+          "name": "rsIfElse",
+          "declaration_reference": {
+            "offset": 2778790,
+            "length": 9,
+            "sha256": "26fda4b47f839a3ebf9d1105d8047da82962e77e565b8374f1397ae42cf52742"
+          },
+          "confidence": "inferred"
+        }
+      ]
+    },
+    {
+      "kind": "if",
+      "depth": 1,
+      "opener": {
+        "source_file": "data6.pack/scenario/本編/t09_02@.s",
+        "source_sha256": "b697158c8988da5ac7fcbcf779a084376759b3acdabc4e81f556e1023afbb300",
+        "byte_offset": 77482,
+        "byte_length": 40,
+        "record_sha256": "b99b616d3fda54c5daa5c08d8a2a966c614362ef91c1f6545d70e8913638cef5"
+      },
+      "closer": {
+        "source_file": "data6.pack/scenario/本編/t09_02@.s",
+        "source_sha256": "b697158c8988da5ac7fcbcf779a084376759b3acdabc4e81f556e1023afbb300",
+        "byte_offset": 77550,
+        "byte_length": 8,
+        "record_sha256": "32240088876e22f11cedeb73352983e2a632fdfe22419835948f372b03a46e52"
+      },
+      "status": "inferred",
+      "execution_edges": "not_tested",
+      "then_marker_count": 1,
+      "else_marker_count": 0,
+      "state_family_candidates": [
+        {
+          "value": 2,
+          "name": "rsIfThen",
+          "declaration_reference": {
+            "offset": 2778749,
+            "length": 9,
+            "sha256": "89ae0689ec35b97bae975d58b01c927d40c62bbae16bb39683b7f1ef157fc33b"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 5,
+          "name": "rsIfSkip",
+          "declaration_reference": {
+            "offset": 2778781,
+            "length": 9,
+            "sha256": "ea1c9b909485305fe53f36ea8cfe3f7c770e651cd595c0df917a4f6ba3655759"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 6,
+          "name": "rsIfElse",
+          "declaration_reference": {
+            "offset": 2778790,
+            "length": 9,
+            "sha256": "26fda4b47f839a3ebf9d1105d8047da82962e77e565b8374f1397ae42cf52742"
+          },
+          "confidence": "inferred"
+        }
+      ]
+    },
+    {
+      "kind": "if",
+      "depth": 1,
+      "opener": {
+        "source_file": "data6.pack/scenario/本編/t12_02@.s",
+        "source_sha256": "c7bf4a903201e610f0d6058e0f1eae056d52f185d8e12ec3bf02031da67cc596",
+        "byte_offset": 110838,
+        "byte_length": 40,
+        "record_sha256": "b99b616d3fda54c5daa5c08d8a2a966c614362ef91c1f6545d70e8913638cef5"
+      },
+      "closer": {
+        "source_file": "data6.pack/scenario/本編/t12_02@.s",
+        "source_sha256": "c7bf4a903201e610f0d6058e0f1eae056d52f185d8e12ec3bf02031da67cc596",
+        "byte_offset": 110906,
+        "byte_length": 8,
+        "record_sha256": "32240088876e22f11cedeb73352983e2a632fdfe22419835948f372b03a46e52"
+      },
+      "status": "inferred",
+      "execution_edges": "not_tested",
+      "then_marker_count": 1,
+      "else_marker_count": 0,
+      "state_family_candidates": [
+        {
+          "value": 2,
+          "name": "rsIfThen",
+          "declaration_reference": {
+            "offset": 2778749,
+            "length": 9,
+            "sha256": "89ae0689ec35b97bae975d58b01c927d40c62bbae16bb39683b7f1ef157fc33b"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 5,
+          "name": "rsIfSkip",
+          "declaration_reference": {
+            "offset": 2778781,
+            "length": 9,
+            "sha256": "ea1c9b909485305fe53f36ea8cfe3f7c770e651cd595c0df917a4f6ba3655759"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 6,
+          "name": "rsIfElse",
+          "declaration_reference": {
+            "offset": 2778790,
+            "length": 9,
+            "sha256": "26fda4b47f839a3ebf9d1105d8047da82962e77e565b8374f1397ae42cf52742"
+          },
+          "confidence": "inferred"
+        }
+      ]
+    },
+    {
+      "kind": "if",
+      "depth": 1,
+      "opener": {
+        "source_file": "data6.pack/scenario/本編/t13_02@.s",
+        "source_sha256": "6fa191cd4d0ef4533d5a7383a9d70ab3fb96670563e82854d7ca584906106562",
+        "byte_offset": 69302,
+        "byte_length": 40,
+        "record_sha256": "b99b616d3fda54c5daa5c08d8a2a966c614362ef91c1f6545d70e8913638cef5"
+      },
+      "closer": {
+        "source_file": "data6.pack/scenario/本編/t13_02@.s",
+        "source_sha256": "6fa191cd4d0ef4533d5a7383a9d70ab3fb96670563e82854d7ca584906106562",
+        "byte_offset": 69370,
+        "byte_length": 8,
+        "record_sha256": "32240088876e22f11cedeb73352983e2a632fdfe22419835948f372b03a46e52"
+      },
+      "status": "inferred",
+      "execution_edges": "not_tested",
+      "then_marker_count": 1,
+      "else_marker_count": 0,
+      "state_family_candidates": [
+        {
+          "value": 2,
+          "name": "rsIfThen",
+          "declaration_reference": {
+            "offset": 2778749,
+            "length": 9,
+            "sha256": "89ae0689ec35b97bae975d58b01c927d40c62bbae16bb39683b7f1ef157fc33b"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 5,
+          "name": "rsIfSkip",
+          "declaration_reference": {
+            "offset": 2778781,
+            "length": 9,
+            "sha256": "ea1c9b909485305fe53f36ea8cfe3f7c770e651cd595c0df917a4f6ba3655759"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 6,
+          "name": "rsIfElse",
+          "declaration_reference": {
+            "offset": 2778790,
+            "length": 9,
+            "sha256": "26fda4b47f839a3ebf9d1105d8047da82962e77e565b8374f1397ae42cf52742"
+          },
+          "confidence": "inferred"
+        }
+      ]
+    },
+    {
+      "kind": "if",
+      "depth": 1,
+      "opener": {
+        "source_file": "data6.pack/scenario/本編/t14_02@.s",
+        "source_sha256": "63c5200b852b599700e4def6749f81fec30739664839dba054e6066939efc900",
+        "byte_offset": 48900,
+        "byte_length": 40,
+        "record_sha256": "b99b616d3fda54c5daa5c08d8a2a966c614362ef91c1f6545d70e8913638cef5"
+      },
+      "closer": {
+        "source_file": "data6.pack/scenario/本編/t14_02@.s",
+        "source_sha256": "63c5200b852b599700e4def6749f81fec30739664839dba054e6066939efc900",
+        "byte_offset": 48968,
+        "byte_length": 8,
+        "record_sha256": "32240088876e22f11cedeb73352983e2a632fdfe22419835948f372b03a46e52"
+      },
+      "status": "inferred",
+      "execution_edges": "not_tested",
+      "then_marker_count": 1,
+      "else_marker_count": 0,
+      "state_family_candidates": [
+        {
+          "value": 2,
+          "name": "rsIfThen",
+          "declaration_reference": {
+            "offset": 2778749,
+            "length": 9,
+            "sha256": "89ae0689ec35b97bae975d58b01c927d40c62bbae16bb39683b7f1ef157fc33b"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 5,
+          "name": "rsIfSkip",
+          "declaration_reference": {
+            "offset": 2778781,
+            "length": 9,
+            "sha256": "ea1c9b909485305fe53f36ea8cfe3f7c770e651cd595c0df917a4f6ba3655759"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 6,
+          "name": "rsIfElse",
+          "declaration_reference": {
+            "offset": 2778790,
+            "length": 9,
+            "sha256": "26fda4b47f839a3ebf9d1105d8047da82962e77e565b8374f1397ae42cf52742"
+          },
+          "confidence": "inferred"
+        }
+      ]
+    },
+    {
+      "kind": "if",
+      "depth": 1,
+      "opener": {
+        "source_file": "data6.pack/scenario/本編/t16_02@.s",
+        "source_sha256": "329c6c94c1679a9554b91b47574ab9ceea1ea868fe05ec4a4c9106e6091ba992",
+        "byte_offset": 88910,
+        "byte_length": 40,
+        "record_sha256": "b99b616d3fda54c5daa5c08d8a2a966c614362ef91c1f6545d70e8913638cef5"
+      },
+      "closer": {
+        "source_file": "data6.pack/scenario/本編/t16_02@.s",
+        "source_sha256": "329c6c94c1679a9554b91b47574ab9ceea1ea868fe05ec4a4c9106e6091ba992",
+        "byte_offset": 88978,
+        "byte_length": 8,
+        "record_sha256": "32240088876e22f11cedeb73352983e2a632fdfe22419835948f372b03a46e52"
+      },
+      "status": "inferred",
+      "execution_edges": "not_tested",
+      "then_marker_count": 1,
+      "else_marker_count": 0,
+      "state_family_candidates": [
+        {
+          "value": 2,
+          "name": "rsIfThen",
+          "declaration_reference": {
+            "offset": 2778749,
+            "length": 9,
+            "sha256": "89ae0689ec35b97bae975d58b01c927d40c62bbae16bb39683b7f1ef157fc33b"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 5,
+          "name": "rsIfSkip",
+          "declaration_reference": {
+            "offset": 2778781,
+            "length": 9,
+            "sha256": "ea1c9b909485305fe53f36ea8cfe3f7c770e651cd595c0df917a4f6ba3655759"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 6,
+          "name": "rsIfElse",
+          "declaration_reference": {
+            "offset": 2778790,
+            "length": 9,
+            "sha256": "26fda4b47f839a3ebf9d1105d8047da82962e77e565b8374f1397ae42cf52742"
+          },
+          "confidence": "inferred"
+        }
+      ]
+    },
+    {
+      "kind": "if",
+      "depth": 1,
+      "opener": {
+        "source_file": "data6.pack/scenario/本編/t17_02@.s",
+        "source_sha256": "ca798a0067dc9635dc357aa31a553ce877c5e049591c510b34eb1555bef41b6c",
+        "byte_offset": 69102,
+        "byte_length": 40,
+        "record_sha256": "b99b616d3fda54c5daa5c08d8a2a966c614362ef91c1f6545d70e8913638cef5"
+      },
+      "closer": {
+        "source_file": "data6.pack/scenario/本編/t17_02@.s",
+        "source_sha256": "ca798a0067dc9635dc357aa31a553ce877c5e049591c510b34eb1555bef41b6c",
+        "byte_offset": 69170,
+        "byte_length": 8,
+        "record_sha256": "32240088876e22f11cedeb73352983e2a632fdfe22419835948f372b03a46e52"
+      },
+      "status": "inferred",
+      "execution_edges": "not_tested",
+      "then_marker_count": 1,
+      "else_marker_count": 0,
+      "state_family_candidates": [
+        {
+          "value": 2,
+          "name": "rsIfThen",
+          "declaration_reference": {
+            "offset": 2778749,
+            "length": 9,
+            "sha256": "89ae0689ec35b97bae975d58b01c927d40c62bbae16bb39683b7f1ef157fc33b"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 5,
+          "name": "rsIfSkip",
+          "declaration_reference": {
+            "offset": 2778781,
+            "length": 9,
+            "sha256": "ea1c9b909485305fe53f36ea8cfe3f7c770e651cd595c0df917a4f6ba3655759"
+          },
+          "confidence": "inferred"
+        },
+        {
+          "value": 6,
+          "name": "rsIfElse",
+          "declaration_reference": {
+            "offset": 2778790,
+            "length": 9,
+            "sha256": "26fda4b47f839a3ebf9d1105d8047da82962e77e565b8374f1397ae42cf52742"
+          },
+          "confidence": "inferred"
+        }
+      ]
+    }
+  ],
+  "example_limit": 20,
+  "marker_counts": {
+    "then": 2121,
+    "else": 357,
+    "brk": 24,
+    "cnt": 17,
+    "of": 408,
+    "ans": 69,
+    "dbrk": 7
+  },
+  "marker_status_counts": {
+    "inferred": 2996,
+    "unsupported": 7
+  },
+  "marker_examples": [
+    {
+      "command": "then",
+      "byte_offset": 194,
+      "byte_length": 10,
+      "raw_bytes_reference": {
+        "source_sha256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1",
+        "offset": 194,
+        "length": 10,
+        "sha256": "3330a9243bd8d8c863cebca0b0b232c76082a4c8963b81b7e8c41baa14afa6d8"
+      },
+      "execution_target": "not_tested",
+      "status": "inferred",
+      "lexical_candidate": {
+        "source_file": "data0.pack/startup.s",
+        "source_sha256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1",
+        "byte_offset": 150,
+        "byte_length": 44,
+        "record_sha256": "3dfb875d1bfa5628d5143351daac64c7007352b1c4d9c2d6910d62228b25821d"
+      },
+      "candidate_kind": "if",
+      "source_file": "data0.pack/startup.s",
+      "source_sha256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+    },
+    {
+      "command": "then",
+      "byte_offset": 3184,
+      "byte_length": 10,
+      "raw_bytes_reference": {
+        "source_sha256": "46e460168ff4d5bae70e1c13be00882e518087d9b7d2021f6401c4ff0474104d",
+        "offset": 3184,
+        "length": 10,
+        "sha256": "3330a9243bd8d8c863cebca0b0b232c76082a4c8963b81b7e8c41baa14afa6d8"
+      },
+      "execution_target": "not_tested",
+      "status": "inferred",
+      "lexical_candidate": {
+        "source_file": "data0.pack/sysstartup.s",
+        "source_sha256": "46e460168ff4d5bae70e1c13be00882e518087d9b7d2021f6401c4ff0474104d",
+        "byte_offset": 3146,
+        "byte_length": 38,
+        "record_sha256": "efa9135b0aa5b0553e1c14fa31f91b42b53527a93bee24e8945d688e8b542efb"
+      },
+      "candidate_kind": "if",
+      "source_file": "data0.pack/sysstartup.s",
+      "source_sha256": "46e460168ff4d5bae70e1c13be00882e518087d9b7d2021f6401c4ff0474104d"
+    },
+    {
+      "command": "then",
+      "byte_offset": 7822,
+      "byte_length": 10,
+      "raw_bytes_reference": {
+        "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+        "offset": 7822,
+        "length": 10,
+        "sha256": "3330a9243bd8d8c863cebca0b0b232c76082a4c8963b81b7e8c41baa14afa6d8"
+      },
+      "execution_target": "not_tested",
+      "status": "inferred",
+      "lexical_candidate": {
+        "source_file": "data6.pack/scenario/root.s",
+        "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+        "byte_offset": 7782,
+        "byte_length": 40,
+        "record_sha256": "cdab3a1d29443656e8ce914973f91b8f542d91f84496df11bc8c228e7a6c0102"
+      },
+      "candidate_kind": "if",
+      "source_file": "data6.pack/scenario/root.s",
+      "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da"
+    },
+    {
+      "command": "then",
+      "byte_offset": 9164,
+      "byte_length": 10,
+      "raw_bytes_reference": {
+        "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+        "offset": 9164,
+        "length": 10,
+        "sha256": "3330a9243bd8d8c863cebca0b0b232c76082a4c8963b81b7e8c41baa14afa6d8"
+      },
+      "execution_target": "not_tested",
+      "status": "inferred",
+      "lexical_candidate": {
+        "source_file": "data6.pack/scenario/root.s",
+        "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+        "byte_offset": 9124,
+        "byte_length": 40,
+        "record_sha256": "cdab3a1d29443656e8ce914973f91b8f542d91f84496df11bc8c228e7a6c0102"
+      },
+      "candidate_kind": "if",
+      "source_file": "data6.pack/scenario/root.s",
+      "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da"
+    },
+    {
+      "command": "then",
+      "byte_offset": 10828,
+      "byte_length": 10,
+      "raw_bytes_reference": {
+        "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+        "offset": 10828,
+        "length": 10,
+        "sha256": "3330a9243bd8d8c863cebca0b0b232c76082a4c8963b81b7e8c41baa14afa6d8"
+      },
+      "execution_target": "not_tested",
+      "status": "inferred",
+      "lexical_candidate": {
+        "source_file": "data6.pack/scenario/root.s",
+        "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+        "byte_offset": 10788,
+        "byte_length": 40,
+        "record_sha256": "cdab3a1d29443656e8ce914973f91b8f542d91f84496df11bc8c228e7a6c0102"
+      },
+      "candidate_kind": "if",
+      "source_file": "data6.pack/scenario/root.s",
+      "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da"
+    },
+    {
+      "command": "then",
+      "byte_offset": 12702,
+      "byte_length": 10,
+      "raw_bytes_reference": {
+        "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+        "offset": 12702,
+        "length": 10,
+        "sha256": "3330a9243bd8d8c863cebca0b0b232c76082a4c8963b81b7e8c41baa14afa6d8"
+      },
+      "execution_target": "not_tested",
+      "status": "inferred",
+      "lexical_candidate": {
+        "source_file": "data6.pack/scenario/root.s",
+        "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+        "byte_offset": 12662,
+        "byte_length": 40,
+        "record_sha256": "cdab3a1d29443656e8ce914973f91b8f542d91f84496df11bc8c228e7a6c0102"
+      },
+      "candidate_kind": "if",
+      "source_file": "data6.pack/scenario/root.s",
+      "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da"
+    },
+    {
+      "command": "then",
+      "byte_offset": 12820,
+      "byte_length": 10,
+      "raw_bytes_reference": {
+        "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+        "offset": 12820,
+        "length": 10,
+        "sha256": "3330a9243bd8d8c863cebca0b0b232c76082a4c8963b81b7e8c41baa14afa6d8"
+      },
+      "execution_target": "not_tested",
+      "status": "inferred",
+      "lexical_candidate": {
+        "source_file": "data6.pack/scenario/root.s",
+        "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da",
+        "byte_offset": 12780,
+        "byte_length": 40,
+        "record_sha256": "cdab3a1d29443656e8ce914973f91b8f542d91f84496df11bc8c228e7a6c0102"
+      },
+      "candidate_kind": "if",
+      "source_file": "data6.pack/scenario/root.s",
+      "source_sha256": "1896843bba265f5d375f6c9df069d821344b4dadd75cf919e14d4f5a2e6863da"
+    },
+    {
+      "command": "then",
+      "byte_offset": 32570,
+      "byte_length": 10,
+      "raw_bytes_reference": {
+        "source_sha256": "4ed62dcc860dec335aa4290e6120a17d4fe10d7ad4677c31a5cf79f7934a55a2",
+        "offset": 32570,
+        "length": 10,
+        "sha256": "3330a9243bd8d8c863cebca0b0b232c76082a4c8963b81b7e8c41baa14afa6d8"
+      },
+      "execution_target": "not_tested",
+      "status": "inferred",
+      "lexical_candidate": {
+        "source_file": "data6.pack/scenario/本編/t01_02@.s",
+        "source_sha256": "4ed62dcc860dec335aa4290e6120a17d4fe10d7ad4677c31a5cf79f7934a55a2",
+        "byte_offset": 32530,
+        "byte_length": 40,
+        "record_sha256": "b99b616d3fda54c5daa5c08d8a2a966c614362ef91c1f6545d70e8913638cef5"
+      },
+      "candidate_kind": "if",
+      "source_file": "data6.pack/scenario/本編/t01_02@.s",
+      "source_sha256": "4ed62dcc860dec335aa4290e6120a17d4fe10d7ad4677c31a5cf79f7934a55a2"
+    },
+    {
+      "command": "then",
+      "byte_offset": 15604,
+      "byte_length": 10,
+      "raw_bytes_reference": {
+        "source_sha256": "efee4a63deeae777fb106ebf3d715f3bd466d3644b7ea7d7d2c3d9f443d84e1c",
+        "offset": 15604,
+        "length": 10,
+        "sha256": "3330a9243bd8d8c863cebca0b0b232c76082a4c8963b81b7e8c41baa14afa6d8"
+      },
+      "execution_target": "not_tested",
+      "status": "inferred",
+      "lexical_candidate": {
+        "source_file": "data6.pack/scenario/本編/t02_02@.s",
+        "source_sha256": "efee4a63deeae777fb106ebf3d715f3bd466d3644b7ea7d7d2c3d9f443d84e1c",
+        "byte_offset": 15564,
+        "byte_length": 40,
+        "record_sha256": "b99b616d3fda54c5daa5c08d8a2a966c614362ef91c1f6545d70e8913638cef5"
+      },
+      "candidate_kind": "if",
+      "source_file": "data6.pack/scenario/本編/t02_02@.s",
+      "source_sha256": "efee4a63deeae777fb106ebf3d715f3bd466d3644b7ea7d7d2c3d9f443d84e1c"
+    },
+    {
+      "command": "then",
+      "byte_offset": 45730,
+      "byte_length": 10,
+      "raw_bytes_reference": {
+        "source_sha256": "aea6d8f77582c3828f11ace99d3b48a0c3274da3ab1f8cba9374be9487caeba2",
+        "offset": 45730,
+        "length": 10,
+        "sha256": "3330a9243bd8d8c863cebca0b0b232c76082a4c8963b81b7e8c41baa14afa6d8"
+      },
+      "execution_target": "not_tested",
+      "status": "inferred",
+      "lexical_candidate": {
+        "source_file": "data6.pack/scenario/本編/t04_02@.s",
+        "source_sha256": "aea6d8f77582c3828f11ace99d3b48a0c3274da3ab1f8cba9374be9487caeba2",
+        "byte_offset": 45690,
+        "byte_length": 40,
+        "record_sha256": "b99b616d3fda54c5daa5c08d8a2a966c614362ef91c1f6545d70e8913638cef5"
+      },
+      "candidate_kind": "if",
+      "source_file": "data6.pack/scenario/本編/t04_02@.s",
+      "source_sha256": "aea6d8f77582c3828f11ace99d3b48a0c3274da3ab1f8cba9374be9487caeba2"
+    },
+    {
+      "command": "then",
+      "byte_offset": 49136,
+      "byte_length": 10,
+      "raw_bytes_reference": {
+        "source_sha256": "a3a08ecc83147e46d6f66b27795ea27e47c748ac69d85daec4456ef9456603e3",
+        "offset": 49136,
+        "length": 10,
+        "sha256": "3330a9243bd8d8c863cebca0b0b232c76082a4c8963b81b7e8c41baa14afa6d8"
+      },
+      "execution_target": "not_tested",
+      "status": "inferred",
+      "lexical_candidate": {
+        "source_file": "data6.pack/scenario/本編/t05_02@.s",
+        "source_sha256": "a3a08ecc83147e46d6f66b27795ea27e47c748ac69d85daec4456ef9456603e3",
+        "byte_offset": 49096,
+        "byte_length": 40,
+        "record_sha256": "b99b616d3fda54c5daa5c08d8a2a966c614362ef91c1f6545d70e8913638cef5"
+      },
+      "candidate_kind": "if",
+      "source_file": "data6.pack/scenario/本編/t05_02@.s",
+      "source_sha256": "a3a08ecc83147e46d6f66b27795ea27e47c748ac69d85daec4456ef9456603e3"
+    },
+    {
+      "command": "then",
+      "byte_offset": 24722,
+      "byte_length": 10,
+      "raw_bytes_reference": {
+        "source_sha256": "f18fa4974e84477333fc36fdf39ddba609e904fe0ad9ffcbf2b94059fe662c55",
+        "offset": 24722,
+        "length": 10,
+        "sha256": "3330a9243bd8d8c863cebca0b0b232c76082a4c8963b81b7e8c41baa14afa6d8"
+      },
+      "execution_target": "not_tested",
+      "status": "inferred",
+      "lexical_candidate": {
+        "source_file": "data6.pack/scenario/本編/t07_02@.s",
+        "source_sha256": "f18fa4974e84477333fc36fdf39ddba609e904fe0ad9ffcbf2b94059fe662c55",
+        "byte_offset": 24682,
+        "byte_length": 40,
+        "record_sha256": "b99b616d3fda54c5daa5c08d8a2a966c614362ef91c1f6545d70e8913638cef5"
+      },
+      "candidate_kind": "if",
+      "source_file": "data6.pack/scenario/本編/t07_02@.s",
+      "source_sha256": "f18fa4974e84477333fc36fdf39ddba609e904fe0ad9ffcbf2b94059fe662c55"
+    },
+    {
+      "command": "then",
+      "byte_offset": 74190,
+      "byte_length": 10,
+      "raw_bytes_reference": {
+        "source_sha256": "79508f724f8a9bc93a010f7269faec919d579deb3e2200910f1542397f6e6132",
+        "offset": 74190,
+        "length": 10,
+        "sha256": "3330a9243bd8d8c863cebca0b0b232c76082a4c8963b81b7e8c41baa14afa6d8"
+      },
+      "execution_target": "not_tested",
+      "status": "inferred",
+      "lexical_candidate": {
+        "source_file": "data6.pack/scenario/本編/t08_02@.s",
+        "source_sha256": "79508f724f8a9bc93a010f7269faec919d579deb3e2200910f1542397f6e6132",
+        "byte_offset": 74150,
+        "byte_length": 40,
+        "record_sha256": "b99b616d3fda54c5daa5c08d8a2a966c614362ef91c1f6545d70e8913638cef5"
+      },
+      "candidate_kind": "if",
+      "source_file": "data6.pack/scenario/本編/t08_02@.s",
+      "source_sha256": "79508f724f8a9bc93a010f7269faec919d579deb3e2200910f1542397f6e6132"
+    },
+    {
+      "command": "then",
+      "byte_offset": 77522,
+      "byte_length": 10,
+      "raw_bytes_reference": {
+        "source_sha256": "b697158c8988da5ac7fcbcf779a084376759b3acdabc4e81f556e1023afbb300",
+        "offset": 77522,
+        "length": 10,
+        "sha256": "3330a9243bd8d8c863cebca0b0b232c76082a4c8963b81b7e8c41baa14afa6d8"
+      },
+      "execution_target": "not_tested",
+      "status": "inferred",
+      "lexical_candidate": {
+        "source_file": "data6.pack/scenario/本編/t09_02@.s",
+        "source_sha256": "b697158c8988da5ac7fcbcf779a084376759b3acdabc4e81f556e1023afbb300",
+        "byte_offset": 77482,
+        "byte_length": 40,
+        "record_sha256": "b99b616d3fda54c5daa5c08d8a2a966c614362ef91c1f6545d70e8913638cef5"
+      },
+      "candidate_kind": "if",
+      "source_file": "data6.pack/scenario/本編/t09_02@.s",
+      "source_sha256": "b697158c8988da5ac7fcbcf779a084376759b3acdabc4e81f556e1023afbb300"
+    },
+    {
+      "command": "then",
+      "byte_offset": 110878,
+      "byte_length": 10,
+      "raw_bytes_reference": {
+        "source_sha256": "c7bf4a903201e610f0d6058e0f1eae056d52f185d8e12ec3bf02031da67cc596",
+        "offset": 110878,
+        "length": 10,
+        "sha256": "3330a9243bd8d8c863cebca0b0b232c76082a4c8963b81b7e8c41baa14afa6d8"
+      },
+      "execution_target": "not_tested",
+      "status": "inferred",
+      "lexical_candidate": {
+        "source_file": "data6.pack/scenario/本編/t12_02@.s",
+        "source_sha256": "c7bf4a903201e610f0d6058e0f1eae056d52f185d8e12ec3bf02031da67cc596",
+        "byte_offset": 110838,
+        "byte_length": 40,
+        "record_sha256": "b99b616d3fda54c5daa5c08d8a2a966c614362ef91c1f6545d70e8913638cef5"
+      },
+      "candidate_kind": "if",
+      "source_file": "data6.pack/scenario/本編/t12_02@.s",
+      "source_sha256": "c7bf4a903201e610f0d6058e0f1eae056d52f185d8e12ec3bf02031da67cc596"
+    },
+    {
+      "command": "then",
+      "byte_offset": 69342,
+      "byte_length": 10,
+      "raw_bytes_reference": {
+        "source_sha256": "6fa191cd4d0ef4533d5a7383a9d70ab3fb96670563e82854d7ca584906106562",
+        "offset": 69342,
+        "length": 10,
+        "sha256": "3330a9243bd8d8c863cebca0b0b232c76082a4c8963b81b7e8c41baa14afa6d8"
+      },
+      "execution_target": "not_tested",
+      "status": "inferred",
+      "lexical_candidate": {
+        "source_file": "data6.pack/scenario/本編/t13_02@.s",
+        "source_sha256": "6fa191cd4d0ef4533d5a7383a9d70ab3fb96670563e82854d7ca584906106562",
+        "byte_offset": 69302,
+        "byte_length": 40,
+        "record_sha256": "b99b616d3fda54c5daa5c08d8a2a966c614362ef91c1f6545d70e8913638cef5"
+      },
+      "candidate_kind": "if",
+      "source_file": "data6.pack/scenario/本編/t13_02@.s",
+      "source_sha256": "6fa191cd4d0ef4533d5a7383a9d70ab3fb96670563e82854d7ca584906106562"
+    },
+    {
+      "command": "then",
+      "byte_offset": 48940,
+      "byte_length": 10,
+      "raw_bytes_reference": {
+        "source_sha256": "63c5200b852b599700e4def6749f81fec30739664839dba054e6066939efc900",
+        "offset": 48940,
+        "length": 10,
+        "sha256": "3330a9243bd8d8c863cebca0b0b232c76082a4c8963b81b7e8c41baa14afa6d8"
+      },
+      "execution_target": "not_tested",
+      "status": "inferred",
+      "lexical_candidate": {
+        "source_file": "data6.pack/scenario/本編/t14_02@.s",
+        "source_sha256": "63c5200b852b599700e4def6749f81fec30739664839dba054e6066939efc900",
+        "byte_offset": 48900,
+        "byte_length": 40,
+        "record_sha256": "b99b616d3fda54c5daa5c08d8a2a966c614362ef91c1f6545d70e8913638cef5"
+      },
+      "candidate_kind": "if",
+      "source_file": "data6.pack/scenario/本編/t14_02@.s",
+      "source_sha256": "63c5200b852b599700e4def6749f81fec30739664839dba054e6066939efc900"
+    },
+    {
+      "command": "then",
+      "byte_offset": 88950,
+      "byte_length": 10,
+      "raw_bytes_reference": {
+        "source_sha256": "329c6c94c1679a9554b91b47574ab9ceea1ea868fe05ec4a4c9106e6091ba992",
+        "offset": 88950,
+        "length": 10,
+        "sha256": "3330a9243bd8d8c863cebca0b0b232c76082a4c8963b81b7e8c41baa14afa6d8"
+      },
+      "execution_target": "not_tested",
+      "status": "inferred",
+      "lexical_candidate": {
+        "source_file": "data6.pack/scenario/本編/t16_02@.s",
+        "source_sha256": "329c6c94c1679a9554b91b47574ab9ceea1ea868fe05ec4a4c9106e6091ba992",
+        "byte_offset": 88910,
+        "byte_length": 40,
+        "record_sha256": "b99b616d3fda54c5daa5c08d8a2a966c614362ef91c1f6545d70e8913638cef5"
+      },
+      "candidate_kind": "if",
+      "source_file": "data6.pack/scenario/本編/t16_02@.s",
+      "source_sha256": "329c6c94c1679a9554b91b47574ab9ceea1ea868fe05ec4a4c9106e6091ba992"
+    },
+    {
+      "command": "then",
+      "byte_offset": 69142,
+      "byte_length": 10,
+      "raw_bytes_reference": {
+        "source_sha256": "ca798a0067dc9635dc357aa31a553ce877c5e049591c510b34eb1555bef41b6c",
+        "offset": 69142,
+        "length": 10,
+        "sha256": "3330a9243bd8d8c863cebca0b0b232c76082a4c8963b81b7e8c41baa14afa6d8"
+      },
+      "execution_target": "not_tested",
+      "status": "inferred",
+      "lexical_candidate": {
+        "source_file": "data6.pack/scenario/本編/t17_02@.s",
+        "source_sha256": "ca798a0067dc9635dc357aa31a553ce877c5e049591c510b34eb1555bef41b6c",
+        "byte_offset": 69102,
+        "byte_length": 40,
+        "record_sha256": "b99b616d3fda54c5daa5c08d8a2a966c614362ef91c1f6545d70e8913638cef5"
+      },
+      "candidate_kind": "if",
+      "source_file": "data6.pack/scenario/本編/t17_02@.s",
+      "source_sha256": "ca798a0067dc9635dc357aa31a553ce877c5e049591c510b34eb1555bef41b6c"
+    },
+    {
+      "command": "then",
+      "byte_offset": 20212,
+      "byte_length": 10,
+      "raw_bytes_reference": {
+        "source_sha256": "73d6db7fdef2c50cf613dd0183d6247660790f71d17cbfc50aca715a2a82d36f",
+        "offset": 20212,
+        "length": 10,
+        "sha256": "3330a9243bd8d8c863cebca0b0b232c76082a4c8963b81b7e8c41baa14afa6d8"
+      },
+      "execution_target": "not_tested",
+      "status": "inferred",
+      "lexical_candidate": {
+        "source_file": "data6.pack/scenario/本編/t18_01b@.s",
+        "source_sha256": "73d6db7fdef2c50cf613dd0183d6247660790f71d17cbfc50aca715a2a82d36f",
+        "byte_offset": 20172,
+        "byte_length": 40,
+        "record_sha256": "b99b616d3fda54c5daa5c08d8a2a966c614362ef91c1f6545d70e8913638cef5"
+      },
+      "candidate_kind": "if",
+      "source_file": "data6.pack/scenario/本編/t18_01b@.s",
+      "source_sha256": "73d6db7fdef2c50cf613dd0183d6247660790f71d17cbfc50aca715a2a82d36f"
+    }
+  ],
+  "unassociated_marker_examples": [
+    {
+      "command": "dbrk",
+      "byte_offset": 39,
+      "byte_length": 5,
+      "raw_bytes_reference": {
+        "source_sha256": "f70cb49a9a89afd62df149664f37632f3d071b25b6ca0f9b200e351394e521de",
+        "offset": 39,
+        "length": 5,
+        "sha256": "a53b02069bdb390be6525d5408767f8d3cbb08c9bb4c93514bb834a33c9203dd"
+      },
+      "execution_target": "not_tested",
+      "status": "unsupported",
+      "unknown_reason": "Control spelling has no reviewed lexical association rule",
+      "source_file": "data7.pack/script/caution/main.s",
+      "source_sha256": "f70cb49a9a89afd62df149664f37632f3d071b25b6ca0f9b200e351394e521de"
+    },
+    {
+      "command": "dbrk",
+      "byte_offset": 71,
+      "byte_length": 5,
+      "raw_bytes_reference": {
+        "source_sha256": "49ed941ece01f3c525dcefa8d99a79d7c5b9e2c9b6f9b9c2248afd820ce99929",
+        "offset": 71,
+        "length": 5,
+        "sha256": "a53b02069bdb390be6525d5408767f8d3cbb08c9bb4c93514bb834a33c9203dd"
+      },
+      "execution_target": "not_tested",
+      "status": "unsupported",
+      "unknown_reason": "Control spelling has no reviewed lexical association rule",
+      "source_file": "data7.pack/script/exceptionbackup/main.s",
+      "source_sha256": "49ed941ece01f3c525dcefa8d99a79d7c5b9e2c9b6f9b9c2248afd820ce99929"
+    },
+    {
+      "command": "dbrk",
+      "byte_offset": 39,
+      "byte_length": 5,
+      "raw_bytes_reference": {
+        "source_sha256": "a41ba7dc86dfbefbbe0d34e1e175cf75876ff07580d5069dfbadb9a3482bd7a3",
+        "offset": 39,
+        "length": 5,
+        "sha256": "a53b02069bdb390be6525d5408767f8d3cbb08c9bb4c93514bb834a33c9203dd"
+      },
+      "execution_target": "not_tested",
+      "status": "unsupported",
+      "unknown_reason": "Control spelling has no reviewed lexical association rule",
+      "source_file": "data7.pack/script/makerlogo/main.s",
+      "source_sha256": "a41ba7dc86dfbefbbe0d34e1e175cf75876ff07580d5069dfbadb9a3482bd7a3"
+    },
+    {
+      "command": "dbrk",
+      "byte_offset": 537,
+      "byte_length": 5,
+      "raw_bytes_reference": {
+        "source_sha256": "7e2fcf6c4cff1802c102f4554573fd6f58bf1f9b84cb7816312d0b66c4127941",
+        "offset": 537,
+        "length": 5,
+        "sha256": "a53b02069bdb390be6525d5408767f8d3cbb08c9bb4c93514bb834a33c9203dd"
+      },
+      "execution_target": "not_tested",
+      "status": "unsupported",
+      "unknown_reason": "Control spelling has no reviewed lexical association rule",
+      "source_file": "data7.pack/script/unlock/unlock.s",
+      "source_sha256": "7e2fcf6c4cff1802c102f4554573fd6f58bf1f9b84cb7816312d0b66c4127941"
+    },
+    {
+      "command": "dbrk",
+      "byte_offset": 80,
+      "byte_length": 10,
+      "raw_bytes_reference": {
+        "source_sha256": "37356b5005c9f99f7491790dd3e34bc1cb1d865082807022094a009cdcf4f574",
+        "offset": 80,
+        "length": 10,
+        "sha256": "bdf9884802327eae05f37a5563a9e929ae751357cee3b1eefc89d7300e184b04"
+      },
+      "execution_target": "not_tested",
+      "status": "unsupported",
+      "unknown_reason": "Control spelling has no reviewed lexical association rule",
+      "source_file": "data8.pack/script/caution/main.s",
+      "source_sha256": "37356b5005c9f99f7491790dd3e34bc1cb1d865082807022094a009cdcf4f574"
+    },
+    {
+      "command": "dbrk",
+      "byte_offset": 80,
+      "byte_length": 10,
+      "raw_bytes_reference": {
+        "source_sha256": "3857a5781b82dabaf8e845959de233d1a113b801e32b49d9ac483d37e36d6818",
+        "offset": 80,
+        "length": 10,
+        "sha256": "bdf9884802327eae05f37a5563a9e929ae751357cee3b1eefc89d7300e184b04"
+      },
+      "execution_target": "not_tested",
+      "status": "unsupported",
+      "unknown_reason": "Control spelling has no reviewed lexical association rule",
+      "source_file": "data8.pack/script/makerlogo/main.s",
+      "source_sha256": "3857a5781b82dabaf8e845959de233d1a113b801e32b49d9ac483d37e36d6818"
+    },
+    {
+      "command": "dbrk",
+      "byte_offset": 1038,
+      "byte_length": 10,
+      "raw_bytes_reference": {
+        "source_sha256": "136cc6c55fb63d8bfc92264374db0468221b55327e6945ea7d5f93f4c4091928",
+        "offset": 1038,
+        "length": 10,
+        "sha256": "bdf9884802327eae05f37a5563a9e929ae751357cee3b1eefc89d7300e184b04"
+      },
+      "execution_target": "not_tested",
+      "status": "unsupported",
+      "unknown_reason": "Control spelling has no reviewed lexical association rule",
+      "source_file": "data8.pack/script/unlock/unlock.s",
+      "source_sha256": "136cc6c55fb63d8bfc92264374db0468221b55327e6945ea7d5f93f4c4091928"
+    }
+  ],
+  "grammar_issues": [],
+  "grammar_coverage_status": "inferred",
+  "per_file": [
+    {
+      "source_file": "data0.pack/startup.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data0.pack/sysstartup.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data0.pack/system/etc/game.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data0.pack/system/etc/gui.u.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data0.pack/system/etc/message.u.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data0.pack/system/font/fontdata.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data0.pack/system/voice/voicedata.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/include/allclear.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/include/allset.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/include/dayend.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/include/dayend_nf.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/include/fileend.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/include/fileend_nf.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/include/fileend_nfm.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/include/fileend_nfmm.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/include/last1.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/include/last2.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/include/longend.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/ed_movie.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/root.s",
+      "candidate_blocks": 5,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/scenereplay.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/select.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t00op_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t01_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t01_02@.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t01_03.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t02_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t02_02@.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t02_03.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t03_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t04_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t04_02@.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t04_03.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t05_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t05_02@.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t05_03.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t06_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t07_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t07_02@.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t07_03.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t08_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t08_02@.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t08_03.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t09_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t09_02@.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t09_03.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t10_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t11_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t12_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t12_02@.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t12_03.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t13_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t13_02@.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t13_03.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t14_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t14_02@.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t14_03.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t15_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t16_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t16_02@.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t16_03.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t17_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t17_02@.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t17_03.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t18_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t18_01b@.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t18_02@.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t18_03.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t19a_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t19a_02@.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t19a_03.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t19b_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t19b_02@.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t19b_03.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t19c_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t20a_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/t21_01omake@.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data6.pack/scenario/本編/ted99_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem.s",
+      "candidate_blocks": 23,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_abmpmovie.s",
+      "candidate_blocks": 31,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_autoselect.s",
+      "candidate_blocks": 9,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_custom.s",
+      "candidate_blocks": 25,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_logjump.s",
+      "candidate_blocks": 8,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_movie.s",
+      "candidate_blocks": 16,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_rewind.s",
+      "candidate_blocks": 25,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_route.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_sceneskip.s",
+      "candidate_blocks": 23,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_select.s",
+      "candidate_blocks": 11,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_value.s",
+      "candidate_blocks": 2,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/footer.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/header.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/header_replay.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter.s",
+      "candidate_blocks": 24,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_base.s",
+      "candidate_blocks": 25,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_blendmodelist.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_camera.s",
+      "candidate_blocks": 12,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_chara.s",
+      "candidate_blocks": 43,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_chara8e.s",
+      "candidate_blocks": 54,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_charaposlist.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_custom.s",
+      "candidate_blocks": 166,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_extentionlist.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_face.s",
+      "candidate_blocks": 37,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_face_poslist.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_face_repfile.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_face_repid.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_fadeeventlist.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_filterlist.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_fontlist.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_format.s",
+      "candidate_blocks": 74,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_generatorfilterlist.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_gfadelist.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_gmodelist.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_gtargetlist.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_image.s",
+      "candidate_blocks": 27,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_imagefilterlist.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_include.s",
+      "candidate_blocks": 6,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_indexlist.s",
+      "candidate_blocks": 4,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_information.s",
+      "candidate_blocks": 51,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_message.s",
+      "candidate_blocks": 50,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_movemodelist.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_music.s",
+      "candidate_blocks": 44,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_namecolorlist.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_nametext.s",
+      "candidate_blocks": 39,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_reptextlist.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_sentence.s",
+      "candidate_blocks": 29,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_sound.s",
+      "candidate_blocks": 33,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_soundfilterlist.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_camera.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_chara.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_chara8e.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_face.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_format.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_image.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_information.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_message.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_music.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_nametext.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_sentence.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_template_sound.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_texturefilterlist.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/include_route.s",
+      "candidate_blocks": 73,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/prebranch.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/preselect.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/projectobjects.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/projectsetting.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/select/layout_select.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/setting.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/uppermenu/layout.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/uppermenu/main.s",
+      "candidate_blocks": 2,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/avg/window/layout_window.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/misc/mgmisc.s",
+      "candidate_blocks": 3,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/misc/misc.s",
+      "candidate_blocks": 51,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/misc/misc_systeminfo.s",
+      "candidate_blocks": 15,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/misc/value.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/misc/voicefiletonametable.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/albummode/layout.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/albummode/layout_view.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/albummode/list.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/albummode/main.s",
+      "candidate_blocks": 9,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/albummode/viewfunction.s",
+      "candidate_blocks": 24,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/caution/main.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/config/layout.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/config/main.s",
+      "candidate_blocks": 11,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/config/value.s",
+      "candidate_blocks": 28,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/config/valuedefault.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/dialog/layout_message.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/dialog/layout_yesno.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/dialog/main.s",
+      "candidate_blocks": 11,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/exceptionbackup/main.s",
+      "candidate_blocks": 3,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/log/layout.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/log/main.s",
+      "candidate_blocks": 35,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/log/__layout.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/log/__main.s",
+      "candidate_blocks": 20,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/makerlogo/main.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/memorymode/layout.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/memorymode/list.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/memorymode/main.s",
+      "candidate_blocks": 11,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/memorymode/replayfunction.s",
+      "candidate_blocks": 9,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/quit/main.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/reset/main.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/saveload/common.s",
+      "candidate_blocks": 2,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/saveload/layout_load.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/saveload/layout_save.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/saveload/main_load.s",
+      "candidate_blocks": 23,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/saveload/main_quickload.s",
+      "candidate_blocks": 4,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/saveload/main_quicksave.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/saveload/main_save.s",
+      "candidate_blocks": 19,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/sequence/onload.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/sequence/onquit.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/sequence/onreset.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/soundmode/layout.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/soundmode/list.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/soundmode/main.s",
+      "candidate_blocks": 30,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/title/layout01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/title/layout02.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/title/layout_select01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/title/layout_select02.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/title/main.s",
+      "candidate_blocks": 15,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/unlock/unlock.s",
+      "candidate_blocks": 6,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/view/layout.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data7.pack/script/view/main.s",
+      "candidate_blocks": 8,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/1.01パッチ用フォルダ.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem.s",
+      "candidate_blocks": 23,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_abmpmovie.s",
+      "candidate_blocks": 31,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_autoselect.s",
+      "candidate_blocks": 9,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_custom.s",
+      "candidate_blocks": 25,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_logjump.s",
+      "candidate_blocks": 8,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_movie.s",
+      "candidate_blocks": 16,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_rewind.s",
+      "candidate_blocks": 25,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_route.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_sceneskip.s",
+      "candidate_blocks": 23,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_select.s",
+      "candidate_blocks": 11,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/avgsystem_value.s",
+      "candidate_blocks": 2,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/footer.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/header.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/header_replay.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter.s",
+      "candidate_blocks": 24,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_base.s",
+      "candidate_blocks": 25,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_blendmodelist.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_camera.s",
+      "candidate_blocks": 12,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_chara.s",
+      "candidate_blocks": 43,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_chara8e.s",
+      "candidate_blocks": 53,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_charaposlist.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_custom.s",
+      "candidate_blocks": 166,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_extentionlist.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_face.s",
+      "candidate_blocks": 37,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_face_poslist.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_face_repfile.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_face_repid.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_fadeeventlist.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_filterlist.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_fontlist.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_format.s",
+      "candidate_blocks": 74,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_generatorfilterlist.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_gfadelist.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_gmodelist.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_gtargetlist.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_image.s",
+      "candidate_blocks": 28,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_imagefilterlist.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_include.s",
+      "candidate_blocks": 6,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_indexlist.s",
+      "candidate_blocks": 4,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_information.s",
+      "candidate_blocks": 51,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_message.s",
+      "candidate_blocks": 50,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_movemodelist.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_music.s",
+      "candidate_blocks": 44,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_namecolorlist.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_nametext.s",
+      "candidate_blocks": 39,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_reptextlist.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_sentence.s",
+      "candidate_blocks": 29,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_sound.s",
+      "candidate_blocks": 35,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_soundfilterlist.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_camera.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_chara.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_chara8e.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_face.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_format.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_image.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_information.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_message.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_music.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_nametext.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_sentence.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_template_sound.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/imoscripter_texturefilterlist.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/include_route.s",
+      "candidate_blocks": 73,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/prebranch.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/preselect.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/projectobjects.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/projectsetting.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/select/layout_select.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/setting.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/uppermenu/layout.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/uppermenu/main.s",
+      "candidate_blocks": 2,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/avg/window/layout_window.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/misc/mgmisc.s",
+      "candidate_blocks": 3,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/misc/misc.s",
+      "candidate_blocks": 51,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/misc/misc_systeminfo.s",
+      "candidate_blocks": 15,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/misc/value.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/misc/voicefiletonametable.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t00op_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t01_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t01_02@.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t01_03.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t02_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t02_02@.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t02_03.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t03_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t04_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t04_02@.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t04_03.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t05_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t05_02@.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t05_03.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t06_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t07_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t07_02@.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t07_03.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t08_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t08_02@.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t08_03.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t09_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t09_02@.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t09_03.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t10_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t11_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t12_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t12_02@.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t12_03.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t13_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t13_02@.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t13_03.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t14_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t14_02@.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t14_03.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t15_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t16_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t16_02@.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t16_03.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t17_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t17_02@.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t17_03.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t18_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t18_01b@.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t18_02@.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t18_03.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t19a_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t19a_02@.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t19a_03.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t19b_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t19b_02@.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t19b_03.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t19c_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t20a_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/t21_01omake@.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/scenario/本編/ted99_01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/albummode/layout.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/albummode/layout_view.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/albummode/list.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/albummode/main.s",
+      "candidate_blocks": 9,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/albummode/viewfunction.s",
+      "candidate_blocks": 24,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/caution/main.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/config/layout.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/config/main.s",
+      "candidate_blocks": 11,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/config/value.s",
+      "candidate_blocks": 28,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/config/valuedefault.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/dialog/layout_message.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/dialog/layout_yesno.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/dialog/main.s",
+      "candidate_blocks": 11,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/log/layout.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/log/main.s",
+      "candidate_blocks": 35,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/makerlogo/main.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/memorymode/layout.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/memorymode/list.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/memorymode/main.s",
+      "candidate_blocks": 11,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/memorymode/replayfunction.s",
+      "candidate_blocks": 9,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/quit/main.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/reset/main.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/saveload/common.s",
+      "candidate_blocks": 2,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/saveload/layout_load.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/saveload/layout_save.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/saveload/main_load.s",
+      "candidate_blocks": 23,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/saveload/main_quickload.s",
+      "candidate_blocks": 4,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/saveload/main_quicksave.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/saveload/main_save.s",
+      "candidate_blocks": 19,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/sequence/onload.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/sequence/onquit.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/sequence/onreset.s",
+      "candidate_blocks": 1,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/soundmode/layout.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/soundmode/list.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/soundmode/main.s",
+      "candidate_blocks": 30,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/title/layout01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/title/layout02.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/title/layout_select01.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/title/layout_select02.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/title/main.s",
+      "candidate_blocks": 15,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/unlock/unlock.s",
+      "candidate_blocks": 6,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/view/layout.s",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/script/view/main.s",
+      "candidate_blocks": 8,
+      "grammar_issues": 0
+    },
+    {
+      "source_file": "data8.pack/system/etc/game.txt",
+      "candidate_blocks": 0,
+      "grammar_issues": 0
+    }
+  ],
+  "command_counts": {
+    "if": 2137,
+    "then": 2121,
+    "end": 2639,
+    "for": 377,
+    "else": 357,
+    "brk": 24,
+    "cnt": 17,
+    "case": 125,
+    "of": 408,
+    "ans": 69,
+    "dbrk": 7
+  },
+  "excluded_command_counts": {
+    "svar": 117,
+    "cal": 4054,
+    "sub": 1804,
+    "go": 95,
+    "scp": 6014,
+    "d": 194,
+    "e": 720,
+    "ret": 1912,
+    "srct": 78,
+    "p": 883,
+    "?p": 81,
+    "thrd": 34,
+    "wait": 13,
+    "clk": 87,
+    "jmp": 450,
+    "r": 6,
+    "lk": 112,
+    "i": 289,
+    "c": 99,
+    "var": 1437,
+    "v": 2101,
+    "?sr": 38,
+    "vexs": 118,
+    "gvar": 752,
+    "eve": 4,
+    "?v": 1695,
+    "stid": 124,
+    "tz": 6,
+    "zero": 94,
+    "del": 671,
+    "draw": 34,
+    "ad": 40,
+    "?c": 169,
+    "?s": 148,
+    "a": 563,
+    "n2": 20,
+    "tef": 4,
+    "rep": 80,
+    "fexs": 44,
+    "derr": 26,
+    "?g": 52,
+    "s": 42,
+    "?skp": 22,
+    "l": 946,
+    "vtn": 435,
+    "tf": 24,
+    "sc": 18,
+    "ost": 2,
+    "?tt": 10,
+    "?nt": 6,
+    "fdi": 80,
+    "stop": 41,
+    "play": 151,
+    "?ver": 26,
+    "ddlg": 8,
+    "bsub": 10,
+    "trim": 4,
+    "garr": 44,
+    "?sc": 2,
+    "fo": 54,
+    "t": 6,
+    "cc": 47,
+    "fmt": 148,
+    "o": 218,
+    "mc": 39,
+    "m": 78,
+    "?lkc": 28,
+    "lkc": 38,
+    "mge": 8,
+    "swe": 14,
+    "?mrd": 10,
+    "ui": 274,
+    "skip": 46,
+    "?gs": 12,
+    "exv": 20,
+    "?lk": 34,
+    "ts": 167,
+    "mi": 36,
+    "in": 62,
+    "out": 56,
+    "lim": 2,
+    "pp": 4,
+    "ss": 2,
+    "vget": 4,
+    "div": 90,
+    "vset": 4,
+    "pos": 34,
+    "cfe": 12,
+    "dthm": 2,
+    "efn": 10,
+    "ap": 14,
+    "gbc": 25,
+    "init": 2,
+    "?n": 64,
+    "sort": 72,
+    "brep": 18,
+    "comb": 60,
+    "cpy": 14,
+    "asn": 36,
+    "pri": 4,
+    "mm": 26,
+    "col": 16,
+    "bm": 10,
+    "g": 12,
+    "g2": 10,
+    "dc": 22,
+    "?i": 2,
+    "bpos": 22,
+    "alg2": 18,
+    "ps": 20,
+    "li": 524,
+    "?e": 8,
+    "p4": 28,
+    "?p4": 2,
+    "midx": 4,
+    "sk": 10,
+    "?k2": 12,
+    "?mcw": 2,
+    "?ap": 2,
+    "?m": 2,
+    "?mt": 2,
+    "?tmg": 4,
+    "?tp": 4,
+    "?tda": 4,
+    "skp": 4,
+    "et": 4,
+    "nt": 4,
+    "subp": 4,
+    "copy": 6,
+    "prm": 2,
+    "swap": 8,
+    "pan": 16,
+    "?dc": 2,
+    "exr": 10,
+    "?r": 2,
+    "exop": 4,
+    "as": 6,
+    "kwe": 7,
+    "ns": 11,
+    "?t": 2,
+    "tmg": 6,
+    "?mc": 2,
+    "?l": 4,
+    "p2": 22,
+    "fdm": 4,
+    "fdp": 4,
+    "bg": 6,
+    "dskp": 4,
+    "rnd": 4,
+    "dd": 28,
+    "gsf": 14,
+    "stf": 10,
+    "lff": 10,
+    "ls": 790,
+    "tab": 435,
+    "sp": 359,
+    "ds": 8,
+    "us": 443,
+    "tsub": 8,
+    "?cv": 2,
+    "?cvv": 4,
+    "?cvm": 7,
+    "vtv": 12,
+    "vtm": 10,
+    "fn2": 4,
+    "fst2": 4,
+    "faa2": 4,
+    "fsc2": 4,
+    "?fn": 2,
+    "?faa": 2,
+    "?fst": 2,
+    "?fsc": 2,
+    "nsw": 3,
+    "kwl": 6,
+    "kwb": 3,
+    "?gd": 6,
+    "sw": 2,
+    "zenc": 2,
+    "?fcs": 6,
+    "gcd": 2,
+    "fsha": 2,
+    "glpk": 2,
+    "?fs": 4,
+    "?fdm": 2,
+    "?blt": 6,
+    "?fps": 2,
+    "?sb": 2,
+    "?cs": 2,
+    "?gim": 2,
+    "?sfs": 2,
+    "info": 78,
+    "sl": 14,
+    "alg": 4,
+    "gsc": 15,
+    "k2": 29,
+    "ck": 50,
+    "?wh": 2,
+    "?mp": 6,
+    "l2": 24,
+    "mv": 35,
+    "vt": 25,
+    "fs": 2,
+    "smr": 2,
+    "il": 4,
+    "ma2": 6,
+    "ms": 4,
+    "mtw": 4,
+    "mcw": 4,
+    "f": 2,
+    "cvm": 6,
+    "?us": 8,
+    "cvv": 2,
+    "?il": 2,
+    "?ma": 2,
+    "?ms": 2,
+    "?mtw": 2,
+    "?in": 2,
+    "?vi": 10,
+    "vi": 8,
+    "swp": 2,
+    "?mw": 4,
+    "?swp": 2,
+    "sarr": 8,
+    "anc": 10,
+    "max": 2,
+    "?mv": 1,
+    "?o": 1,
+    "sr": 2,
+    "bmat": 4,
+    "?ck": 4,
+    "?sk": 8,
+    "?vtv": 2,
+    "efe": 2,
+    "mp": 2
+  },
+  "excluded_record_type_counts": {
+    "bom": 254,
+    "empty_span": 37655,
+    "label": 1868,
+    "layout_span": 127615,
+    "setting_assignment_candidate": 725,
+    "opaque_text": 44372,
+    "line_tag": 22172,
+    "include": 442,
+    "sound_identifier": 15190,
+    "macro_assignment_candidate": 156
+  },
+  "private_links": "private/p1-round10/control-links.json",
+  "routine_state_transitions": "not_tested",
+  "non_command_line_skip_paths": "not_tested",
+  "execution_semantics": "not_tested",
+  "runtime_development_ready": false,
+  "original_files_written": false,
+  "external_game_data_uploads": false
+}

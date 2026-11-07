@@ -1,0 +1,241 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Second call field and selected file/label reader path; target never executed",
+  "facts": [
+    {
+      "id": "second_field_read",
+      "status": "verified",
+      "evidence": "shared-call-assembly",
+      "start": "0x6b76d8",
+      "end": "0x6b770d",
+      "anchors": [
+        "0x6b76d8: LEA ECX, [EBP + 0xffffff64]",
+        "0x6b76de: MOV EDX, 0x2",
+        "0x6b76e3: MOV EAX, ESI",
+        "0x6b76e5: MOV EBX, dword ptr [EAX]",
+        "0x6b76e7: CALL dword ptr [EBX + 0xc]",
+        "0x6b76ea: MOV EAX, dword ptr [EBP + 0xffffff64]",
+        "0x6b76f0: LEA EDX, [EBP + 0xffffff68]",
+        "0x6b76f6: CALL 0x0041493c",
+        "0x6b76fb: MOV EAX, dword ptr [EBP + 0xffffff68]",
+        "0x6b7701: MOV EDX, 0x6b7b40",
+        "0x6b7706: CALL 0x00407b38",
+        "0x6b770b: JZ 0x006b7728"
+      ],
+      "require_anchor_order": true,
+      "observation": "Read field index two, lowercase it, compare with the self literal and branch immediately on equality.",
+      "scope": "Selected instructions only; full file preprocessing, conversion and execution not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "self_or_nil_default",
+      "status": "verified",
+      "evidence": "shared-call-assembly",
+      "start": "0x6b770d",
+      "end": "0x6b7737",
+      "anchors": [
+        "0x6b770d: LEA ECX, [EBP + 0xffffff60]",
+        "0x6b7713: MOV EDX, 0x2",
+        "0x6b7718: MOV EAX, ESI",
+        "0x6b771a: MOV EBX, dword ptr [EAX]",
+        "0x6b771c: CALL dword ptr [EBX + 0xc]",
+        "0x6b771f: CMP dword ptr [EBP + 0xffffff60], 0x0",
+        "0x6b7726: JNZ 0x006b7737",
+        "0x6b7728: LEA EAX, [EBP + -0xc]",
+        "0x6b772b: MOV EDX, 0x6b7b40",
+        "0x6b7730: CALL 0x004074b4",
+        "0x6b7735: JMP 0x006b7775"
+      ],
+      "require_anchor_order": true,
+      "observation": "A zero field pointer follows the same self-selection branch; raw empty-field construction remains outside this fact.",
+      "scope": "Selected instructions only; full file preprocessing, conversion and execution not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "file_value_conversion",
+      "status": "verified",
+      "evidence": "shared-call-assembly",
+      "start": "0x6b7737",
+      "end": "0x6b7775",
+      "anchors": [
+        "0x6b7737: LEA ECX, [EBP + 0xffffff5c]",
+        "0x6b773d: MOV EDX, 0x2",
+        "0x6b7742: MOV EAX, ESI",
+        "0x6b7744: MOV EBX, dword ptr [EAX]",
+        "0x6b7746: CALL dword ptr [EBX + 0xc]",
+        "0x6b7749: MOV EDX, dword ptr [EBP + 0xffffff5c]",
+        "0x6b774f: LEA ECX, [EBP + -0x24]",
+        "0x6b7752: MOV EAX, dword ptr [EBP + -0x4]",
+        "0x6b7755: CALL 0x006be1d8",
+        "0x6b775a: PUSH 0x1",
+        "0x6b775c: PUSH 0x0",
+        "0x6b775e: LEA EAX, [EBP + -0xc]",
+        "0x6b7761: PUSH EAX",
+        "0x6b7762: MOV EAX, dword ptr [EBP + -0x4]",
+        "0x6b7765: MOV EAX, dword ptr [EAX + 0x13c]",
+        "0x6b776b: MOV CL, 0x1",
+        "0x6b776d: MOV EDX, dword ptr [EBP + -0x1c]",
+        "0x6b7770: CALL 0x006a5880"
+      ],
+      "require_anchor_order": true,
+      "observation": "A non-self/nonzero second field is evaluated and a selected value field is passed to the conversion helper.",
+      "scope": "Selected instructions only; full file preprocessing, conversion and execution not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "reader_receives_file_and_label",
+      "status": "verified",
+      "evidence": "shared-call-assembly",
+      "start": "0x6b7775",
+      "end": "0x6b778d",
+      "anchors": [
+        "0x6b7775: MOV EAX, dword ptr [EBP + -0x4]",
+        "0x6b7778: MOV EAX, dword ptr [EAX + 0x120]",
+        "0x6b777e: MOV ECX, dword ptr [EBP + -0x8]",
+        "0x6b7781: MOV EDX, dword ptr [EBP + -0xc]",
+        "0x6b7784: CALL 0x00695c34",
+        "0x6b7789: TEST AL, AL",
+        "0x6b778b: JZ 0x006b7a56"
+      ],
+      "require_anchor_order": true,
+      "observation": "The reader call receives the selected file value in EDX and normalized target in ECX; AL gates success.",
+      "scope": "Selected instructions only; full file preprocessing, conversion and execution not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "reader_self_load_gate",
+      "status": "verified",
+      "evidence": "module-jump-assembly",
+      "start": "0x695c40",
+      "end": "0x695c5f",
+      "anchors": [
+        "0x695c40: MOV EDX, 0x695c84",
+        "0x695c45: MOV EAX, EDI",
+        "0x695c47: CALL 0x00414b08",
+        "0x695c4c: TEST EAX, EAX",
+        "0x695c4e: JZ 0x00695c5f",
+        "0x695c50: MOV CL, 0x1",
+        "0x695c52: MOV EDX, EDI",
+        "0x695c54: MOV EAX, ESI",
+        "0x695c56: CALL 0x0069556c",
+        "0x695c5b: TEST AL, AL",
+        "0x695c5d: JZ 0x00695c6e"
+      ],
+      "require_anchor_order": true,
+      "observation": "The wrapper compares the selected file to self; another file invokes the load helper with CL one, and zero AL skips the label call.",
+      "scope": "Selected instructions only; full file preprocessing, conversion and execution not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "reader_label_call",
+      "status": "verified",
+      "evidence": "module-jump-assembly",
+      "start": "0x695c5f",
+      "end": "0x695c6e",
+      "anchors": [
+        "0x695c5f: PUSH 0x0",
+        "0x695c61: XOR ECX, ECX",
+        "0x695c63: MOV EDX, EBP",
+        "0x695c65: MOV EAX, ESI",
+        "0x695c67: CALL 0x00696134",
+        "0x695c6c: MOV EBX, EAX"
+      ],
+      "require_anchor_order": true,
+      "observation": "The label-position helper receives the saved target, zero offset and a pushed zero argument.",
+      "scope": "Selected instructions only; full file preprocessing, conversion and execution not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "loaded_name_assignment",
+      "status": "verified",
+      "evidence": "module-load-assembly",
+      "start": "0x69569f",
+      "end": "0x6956b2",
+      "anchors": [
+        "0x69569f: CALL 0x006961ec",
+        "0x6956a4: MOV EAX, dword ptr [EBP + -0x10]",
+        "0x6956a7: ADD EAX, 0x24",
+        "0x6956aa: MOV EDX, dword ptr [EBP + -0x14]",
+        "0x6956ad: CALL 0x00407460"
+      ],
+      "require_anchor_order": true,
+      "observation": "The selected load success path updates the reader string at +24 from the requested file value.",
+      "scope": "Selected instructions only; full file preprocessing, conversion and execution not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    },
+    {
+      "id": "label_index_and_read",
+      "status": "verified",
+      "evidence": "label-position-assembly",
+      "start": "0x696142",
+      "end": "0x696173",
+      "anchors": [
+        "0x696142: XOR EBX, EBX",
+        "0x696144: MOV EDX, dword ptr [EBP + -0x4]",
+        "0x696147: MOV EAX, EDI",
+        "0x696149: CALL 0x00696094",
+        "0x69614e: CMP EAX, -0x1",
+        "0x696151: JZ 0x00696173",
+        "0x696153: LEA EDX, [EAX + EAX*0x2]",
+        "0x696156: MOV ECX, dword ptr [EDI + 0x18]",
+        "0x696159: MOV EDX, dword ptr [ECX + EDX*0x8 + 0x8]",
+        "0x69615d: MOV dword ptr [EDI + 0x1c], EAX",
+        "0x696160: MOV dword ptr [EDI + 0x20], ESI",
+        "0x696163: ADD ESI, EDX",
+        "0x696165: MOV EDX, ESI",
+        "0x696167: MOV ECX, dword ptr [EBP + 0x8]",
+        "0x69616a: MOV EAX, EDI",
+        "0x69616c: CALL 0x0069630c",
+        "0x696171: MOV EBX, EAX"
+      ],
+      "require_anchor_order": true,
+      "observation": "Failed index -1 skips position writes; found index sets reader index/offset fields and calls the line reader.",
+      "scope": "Selected instructions only; full file preprocessing, conversion and execution not_tested",
+      "unknown": [
+        "Original game execution not_tested"
+      ]
+    }
+  ],
+  "inferred_contracts": [
+    {
+      "id": "explicit_module_binding",
+      "status": "inferred",
+      "basis": [
+        "second_field_read",
+        "self_or_nil_default",
+        "file_value_conversion",
+        "reader_receives_file_and_label",
+        "reader_self_load_gate",
+        "reader_label_call"
+      ],
+      "meaning": "Field two selects a file before the target label is positioned. This does not identify the package winner or recover all file/value conversion rules.",
+      "preprocessing": "not_tested",
+      "original_execution": "not_tested"
+    },
+    {
+      "id": "load_success_name_state",
+      "status": "inferred",
+      "basis": [
+        "loaded_name_assignment",
+        "label_index_and_read"
+      ],
+      "meaning": "Selected load and positioning paths maintain filename/index/offset state; full successful return and include semantics remain unproven.",
+      "default_body_completeness": "not_tested"
+    }
+  ]
+}

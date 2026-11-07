@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Only newly needed include loader helper; retained prior evidence is reused",
+  "queries": [
+    {
+      "name": "include-loader",
+      "operation": "procedure_pseudo_code",
+      "address": "0x695104"
+    },
+    {
+      "name": "include-loader-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x695104"
+    }
+  ]
+}

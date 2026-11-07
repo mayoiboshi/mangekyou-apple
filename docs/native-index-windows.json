@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "windows": [
+    {
+      "name": "integer-read",
+      "start": "0x69dff4",
+      "end_exclusive": "0x69e030"
+    },
+    {
+      "name": "integer-write",
+      "start": "0x69e104",
+      "end_exclusive": "0x69e134"
+    },
+    {
+      "name": "integer-allocate",
+      "start": "0x69e0c0",
+      "end_exclusive": "0x69e104"
+    },
+    {
+      "name": "string-read",
+      "start": "0x69e190",
+      "end_exclusive": "0x69e1cc"
+    },
+    {
+      "name": "string-write",
+      "start": "0x69e2dc",
+      "end_exclusive": "0x69e310"
+    },
+    {
+      "name": "string-allocate",
+      "start": "0x69e290",
+      "end_exclusive": "0x69e2dc"
+    },
+    {
+      "name": "integer-constructor",
+      "start": "0x69dfb4",
+      "end_exclusive": "0x69dff4"
+    }
+  ]
+}

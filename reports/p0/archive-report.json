@@ -1,0 +1,286 @@
+{
+  "schema_version": 1,
+  "dataset": "real",
+  "real_game_status": "inferred",
+  "evidence_status_values": [
+    "verified",
+    "inferred",
+    "unsupported",
+    "not_tested"
+  ],
+  "original_files_written": false,
+  "note": "directory identity and fourth-game edition require human confirmation",
+  "status": "verified",
+  "errors": [],
+  "error_count": 0,
+  "errors_by_category": {},
+  "unknown_count": 0,
+  "missing_reason": null,
+  "enumerated_resource_count": 10947,
+  "unknown_archive_count": 0,
+  "items": [
+    {
+      "path": "GameData/data0.pack",
+      "sha256": "53f84595e304a757bd6ef9e590e6c8a74e198ca8420232d586aef900514d3d74",
+      "status": "verified",
+      "errors": [],
+      "enumerated_resource_count": 9,
+      "content_status": "not_tested",
+      "version": "FilePackVer3.1",
+      "declared_entry_count": 9,
+      "table_offset": 17034,
+      "footer_offset": 19158,
+      "signature_status": "verified",
+      "index_status": "verified",
+      "entry_extensions": {
+        ".key": 1,
+        ".s": 2,
+        ".b": 1,
+        ".txt": 5
+      },
+      "encryption_methods": {
+        "1": 1,
+        "2": 8
+      },
+      "compressed_entry_count": 7,
+      "declared_output_bytes": 29465
+    },
+    {
+      "path": "GameData/data1.pack",
+      "sha256": "cb712faa03bd8aa5693198ab7d41d3e7231004ac8970a067888f25db916bf819",
+      "status": "verified",
+      "errors": [],
+      "enumerated_resource_count": 29,
+      "content_status": "not_tested",
+      "version": "FilePackVer3.1",
+      "declared_entry_count": 29,
+      "table_offset": 254628500,
+      "footer_offset": 254631992,
+      "signature_status": "verified",
+      "index_status": "verified",
+      "entry_extensions": {
+        ".key": 1,
+        ".ogv": 1,
+        ".ogg": 27
+      },
+      "encryption_methods": {
+        "1": 1,
+        "0": 1,
+        "2": 27
+      },
+      "compressed_entry_count": 0,
+      "declared_output_bytes": 254628500
+    },
+    {
+      "path": "GameData/data2.pack",
+      "sha256": "a12e76df9ac19690fb4582b3280470ed8ecabd3ff4e8ba20349a6ccfe834ba71",
+      "status": "verified",
+      "errors": [],
+      "enumerated_resource_count": 7513,
+      "content_status": "not_tested",
+      "version": "FilePackVer3.1",
+      "declared_entry_count": 7513,
+      "table_offset": 928533096,
+      "footer_offset": 929075272,
+      "signature_status": "verified",
+      "index_status": "verified",
+      "entry_extensions": {
+        ".key": 1,
+        ".ogg": 7512
+      },
+      "encryption_methods": {
+        "1": 1,
+        "2": 7512
+      },
+      "compressed_entry_count": 0,
+      "declared_output_bytes": 928533096
+    },
+    {
+      "path": "GameData/data3.pack",
+      "sha256": "47053b06b036ad58d4bea6c5465f952c617da1561b4a2fce59a71633fea13409",
+      "status": "verified",
+      "errors": [],
+      "enumerated_resource_count": 964,
+      "content_status": "not_tested",
+      "version": "FilePackVer3.1",
+      "declared_entry_count": 964,
+      "table_offset": 1676016514,
+      "footer_offset": 1676113799,
+      "signature_status": "verified",
+      "index_status": "verified",
+      "entry_extensions": {
+        ".key": 1,
+        ".png": 865,
+        ".b": 14,
+        ".ogv": 84
+      },
+      "encryption_methods": {
+        "1": 1,
+        "2": 963
+      },
+      "compressed_entry_count": 0,
+      "declared_output_bytes": 1676016514
+    },
+    {
+      "path": "GameData/data4.pack",
+      "sha256": "6dbfa65c8eb9c701ab546a125d82fcbbcfd5ff173c3c263f69d8111117ee2ccf",
+      "status": "verified",
+      "errors": [],
+      "enumerated_resource_count": 1395,
+      "content_status": "not_tested",
+      "version": "FilePackVer3.1",
+      "declared_entry_count": 1395,
+      "table_offset": 557975334,
+      "footer_offset": 558119462,
+      "signature_status": "verified",
+      "index_status": "verified",
+      "entry_extensions": {
+        ".key": 1,
+        ".png": 1392,
+        ".b": 2
+      },
+      "encryption_methods": {
+        "1": 1,
+        "2": 1394
+      },
+      "compressed_entry_count": 0,
+      "declared_output_bytes": 557975334
+    },
+    {
+      "path": "GameData/data5.pack",
+      "sha256": "0d6b3183a62d5e2b69af06f66b23123212ce55ccfbfb992be4eb9da8339380f6",
+      "status": "verified",
+      "errors": [],
+      "enumerated_resource_count": 120,
+      "content_status": "not_tested",
+      "version": "FilePackVer3.1",
+      "declared_entry_count": 120,
+      "table_offset": 24033314,
+      "footer_offset": 24046997,
+      "signature_status": "verified",
+      "index_status": "verified",
+      "entry_extensions": {
+        ".key": 1,
+        ".b": 1,
+        ".png": 6,
+        ".ogg": 112
+      },
+      "encryption_methods": {
+        "1": 1,
+        "2": 119
+      },
+      "compressed_entry_count": 0,
+      "declared_output_bytes": 24033314
+    },
+    {
+      "path": "GameData/data6.pack",
+      "sha256": "c8f6e1e1821ecc5bccea2db9737e2915c0bf2f2e185df6f40ad1b5e7fb3c1006",
+      "status": "verified",
+      "errors": [],
+      "enumerated_resource_count": 72,
+      "content_status": "not_tested",
+      "version": "FilePackVer3.1",
+      "declared_entry_count": 72,
+      "table_offset": 867521,
+      "footer_offset": 874943,
+      "signature_status": "verified",
+      "index_status": "verified",
+      "entry_extensions": {
+        ".key": 1,
+        ".txt": 11,
+        ".s": 60
+      },
+      "encryption_methods": {
+        "1": 1,
+        "2": 71
+      },
+      "compressed_entry_count": 71,
+      "declared_output_bytes": 2677691
+    },
+    {
+      "path": "GameData/data7.pack",
+      "sha256": "29d04ca1f627438ddccc066873a6651bd2c46e9561e070c780d4a64244a4f06c",
+      "status": "verified",
+      "errors": [],
+      "enumerated_resource_count": 576,
+      "content_status": "not_tested",
+      "version": "FilePackVer3.1",
+      "declared_entry_count": 576,
+      "table_offset": 12971212,
+      "footer_offset": 13039825,
+      "signature_status": "verified",
+      "index_status": "verified",
+      "entry_extensions": {
+        ".key": 1,
+        ".s": 84,
+        ".txt": 39,
+        ".b": 76,
+        ".png": 370,
+        ".wav": 4,
+        ".ogg": 1,
+        ".ogv": 1
+      },
+      "encryption_methods": {
+        "1": 1,
+        "2": 575
+      },
+      "compressed_entry_count": 123,
+      "declared_output_bytes": 13289407
+    },
+    {
+      "path": "GameData/data8.pack",
+      "sha256": "f796a90c498de7325d8968d8ce99ef17b71753b7ce101521e390167649c83509",
+      "status": "verified",
+      "errors": [],
+      "enumerated_resource_count": 262,
+      "content_status": "not_tested",
+      "version": "FilePackVer3.1",
+      "declared_entry_count": 262,
+      "table_offset": 11534947,
+      "footer_offset": 11564753,
+      "signature_status": "verified",
+      "index_status": "verified",
+      "entry_extensions": {
+        ".key": 1,
+        ".txt": 41,
+        ".s": 137,
+        ".b": 15,
+        ".png": 68
+      },
+      "encryption_methods": {
+        "1": 1,
+        "2": 261
+      },
+      "compressed_entry_count": 178,
+      "declared_output_bytes": 14045991
+    },
+    {
+      "path": "UnInstallData.pack",
+      "sha256": "c02a6cc7454932f48f0c8d49c5db6982a4538501b1dd43494ad4cc2c6739617d",
+      "status": "verified",
+      "errors": [],
+      "enumerated_resource_count": 7,
+      "content_status": "not_tested",
+      "version": "FilePackVer3.1",
+      "declared_entry_count": 7,
+      "table_offset": 869791,
+      "footer_offset": 871719,
+      "signature_status": "verified",
+      "index_status": "verified",
+      "entry_extensions": {
+        ".bmp": 3,
+        ".txt": 3,
+        ".ico": 1
+      },
+      "encryption_methods": {
+        "1": 7
+      },
+      "compressed_entry_count": 7,
+      "declared_output_bytes": 1093568
+    }
+  ],
+  "duplicate_logical_names": 260,
+  "original_pack_hashes_after_sampling": "verified",
+  "content_status": "verified",
+  "content_scope": "selected entries only; not complete archive extraction"
+}

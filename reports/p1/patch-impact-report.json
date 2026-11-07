@@ -1,0 +1,2410 @@
+{
+  "schema_version": 1,
+  "dataset": "real",
+  "status": "verified",
+  "scope": "Changed spans and enclosing lexical labels; no inferred patch winner",
+  "changed_groups": 11,
+  "items": [
+    {
+      "logical_path": "avg/avgsystem_custom.s",
+      "same_token_sequence": false,
+      "same_lexical_fields": false,
+      "comparisons": [
+        {
+          "left_source": "data7.pack/avg/avgsystem_custom.s",
+          "right_source": "data8.pack/avg/avgsystem_custom.s",
+          "regions": [
+            {
+              "operation": "insert",
+              "left": {
+                "source_file": "data7.pack/avg/avgsystem_custom.s",
+                "source_sha256": "a720ae35cee47a46d9278812c7ead9de3027c657598cb682324b3295550af377",
+                "lines": [
+                  389,
+                  389
+                ],
+                "byte_offset": 6238,
+                "byte_length": 0,
+                "span_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "nearest_label": "!Avg_OnSelectEnable",
+                "record_type_counts": {},
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/avg/avgsystem_custom.s",
+                "source_sha256": "72b825bb2df65c4e91d8016edc7e47548602aa1b6046b439462feb3a78f735b3",
+                "lines": [
+                  389,
+                  390
+                ],
+                "byte_offset": 12478,
+                "byte_length": 22,
+                "span_sha256": "9be37c51b1d4cb7dde5f3d4b931da08055068e5c4461b3d26c39490c15f7c5b2",
+                "nearest_label": "!Avg_OnSelectEnable",
+                "record_type_counts": {
+                  "command": 1
+                },
+                "token_counts": {
+                  "kwl": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              }
+            }
+          ]
+        }
+      ],
+      "load_precedence": "not_tested",
+      "semantic_effect": "not_tested"
+    },
+    {
+      "logical_path": "avg/imoscripter_chara8e.s",
+      "same_token_sequence": false,
+      "same_lexical_fields": false,
+      "comparisons": [
+        {
+          "left_source": "data7.pack/avg/imoscripter_chara8e.s",
+          "right_source": "data8.pack/avg/imoscripter_chara8e.s",
+          "regions": [
+            {
+              "operation": "insert",
+              "left": {
+                "source_file": "data7.pack/avg/imoscripter_chara8e.s",
+                "source_sha256": "3e37cb31ed7841f5771ff14f6fe8d277e1d2ffa9a53d131f6616887dbb9b7242",
+                "lines": [
+                  308,
+                  308
+                ],
+                "byte_offset": 8403,
+                "byte_length": 0,
+                "span_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "nearest_label": "!Imo_Chara8e_Refresh_Main",
+                "record_type_counts": {},
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/avg/imoscripter_chara8e.s",
+                "source_sha256": "9924e37461dc89d1fe4e70c9276ba0f97057b28a47cfc3d2400a006be01ac98e",
+                "lines": [
+                  308,
+                  315
+                ],
+                "byte_offset": 16806,
+                "byte_length": 334,
+                "span_sha256": "24831b22745c15fc921eeb322e3427b25712cf85378d2cb1c3483383a3a666bf",
+                "nearest_label": "!Imo_Chara8e_Refresh_Main",
+                "record_type_counts": {
+                  "command": 10
+                },
+                "token_counts": {
+                  "var": 1,
+                  "scp": 2,
+                  "?v": 2,
+                  "cal": 2,
+                  "if": 1,
+                  "then": 1,
+                  "end": 1
+                },
+                "declarations": [
+                  {
+                    "token": "var",
+                    "type_spelling": "str",
+                    "names": [
+                      "spd"
+                    ],
+                    "source_file": "data8.pack/avg/imoscripter_chara8e.s",
+                    "source_sha256": "9924e37461dc89d1fe4e70c9276ba0f97057b28a47cfc3d2400a006be01ac98e",
+                    "byte_offset": 16808,
+                    "byte_length": 24,
+                    "record_sha256": "5891b4ad5409c5c5c2e978e8331ef1ecbc243b710f376639be611d527ace078b",
+                    "label_region": "!Imo_Chara8e_Refresh_Main",
+                    "confidence": "inferred",
+                    "execution_semantics": "not_tested"
+                  }
+                ],
+                "assignment_targets": [
+                  "spd",
+                  "spd"
+                ]
+              }
+            },
+            {
+              "operation": "insert",
+              "left": {
+                "source_file": "data7.pack/avg/imoscripter_chara8e.s",
+                "source_sha256": "3e37cb31ed7841f5771ff14f6fe8d277e1d2ffa9a53d131f6616887dbb9b7242",
+                "lines": [
+                  312,
+                  312
+                ],
+                "byte_offset": 8513,
+                "byte_length": 0,
+                "span_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "nearest_label": "!Imo_Chara8e_Refresh_Main",
+                "record_type_counts": {},
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/avg/imoscripter_chara8e.s",
+                "source_sha256": "9924e37461dc89d1fe4e70c9276ba0f97057b28a47cfc3d2400a006be01ac98e",
+                "lines": [
+                  319,
+                  320
+                ],
+                "byte_offset": 17360,
+                "byte_length": 50,
+                "span_sha256": "b943fc624d89918224c0758c3bb02f3ba64b8e2056937b1c8b75a8e463b4180f",
+                "nearest_label": "!Imo_Chara8e_Refresh_Main",
+                "record_type_counts": {
+                  "command": 2
+                },
+                "token_counts": {
+                  "scp": 1,
+                  "v": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              }
+            },
+            {
+              "operation": "insert",
+              "left": {
+                "source_file": "data7.pack/avg/imoscripter_chara8e.s",
+                "source_sha256": "3e37cb31ed7841f5771ff14f6fe8d277e1d2ffa9a53d131f6616887dbb9b7242",
+                "lines": [
+                  317,
+                  317
+                ],
+                "byte_offset": 8639,
+                "byte_length": 0,
+                "span_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "nearest_label": "!Imo_Chara8e_Refresh_Main",
+                "record_type_counts": {},
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/avg/imoscripter_chara8e.s",
+                "source_sha256": "9924e37461dc89d1fe4e70c9276ba0f97057b28a47cfc3d2400a006be01ac98e",
+                "lines": [
+                  325,
+                  326
+                ],
+                "byte_offset": 17662,
+                "byte_length": 50,
+                "span_sha256": "b943fc624d89918224c0758c3bb02f3ba64b8e2056937b1c8b75a8e463b4180f",
+                "nearest_label": "!Imo_Chara8e_Refresh_Main",
+                "record_type_counts": {
+                  "command": 2
+                },
+                "token_counts": {
+                  "scp": 1,
+                  "v": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              }
+            },
+            {
+              "operation": "insert",
+              "left": {
+                "source_file": "data7.pack/avg/imoscripter_chara8e.s",
+                "source_sha256": "3e37cb31ed7841f5771ff14f6fe8d277e1d2ffa9a53d131f6616887dbb9b7242",
+                "lines": [
+                  328,
+                  328
+                ],
+                "byte_offset": 8915,
+                "byte_length": 0,
+                "span_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "nearest_label": "!Imo_Chara8e_Refresh_Main",
+                "record_type_counts": {},
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/avg/imoscripter_chara8e.s",
+                "source_sha256": "9924e37461dc89d1fe4e70c9276ba0f97057b28a47cfc3d2400a006be01ac98e",
+                "lines": [
+                  337,
+                  338
+                ],
+                "byte_offset": 18264,
+                "byte_length": 50,
+                "span_sha256": "b943fc624d89918224c0758c3bb02f3ba64b8e2056937b1c8b75a8e463b4180f",
+                "nearest_label": "!Imo_Chara8e_Refresh_Main",
+                "record_type_counts": {
+                  "command": 2
+                },
+                "token_counts": {
+                  "scp": 1,
+                  "v": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              }
+            },
+            {
+              "operation": "insert",
+              "left": {
+                "source_file": "data7.pack/avg/imoscripter_chara8e.s",
+                "source_sha256": "3e37cb31ed7841f5771ff14f6fe8d277e1d2ffa9a53d131f6616887dbb9b7242",
+                "lines": [
+                  332,
+                  332
+                ],
+                "byte_offset": 9012,
+                "byte_length": 0,
+                "span_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "nearest_label": "!Imo_Chara8e_Refresh_Main",
+                "record_type_counts": {},
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/avg/imoscripter_chara8e.s",
+                "source_sha256": "9924e37461dc89d1fe4e70c9276ba0f97057b28a47cfc3d2400a006be01ac98e",
+                "lines": [
+                  342,
+                  343
+                ],
+                "byte_offset": 18508,
+                "byte_length": 50,
+                "span_sha256": "b943fc624d89918224c0758c3bb02f3ba64b8e2056937b1c8b75a8e463b4180f",
+                "nearest_label": "!Imo_Chara8e_Refresh_Main",
+                "record_type_counts": {
+                  "command": 2
+                },
+                "token_counts": {
+                  "scp": 1,
+                  "v": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              }
+            },
+            {
+              "operation": "delete",
+              "left": {
+                "source_file": "data7.pack/avg/imoscripter_chara8e.s",
+                "source_sha256": "3e37cb31ed7841f5771ff14f6fe8d277e1d2ffa9a53d131f6616887dbb9b7242",
+                "lines": [
+                  616,
+                  625
+                ],
+                "byte_offset": 14047,
+                "byte_length": 215,
+                "span_sha256": "502aa4308d99430f1c275502587deae1c54ca00cdafa9d366c4f47a860e0171a",
+                "nearest_label": "!Imo_Chara8e_13Motion",
+                "record_type_counts": {
+                  "command": 13
+                },
+                "token_counts": {
+                  "scp": 5,
+                  "?v": 2,
+                  "if": 1,
+                  "then": 1,
+                  "ps": 2,
+                  "v": 1,
+                  "end": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/avg/imoscripter_chara8e.s",
+                "source_sha256": "9924e37461dc89d1fe4e70c9276ba0f97057b28a47cfc3d2400a006be01ac98e",
+                "lines": [
+                  627,
+                  627
+                ],
+                "byte_offset": 28628,
+                "byte_length": 0,
+                "span_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "nearest_label": "!Imo_Chara8e_13Motion",
+                "record_type_counts": {},
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              }
+            },
+            {
+              "operation": "insert",
+              "left": {
+                "source_file": "data7.pack/avg/imoscripter_chara8e.s",
+                "source_sha256": "3e37cb31ed7841f5771ff14f6fe8d277e1d2ffa9a53d131f6616887dbb9b7242",
+                "lines": [
+                  632,
+                  632
+                ],
+                "byte_offset": 14420,
+                "byte_length": 0,
+                "span_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "nearest_label": "!Imo_Chara8e_13Motion",
+                "record_type_counts": {},
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/avg/imoscripter_chara8e.s",
+                "source_sha256": "9924e37461dc89d1fe4e70c9276ba0f97057b28a47cfc3d2400a006be01ac98e",
+                "lines": [
+                  634,
+                  639
+                ],
+                "byte_offset": 28944,
+                "byte_length": 168,
+                "span_sha256": "1ed6b8ac8fc64a00ffdc073595462d203bd591b8415bb612a52fbb5ef8750112",
+                "nearest_label": "!Imo_Chara8e_13Motion",
+                "record_type_counts": {
+                  "command": 6
+                },
+                "token_counts": {
+                  "scp": 3,
+                  "?v": 1,
+                  "ps": 2
+                },
+                "declarations": [],
+                "assignment_targets": []
+              }
+            },
+            {
+              "operation": "delete",
+              "left": {
+                "source_file": "data7.pack/avg/imoscripter_chara8e.s",
+                "source_sha256": "3e37cb31ed7841f5771ff14f6fe8d277e1d2ffa9a53d131f6616887dbb9b7242",
+                "lines": [
+                  643,
+                  652
+                ],
+                "byte_offset": 14609,
+                "byte_length": 215,
+                "span_sha256": "f20499d3604bc606334818ec52bf1f93bb7f1d7cb204785432705c2e93e371bf",
+                "nearest_label": "!Imo_Chara8e_13ExtMotion",
+                "record_type_counts": {
+                  "command": 13
+                },
+                "token_counts": {
+                  "end": 1,
+                  "scp": 5,
+                  "?v": 2,
+                  "if": 1,
+                  "then": 1,
+                  "ps": 2,
+                  "v": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/avg/imoscripter_chara8e.s",
+                "source_sha256": "9924e37461dc89d1fe4e70c9276ba0f97057b28a47cfc3d2400a006be01ac98e",
+                "lines": [
+                  650,
+                  650
+                ],
+                "byte_offset": 29490,
+                "byte_length": 0,
+                "span_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "nearest_label": "!Imo_Chara8e_13ExtMotion",
+                "record_type_counts": {},
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              }
+            },
+            {
+              "operation": "insert",
+              "left": {
+                "source_file": "data7.pack/avg/imoscripter_chara8e.s",
+                "source_sha256": "3e37cb31ed7841f5771ff14f6fe8d277e1d2ffa9a53d131f6616887dbb9b7242",
+                "lines": [
+                  662,
+                  662
+                ],
+                "byte_offset": 15000,
+                "byte_length": 0,
+                "span_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "nearest_label": "!Imo_Chara8e_13ExtMotion",
+                "record_type_counts": {},
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/avg/imoscripter_chara8e.s",
+                "source_sha256": "9924e37461dc89d1fe4e70c9276ba0f97057b28a47cfc3d2400a006be01ac98e",
+                "lines": [
+                  660,
+                  665
+                ],
+                "byte_offset": 29842,
+                "byte_length": 168,
+                "span_sha256": "1ed6b8ac8fc64a00ffdc073595462d203bd591b8415bb612a52fbb5ef8750112",
+                "nearest_label": "!Imo_Chara8e_13ExtMotion",
+                "record_type_counts": {
+                  "command": 6
+                },
+                "token_counts": {
+                  "scp": 3,
+                  "?v": 1,
+                  "ps": 2
+                },
+                "declarations": [],
+                "assignment_targets": []
+              }
+            }
+          ]
+        }
+      ],
+      "load_precedence": "not_tested",
+      "semantic_effect": "not_tested"
+    },
+    {
+      "logical_path": "avg/imoscripter_image.s",
+      "same_token_sequence": false,
+      "same_lexical_fields": false,
+      "comparisons": [
+        {
+          "left_source": "data7.pack/avg/imoscripter_image.s",
+          "right_source": "data8.pack/avg/imoscripter_image.s",
+          "regions": [
+            {
+              "operation": "insert",
+              "left": {
+                "source_file": "data7.pack/avg/imoscripter_image.s",
+                "source_sha256": "fda6d55a0ec9745011b94c7b308543f566740b2068258187153674f67522edf3",
+                "lines": [
+                  275,
+                  275
+                ],
+                "byte_offset": 6869,
+                "byte_length": 0,
+                "span_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "nearest_label": "!Imo_Image_Refresh_Main",
+                "record_type_counts": {},
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/avg/imoscripter_image.s",
+                "source_sha256": "826542755a4356b7475ce6afd9dd4557e57aa5f9c1f253580e932f8dfb30afb9",
+                "lines": [
+                  275,
+                  282
+                ],
+                "byte_offset": 13740,
+                "byte_length": 334,
+                "span_sha256": "24831b22745c15fc921eeb322e3427b25712cf85378d2cb1c3483383a3a666bf",
+                "nearest_label": "!Imo_Image_Refresh_Main",
+                "record_type_counts": {
+                  "command": 10
+                },
+                "token_counts": {
+                  "var": 1,
+                  "scp": 2,
+                  "?v": 2,
+                  "cal": 2,
+                  "if": 1,
+                  "then": 1,
+                  "end": 1
+                },
+                "declarations": [
+                  {
+                    "token": "var",
+                    "type_spelling": "str",
+                    "names": [
+                      "spd"
+                    ],
+                    "source_file": "data8.pack/avg/imoscripter_image.s",
+                    "source_sha256": "826542755a4356b7475ce6afd9dd4557e57aa5f9c1f253580e932f8dfb30afb9",
+                    "byte_offset": 13742,
+                    "byte_length": 24,
+                    "record_sha256": "5891b4ad5409c5c5c2e978e8331ef1ecbc243b710f376639be611d527ace078b",
+                    "label_region": "!Imo_Image_Refresh_Main",
+                    "confidence": "inferred",
+                    "execution_semantics": "not_tested"
+                  }
+                ],
+                "assignment_targets": [
+                  "spd",
+                  "spd"
+                ]
+              }
+            },
+            {
+              "operation": "replace",
+              "left": {
+                "source_file": "data7.pack/avg/imoscripter_image.s",
+                "source_sha256": "fda6d55a0ec9745011b94c7b308543f566740b2068258187153674f67522edf3",
+                "lines": [
+                  283,
+                  291
+                ],
+                "byte_offset": 7031,
+                "byte_length": 40,
+                "span_sha256": "11e524c9c1cf8ba75fad384eac7b6c38d7f30dc3692b08b4ce3a27dd6976b7f7",
+                "nearest_label": "!Imo_Image_Refresh_Main",
+                "record_type_counts": {},
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/avg/imoscripter_image.s",
+                "source_sha256": "826542755a4356b7475ce6afd9dd4557e57aa5f9c1f253580e932f8dfb30afb9",
+                "lines": [
+                  290,
+                  304
+                ],
+                "byte_offset": 14398,
+                "byte_length": 288,
+                "span_sha256": "9b098e414f495808159d865327726e02883f3816b6644843a2d58915d1a8d77e",
+                "nearest_label": "!Imo_Image_Refresh_Main",
+                "record_type_counts": {
+                  "command": 8
+                },
+                "token_counts": {
+                  "v": 2,
+                  "end": 1,
+                  "scp": 2,
+                  "?v": 1,
+                  "if": 1,
+                  "then": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              }
+            },
+            {
+              "operation": "insert",
+              "left": {
+                "source_file": "data7.pack/avg/imoscripter_image.s",
+                "source_sha256": "fda6d55a0ec9745011b94c7b308543f566740b2068258187153674f67522edf3",
+                "lines": [
+                  456,
+                  456
+                ],
+                "byte_offset": 10489,
+                "byte_length": 0,
+                "span_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "nearest_label": "!Imo_Image_12Motion",
+                "record_type_counts": {},
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/avg/imoscripter_image.s",
+                "source_sha256": "826542755a4356b7475ce6afd9dd4557e57aa5f9c1f253580e932f8dfb30afb9",
+                "lines": [
+                  469,
+                  473
+                ],
+                "byte_offset": 21522,
+                "byte_length": 114,
+                "span_sha256": "68a85d2cbfacd413002a1974316736e61e47fe2aefad3986cfc6515bf4d97d14",
+                "nearest_label": "!Imo_Image_12Motion",
+                "record_type_counts": {
+                  "command": 4
+                },
+                "token_counts": {
+                  "scp": 2,
+                  "?v": 1,
+                  "ps": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              }
+            },
+            {
+              "operation": "delete",
+              "left": {
+                "source_file": "data7.pack/avg/imoscripter_image.s",
+                "source_sha256": "fda6d55a0ec9745011b94c7b308543f566740b2068258187153674f67522edf3",
+                "lines": [
+                  459,
+                  467
+                ],
+                "byte_offset": 10580,
+                "byte_length": 185,
+                "span_sha256": "5d10eee8d6b9765ba8c61e4144461a24dfd08db6e4c72e9e25d35d9f1e5241d6",
+                "nearest_label": "!Imo_Image_12Motion",
+                "record_type_counts": {
+                  "command": 11
+                },
+                "token_counts": {
+                  "end": 1,
+                  "scp": 4,
+                  "?v": 2,
+                  "if": 1,
+                  "then": 1,
+                  "ps": 1,
+                  "v": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/avg/imoscripter_image.s",
+                "source_sha256": "826542755a4356b7475ce6afd9dd4557e57aa5f9c1f253580e932f8dfb30afb9",
+                "lines": [
+                  476,
+                  476
+                ],
+                "byte_offset": 21818,
+                "byte_length": 0,
+                "span_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "nearest_label": "!Imo_Image_12Motion",
+                "record_type_counts": {},
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              }
+            }
+          ]
+        }
+      ],
+      "load_precedence": "not_tested",
+      "semantic_effect": "not_tested"
+    },
+    {
+      "logical_path": "avg/imoscripter_reptextlist.txt",
+      "same_token_sequence": true,
+      "same_lexical_fields": true,
+      "comparisons": [
+        {
+          "left_source": "data7.pack/avg/imoscripter_reptextlist.txt",
+          "right_source": "data8.pack/avg/imoscripter_reptextlist.txt",
+          "regions": [
+            {
+              "operation": "replace",
+              "left": {
+                "source_file": "data7.pack/avg/imoscripter_reptextlist.txt",
+                "source_sha256": "d6c47f5126acc4c8e915b6b83a2774a6f06dadff36f7afb40a7e27323a04fa2b",
+                "lines": [
+                  1,
+                  5
+                ],
+                "byte_offset": 0,
+                "byte_length": 43,
+                "span_sha256": "d6c47f5126acc4c8e915b6b83a2774a6f06dadff36f7afb40a7e27323a04fa2b",
+                "nearest_label": "sha256:1c37d3eea3b7a93167ff3d612a9a13a8a299ef3a70c9f5bdd3f84ba0d4ddad32",
+                "record_type_counts": {
+                  "opaque_text": 4
+                },
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/avg/imoscripter_reptextlist.txt",
+                "source_sha256": "b06cbc7e0227bb96ee2d21fdb07878aa0dc2a09a9b41d74414ede66d26997c0f",
+                "lines": [
+                  1,
+                  5
+                ],
+                "byte_offset": 2,
+                "byte_length": 62,
+                "span_sha256": "0e8377c7db793d3f539bf202e4fc479c3ddf0977f96ba93ad2f205d9434ec6f0",
+                "nearest_label": "sha256:1c37d3eea3b7a93167ff3d612a9a13a8a299ef3a70c9f5bdd3f84ba0d4ddad32",
+                "record_type_counts": {
+                  "opaque_text": 4
+                },
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              }
+            }
+          ]
+        }
+      ],
+      "load_precedence": "not_tested",
+      "semantic_effect": "not_tested"
+    },
+    {
+      "logical_path": "avg/imoscripter_sound.s",
+      "same_token_sequence": false,
+      "same_lexical_fields": false,
+      "comparisons": [
+        {
+          "left_source": "data7.pack/avg/imoscripter_sound.s",
+          "right_source": "data8.pack/avg/imoscripter_sound.s",
+          "regions": [
+            {
+              "operation": "insert",
+              "left": {
+                "source_file": "data7.pack/avg/imoscripter_sound.s",
+                "source_sha256": "ffbf30f25a9ecabc3fb7198b23cfff734588f46d3533c7ee8416828a34e11aec",
+                "lines": [
+                  71,
+                  71
+                ],
+                "byte_offset": 1486,
+                "byte_length": 0,
+                "span_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "nearest_label": "!Imo_Sound_DefaultParam",
+                "record_type_counts": {},
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/avg/imoscripter_sound.s",
+                "source_sha256": "daf40e209bf971d646bb50073419a8ab3591ff4d40f76c784dc7cccfad238d67",
+                "lines": [
+                  71,
+                  72
+                ],
+                "byte_offset": 2974,
+                "byte_length": 36,
+                "span_sha256": "e5fdbef5ceaeb3fe5dc107180e70d2cb21132e1df21390c6f69680d4c80c20da",
+                "nearest_label": "!Imo_Sound_DefaultParam",
+                "record_type_counts": {
+                  "command": 1
+                },
+                "token_counts": {
+                  "v": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              }
+            },
+            {
+              "operation": "insert",
+              "left": {
+                "source_file": "data7.pack/avg/imoscripter_sound.s",
+                "source_sha256": "ffbf30f25a9ecabc3fb7198b23cfff734588f46d3533c7ee8416828a34e11aec",
+                "lines": [
+                  271,
+                  271
+                ],
+                "byte_offset": 5103,
+                "byte_length": 0,
+                "span_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "nearest_label": "!Imo_Sound_20Volume",
+                "record_type_counts": {},
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/avg/imoscripter_sound.s",
+                "source_sha256": "daf40e209bf971d646bb50073419a8ab3591ff4d40f76c784dc7cccfad238d67",
+                "lines": [
+                  272,
+                  275
+                ],
+                "byte_offset": 10244,
+                "byte_length": 132,
+                "span_sha256": "56c5404946a006a72852f28754123be3e6f6552da45f9b719435281211fb1e4d",
+                "nearest_label": "!Imo_Sound_20Volume",
+                "record_type_counts": {
+                  "command": 2
+                },
+                "token_counts": {
+                  "sub": 1,
+                  "cal": 1
+                },
+                "declarations": [],
+                "assignment_targets": [
+                  "vv"
+                ]
+              }
+            },
+            {
+              "operation": "replace",
+              "left": {
+                "source_file": "data7.pack/avg/imoscripter_sound.s",
+                "source_sha256": "ffbf30f25a9ecabc3fb7198b23cfff734588f46d3533c7ee8416828a34e11aec",
+                "lines": [
+                  310,
+                  311
+                ],
+                "byte_offset": 5787,
+                "byte_length": 29,
+                "span_sha256": "174383c87847dcfc9d9d167fc85be529134a83265366bfa106a4dc2145ddf20c",
+                "nearest_label": "!Imo_Sound_10Basic",
+                "record_type_counts": {
+                  "command": 3
+                },
+                "token_counts": {
+                  "of": 1,
+                  "scp": 1,
+                  "vtn": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/avg/imoscripter_sound.s",
+                "source_sha256": "daf40e209bf971d646bb50073419a8ab3591ff4d40f76c784dc7cccfad238d67",
+                "lines": [
+                  314,
+                  315
+                ],
+                "byte_offset": 11744,
+                "byte_length": 60,
+                "span_sha256": "2c9586af50e4de55c9b8c77e06e27718282f21aabe3456e9d225c5087d17935f",
+                "nearest_label": "!Imo_Sound_10Basic",
+                "record_type_counts": {
+                  "command": 3
+                },
+                "token_counts": {
+                  "of": 1,
+                  "scp": 1,
+                  "vtn": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              }
+            },
+            {
+              "operation": "insert",
+              "left": {
+                "source_file": "data7.pack/avg/imoscripter_sound.s",
+                "source_sha256": "ffbf30f25a9ecabc3fb7198b23cfff734588f46d3533c7ee8416828a34e11aec",
+                "lines": [
+                  319,
+                  319
+                ],
+                "byte_offset": 5919,
+                "byte_length": 0,
+                "span_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "nearest_label": "!Imo_Sound_BGVMuteinVolume",
+                "record_type_counts": {},
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/avg/imoscripter_sound.s",
+                "source_sha256": "daf40e209bf971d646bb50073419a8ab3591ff4d40f76c784dc7cccfad238d67",
+                "lines": [
+                  323,
+                  355
+                ],
+                "byte_offset": 12010,
+                "byte_length": 904,
+                "span_sha256": "52fad00da9249911ab87d734bb31d6d79e3327d0cca8d8a9a253eb3cee03e970",
+                "nearest_label": "!Imo_Sound_10Basic",
+                "record_type_counts": {
+                  "label": 1,
+                  "command": 30
+                },
+                "token_counts": {
+                  "var": 3,
+                  "cal": 8,
+                  "scp": 3,
+                  "?v": 2,
+                  "if": 3,
+                  "then": 3,
+                  "ret": 2,
+                  "end": 3,
+                  "else": 1,
+                  "?cvv": 1,
+                  "?cvm": 1
+                },
+                "declarations": [
+                  {
+                    "token": "var",
+                    "type_spelling": "obj",
+                    "names": [
+                      "a"
+                    ],
+                    "source_file": "data8.pack/avg/imoscripter_sound.s",
+                    "source_sha256": "daf40e209bf971d646bb50073419a8ab3591ff4d40f76c784dc7cccfad238d67",
+                    "byte_offset": 12068,
+                    "byte_length": 20,
+                    "record_sha256": "02e51eb8a7bb97a75335ace06069c886fb9f2238c7ffd03aba3862d87f39c0d5",
+                    "label_region": "!Imo_GetVolumeFromID",
+                    "confidence": "inferred",
+                    "execution_semantics": "not_tested"
+                  },
+                  {
+                    "token": "var",
+                    "type_spelling": "str",
+                    "names": [
+                      "id",
+                      "mode"
+                    ],
+                    "source_file": "data8.pack/avg/imoscripter_sound.s",
+                    "source_sha256": "daf40e209bf971d646bb50073419a8ab3591ff4d40f76c784dc7cccfad238d67",
+                    "byte_offset": 12142,
+                    "byte_length": 32,
+                    "record_sha256": "c7ee1e7a52ec29b0fd8ee5f9946aa8775fd55087357212662bda30b29d0f0a6a",
+                    "label_region": "!Imo_GetVolumeFromID",
+                    "confidence": "inferred",
+                    "execution_semantics": "not_tested"
+                  },
+                  {
+                    "token": "var",
+                    "type_spelling": "int",
+                    "names": [
+                      "v"
+                    ],
+                    "source_file": "data8.pack/avg/imoscripter_sound.s",
+                    "source_sha256": "daf40e209bf971d646bb50073419a8ab3591ff4d40f76c784dc7cccfad238d67",
+                    "byte_offset": 12490,
+                    "byte_length": 20,
+                    "record_sha256": "93aae5a3851b79f9e6be0d7db7a08253f5f94c8483b61beb218476e0b8dbc024",
+                    "label_region": "!Imo_GetVolumeFromID",
+                    "confidence": "inferred",
+                    "execution_semantics": "not_tested"
+                  }
+                ],
+                "assignment_targets": [
+                  "a",
+                  "id",
+                  "mode",
+                  "sha256:1ee38f2c7b409e845da42e64013722cc6ce31b0f20aa73d93717ef7b3a9e3382",
+                  "v",
+                  "v",
+                  "v",
+                  "sha256:1ee38f2c7b409e845da42e64013722cc6ce31b0f20aa73d93717ef7b3a9e3382"
+                ]
+              }
+            },
+            {
+              "operation": "replace",
+              "left": {
+                "source_file": "data7.pack/avg/imoscripter_sound.s",
+                "source_sha256": "ffbf30f25a9ecabc3fb7198b23cfff734588f46d3533c7ee8416828a34e11aec",
+                "lines": [
+                  329,
+                  330
+                ],
+                "byte_offset": 6163,
+                "byte_length": 13,
+                "span_sha256": "156f095c161e6621a25a78d11496da89aec8946d6965f49a31179ad44a7f156c",
+                "nearest_label": "!Imo_Sound_BGVMuteinVolume",
+                "record_type_counts": {
+                  "command": 1
+                },
+                "token_counts": {
+                  "var": 1
+                },
+                "declarations": [
+                  {
+                    "token": "var",
+                    "type_spelling": "int",
+                    "names": [
+                      "i"
+                    ],
+                    "source_file": "data7.pack/avg/imoscripter_sound.s",
+                    "source_sha256": "ffbf30f25a9ecabc3fb7198b23cfff734588f46d3533c7ee8416828a34e11aec",
+                    "byte_offset": 6164,
+                    "byte_length": 10,
+                    "record_sha256": "9abd065a357bb2e492cc6bf8a869df6c4a79f80097e0285fec2bdbe81b4082aa",
+                    "label_region": "!Imo_Sound_BGVMuteinVolume",
+                    "confidence": "inferred",
+                    "execution_semantics": "not_tested"
+                  }
+                ],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/avg/imoscripter_sound.s",
+                "source_sha256": "daf40e209bf971d646bb50073419a8ab3591ff4d40f76c784dc7cccfad238d67",
+                "lines": [
+                  365,
+                  366
+                ],
+                "byte_offset": 13402,
+                "byte_length": 34,
+                "span_sha256": "5093a134142b5ed987be7d530d02a878b94ad3e5074c39b3e3da3a1ef17c48f2",
+                "nearest_label": "!Imo_Sound_BGVMuteinVolume",
+                "record_type_counts": {
+                  "command": 1
+                },
+                "token_counts": {
+                  "var": 1
+                },
+                "declarations": [
+                  {
+                    "token": "var",
+                    "type_spelling": "int",
+                    "names": [
+                      "i",
+                      "vv2"
+                    ],
+                    "source_file": "data8.pack/avg/imoscripter_sound.s",
+                    "source_sha256": "daf40e209bf971d646bb50073419a8ab3591ff4d40f76c784dc7cccfad238d67",
+                    "byte_offset": 13404,
+                    "byte_length": 28,
+                    "record_sha256": "67526a52a868e986d309c050d40107e05ac605483bce8eaf6dd032775f87a729",
+                    "label_region": "!Imo_Sound_BGVMuteinVolume",
+                    "confidence": "inferred",
+                    "execution_semantics": "not_tested"
+                  }
+                ],
+                "assignment_targets": []
+              }
+            },
+            {
+              "operation": "replace",
+              "left": {
+                "source_file": "data7.pack/avg/imoscripter_sound.s",
+                "source_sha256": "ffbf30f25a9ecabc3fb7198b23cfff734588f46d3533c7ee8416828a34e11aec",
+                "lines": [
+                  334,
+                  336
+                ],
+                "byte_offset": 6320,
+                "byte_length": 60,
+                "span_sha256": "11208f62ca1eddef2a562401baaed9a9483c3f7eb8c2ad553c09f2d93176cbdc",
+                "nearest_label": "!Imo_Sound_BGVMuteinVolume",
+                "record_type_counts": {
+                  "command": 4
+                },
+                "token_counts": {
+                  "if": 1,
+                  "then": 1,
+                  "scp": 1,
+                  "v": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/avg/imoscripter_sound.s",
+                "source_sha256": "daf40e209bf971d646bb50073419a8ab3591ff4d40f76c784dc7cccfad238d67",
+                "lines": [
+                  370,
+                  376
+                ],
+                "byte_offset": 13724,
+                "byte_length": 400,
+                "span_sha256": "a3dc312a1e34ade37b3c34d633592c9201587f9de0f8ddadd39a95c9f4a3e66e",
+                "nearest_label": "!Imo_Sound_BGVMuteinVolume",
+                "record_type_counts": {
+                  "command": 8
+                },
+                "token_counts": {
+                  "cal": 3,
+                  "if": 1,
+                  "then": 1,
+                  "sub": 1,
+                  "scp": 1,
+                  "v": 1
+                },
+                "declarations": [],
+                "assignment_targets": [
+                  "vv2",
+                  "vv2",
+                  "vv2"
+                ]
+              }
+            },
+            {
+              "operation": "replace",
+              "left": {
+                "source_file": "data7.pack/avg/imoscripter_sound.s",
+                "source_sha256": "ffbf30f25a9ecabc3fb7198b23cfff734588f46d3533c7ee8416828a34e11aec",
+                "lines": [
+                  353,
+                  354
+                ],
+                "byte_offset": 6617,
+                "byte_length": 17,
+                "span_sha256": "cddcb2d1b292e55f6c55b3c4df1ee584d097d3d1db170bc3173a77a4b7e238aa",
+                "nearest_label": "!Imo_Sound_BGVMuteoutVolume",
+                "record_type_counts": {
+                  "command": 1
+                },
+                "token_counts": {
+                  "var": 1
+                },
+                "declarations": [
+                  {
+                    "token": "var",
+                    "type_spelling": "int",
+                    "names": [
+                      "vv",
+                      "tt"
+                    ],
+                    "source_file": "data7.pack/avg/imoscripter_sound.s",
+                    "source_sha256": "ffbf30f25a9ecabc3fb7198b23cfff734588f46d3533c7ee8416828a34e11aec",
+                    "byte_offset": 6618,
+                    "byte_length": 14,
+                    "record_sha256": "042a97accbbc894e0f214c8a1bb13c164ce7fbc8508df7da9d77c853d83fe82b",
+                    "label_region": "!Imo_Sound_BGVMuteoutVolume",
+                    "confidence": "inferred",
+                    "execution_semantics": "not_tested"
+                  }
+                ],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/avg/imoscripter_sound.s",
+                "source_sha256": "daf40e209bf971d646bb50073419a8ab3591ff4d40f76c784dc7cccfad238d67",
+                "lines": [
+                  393,
+                  394
+                ],
+                "byte_offset": 14598,
+                "byte_length": 28,
+                "span_sha256": "e9296c1e79560be805e481ae6b04c950f6b4895324193781175c1f80c1f8a3d5",
+                "nearest_label": "!Imo_Sound_BGVMuteoutVolume",
+                "record_type_counts": {
+                  "command": 1
+                },
+                "token_counts": {
+                  "var": 1
+                },
+                "declarations": [
+                  {
+                    "token": "var",
+                    "type_spelling": "int",
+                    "names": [
+                      "tt"
+                    ],
+                    "source_file": "data8.pack/avg/imoscripter_sound.s",
+                    "source_sha256": "daf40e209bf971d646bb50073419a8ab3591ff4d40f76c784dc7cccfad238d67",
+                    "byte_offset": 14600,
+                    "byte_length": 22,
+                    "record_sha256": "3abafa5de334050aac856ab23ad045fa34b5c7b6b280bddc6794feb5278a1f37",
+                    "label_region": "!Imo_Sound_BGVMuteoutVolume",
+                    "confidence": "inferred",
+                    "execution_semantics": "not_tested"
+                  }
+                ],
+                "assignment_targets": []
+              }
+            },
+            {
+              "operation": "replace",
+              "left": {
+                "source_file": "data7.pack/avg/imoscripter_sound.s",
+                "source_sha256": "ffbf30f25a9ecabc3fb7198b23cfff734588f46d3533c7ee8416828a34e11aec",
+                "lines": [
+                  357,
+                  358
+                ],
+                "byte_offset": 6707,
+                "byte_length": 13,
+                "span_sha256": "156f095c161e6621a25a78d11496da89aec8946d6965f49a31179ad44a7f156c",
+                "nearest_label": "!Imo_Sound_BGVMuteoutVolume",
+                "record_type_counts": {
+                  "command": 1
+                },
+                "token_counts": {
+                  "var": 1
+                },
+                "declarations": [
+                  {
+                    "token": "var",
+                    "type_spelling": "int",
+                    "names": [
+                      "i"
+                    ],
+                    "source_file": "data7.pack/avg/imoscripter_sound.s",
+                    "source_sha256": "ffbf30f25a9ecabc3fb7198b23cfff734588f46d3533c7ee8416828a34e11aec",
+                    "byte_offset": 6708,
+                    "byte_length": 10,
+                    "record_sha256": "9abd065a357bb2e492cc6bf8a869df6c4a79f80097e0285fec2bdbe81b4082aa",
+                    "label_region": "!Imo_Sound_BGVMuteoutVolume",
+                    "confidence": "inferred",
+                    "execution_semantics": "not_tested"
+                  }
+                ],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/avg/imoscripter_sound.s",
+                "source_sha256": "daf40e209bf971d646bb50073419a8ab3591ff4d40f76c784dc7cccfad238d67",
+                "lines": [
+                  397,
+                  398
+                ],
+                "byte_offset": 14772,
+                "byte_length": 34,
+                "span_sha256": "5093a134142b5ed987be7d530d02a878b94ad3e5074c39b3e3da3a1ef17c48f2",
+                "nearest_label": "!Imo_Sound_BGVMuteoutVolume",
+                "record_type_counts": {
+                  "command": 1
+                },
+                "token_counts": {
+                  "var": 1
+                },
+                "declarations": [
+                  {
+                    "token": "var",
+                    "type_spelling": "int",
+                    "names": [
+                      "i",
+                      "vv2"
+                    ],
+                    "source_file": "data8.pack/avg/imoscripter_sound.s",
+                    "source_sha256": "daf40e209bf971d646bb50073419a8ab3591ff4d40f76c784dc7cccfad238d67",
+                    "byte_offset": 14774,
+                    "byte_length": 28,
+                    "record_sha256": "67526a52a868e986d309c050d40107e05ac605483bce8eaf6dd032775f87a729",
+                    "label_region": "!Imo_Sound_BGVMuteoutVolume",
+                    "confidence": "inferred",
+                    "execution_semantics": "not_tested"
+                  }
+                ],
+                "assignment_targets": []
+              }
+            },
+            {
+              "operation": "replace",
+              "left": {
+                "source_file": "data7.pack/avg/imoscripter_sound.s",
+                "source_sha256": "ffbf30f25a9ecabc3fb7198b23cfff734588f46d3533c7ee8416828a34e11aec",
+                "lines": [
+                  362,
+                  367
+                ],
+                "byte_offset": 6864,
+                "byte_length": 105,
+                "span_sha256": "1971f9de6d4ea2ed6c0cb6b3df93aadf5a9033ab708195bff635fb2832dad7cb",
+                "nearest_label": "!Imo_Sound_BGVMuteoutVolume",
+                "record_type_counts": {
+                  "command": 7
+                },
+                "token_counts": {
+                  "cal": 1,
+                  "if": 1,
+                  "then": 1,
+                  "scp": 1,
+                  "v": 1,
+                  "p2": 1,
+                  "end": 1
+                },
+                "declarations": [],
+                "assignment_targets": [
+                  "vv"
+                ]
+              },
+              "right": {
+                "source_file": "data8.pack/avg/imoscripter_sound.s",
+                "source_sha256": "daf40e209bf971d646bb50073419a8ab3591ff4d40f76c784dc7cccfad238d67",
+                "lines": [
+                  402,
+                  406
+                ],
+                "byte_offset": 15094,
+                "byte_length": 324,
+                "span_sha256": "09586a6c7048ea4b191ad207c9f2b9bfdd2403ba43b03a6072c8f0572b992fb4",
+                "nearest_label": "!Imo_Sound_BGVMuteoutVolume",
+                "record_type_counts": {
+                  "command": 6
+                },
+                "token_counts": {
+                  "cal": 2,
+                  "sub": 1,
+                  "scp": 1,
+                  "v": 1,
+                  "p2": 1
+                },
+                "declarations": [],
+                "assignment_targets": [
+                  "vv2",
+                  "vv2"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "load_precedence": "not_tested",
+      "semantic_effect": "not_tested"
+    },
+    {
+      "logical_path": "scenario/本編/t16_03.s",
+      "same_token_sequence": false,
+      "same_lexical_fields": false,
+      "comparisons": [
+        {
+          "left_source": "data6.pack/scenario/本編/t16_03.s",
+          "right_source": "data8.pack/scenario/本編/t16_03.s",
+          "regions": [
+            {
+              "operation": "delete",
+              "left": {
+                "source_file": "data6.pack/scenario/本編/t16_03.s",
+                "source_sha256": "f46e285e87ce00facedc47885ccbdc94f4a9b4062597525e4f73bc6e587b1446",
+                "lines": [
+                  5793,
+                  5794
+                ],
+                "byte_offset": 48852,
+                "byte_length": 4,
+                "span_sha256": "b7f560303ee2cca55615b53fcff87c6ab2c55f9e71a6cea93c61b572213e7075",
+                "nearest_label": "MAIN",
+                "record_type_counts": {},
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/scenario/本編/t16_03.s",
+                "source_sha256": "80d32248c382ddc6e2c799869db394f8b565c730c4ce3b0aca87a0670b69dea3",
+                "lines": [
+                  5793,
+                  5793
+                ],
+                "byte_offset": 48852,
+                "byte_length": 0,
+                "span_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "nearest_label": "MAIN",
+                "record_type_counts": {},
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              }
+            },
+            {
+              "operation": "insert",
+              "left": {
+                "source_file": "data6.pack/scenario/本編/t16_03.s",
+                "source_sha256": "f46e285e87ce00facedc47885ccbdc94f4a9b4062597525e4f73bc6e587b1446",
+                "lines": [
+                  5795,
+                  5795
+                ],
+                "byte_offset": 48894,
+                "byte_length": 0,
+                "span_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "nearest_label": "MAIN",
+                "record_type_counts": {},
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/scenario/本編/t16_03.s",
+                "source_sha256": "80d32248c382ddc6e2c799869db394f8b565c730c4ce3b0aca87a0670b69dea3",
+                "lines": [
+                  5794,
+                  5795
+                ],
+                "byte_offset": 48890,
+                "byte_length": 42,
+                "span_sha256": "b9508974a1bd72360cd0a96ac488f97cf8cc8aae797f2b920b78a4c5ed51360b",
+                "nearest_label": "MAIN",
+                "record_type_counts": {
+                  "line_tag": 1
+                },
+                "token_counts": {
+                  "chara02": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              }
+            },
+            {
+              "operation": "replace",
+              "left": {
+                "source_file": "data6.pack/scenario/本編/t16_03.s",
+                "source_sha256": "f46e285e87ce00facedc47885ccbdc94f4a9b4062597525e4f73bc6e587b1446",
+                "lines": [
+                  5884,
+                  5885
+                ],
+                "byte_offset": 49518,
+                "byte_length": 42,
+                "span_sha256": "aabce4490710901ac2f50970b4b94b59ce1c1ec8a45b696fc39ed81d6d03b986",
+                "nearest_label": "MAIN",
+                "record_type_counts": {
+                  "line_tag": 1
+                },
+                "token_counts": {
+                  "chara02": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/scenario/本編/t16_03.s",
+                "source_sha256": "80d32248c382ddc6e2c799869db394f8b565c730c4ce3b0aca87a0670b69dea3",
+                "lines": [
+                  5884,
+                  5885
+                ],
+                "byte_offset": 49556,
+                "byte_length": 42,
+                "span_sha256": "de1b99b3ad51b3627e153d84d449c4b037833351fe6d7db6ac2f168080410608",
+                "nearest_label": "MAIN",
+                "record_type_counts": {
+                  "line_tag": 1
+                },
+                "token_counts": {
+                  "chara02": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              }
+            },
+            {
+              "operation": "replace",
+              "left": {
+                "source_file": "data6.pack/scenario/本編/t16_03.s",
+                "source_sha256": "f46e285e87ce00facedc47885ccbdc94f4a9b4062597525e4f73bc6e587b1446",
+                "lines": [
+                  5996,
+                  5997
+                ],
+                "byte_offset": 50462,
+                "byte_length": 44,
+                "span_sha256": "508fb5f1658f19f83d71a8c48173a41ec1e4ca8be4d357a7433cda272d8c4433",
+                "nearest_label": "MAIN",
+                "record_type_counts": {
+                  "line_tag": 1
+                },
+                "token_counts": {
+                  "chara02": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/scenario/本編/t16_03.s",
+                "source_sha256": "80d32248c382ddc6e2c799869db394f8b565c730c4ce3b0aca87a0670b69dea3",
+                "lines": [
+                  5996,
+                  5997
+                ],
+                "byte_offset": 50500,
+                "byte_length": 42,
+                "span_sha256": "abc624dcea8c5c3c6f61b3dfe48db2a0dd81f197d63ba26ad87aa88737c40894",
+                "nearest_label": "MAIN",
+                "record_type_counts": {
+                  "line_tag": 1
+                },
+                "token_counts": {
+                  "chara02": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              }
+            }
+          ]
+        }
+      ],
+      "load_precedence": "not_tested",
+      "semantic_effect": "not_tested"
+    },
+    {
+      "logical_path": "scenario/本編/t19a_03.s",
+      "same_token_sequence": true,
+      "same_lexical_fields": false,
+      "comparisons": [
+        {
+          "left_source": "data6.pack/scenario/本編/t19a_03.s",
+          "right_source": "data8.pack/scenario/本編/t19a_03.s",
+          "regions": [
+            {
+              "operation": "replace",
+              "left": {
+                "source_file": "data6.pack/scenario/本編/t19a_03.s",
+                "source_sha256": "561296fb5dae00fc2e55d1ca4bf93af8ac1d8e1868093d7dad2352f66d50a92c",
+                "lines": [
+                  7945,
+                  7946
+                ],
+                "byte_offset": 64574,
+                "byte_length": 106,
+                "span_sha256": "407f6da403eb509b95852bcfdb10ecbcc48924316411555082fb734608c47475",
+                "nearest_label": "MAIN",
+                "record_type_counts": {
+                  "line_tag": 1
+                },
+                "token_counts": {
+                  "chara02": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/scenario/本編/t19a_03.s",
+                "source_sha256": "1b3eebdb6754cb5e29e0d95d524a30003c33249296d8efb405241c64970d22c7",
+                "lines": [
+                  7945,
+                  7946
+                ],
+                "byte_offset": 64574,
+                "byte_length": 122,
+                "span_sha256": "acc255d6b100e04fe433344bea950baa4d6bfbb64a8d7ec373d56ff651126415",
+                "nearest_label": "MAIN",
+                "record_type_counts": {
+                  "line_tag": 1
+                },
+                "token_counts": {
+                  "chara02": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              }
+            },
+            {
+              "operation": "replace",
+              "left": {
+                "source_file": "data6.pack/scenario/本編/t19a_03.s",
+                "source_sha256": "561296fb5dae00fc2e55d1ca4bf93af8ac1d8e1868093d7dad2352f66d50a92c",
+                "lines": [
+                  8035,
+                  8036
+                ],
+                "byte_offset": 65178,
+                "byte_length": 62,
+                "span_sha256": "e50a7f1249d635c07d31a7642375c10d46dac9638671be1c00489afd279e8b9d",
+                "nearest_label": "MAIN",
+                "record_type_counts": {
+                  "line_tag": 1
+                },
+                "token_counts": {
+                  "chara02": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/scenario/本編/t19a_03.s",
+                "source_sha256": "1b3eebdb6754cb5e29e0d95d524a30003c33249296d8efb405241c64970d22c7",
+                "lines": [
+                  8035,
+                  8036
+                ],
+                "byte_offset": 65194,
+                "byte_length": 62,
+                "span_sha256": "3c231b8ff353373301f00c64242d24b7369937484d91ae005f901c79ec84ba0a",
+                "nearest_label": "MAIN",
+                "record_type_counts": {
+                  "line_tag": 1
+                },
+                "token_counts": {
+                  "chara02": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              }
+            },
+            {
+              "operation": "replace",
+              "left": {
+                "source_file": "data6.pack/scenario/本編/t19a_03.s",
+                "source_sha256": "561296fb5dae00fc2e55d1ca4bf93af8ac1d8e1868093d7dad2352f66d50a92c",
+                "lines": [
+                  8055,
+                  8056
+                ],
+                "byte_offset": 65394,
+                "byte_length": 44,
+                "span_sha256": "59d4750ccb97640a62db9a2171739f8867601c13bef6932cc126ac71fc53594f",
+                "nearest_label": "MAIN",
+                "record_type_counts": {
+                  "line_tag": 1
+                },
+                "token_counts": {
+                  "chara02": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/scenario/本編/t19a_03.s",
+                "source_sha256": "1b3eebdb6754cb5e29e0d95d524a30003c33249296d8efb405241c64970d22c7",
+                "lines": [
+                  8055,
+                  8056
+                ],
+                "byte_offset": 65410,
+                "byte_length": 62,
+                "span_sha256": "df3e3b1415135e7fd31a2a004e813b9d102da429217bdcc229ac1556be447fa9",
+                "nearest_label": "MAIN",
+                "record_type_counts": {
+                  "line_tag": 1
+                },
+                "token_counts": {
+                  "chara02": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              }
+            },
+            {
+              "operation": "replace",
+              "left": {
+                "source_file": "data6.pack/scenario/本編/t19a_03.s",
+                "source_sha256": "561296fb5dae00fc2e55d1ca4bf93af8ac1d8e1868093d7dad2352f66d50a92c",
+                "lines": [
+                  8075,
+                  8076
+                ],
+                "byte_offset": 65596,
+                "byte_length": 44,
+                "span_sha256": "508fb5f1658f19f83d71a8c48173a41ec1e4ca8be4d357a7433cda272d8c4433",
+                "nearest_label": "MAIN",
+                "record_type_counts": {
+                  "line_tag": 1
+                },
+                "token_counts": {
+                  "chara02": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/scenario/本編/t19a_03.s",
+                "source_sha256": "1b3eebdb6754cb5e29e0d95d524a30003c33249296d8efb405241c64970d22c7",
+                "lines": [
+                  8075,
+                  8076
+                ],
+                "byte_offset": 65630,
+                "byte_length": 42,
+                "span_sha256": "abc624dcea8c5c3c6f61b3dfe48db2a0dd81f197d63ba26ad87aa88737c40894",
+                "nearest_label": "MAIN",
+                "record_type_counts": {
+                  "line_tag": 1
+                },
+                "token_counts": {
+                  "chara02": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              }
+            }
+          ]
+        }
+      ],
+      "load_precedence": "not_tested",
+      "semantic_effect": "not_tested"
+    },
+    {
+      "logical_path": "scenario/本編/t19b_03.s",
+      "same_token_sequence": false,
+      "same_lexical_fields": false,
+      "comparisons": [
+        {
+          "left_source": "data6.pack/scenario/本編/t19b_03.s",
+          "right_source": "data8.pack/scenario/本編/t19b_03.s",
+          "regions": [
+            {
+              "operation": "delete",
+              "left": {
+                "source_file": "data6.pack/scenario/本編/t19b_03.s",
+                "source_sha256": "f1920315e1cb77c7c9f9df95fe1529b83dcc00616608517a836021c99c5673d3",
+                "lines": [
+                  2855,
+                  2857
+                ],
+                "byte_offset": 23496,
+                "byte_length": 8,
+                "span_sha256": "8663f3a9812ca2dc91038557c63ade57bb5f517c202adfa5ca3d8f0cedd07d5d",
+                "nearest_label": "MAIN",
+                "record_type_counts": {},
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/scenario/本編/t19b_03.s",
+                "source_sha256": "c94bbd4bd75365a2837703fb3ca8ece5bedffddcf92154294e8a40bff6ed981a",
+                "lines": [
+                  2855,
+                  2855
+                ],
+                "byte_offset": 23496,
+                "byte_length": 0,
+                "span_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "nearest_label": "MAIN",
+                "record_type_counts": {},
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              }
+            },
+            {
+              "operation": "replace",
+              "left": {
+                "source_file": "data6.pack/scenario/本編/t19b_03.s",
+                "source_sha256": "f1920315e1cb77c7c9f9df95fe1529b83dcc00616608517a836021c99c5673d3",
+                "lines": [
+                  2858,
+                  2859
+                ],
+                "byte_offset": 23554,
+                "byte_length": 86,
+                "span_sha256": "cdb206f17a8393967c69caea3311baa432741290034ed9c19d58d00434211334",
+                "nearest_label": "MAIN",
+                "record_type_counts": {
+                  "line_tag": 1
+                },
+                "token_counts": {
+                  "ef01": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/scenario/本編/t19b_03.s",
+                "source_sha256": "c94bbd4bd75365a2837703fb3ca8ece5bedffddcf92154294e8a40bff6ed981a",
+                "lines": [
+                  2856,
+                  2859
+                ],
+                "byte_offset": 23546,
+                "byte_length": 160,
+                "span_sha256": "63b88bf357148f4e914ee3c838467e87e1b4d155b276d27bdac81ac917fbf472",
+                "nearest_label": "MAIN",
+                "record_type_counts": {
+                  "line_tag": 3
+                },
+                "token_counts": {
+                  "sentence": 1,
+                  "ef01": 1,
+                  "se01": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              }
+            },
+            {
+              "operation": "insert",
+              "left": {
+                "source_file": "data6.pack/scenario/本編/t19b_03.s",
+                "source_sha256": "f1920315e1cb77c7c9f9df95fe1529b83dcc00616608517a836021c99c5673d3",
+                "lines": [
+                  2995,
+                  2995
+                ],
+                "byte_offset": 24376,
+                "byte_length": 0,
+                "span_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "nearest_label": "MAIN",
+                "record_type_counts": {},
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/scenario/本編/t19b_03.s",
+                "source_sha256": "c94bbd4bd75365a2837703fb3ca8ece5bedffddcf92154294e8a40bff6ed981a",
+                "lines": [
+                  2995,
+                  2996
+                ],
+                "byte_offset": 24442,
+                "byte_length": 4,
+                "span_sha256": "b7f560303ee2cca55615b53fcff87c6ab2c55f9e71a6cea93c61b572213e7075",
+                "nearest_label": "MAIN",
+                "record_type_counts": {},
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              }
+            },
+            {
+              "operation": "delete",
+              "left": {
+                "source_file": "data6.pack/scenario/本編/t19b_03.s",
+                "source_sha256": "f1920315e1cb77c7c9f9df95fe1529b83dcc00616608517a836021c99c5673d3",
+                "lines": [
+                  2996,
+                  2997
+                ],
+                "byte_offset": 24398,
+                "byte_length": 40,
+                "span_sha256": "0e114764835792bc3686bc5ec58b529ebd9da1f307177ae6ad228efaa88d819e",
+                "nearest_label": "MAIN",
+                "record_type_counts": {
+                  "line_tag": 1
+                },
+                "token_counts": {
+                  "se01": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/scenario/本編/t19b_03.s",
+                "source_sha256": "c94bbd4bd75365a2837703fb3ca8ece5bedffddcf92154294e8a40bff6ed981a",
+                "lines": [
+                  2997,
+                  2997
+                ],
+                "byte_offset": 24468,
+                "byte_length": 0,
+                "span_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "nearest_label": "MAIN",
+                "record_type_counts": {},
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              }
+            }
+          ]
+        }
+      ],
+      "load_precedence": "not_tested",
+      "semantic_effect": "not_tested"
+    },
+    {
+      "logical_path": "scenario/本編/t20a_01.s",
+      "same_token_sequence": false,
+      "same_lexical_fields": false,
+      "comparisons": [
+        {
+          "left_source": "data6.pack/scenario/本編/t20a_01.s",
+          "right_source": "data8.pack/scenario/本編/t20a_01.s",
+          "regions": [
+            {
+              "operation": "replace",
+              "left": {
+                "source_file": "data6.pack/scenario/本編/t20a_01.s",
+                "source_sha256": "a917666318f5a7f2c9107296c5724e2357f838c52f6305b6eb55e9e7f980dc0f",
+                "lines": [
+                  289,
+                  290
+                ],
+                "byte_offset": 2780,
+                "byte_length": 4,
+                "span_sha256": "b7f560303ee2cca55615b53fcff87c6ab2c55f9e71a6cea93c61b572213e7075",
+                "nearest_label": "MAIN",
+                "record_type_counts": {},
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/scenario/本編/t20a_01.s",
+                "source_sha256": "e38f63bf72e5d4ea0f14f66a4b1105735ecec4c1c241beb49494ba3e1b9f6428",
+                "lines": [
+                  289,
+                  291
+                ],
+                "byte_offset": 2780,
+                "byte_length": 148,
+                "span_sha256": "77040ba7627477093d9b1ccfd3c74147cbee948322d58d4a8392800970fc8309",
+                "nearest_label": "MAIN",
+                "record_type_counts": {
+                  "line_tag": 2
+                },
+                "token_counts": {
+                  "sentence": 1,
+                  "bg02": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              }
+            },
+            {
+              "operation": "replace",
+              "left": {
+                "source_file": "data6.pack/scenario/本編/t20a_01.s",
+                "source_sha256": "a917666318f5a7f2c9107296c5724e2357f838c52f6305b6eb55e9e7f980dc0f",
+                "lines": [
+                  305,
+                  324
+                ],
+                "byte_offset": 2918,
+                "byte_length": 210,
+                "span_sha256": "380c945d194078c5a0fe45dd0e9acb0235c7109fc467b50a420694a9e716fdf6",
+                "nearest_label": "MAIN",
+                "record_type_counts": {
+                  "line_tag": 2
+                },
+                "token_counts": {
+                  "bg02": 1,
+                  "sentence": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/scenario/本編/t20a_01.s",
+                "source_sha256": "e38f63bf72e5d4ea0f14f66a4b1105735ecec4c1c241beb49494ba3e1b9f6428",
+                "lines": [
+                  306,
+                  325
+                ],
+                "byte_offset": 3062,
+                "byte_length": 204,
+                "span_sha256": "924b31fa7495719d02d0f4d585b1e2e2e0a3453a62706b321f5c6577194f794a",
+                "nearest_label": "MAIN",
+                "record_type_counts": {
+                  "line_tag": 2
+                },
+                "token_counts": {
+                  "sentence": 1,
+                  "bg02": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              }
+            },
+            {
+              "operation": "delete",
+              "left": {
+                "source_file": "data6.pack/scenario/本編/t20a_01.s",
+                "source_sha256": "a917666318f5a7f2c9107296c5724e2357f838c52f6305b6eb55e9e7f980dc0f",
+                "lines": [
+                  343,
+                  344
+                ],
+                "byte_offset": 3270,
+                "byte_length": 80,
+                "span_sha256": "520ec05617a2f907e75c4df0ad27174d0009e71fc6284192c48f83f187ecf498",
+                "nearest_label": "MAIN",
+                "record_type_counts": {
+                  "line_tag": 1
+                },
+                "token_counts": {
+                  "bg02": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/scenario/本編/t20a_01.s",
+                "source_sha256": "e38f63bf72e5d4ea0f14f66a4b1105735ecec4c1c241beb49494ba3e1b9f6428",
+                "lines": [
+                  344,
+                  344
+                ],
+                "byte_offset": 3408,
+                "byte_length": 0,
+                "span_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "nearest_label": "MAIN",
+                "record_type_counts": {},
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              }
+            },
+            {
+              "operation": "delete",
+              "left": {
+                "source_file": "data6.pack/scenario/本編/t20a_01.s",
+                "source_sha256": "a917666318f5a7f2c9107296c5724e2357f838c52f6305b6eb55e9e7f980dc0f",
+                "lines": [
+                  378,
+                  379
+                ],
+                "byte_offset": 3526,
+                "byte_length": 4,
+                "span_sha256": "b7f560303ee2cca55615b53fcff87c6ab2c55f9e71a6cea93c61b572213e7075",
+                "nearest_label": "MAIN",
+                "record_type_counts": {},
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/scenario/本編/t20a_01.s",
+                "source_sha256": "e38f63bf72e5d4ea0f14f66a4b1105735ecec4c1c241beb49494ba3e1b9f6428",
+                "lines": [
+                  378,
+                  378
+                ],
+                "byte_offset": 3584,
+                "byte_length": 0,
+                "span_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "nearest_label": "MAIN",
+                "record_type_counts": {},
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              }
+            },
+            {
+              "operation": "insert",
+              "left": {
+                "source_file": "data6.pack/scenario/本編/t20a_01.s",
+                "source_sha256": "a917666318f5a7f2c9107296c5724e2357f838c52f6305b6eb55e9e7f980dc0f",
+                "lines": [
+                  382,
+                  382
+                ],
+                "byte_offset": 3614,
+                "byte_length": 0,
+                "span_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "nearest_label": "MAIN",
+                "record_type_counts": {},
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/scenario/本編/t20a_01.s",
+                "source_sha256": "e38f63bf72e5d4ea0f14f66a4b1105735ecec4c1c241beb49494ba3e1b9f6428",
+                "lines": [
+                  381,
+                  382
+                ],
+                "byte_offset": 3668,
+                "byte_length": 50,
+                "span_sha256": "72e3fe8bd61b2ee0ac20c61b4270598217a7e7e93bf1cc7464a780ff26ab323c",
+                "nearest_label": "MAIN",
+                "record_type_counts": {
+                  "line_tag": 1
+                },
+                "token_counts": {
+                  "sentence": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              }
+            },
+            {
+              "operation": "replace",
+              "left": {
+                "source_file": "data6.pack/scenario/本編/t20a_01.s",
+                "source_sha256": "a917666318f5a7f2c9107296c5724e2357f838c52f6305b6eb55e9e7f980dc0f",
+                "lines": [
+                  771,
+                  772
+                ],
+                "byte_offset": 7054,
+                "byte_length": 128,
+                "span_sha256": "14ce5ab5b244d681c8ed96a3ac9d1960be71a1ab6a4ca7a0891c93fa6fe6eb41",
+                "nearest_label": "MAIN",
+                "record_type_counts": {
+                  "opaque_text": 1
+                },
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/scenario/本編/t20a_01.s",
+                "source_sha256": "e38f63bf72e5d4ea0f14f66a4b1105735ecec4c1c241beb49494ba3e1b9f6428",
+                "lines": [
+                  771,
+                  772
+                ],
+                "byte_offset": 7158,
+                "byte_length": 116,
+                "span_sha256": "a279be08f7b6e075543598e27bfae4b706340f2b032700af42cfb793cd666201",
+                "nearest_label": "MAIN",
+                "record_type_counts": {
+                  "opaque_text": 1
+                },
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              }
+            }
+          ]
+        }
+      ],
+      "load_precedence": "not_tested",
+      "semantic_effect": "not_tested"
+    },
+    {
+      "logical_path": "script/albummode/viewfunction.s",
+      "same_token_sequence": false,
+      "same_lexical_fields": false,
+      "comparisons": [
+        {
+          "left_source": "data7.pack/script/albummode/viewfunction.s",
+          "right_source": "data8.pack/script/albummode/viewfunction.s",
+          "regions": [
+            {
+              "operation": "insert",
+              "left": {
+                "source_file": "data7.pack/script/albummode/viewfunction.s",
+                "source_sha256": "9dbf3fd242f0576d0aa64eda0db16a3c9c71971061cdc56ec4c96a770e9424c6",
+                "lines": [
+                  32,
+                  32
+                ],
+                "byte_offset": 582,
+                "byte_length": 0,
+                "span_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "nearest_label": "!ItemCreate",
+                "record_type_counts": {},
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/script/albummode/viewfunction.s",
+                "source_sha256": "bd2f6bd7af440ce72de0a34f11f1b6495279ca138dd1a246aa58f52e2bb84ad8",
+                "lines": [
+                  32,
+                  39
+                ],
+                "byte_offset": 1162,
+                "byte_length": 336,
+                "span_sha256": "ef2907958d74a44c2494e5488e5a2b72ea16022456368d4b4f31b6956bb5913d",
+                "nearest_label": "!ItemCreate",
+                "record_type_counts": {
+                  "command": 10
+                },
+                "token_counts": {
+                  "cnt": 2,
+                  "end": 1,
+                  "scp": 2,
+                  "?s": 1,
+                  "sub": 1,
+                  "if": 1,
+                  "then": 1,
+                  "a": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              }
+            },
+            {
+              "operation": "replace",
+              "left": {
+                "source_file": "data7.pack/script/albummode/viewfunction.s",
+                "source_sha256": "9dbf3fd242f0576d0aa64eda0db16a3c9c71971061cdc56ec4c96a770e9424c6",
+                "lines": [
+                  37,
+                  42
+                ],
+                "byte_offset": 732,
+                "byte_length": 150,
+                "span_sha256": "6cc14df35eb1fdc6165f7a9e130b24b5232c2a611d8b664d0af577a76cb78462",
+                "nearest_label": "!ItemCreate",
+                "record_type_counts": {
+                  "command": 8
+                },
+                "token_counts": {
+                  "end": 1,
+                  "scp": 2,
+                  "?s": 1,
+                  "sub": 1,
+                  "if": 1,
+                  "then": 1,
+                  "a": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/script/albummode/viewfunction.s",
+                "source_sha256": "bd2f6bd7af440ce72de0a34f11f1b6495279ca138dd1a246aa58f52e2bb84ad8",
+                "lines": [
+                  44,
+                  45
+                ],
+                "byte_offset": 1794,
+                "byte_length": 20,
+                "span_sha256": "1c207fd478d9f4c78a677a5d9d222f3f529790a80298b237198edaf634569997",
+                "nearest_label": "!ItemCreate",
+                "record_type_counts": {
+                  "command": 1
+                },
+                "token_counts": {
+                  "cnt": 1
+                },
+                "declarations": [],
+                "assignment_targets": []
+              }
+            },
+            {
+              "operation": "insert",
+              "left": {
+                "source_file": "data7.pack/script/albummode/viewfunction.s",
+                "source_sha256": "9dbf3fd242f0576d0aa64eda0db16a3c9c71971061cdc56ec4c96a770e9424c6",
+                "lines": [
+                  100,
+                  100
+                ],
+                "byte_offset": 1645,
+                "byte_length": 0,
+                "span_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "nearest_label": "!ItemFileCheck",
+                "record_type_counts": {},
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/script/albummode/viewfunction.s",
+                "source_sha256": "bd2f6bd7af440ce72de0a34f11f1b6495279ca138dd1a246aa58f52e2bb84ad8",
+                "lines": [
+                  103,
+                  109
+                ],
+                "byte_offset": 3340,
+                "byte_length": 192,
+                "span_sha256": "fd8f95fe076f069105d200c5ce4cb594fc729c1ba6cb156ed301fb212e4a330a",
+                "nearest_label": "!ItemFileCheck",
+                "record_type_counts": {
+                  "command": 7
+                },
+                "token_counts": {
+                  "cal": 2,
+                  "fexs": 1,
+                  "if": 1,
+                  "then": 1,
+                  "ret": 1,
+                  "end": 1
+                },
+                "declarations": [],
+                "assignment_targets": [
+                  "ff",
+                  "sha256:42626f37ca2be0ea3676c0d042d79d9cb3e03c027d929ca10382ae646736f7bf"
+                ]
+              }
+            },
+            {
+              "operation": "delete",
+              "left": {
+                "source_file": "data7.pack/script/albummode/viewfunction.s",
+                "source_sha256": "9dbf3fd242f0576d0aa64eda0db16a3c9c71971061cdc56ec4c96a770e9424c6",
+                "lines": [
+                  101,
+                  107
+                ],
+                "byte_offset": 1662,
+                "byte_length": 96,
+                "span_sha256": "f4cf290c6ece71fb44bb3d58a42ee60b116b2c0693935d8ddcef686fb6f3af0e",
+                "nearest_label": "!ItemFileCheck",
+                "record_type_counts": {
+                  "command": 7
+                },
+                "token_counts": {
+                  "fexs": 1,
+                  "if": 1,
+                  "then": 1,
+                  "cal": 2,
+                  "ret": 1,
+                  "end": 1
+                },
+                "declarations": [],
+                "assignment_targets": [
+                  "sha256:42626f37ca2be0ea3676c0d042d79d9cb3e03c027d929ca10382ae646736f7bf",
+                  "ff"
+                ]
+              },
+              "right": {
+                "source_file": "data8.pack/script/albummode/viewfunction.s",
+                "source_sha256": "bd2f6bd7af440ce72de0a34f11f1b6495279ca138dd1a246aa58f52e2bb84ad8",
+                "lines": [
+                  110,
+                  110
+                ],
+                "byte_offset": 3566,
+                "byte_length": 0,
+                "span_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "nearest_label": "!ItemFileCheck",
+                "record_type_counts": {},
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              }
+            }
+          ]
+        }
+      ],
+      "load_precedence": "not_tested",
+      "semantic_effect": "not_tested"
+    },
+    {
+      "logical_path": "system/etc/game.txt",
+      "same_token_sequence": true,
+      "same_lexical_fields": false,
+      "comparisons": [
+        {
+          "left_source": "data0.pack/system/etc/game.txt",
+          "right_source": "data8.pack/system/etc/game.txt",
+          "regions": [
+            {
+              "operation": "replace",
+              "left": {
+                "source_file": "data0.pack/system/etc/game.txt",
+                "source_sha256": "17898151e9c555a17c8841a91775e2e34dc762ce092b4b29f8d7e65130b5857c",
+                "lines": [
+                  19,
+                  20
+                ],
+                "byte_offset": 212,
+                "byte_length": 54,
+                "span_sha256": "0612465868e8818cf66adfcd6e16fe8428fef6fc1c629113dee24c847ed2b377",
+                "nearest_label": "sha256:1c37d3eea3b7a93167ff3d612a9a13a8a299ef3a70c9f5bdd3f84ba0d4ddad32",
+                "record_type_counts": {
+                  "setting_assignment_candidate": 1
+                },
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/system/etc/game.txt",
+                "source_sha256": "6a8cef98af452ed67e85df7dc57ebcb2d79c20b5897a37bc336b8db7ac5fe8da",
+                "lines": [
+                  19,
+                  20
+                ],
+                "byte_offset": 212,
+                "byte_length": 64,
+                "span_sha256": "81ab68af83f53449bbb476b90b642162c894c0a814c4b6c36e5b2109afac1d66",
+                "nearest_label": "sha256:1c37d3eea3b7a93167ff3d612a9a13a8a299ef3a70c9f5bdd3f84ba0d4ddad32",
+                "record_type_counts": {
+                  "setting_assignment_candidate": 1
+                },
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              }
+            },
+            {
+              "operation": "replace",
+              "left": {
+                "source_file": "data0.pack/system/etc/game.txt",
+                "source_sha256": "17898151e9c555a17c8841a91775e2e34dc762ce092b4b29f8d7e65130b5857c",
+                "lines": [
+                  25,
+                  26
+                ],
+                "byte_offset": 286,
+                "byte_length": 58,
+                "span_sha256": "c60f32235bcd45a5b0bc74f79449b4ab8b9c52f2277ec50f492200846c5bc2cf",
+                "nearest_label": "sha256:1c37d3eea3b7a93167ff3d612a9a13a8a299ef3a70c9f5bdd3f84ba0d4ddad32",
+                "record_type_counts": {
+                  "setting_assignment_candidate": 1
+                },
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              },
+              "right": {
+                "source_file": "data8.pack/system/etc/game.txt",
+                "source_sha256": "6a8cef98af452ed67e85df7dc57ebcb2d79c20b5897a37bc336b8db7ac5fe8da",
+                "lines": [
+                  25,
+                  26
+                ],
+                "byte_offset": 296,
+                "byte_length": 68,
+                "span_sha256": "f51b2555654607156af796e8d434ca87638ec52aba570b047a81a9af2fc4d21c",
+                "nearest_label": "sha256:1c37d3eea3b7a93167ff3d612a9a13a8a299ef3a70c9f5bdd3f84ba0d4ddad32",
+                "record_type_counts": {
+                  "setting_assignment_candidate": 1
+                },
+                "token_counts": {},
+                "declarations": [],
+                "assignment_targets": []
+              }
+            }
+          ]
+        }
+      ],
+      "load_precedence": "not_tested",
+      "semantic_effect": "not_tested"
+    }
+  ],
+  "load_precedence": "not_tested",
+  "original_files_written": false,
+  "external_game_data_uploads": false
+}

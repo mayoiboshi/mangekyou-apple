@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "status": "inferred",
+  "scope": "Working ARM64 app foundation; original game execution and complete game compatibility remain unimplemented",
+  "dataset": "real",
+  "app": "build/Mangekyou.app",
+  "architecture": "arm64",
+  "binary_sha256": "75d9a0cabc21881ac6e27de552dad056d885f9ae446e1c24e041402e2ae2028e",
+  "source_sha256": {
+    "native/Package.swift": "06bcc895136a5b7693773005a43381e2f9b987904dd2e6e45e2d99c802e03434",
+    "native/Sources/MangekyouApp/MangekyouApp.swift": "82bce58eab34543cc5735625d5ae155f15fdccdb93b5e1251be83d42812bda04",
+    "native/Sources/MangekyouCore/DPNGDescriptor.swift": "dbc88afe01023f2c530fbe3de28423e33c6e5b45a336a51e9e4a908564d8f1ff",
+    "native/Sources/MangekyouCore/Inventory.swift": "3ec7bab6f1359f986a5d9fabd1e18611484663086fdb8f40e311744318f327cb",
+    "native/Sources/MangekyouCore/SafeDirectory.swift": "3dfcc344e51c948a1b08909a6df3b2412ecb44eb24e9a619ab1670b0c3bd6118",
+    "native/Sources/MangekyouInspect/main.swift": "8a3d06cea3f59b50867831be4f4349c3a913285bb5b65fd4b6153d1138043c19",
+    "native/Sources/MangekyouMedia/ResourceImage.swift": "447d6a2e0248849e617ea0669b92a712b2f4124ee2fd517bdc86ceb47601b69f",
+    "native/Tests/MangekyouCoreTests/ResourceTests.swift": "627e430007fef383cc0f4993fd912b4112b7e2aad967e4f919a1cd507be724ea"
+  },
+  "build": "verified",
+  "signature": "verified",
+  "native_tests": {
+    "status": "verified",
+    "passed": 13,
+    "failed": 0,
+    "skips_are_successes": false,
+    "scope": "Owned resource/safety fixtures; no original-engine oracle"
+  },
+  "game_inventory": {
+    "status": "verified",
+    "files": 56,
+    "bytes": 4051757601,
+    "P0_path_size_match": true,
+    "archive_versions": {
+      "FilePackVer3.1": 10
+    },
+    "declared_archive_entries": 10947,
+    "index_listing": "not_tested",
+    "scope": "Signatures and bounded footer metadata only"
+  },
+  "image_samples": {
+    "status": "verified",
+    "count": 10,
+    "by_format": {
+      "DPNG": 6,
+      "PNG": 4
+    },
+    "sha256_and_dimensions_match_P0": true,
+    "scope": "ImageIO decode and selected DPNG preview model only; no pixel/display equivalence"
+  },
+  "independent_gui_replay": "not_tested",
+  "full_game_compatibility": "not_tested",
+  "original_renderer_equivalence": "not_tested",
+  "interpreter": "unsupported",
+  "pack_payload_access": "unsupported",
+  "audio_playback": "unsupported",
+  "animation_playback": "unsupported",
+  "saves": "unsupported",
+  "original_files_written": false,
+  "external_game_data_uploads": false,
+  "commercial_assets_bundled": false,
+  "third_party_runtime_parsers_bundled": false
+}

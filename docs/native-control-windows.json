@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "status": "inferred",
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Reviewed control-return and caller windows, not full execution traces",
+  "windows": [
+    {
+      "name": "control-tail",
+      "start": "0x6bb94b",
+      "end_exclusive": "0x6bb997"
+    },
+    {
+      "name": "script-caller-head",
+      "start": "0x6aacf8",
+      "end_exclusive": "0x6aaf00"
+    },
+    {
+      "name": "block-init",
+      "start": "0x6c0db4",
+      "end_exclusive": "0x6c0df0"
+    }
+  ]
+}

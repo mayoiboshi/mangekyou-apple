@@ -1,0 +1,262 @@
+{
+  "schema_version": 1,
+  "source_sha256": "ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5",
+  "scope": "Selected table text encoding, locale comparison and ordinary-constructor initialization; no target execution",
+  "queries": [
+    {
+      "name": "encoding-select",
+      "operation": "procedure_pseudo_code",
+      "address": "0x4219a8"
+    },
+    {
+      "name": "encoding-select-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x4219a8"
+    },
+    {
+      "name": "prefix-check",
+      "operation": "procedure_pseudo_code",
+      "address": "0x42194c"
+    },
+    {
+      "name": "prefix-check-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x42194c"
+    },
+    {
+      "name": "string-decode",
+      "operation": "procedure_pseudo_code",
+      "address": "0x4224d0"
+    },
+    {
+      "name": "string-decode-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x4224d0"
+    },
+    {
+      "name": "char-decode",
+      "operation": "procedure_pseudo_code",
+      "address": "0x422208"
+    },
+    {
+      "name": "char-decode-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x422208"
+    },
+    {
+      "name": "default-encoding",
+      "operation": "procedure_pseudo_code",
+      "address": "0x42245c"
+    },
+    {
+      "name": "default-encoding-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x42245c"
+    },
+    {
+      "name": "unicode-singleton",
+      "operation": "procedure_pseudo_code",
+      "address": "0x422540"
+    },
+    {
+      "name": "unicode-singleton-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x422540"
+    },
+    {
+      "name": "be-singleton",
+      "operation": "procedure_pseudo_code",
+      "address": "0x421910"
+    },
+    {
+      "name": "be-singleton-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x421910"
+    },
+    {
+      "name": "utf8-singleton",
+      "operation": "procedure_pseudo_code",
+      "address": "0x42257c"
+    },
+    {
+      "name": "utf8-singleton-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x42257c"
+    },
+    {
+      "name": "mbcs-create",
+      "operation": "procedure_pseudo_code",
+      "address": "0x422678"
+    },
+    {
+      "name": "mbcs-create-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x422678"
+    },
+    {
+      "name": "utf8-create",
+      "operation": "procedure_pseudo_code",
+      "address": "0x422814"
+    },
+    {
+      "name": "utf8-create-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x422814"
+    },
+    {
+      "name": "unicode-create",
+      "operation": "procedure_pseudo_code",
+      "address": "0x422890"
+    },
+    {
+      "name": "unicode-create-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x422890"
+    },
+    {
+      "name": "mbcs-decode",
+      "operation": "procedure_pseudo_code",
+      "address": "0x422744"
+    },
+    {
+      "name": "mbcs-decode-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x422744"
+    },
+    {
+      "name": "compare-sensitive",
+      "operation": "procedure_pseudo_code",
+      "address": "0x414d5c"
+    },
+    {
+      "name": "compare-sensitive-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x414d5c"
+    },
+    {
+      "name": "compare-insensitive",
+      "operation": "procedure_pseudo_code",
+      "address": "0x414e28"
+    },
+    {
+      "name": "compare-insensitive-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x414e28"
+    },
+    {
+      "name": "string-list-create",
+      "operation": "procedure_pseudo_code",
+      "address": "0x43ef30"
+    },
+    {
+      "name": "string-list-create-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x43ef30"
+    },
+    {
+      "name": "fast-list-create",
+      "operation": "procedure_pseudo_code",
+      "address": "0x563784"
+    },
+    {
+      "name": "fast-list-create-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x563784"
+    },
+    {
+      "name": "constructor-allocation",
+      "operation": "procedure_pseudo_code",
+      "address": "0x405c2c"
+    },
+    {
+      "name": "constructor-allocation-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x405c2c"
+    },
+    {
+      "name": "new-instance",
+      "operation": "procedure_pseudo_code",
+      "address": "0x405690"
+    },
+    {
+      "name": "new-instance-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x405690"
+    },
+    {
+      "name": "init-instance",
+      "operation": "procedure_pseudo_code",
+      "address": "0x405704"
+    },
+    {
+      "name": "init-instance-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x405704"
+    },
+    {
+      "name": "fast-list-clear",
+      "operation": "procedure_pseudo_code",
+      "address": "0x563680"
+    },
+    {
+      "name": "fast-list-clear-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x563680"
+    },
+    {
+      "name": "compare-thunk",
+      "operation": "procedure_pseudo_code",
+      "address": "0x40c550"
+    },
+    {
+      "name": "compare-thunk-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x40c550"
+    },
+    {
+      "name": "decode-thunk",
+      "operation": "procedure_pseudo_code",
+      "address": "0x40c864"
+    },
+    {
+      "name": "decode-thunk-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x40c864"
+    },
+    {
+      "name": "cpinfo-thunk",
+      "operation": "procedure_pseudo_code",
+      "address": "0x40c658"
+    },
+    {
+      "name": "cpinfo-thunk-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x40c658"
+    },
+    {
+      "name": "post-constructor-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x405c84"
+    },
+    {
+      "name": "base-constructor-assembly",
+      "operation": "procedure_assembly",
+      "address": "0x4056c8"
+    },
+    {
+      "name": "unicode-preamble-owner",
+      "operation": "resolve_containing_procedure",
+      "address": "0x422924"
+    },
+    {
+      "name": "be-preamble-owner",
+      "operation": "resolve_containing_procedure",
+      "address": "0x4229bc"
+    },
+    {
+      "name": "utf8-preamble-owner",
+      "operation": "resolve_containing_procedure",
+      "address": "0x422860"
+    }
+  ]
+}
