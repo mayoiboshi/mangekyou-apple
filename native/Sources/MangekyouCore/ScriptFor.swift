@@ -44,10 +44,7 @@ struct ScriptForPlan: Sendable {
     func advance(_ storage: inout ScriptStorage) throws -> Bool {
         var working = storage
         if let name = updateName {
-            guard let value = try working.read(name).integer else { throw ResourceError.rejected("for_update_requires_integer") }
-            let next = value.addingReportingOverflow(updateDelta)
-            guard !next.overflow else { throw ResourceError.rejected("for_update_overflow_outside_profile") }
-            try working.write(name,.integer(next.partialValue))
+            try working.updateInteger(name,delta: updateDelta)
         } else if let update { _ = try evaluate(update,storage: &working) }
         let result = try test(working); storage = working; return result
     }

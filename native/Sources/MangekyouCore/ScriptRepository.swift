@@ -14,19 +14,27 @@ public struct ScriptModuleReference: Codable, Sendable, Equatable {
 
 public struct ScriptCatalogFile: Codable, Sendable {
     public let items: [ScriptModuleReference]
+    public var indexedResourceNames: [String]?
     public init(items: [ScriptModuleReference]) { self.items = items }
 }
 
 /// Host-supplied mapping. No PACK mount precedence is inferred from directory or filename order.
 public struct ScriptModuleCatalog: Sendable {
     public let entries: [ScriptModuleReference]
+    private var indexedResourceKeys: Set<Data>?
     private var groups: [Data: [ScriptModuleReference]] = [:]
     private var physical: [Data: ScriptModuleReference] = [:]
     private var selections: [Data: Data] = [:]
 
-    public init(entries: [ScriptModuleReference]) throws {
+    public init(entries: [ScriptModuleReference], indexedResourceNames: [String]? = nil) throws {
         guard (1...2000).contains(entries.count) else { throw ResourceError.rejected("module_catalog_count_limit") }
         self.entries = entries
+        if let indexedResourceNames {
+            guard (1...50_000).contains(indexedResourceNames.count) else {
+                throw ResourceError.rejected("resource_index_count_limit")
+            }
+            indexedResourceKeys = Set(try indexedResourceNames.map(Self.key))
+        }
         for entry in entries {
             _ = try SafeDirectory.components(entry.sourceFile)
             guard entry.sourceFile.utf8.count <= 4096,
@@ -69,6 +77,21 @@ public struct ScriptModuleCatalog: Sendable {
         (groups[try Self.key(logical)] ?? []).sorted { Data($0.sourceFile.utf8).lexicographicallyPrecedes(Data($1.sourceFile.utf8)) }
     }
 
+    func resourceExists(_ raw: String, currentSourceFile: String) throws -> Bool {
+        let logical = try resourcePath(raw,currentSourceFile: currentSourceFile)
+        if !(try variants(for: logical)).isEmpty { return true }
+        guard let indexedResourceKeys else { throw ResourceError.rejected("resource_existence_index_required") }
+        return indexedResourceKeys.contains(try Self.key(logical))
+    }
+
+    func requireResourceCopyIfIndexed(_ logical: String) throws {
+        let key = try Self.key(logical)
+        if indexedResourceKeys?.contains(key) == true {
+            FileHandle.standardError.write(Data("indexed_resource_key_sha256=\(key.sha256Hex)\n".utf8))
+            throw ResourceError.rejected("indexed_resource_copy_required")
+        }
+    }
+
     public func reference(forPhysical relative: String) -> ScriptModuleReference? { physical[Data(relative.utf8)] }
 
     /// Reviewed self-directory candidate, then the literal logical name. Configured
@@ -79,9 +102,33 @@ public struct ScriptModuleCatalog: Sendable {
         let parts = source.logicalPath.replacingOccurrences(of: "\\",with: "/").split(separator: "/")
         if parts.count > 1 {
             let relative = parts.dropLast().joined(separator: "/")+"/"+raw.replacingOccurrences(of: "\\",with: "/")
-            if !(try variants(for: relative)).isEmpty { return relative }
+            let key = try Self.key(relative)
+            if indexedResourceKeys?.contains(key) == true || groups[key] != nil { return relative }
         }
         return raw
+    }
+
+    func relativeResourcePath(_ raw: String, currentSourceFile: String) throws -> String {
+        guard let source = reference(forPhysical: currentSourceFile) else {
+            throw ResourceError.rejected("resource_current_module_not_in_catalog")
+        }
+        let path = raw.replacingOccurrences(of: "\\",with: "/")
+        guard !path.hasPrefix("/"), !path.contains(":"), path.utf8.count <= 4096 else {
+            throw ResourceError.rejected("invalid_relative_resource")
+        }
+        var parts = source.logicalPath.replacingOccurrences(of: "\\",with: "/").split(separator: "/").dropLast().map(String.init)
+        for part in path.split(separator: "/",omittingEmptySubsequences: false) {
+            if part == ".." {
+                guard !parts.isEmpty else { throw ResourceError.rejected("resource_path_escapes_catalog") }
+                parts.removeLast()
+            } else {
+                guard !part.isEmpty, part != "." else { throw ResourceError.rejected("invalid_relative_resource") }
+                parts.append(String(part))
+            }
+        }
+        let logical = parts.joined(separator: "/")
+        _ = try Self.key(logical)
+        return logical
     }
 
     public mutating func select(sourceFile: String) throws {
@@ -150,6 +197,7 @@ public struct ScriptRepository: Sendable {
 
     public mutating func readResource(_ logical: String) throws -> (ScriptModuleReference, Data) {
         pendingVariants = try catalog.variants(for: logical)
+        if pendingVariants.isEmpty { try catalog.requireResourceCopyIfIndexed(logical) }
         let entry = try catalog.resolve(logical), key = Data(entry.sourceFile.utf8)
         if let data = dataCache[key] { return (entry,data) }
         guard dataCache.count < maximumModules else { throw ResourceError.rejected("module_snapshot_budget") }

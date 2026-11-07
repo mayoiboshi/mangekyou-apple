@@ -20,10 +20,25 @@ public struct ScriptStringListSummary: Encodable, Sendable {
 
 /// Distinct from the table component: no comment filter or empty-marker conversion.
 struct ScriptStringList: Sendable {
+    private var rawLines: [String] = []
     private var firstValues: [Data: String] = [:]
     private var entries: [(String,String,ScriptLocation)] = []
     private(set) var summary: ScriptStringListSummary?
-    var lineCount: Int { summary?.lineCount ?? 0 }
+    var lineCount: Int { rawLines.count }
+    var generatedBytes = 0
+
+    mutating func append(_ text: String, at location: ScriptLocation) throws {
+        let bytes = text.utf8.count
+        guard rawLines.count < 10_000, bytes <= 8192,
+              !text.unicodeScalars.contains(where: { $0 == "\r" || $0 == "\n" || $0.value == 0 }) else {
+            throw ResourceError.rejected("list_append_line_outside_profile")
+        }
+        if let equal = text.firstIndex(of: "=") {
+            entries.append((String(text[..<equal]),String(text[text.index(after: equal)...]),location))
+        }
+        rawLines.append(text)
+        generatedBytes += bytes
+    }
     init() {}
 
     init(data: Data, relativePath: String) throws {
@@ -53,6 +68,7 @@ struct ScriptStringList: Sendable {
                     if firstValues[key] == nil { firstValues[key] = value }
                 }
             }
+            rawLines.append(text)
             lines.append(ScriptStringListLine(location: location,textSHA256: Data(text.utf8).sha256Hex,nameSHA256: nameSHA,valueSHA256: valueSHA,comparisonStatus: comparison))
         }
         while cursor < source.scalars.count {
@@ -70,6 +86,13 @@ struct ScriptStringList: Sendable {
             unresolvedNameCount: lines.filter { $0.comparisonStatus == .unsupported }.count,lines: lines)
     }
 
+    func line(at index: Int32) throws -> String {
+        guard index >= 0, Int(index) < rawLines.count else {
+            throw ResourceError.rejected("list_line_index_out_of_range")
+        }
+        return rawLines[Int(index)]
+    }
+
     func value(for name: String) throws -> String? {
         guard name.unicodeScalars.allSatisfy({ $0.value < 128 }) else { throw ResourceError.rejected("list_non_ascii_name_comparison_unverified") }
         let key = Data(asciiLower(name).utf8)
@@ -82,14 +105,51 @@ struct ScriptStringList: Sendable {
         return nil
     }
 
+    // The native helper at 0x4e281c counts brackets even with quote parsing off.
+    static func splitUnquoted(_ input: String, separator: Character, stripSpacing: Bool = false) -> [String] {
+        var fields: [String] = []
+        var depth = 0
+        var field = ""
+        let delimiter = separator.unicodeScalars.first
+        for scalar in input.unicodeScalars {
+            if stripSpacing, scalar == " " || scalar == "\t" || scalar.value == 0xa0 { continue }
+            switch scalar {
+            case "(", "[", "{": depth += 1
+            case ")", "]", "}": depth -= 1
+            default: break
+            }
+            if depth == 0, scalar == delimiter {
+                fields.append(field)
+                field = ""
+            } else {
+                field.unicodeScalars.append(scalar)
+            }
+        }
+        if !field.isEmpty { fields.append(field) }
+        return fields
+    }
+
     static func integerCache(_ value: String) throws -> Int32 {
         if let number = ScriptExpression.integerTextCache(value) { return number }
-        // The native list uses a different, 64-bit conversion helper with zero default.
-        // Do not silently reuse the table's numeric-default contract for a found value.
-        let trimmed = value.drop(while: { $0 == " " })
-        if let first = trimmed.first, "0123456789+-$xX".contains(first) {
+        // 0x408c34 rejects a non-NUL suffix, and 0x415b26 returns the
+        // supplied zero default. Successful conversions pass EAX to ResultInt.
+        guard !value.contains("\0") else {
             throw ResourceError.rejected("list_integer_cache_outside_reviewed_range")
         }
-        return 0
+        let trimmed = value.drop(while: { $0 == " " })
+        var digits = trimmed
+        let negative = digits.first == "-"
+        if negative || digits.first == "+" { digits = digits.dropFirst() }
+        if digits.hasPrefix("0x") || digits.hasPrefix("0X") {
+            digits = digits.dropFirst(2)
+        } else if let first = digits.first, "$xX".contains(first) {
+            digits = digits.dropFirst()
+        } else {
+            return Int64(trimmed).map { Int32(truncatingIfNeeded: $0) } ?? 0
+        }
+        guard let number = UInt64(digits, radix: 16), digits.utf8.allSatisfy({
+            (48...57).contains($0) || (65...70).contains($0) || (97...102).contains($0)
+        }) else { return 0 }
+        return Int32(truncatingIfNeeded: negative ? 0 &- number : number)
     }
 }

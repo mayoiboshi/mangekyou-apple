@@ -85,6 +85,12 @@ def worker(args):
                               and e.original_size<=MEMBER_LIMIT and e.compressed_size<=MEMBER_LIMIT]
                 if candidates:
                     selected.update([candidates[0].index,min(candidates,key=lambda e:e.original_size).index])
+            if args.member:
+                matches = [e.index for e in archive.entries if collision_key(e.name) == collision_key(args.member)]
+                if len(matches) != 1:
+                    raise ProbeError('named_member_missing_or_ambiguous')
+                selected = set(matches)
+                result['policy'] = 'single explicitly named research member'
             total=0;seen=set()
             for entry in archive.entries:
                 if entry.index not in selected:
@@ -124,6 +130,7 @@ def main():
     ap.add_argument('--output',type=Path,required=True)
     ap.add_argument('--report',type=Path)
     ap.add_argument('--archive',help=argparse.SUPPRESS)
+    ap.add_argument('--member',help='One exact member in an explicitly selected GameData archive')
     args=ap.parse_args()
     args.game_dir=absolute(args.game_dir);args.upstream_source=absolute(args.upstream_source);args.output=absolute(args.output)
     # Copies/reports must stay in ignored private/, with no overlap with original files.
@@ -134,6 +141,10 @@ def main():
             raise ProbeError('input/output overlap')
         for parent in [out]+list(out.parents):
             if parent.is_symlink():raise ProbeError('output symlink rejected')
+    if args.member:
+        safe_member_name(args.member)
+        if not args.archive or not args.archive.startswith('GameData/'):
+            ap.error('--member requires an explicit GameData archive')
     if args.archive:
         safe_member_name(args.archive)
         worker(args);return 0

@@ -15,7 +15,7 @@ let package = Package(
         .target(name: "MangekyouMedia", dependencies: ["MangekyouCore"]),
         .executableTarget(name: "MangekyouApp", dependencies: ["MangekyouCore", "MangekyouMedia"]),
         .executableTarget(name: "MangekyouInspect", dependencies: ["MangekyouCore", "MangekyouMedia"]),
-        .executableTarget(name: "MangekyouScript", dependencies: ["MangekyouCore"]),
+        .executableTarget(name: "MangekyouScript", dependencies: ["MangekyouCore", "MangekyouMedia"]),
         .testTarget(name: "MangekyouCoreTests", dependencies: ["MangekyouCore", "MangekyouMedia"])
     ]
 )

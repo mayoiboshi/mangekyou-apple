@@ -6,6 +6,7 @@ import json
 import io
 from pathlib import Path
 import struct
+import re
 import subprocess
 import sys
 
@@ -40,7 +41,7 @@ class Budget:
         return expected
 
 
-def inspect_container(data, upstream, budget=None, chain=None, depth=0):
+def inspect_container(data, upstream, budget=None, chain=None, depth=0, include_extended_values=False):
     budget=budget or Budget();chain=chain or []
     result=dict(status='unsupported',container_sha256=digest(data),container_chain=chain,
         signature=data[:16].split(b'\0',1)[0].decode('ascii','replace'),members=[],tags=[],
@@ -64,6 +65,18 @@ def inspect_container(data, upstream, budget=None, chain=None, depth=0):
             result['unknown_spans'].append(dict(offset=start,length=size,sha256=digest(data[start:self.offset]),
                 meaning='not_tested'))
     def resource_name(reader,tag):
+        if tag == 'absnddat12':
+            # Some containers end with several empty sound descriptors.
+            # Admit only a tail made entirely of this exact observed record shape.
+            empty = bytes.fromhex('01000000000000000100000000')
+            tag_bytes = b'absnddat12'.ljust(16,b'\0')
+            tail = data[reader.offset:]
+            if tail.startswith(empty):
+                rest = tail[len(empty):]
+                slot = tag_bytes+empty
+                if len(rest)%len(slot)==0 and rest==slot*(len(rest)//len(slot)):
+                    reader.skip(len(empty))
+                    return '',None,False
         if tag in {'abimgdat15','absnddat12'}:
             pos=reader.offset
             if pos+4>len(reader.data):raise ProbeError('short_resource_version')
@@ -83,6 +96,58 @@ def inspect_container(data, upstream, budget=None, chain=None, depth=0):
             compressed=raw.startswith(b'1PC\xff'),decoded_size=len(decoded),decoded_sha256=digest(decoded),
             format=signature(decoded),signature_status='verified',content_decode_status='not_tested')
         item['signature_hex']=decoded[:16].hex()
+        if inferred_name == 'data_000.bin' and decoded.startswith(b'\x06\x00NoName'):
+            prefixes = ('*rep[', '*value[')
+            item['extended_key_markers_absent'] = not any(
+                prefix.encode(encoding) in decoded.lower()
+                for prefix in prefixes for encoding in ('ascii','utf-16le'))
+            if include_extended_values and not item['extended_key_markers_absent']:
+                markers = list(re.finditer(rb'\*(?:rep|value)\[', decoded, re.I))
+                text_size = int.from_bytes(decoded[32:34], 'little')
+                text = decoded[34:34+text_size] if 34+text_size <= len(decoded) else b''
+                rows = list(re.finditer(rb'(?:^|\n)\*value\[(\d{1,2})\]=(-?\d{1,10})(?=\r?\n|\x00|$)', text, re.I))
+                values = {int(row[1]): int(row[2]) for row in rows}
+                if (len(rows) == len(markers) == len(values) and rows
+                    and all(0 <= slot < 32 and -(2**31) <= value < 2**31 for slot,value in values.items())
+                    and not any(prefix.encode('utf-16le') in decoded.lower() for prefix in prefixes)):
+                    item['extended_scalar_values'] = values
+            if include_extended_values and len(decoded) >= 34:
+                start = 34 + int.from_bytes(decoded[32:34], 'little')
+                tag = b'abmotion10' + bytes(6)
+                if start < len(decoded) and decoded[start+1:start+17] == tag:
+                    count = decoded[start]
+                    names = []
+                    for match in re.finditer(re.escape(tag), decoded[start+1:]):
+                        offset = start + 1 + match.end()
+                        size = int.from_bytes(decoded[offset:offset+2], 'little')
+                        if not 0 < size <= 256 or offset+2+size >= len(decoded):
+                            break
+                        try:
+                            names.append(decoded[offset+2:offset+2+size].decode('cp932'))
+                        except UnicodeDecodeError:
+                            break
+                    if 0 < count <= 128 and len(names) == count:
+                        item['motion_name_candidates'] = names
+
+
+
+        if include_extended_values and inferred_name == 'data_000.bin' and decoded.startswith(b'\x06\x00' + 'NoName'.encode('utf-16le')):
+            tag = b'abmotion11' + bytes(6)
+            if len(decoded) >= 57 and decoded[41:57] == tag:
+                count = decoded[40]
+                names = []
+                for match in re.finditer(re.escape(tag), decoded[41:]):
+                    offset = 41 + match.end()
+                    size = int.from_bytes(decoded[offset+4:offset+6], 'little') * 2
+                    if decoded[offset:offset+4] != b'\x01\x00\x00\x00' or not 0 < size <= 512 or offset+6+size >= len(decoded):
+                        break
+                    try:
+                        names.append(decoded[offset+6:offset+6+size].decode('utf-16le'))
+                    except UnicodeDecodeError:
+                        break
+                if 0 < count <= 128 and len(names) == count:
+                    item['motion_name_candidates'] = names
+
         try:safe_member_name(inferred_name);item['destination_name_status']='verified'
         except ProbeError:item['destination_name_status']='unsupported'  # Data only, never used as output path.
         if decoded.startswith(b'DPNG'):
@@ -131,6 +196,7 @@ def main():
     ap.add_argument('--samples',type=Path,default=ROOT/'private/real-p0/sample-report.json')
     ap.add_argument('--output',type=Path,default=ROOT/'reports/p1/abmp-report.json')
     ap.add_argument('--input',type=Path,help=argparse.SUPPRESS)
+    ap.add_argument('--private-extended-values',action='store_true',help=argparse.SUPPRESS)
     args=ap.parse_args()
     if args.input:
         import resource
@@ -138,7 +204,7 @@ def main():
         commit=validate_source(args.source)
         sys.dont_write_bytecode=True;sys.path.insert(0,str(absolute(args.source)))
         from qlie_unpacker import abmp
-        result=inspect_container(read_bounded(args.input,MAX_MEMBER),abmp)
+        result=inspect_container(read_bounded(args.input,MAX_MEMBER),abmp,include_extended_values=args.private_extended_values)
         result['upstream_commit']=commit
         print(json.dumps(result,ensure_ascii=False));return 0
     target=absolute(args.output)

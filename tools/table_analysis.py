@@ -33,7 +33,7 @@ def ascii_key(value):
     return value.lower()
 
 
-def table_text(data, relative):
+def table_text(data, relative, *, wide_keys=False):
     """Describe bytes and an explicitly inferred first-name lookup projection.
 
     No table object is created and no query is run. The projection restricts
@@ -55,7 +55,7 @@ def table_text(data, relative):
             raise ProbeError('table_line_character_limit')
         name, sep, value = body.partition('=')
         unsupported = '\r' in body or any(ord(c) < 32 and c != '\t' for c in body)
-        key = ascii_key(name) if sep and name and name.isascii() and not unsupported else None
+        key = name.translate(str.maketrans("ABCDEFGHIJKLMNOPQRSTUVWXYZ","abcdefghijklmnopqrstuvwxyz")) if sep and name and (wide_keys or name.isascii()) and not unsupported else None
         entry = (line, body, name, sep, value, key, unsupported)
         parsed.append(entry)
         if key is not None:
@@ -84,14 +84,14 @@ def table_text(data, relative):
             selected = first[key]
             selected_line, _, _, _, selected_value, _, _ = selected
             row.update(status='inferred', name_sha256=digest(name.encode('utf-8')),
-                ascii_name_sha256=digest(key.encode('ascii')),
+                ascii_name_sha256=digest(key.encode('utf-8')),
                 source_value_sha256=digest(value.encode('utf-8')),
                 selected_value_sha256=digest(selected_value.encode('utf-8')),
                 selected_line_reference=dict(selected_line['raw_bytes_reference'], source_file=relative),
                 duplicate_ascii_name=selected_line['line_number'] != line['line_number'],
                 outer_name_whitespace=name != name.strip(),
                 outer_value_whitespace=value != value.strip(),
-                scope='Hypothesis: first ASCII-insensitive name match, then filter and marker; no original execution')
+                scope='Hypothesis: first ordinal name match with ASCII case folding, then filter and marker; no original execution')
             if '//' in name or '//' in selected_value:
                 row['candidate_disposition'] = 'rejected_slash_candidate'
             elif selected_value == '%%none%%':

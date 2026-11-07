@@ -54,7 +54,7 @@ def compare_document(native,data,relative):
         scope='Agreement with independent project lexical model only; original grammar/execution not_tested'),document
 
 
-def validate_trace(machine,data,relative,document,source_lookup=None):
+def validate_trace(machine,data,relative,document,source_lookup=None, allow_trace_suffix=False):
     allowed={'status','phase','profile','evidenceStatus','originalEngineEquivalence','scope','errorPolicy',
         'scalarInitialization','steps','currentLocation','stopReason','callDepth','variableCounts','trace',
         'moduleSnapshotCount','moduleSnapshotBytes','inputSnapshotPolicy','sourceSnapshotCount','tableObjectCount',
@@ -62,14 +62,16 @@ def validate_trace(machine,data,relative,document,source_lookup=None):
         'listObjectCount','listLineCount','listSnapshots'}
     if set(machine)-allowed:raise ProbeError('native_machine_unapproved_public_fields')
     new_fields={'sourceSnapshotCount','tableObjectCount','tableEntryCount','tableSnapshots','tableAuxiliaryResultFlags','objectLifetime'}
-    table_profiles={'experimental_static_contracts_v3','experimental_static_contracts_v4','experimental_static_contracts_v5','experimental_static_contracts_v6'}
+    table_profiles={'experimental_static_contracts_v3','experimental_static_contracts_v4','experimental_static_contracts_v5','experimental_static_contracts_v6','experimental_static_contracts_v7','experimental_static_contracts_v8','experimental_static_contracts_v9','experimental_static_contracts_v10','experimental_static_contracts_v11','experimental_static_contracts_v12','experimental_static_contracts_v13','experimental_static_contracts_v14','experimental_static_contracts_v15','experimental_static_contracts_v16','experimental_static_contracts_v17','experimental_static_contracts_v18','experimental_static_contracts_v19','experimental_static_contracts_v20','experimental_static_contracts_v21','experimental_static_contracts_v22','experimental_static_contracts_v23','experimental_static_contracts_v24','experimental_static_contracts_v25','experimental_static_contracts_v26','experimental_static_contracts_v27','experimental_static_contracts_v28','experimental_static_contracts_v29','experimental_static_contracts_v30','experimental_static_contracts_v31','experimental_static_contracts_v32','experimental_static_contracts_v33','experimental_static_contracts_v34','experimental_static_contracts_v35','experimental_static_contracts_v36','experimental_static_contracts_v37','experimental_static_contracts_v38','experimental_static_contracts_v39','experimental_static_contracts_v40','experimental_static_contracts_v41'}
     if machine.get('profile') not in table_profiles and set(machine)&new_fields:
         raise ProbeError('native_table_fields_require_v3')
     if set(machine.get('variableCounts',{}))-{'system','global','all_local_frames'}:raise ProbeError('native_variable_names_in_summary')
     if machine.get('profile') not in {'experimental_static_contracts_v1','experimental_static_contracts_v2'}|table_profiles or machine.get('originalEngineEquivalence')!='not_tested':
         raise ProbeError('native_script_profile_or_equivalence')
     trace=machine['trace']
-    if not 0<=len(trace)<=100_000 or len(trace)!=machine.get('steps'):raise ProbeError('native_trace_count')
+    steps=machine.get('steps')
+    if type(steps) is not int or not 0<=len(trace)<=steps<=650_000 or (steps != len(trace) and (not allow_trace_suffix or not 1024<=len(trace)<2048)):
+        raise ProbeError('native_trace_count')
     references=[machine['currentLocation']] if machine.get('currentLocation') else []
     sources={relative:(data,document,{(r['byte_offset'],r['byte_length']):r for r in document['records']},sha(data))}
     def context(name):
@@ -80,7 +82,8 @@ def validate_trace(machine,data,relative,document,source_lookup=None):
             if len(content)+sum(len(v[0]) for v in sources.values())>128*1024*1024:raise ProbeError('native_trace_source_byte_limit')
             sources[name]=(content,doc,{(r['byte_offset'],r['byte_length']):r for r in doc['records']},sha(content))
         return sources[name]
-    for i,row in enumerate(trace):
+    skipped_locations=set()
+    for i,row in enumerate(trace, start=steps-len(trace)):
         if set(row)-{'sequence','location','recordType','command','commandSHA256','status','action','reason','target','callDepth','skipped','resultType','resource'}:
             raise ProbeError('native_trace_unapproved_public_fields')
         if row.get('sequence')!=i+1:raise ProbeError('native_trace_sequence')
@@ -106,6 +109,12 @@ def validate_trace(machine,data,relative,document,source_lookup=None):
             records=[r for r in skipped_document['records'] if a<=r['byte_offset'] and r['byte_offset']+r['byte_length']<=b]
             if len(records)!=skipped['recordCount'] or dict(Counter(r['record_type'] for r in records))!=skipped['recordTypes']:
                 raise ProbeError('native_skipped_span_accounting')
+            # Layout records inherit the following semantic record's line in Swift.
+            anchor=next((r for r in skipped_document['records']
+                         if r['byte_offset']>=a and 'line_number' in r),None)
+            if not records or records[0]['byte_offset']!=a or not anchor or anchor['line_number']!=ref['lineNumber']:
+                raise ProbeError('native_skipped_span_start')
+            skipped_locations.add((ref['sourceFile'],a,ref['byteLength'],ref['lineNumber']))
     snapshots=machine.get('tableSnapshots',[])
     if machine.get('profile') in table_profiles:
         if machine.get('tableAuxiliaryResultFlags')!='not_tested':raise ProbeError('native_table_auxiliary_overclaim')
@@ -125,7 +134,8 @@ def validate_trace(machine,data,relative,document,source_lookup=None):
         else:
             from table_analysis import table_text
         content,_,_,_=context(table['source']['sourceFile'])
-        expected=table_text(content,table['source']['sourceFile'])
+        expected=table_text(content,table['source']['sourceFile'],wide_keys=table['scope']==
+            'Candidate wide-key ordinal load with ASCII case folding; Windows NLS not emulated')
         if expected['status']=='unsupported' or len(expected['lines'])!=len(table['lines']):raise ProbeError('native_table_model_coverage')
         admitted={r['ascii_name_sha256']:r for r in expected['lines'] if r['candidate_disposition'] in {'value_candidate','empty_value_candidate','empty_marker_candidate'}}
         if table['entryCount']!=len(admitted) or table['emptyValueCount']!=sum(r['candidate_disposition'] in {'empty_value_candidate','empty_marker_candidate'} for r in admitted.values()):
@@ -148,10 +158,18 @@ def validate_trace(machine,data,relative,document,source_lookup=None):
                 if line.get(key) is not None and not re.fullmatch(r'[a-f0-9]{64}',line[key]):raise ProbeError('native_table_unapproved_value')
             if line['location']['sourceFile']!=table['source']['sourceFile']:raise ProbeError('native_table_line_source')
             references.append(line['location'])
-    if snapshots and machine.get('tableEntryCount')!=sum(t['entryCount'] for t in snapshots):raise ProbeError('native_table_entry_total')
+    loaded_entries = sum(t['entryCount'] for t in snapshots)
+    current_entries = machine.get('tableEntryCount')
+    overlaid = machine.get('profile') in {'experimental_static_contracts_v8','experimental_static_contracts_v9','experimental_static_contracts_v10','experimental_static_contracts_v11','experimental_static_contracts_v12','experimental_static_contracts_v13','experimental_static_contracts_v14','experimental_static_contracts_v15','experimental_static_contracts_v16','experimental_static_contracts_v17','experimental_static_contracts_v18','experimental_static_contracts_v19','experimental_static_contracts_v20','experimental_static_contracts_v21','experimental_static_contracts_v22','experimental_static_contracts_v23','experimental_static_contracts_v24','experimental_static_contracts_v25','experimental_static_contracts_v26','experimental_static_contracts_v27','experimental_static_contracts_v28','experimental_static_contracts_v29','experimental_static_contracts_v30','experimental_static_contracts_v31','experimental_static_contracts_v32','experimental_static_contracts_v33','experimental_static_contracts_v34','experimental_static_contracts_v35','experimental_static_contracts_v36','experimental_static_contracts_v37','experimental_static_contracts_v38','experimental_static_contracts_v39','experimental_static_contracts_v40','experimental_static_contracts_v41'} and any(
+        row.get('action') == 'table_overlay_nonempty_candidate' for row in machine['trace'])
+    if snapshots:
+        valid_total = (type(current_entries) is int and loaded_entries <= current_entries <= 100_000
+                       if overlaid else current_entries == loaded_entries)
+        if not valid_total:
+            raise ProbeError('native_table_entry_total')
     list_fields={'listObjectCount','listLineCount','listSnapshots'}
     list_line_locations=set()
-    list_profiles={'experimental_static_contracts_v5','experimental_static_contracts_v6'}
+    list_profiles={'experimental_static_contracts_v5','experimental_static_contracts_v6','experimental_static_contracts_v7','experimental_static_contracts_v8','experimental_static_contracts_v9','experimental_static_contracts_v10','experimental_static_contracts_v11','experimental_static_contracts_v12','experimental_static_contracts_v13','experimental_static_contracts_v14','experimental_static_contracts_v15','experimental_static_contracts_v16','experimental_static_contracts_v17','experimental_static_contracts_v18','experimental_static_contracts_v19','experimental_static_contracts_v20','experimental_static_contracts_v21','experimental_static_contracts_v22','experimental_static_contracts_v23','experimental_static_contracts_v24','experimental_static_contracts_v25','experimental_static_contracts_v26','experimental_static_contracts_v27','experimental_static_contracts_v28','experimental_static_contracts_v29','experimental_static_contracts_v30','experimental_static_contracts_v31','experimental_static_contracts_v32','experimental_static_contracts_v33','experimental_static_contracts_v34','experimental_static_contracts_v35','experimental_static_contracts_v36','experimental_static_contracts_v37','experimental_static_contracts_v38','experimental_static_contracts_v39','experimental_static_contracts_v40','experimental_static_contracts_v41'}
     if machine.get('profile') not in list_profiles and set(machine)&list_fields:
         raise ProbeError('native_list_fields_require_v5')
     if machine.get('profile') in list_profiles:
@@ -173,6 +191,11 @@ def validate_trace(machine,data,relative,document,source_lookup=None):
             if {k:v for k,v in observed.items() if k!='scope'}!=expected:raise ProbeError('native_list_model_mismatch')
             references.append(observed['source']);references.extend(r['location'] for r in observed['lines'])
             list_line_locations.update((r['location']['sourceFile'],r['location']['byteOffset'],r['location']['byteLength'],r['location']['lineNumber']) for r in expected['lines'])
+    binary_members = {
+        (ref['sourceFile'], ref['byteOffset'], ref['byteLength'], ref['rangeSHA256'])
+        for row in trace if row['action'] == 'button_container_image_bind_candidate'
+        for ref in [row['resource']] if ref
+    }
     for ref in references:
         if set(ref)!={'sourceFile','sourceSHA256','byteOffset','byteLength','rangeSHA256','lineNumber'}:raise ProbeError('native_location_unapproved_fields')
         a=ref['byteOffset'];length=ref['byteLength']
@@ -180,11 +203,16 @@ def validate_trace(machine,data,relative,document,source_lookup=None):
         if ref['sourceSHA256']!=identity or type(a) is not int or type(length) is not int or (
             a<0 or length<0 or a+length>len(source)) or sha(source[a:a+length])!=ref['rangeSHA256']:
             raise ProbeError('native_trace_byte_reference')
+        if (ref['sourceFile'],a,length,ref['rangeSHA256']) in binary_members:
+            if ref['lineNumber'] != 1 or not source.startswith(b'abmp12') or not source[a:a+length].startswith(b'\x89PNG\r\n\x1a\n'):
+                raise ProbeError('native_trace_binary_image_reference')
+            continue
         original=originals.get((a,length))
         list_line=(ref['sourceFile'],a,length,ref['lineNumber']) in list_line_locations
         if original and not list_line and 'line_number' in original and ref['lineNumber']!=original['line_number']:
             raise ProbeError('native_trace_line_number')
-        if not original:
+        whole_source = a == 0 and length == len(source) and ref['lineNumber'] == 1
+        if not original and not whole_source and (ref['sourceFile'],a,length,ref['lineNumber']) not in skipped_locations:
             codec,bom,_=codec_for(source)
             try:prefix=source[bom:a].decode(codec) if a>=bom else ''
             except UnicodeError:raise ProbeError('native_trace_partial_scalar_reference')

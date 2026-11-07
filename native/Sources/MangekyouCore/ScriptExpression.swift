@@ -50,8 +50,14 @@ public indirect enum ScriptExpression: Sendable {
             try expression.evaluate(read: read, write: write, readIndexed: readIndexed, writeIndexed: writeIndexed)
         }
         func indexValue(_ expression: ScriptExpression) throws -> Int32 {
-            guard let index = try evaluateChild(expression).integer else { throw ResourceError.rejected("index_requires_integer") }
-            return index
+            let value = try evaluateChild(expression)
+            switch value {
+            case .integer(let index): return index
+            case .string(let text):
+                if let index = Self.integerTextCache(text) { return index }
+            case .object: break
+            }
+            throw ResourceError.rejected("index_requires_integer")
         }
         switch self {
         case .literal(let raw): return .integer(try Self.integerLiteral(raw))
@@ -80,6 +86,25 @@ public indirect enum ScriptExpression: Sendable {
         case .binary(let op, let a, let b):
             // The reviewed logical path resolves both sides. Never use Swift short-circuit operators to evaluate operands.
             let av = try evaluateChild(a), bv = try evaluateChild(b)
+            if op == "+", case .string(let left) = av {
+                let right: String
+                switch bv {
+                case .string(let text): right = text
+                case .integer(let number): right = String(number)
+                case .object: throw ResourceError.rejected("unverified_string_or_object_operator")
+                }
+                guard left.utf8.count + right.utf8.count <= 8192 else {
+                    throw ResourceError.rejected("string_value_limit")
+                }
+                return .string(left + right)
+            }
+            if op == "==" || op == "!=", case .string(let left) = av, case .string(let right) = bv {
+                let equal = asciiLower(left).utf8.elementsEqual(asciiLower(right).utf8)
+                return .integer((op == "==" ? equal : !equal) ? 1 : 0)
+            }
+            if case .object(let left) = av, case .object(let right) = bv, op == "==" || op == "!=" {
+                return .integer((op == "==" ? left == right : left != right) ? 1 : 0)
+            }
             guard let left = av.integer, let right = bv.integer else { throw ResourceError.rejected("unverified_string_or_object_operator") }
             let value: Int32
             switch op {
