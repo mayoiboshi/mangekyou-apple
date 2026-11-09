@@ -3,6 +3,32 @@ import Foundation
 @testable import MangekyouCore
 
 final class ScriptTests: XCTestCase {
+    func testTimedImageOpacityUsesQuantizedProgress() {
+        var image = ScriptStorage.ImageObject()
+        image.immediateOpacity = 0
+        image.opacityEndpoint = (255, 500, 500, 0)
+        XCTAssertEqual(image.presentedOpacity, 0)
+        image.opacityEndpoint?.remaining = 250
+        XCTAssertEqual(image.presentedOpacity, 128)
+        image.opacityEndpoint?.remaining = 0
+        XCTAssertEqual(image.presentedOpacity, 255)
+    }
+
+    func testTimedImageOpacityRepeatsOnlyAfterEndpoint() {
+        var image = ScriptStorage.ImageObject()
+        image.immediateOpacity = 0
+        image.opacityEndpoint = (255, 500, 500, 1)
+        image.advanceOpacity(ticks: 500)
+        XCTAssertEqual(image.presentedOpacity, 255)
+        XCTAssertEqual(image.opacityEndpoint?.repeats, 1)
+        image.advanceOpacity(ticks: 1)
+        XCTAssertEqual(image.presentedOpacity, 1)
+        XCTAssertEqual(image.opacityEndpoint?.repeats, 0)
+        image.advanceOpacity(ticks: 499)
+        XCTAssertNil(image.opacityEndpoint)
+        XCTAssertEqual(image.presentedOpacity, 255)
+    }
+
     func document(_ text: String) throws -> ScriptDocument {
         try ScriptDocument(data: Data([0xef,0xbb,0xbf]) + Data(text.utf8),relativePath: "owned/scene.s")
     }
@@ -103,17 +129,21 @@ final class ScriptTests: XCTestCase {
         for text in ["","x++","++x","a[0][0]","a.b","fn(1)","x=(y=1)","(x=1)+x","^1"] {
             XCTAssertThrowsError(try ScriptExpression.parse(text),text)
         }
-        for text in ["2147483647+1","1/0","-2147483648/-1","\"a\"+\"b\"","1<<2","1.5"] {
+        for text in ["2147483647+1","1/0","-2147483648/-1","1.5"] {
             XCTAssertThrowsError(try value(text),text)
         }
+        XCTAssertEqual(try value("\"a\"+\"b\""), .string("ab"))
         XCTAssertThrowsError(try ScriptExpression.parse(Array(repeating: "1",count: 100).joined(separator: "+")))
+    }
+    func testLeftShiftUsesX86CountMask() throws {
+        XCTAssertEqual(try value("1<<34"), .integer(4))
     }
     func testAssignmentReturnsOneAndNeedsAnExistingTypedScalar() throws {
         let machine = try run("\\var,int,count\n\\cal,count=7")
         XCTAssertEqual(try machine.value(named: "COUNT"),.integer(7)); XCTAssertEqual(machine.lastResult,.integer(1))
         XCTAssertEqual(try run("\\cal,count=7").stopReason,"assignment_target_not_declared")
         let mismatch = try run("\\var,int,count\n\\cal,count=\"private content\"")
-        XCTAssertEqual(mismatch.phase,.stopped); XCTAssertEqual(try mismatch.value(named: "count"),.integer(0))
+        XCTAssertEqual(mismatch.phase,.finished); XCTAssertEqual(try mismatch.value(named: "count"),.integer(0))
     }
     func testRedeclarationKeepsExistingVisibleBindingAndCategory() throws {
         let machine = try run("\\svar,int,x\n\\cal,x=1\n\\gvar,int,x\n\\cal,x=2\n\\var,int,x\n\\cal,x=3")

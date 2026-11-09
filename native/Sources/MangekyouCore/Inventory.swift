@@ -100,8 +100,10 @@ public struct InventoryScanner: Sendable {
 
     public static func signature(_ data: Data) -> String {
         if data.starts(with: [0x89,0x50,0x4e,0x47,0x0d,0x0a,0x1a,0x0a]) { return "PNG" }
+        if data.starts(with: Array("ARGBSaveData1".utf8)) { return "ARGB" }
         if data.starts(with: Array("DPNG".utf8)) { return "DPNG" }
         if data.starts(with: [0xff,0xd8,0xff]) { return "JPEG" }
+        if data.count >= 14, data.starts(with: [0x42,0x4d]) { return "BMP" }
         if data.starts(with: Array("OggS".utf8)) { return "Ogg" }
         if data.starts(with: Array("RIFF".utf8)), data.count >= 12,
             data.subdata(in: 8..<12) == Data("WAVE".utf8) { return "WAV" }

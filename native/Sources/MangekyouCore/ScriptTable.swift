@@ -31,7 +31,7 @@ public struct ScriptTable: Sendable {
     private var values: [Data: String] = [:]
     public private(set) var summary: ScriptTableSummary?
     public var count: Int { values.count }
-    var storedBytes: Int { values.reduce(0) { $0 + $1.key.count + $1.value.utf8.count } }
+    private(set) var storedBytes = 0
 
     mutating func overlayNonemptyValues(from source: ScriptTable) throws {
         for key in source.orderedKeys {
@@ -56,11 +56,13 @@ public struct ScriptTable: Sendable {
     }
 
     private mutating func store(_ value: String, key: Data, spelling: String) {
-        if values[key] == nil {
+        if let previous = values.updateValue(value, forKey: key) {
+            storedBytes += value.utf8.count - previous.utf8.count
+        } else {
             orderedKeys.append(key)
             keySpellings[key] = spelling
+            storedBytes += key.count + value.utf8.count
         }
-        values[key] = value
     }
 
     func replacingLiteralKeys(in input: String) throws -> String {
@@ -113,6 +115,7 @@ public struct ScriptTable: Sendable {
 
     mutating func clear() {
         values.removeAll()
+        storedBytes = 0
         orderedKeys.removeAll()
         keySpellings.removeAll()
         summary = nil

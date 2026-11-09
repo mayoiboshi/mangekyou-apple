@@ -24,8 +24,9 @@ else:
         safe_member_name, safe_open, write_json, signature)
     from upstream_worker import validate_source
 
-MEMBER_LIMIT = 16 * 1024 * 1024
+MEMBER_LIMIT = 32 * 1024 * 1024
 TOTAL_LIMIT = 128 * 1024 * 1024
+LARGE_MOVIE_LIMIT = 192 * 1024 * 1024
 
 
 def copy_exclusive(root, name, data):
@@ -91,6 +92,8 @@ def worker(args):
                     raise ProbeError('named_member_missing_or_ambiguous')
                 selected = set(matches)
                 result['policy'] = 'single explicitly named research member'
+            member_limit = LARGE_MOVIE_LIMIT if args.large_movie else MEMBER_LIMIT
+            total_limit = LARGE_MOVIE_LIMIT if args.large_movie else TOTAL_LIMIT
             total=0;seen=set()
             for entry in archive.entries:
                 if entry.index not in selected:
@@ -103,10 +106,12 @@ def worker(args):
                     folded=collision_key(entry.name)
                     if folded in seen:raise ProbeError('case_unicode_collision')
                     seen.add(folded)
-                    if (entry.original_size>MEMBER_LIMIT or entry.compressed_size>MEMBER_LIMIT
-                        or total+entry.original_size>TOTAL_LIMIT):raise ProbeError('sample_size_limit')
+                    if (entry.original_size>member_limit or entry.compressed_size>member_limit
+                        or total+entry.original_size>total_limit):raise ProbeError('sample_size_limit')
                     if entry.offset+entry.compressed_size>meta['table_offset']:raise ProbeError('index_overlap')
                     payload=extractor._decode_entry(archive,data,entry,key,b'')
+                    if args.large_movie and not payload.startswith(b'OggS'):
+                        raise ProbeError('large_movie_signature_mismatch')
                     total+=len(payload)
                     relative=Path(args.archive).name+'/'+normalized
                     copy_exclusive(args.output,relative,payload)
@@ -131,7 +136,10 @@ def main():
     ap.add_argument('--report',type=Path)
     ap.add_argument('--archive',help=argparse.SUPPRESS)
     ap.add_argument('--member',help='One exact member in an explicitly selected GameData archive')
+    ap.add_argument('--large-movie', action='store_true', help='Allow one explicitly named Ogg movie up to 192 MiB')
     args=ap.parse_args()
+    if args.large_movie and (not args.member or not args.member.lower().endswith('.ogv')):
+        ap.error('--large-movie requires a single explicit .ogv member')
     args.game_dir=absolute(args.game_dir);args.upstream_source=absolute(args.upstream_source);args.output=absolute(args.output)
     # Copies/reports must stay in ignored private/, with no overlap with original files.
     private=ROOT/'private'

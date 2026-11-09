@@ -57,7 +57,7 @@ final class ListTests: XCTestCase {
             XCTAssertEqual(m.phase,.finished); XCTAssertEqual(try m.value(named: "ResultInt"),.integer(Int32(expected)))
         }
         let m = try run("\\var,list,x\n\\scp,x\n\\l,\"owned.txt\"\n\\?v,\"number\",7",files: [("owned.txt",utf8("number=4294967295\n"))])
-        XCTAssertEqual(m.stopReason,"list_integer_cache_outside_reviewed_range"); XCTAssertThrowsError(try m.value(named: "ResultInt"))
+        XCTAssertEqual(m.phase,.finished); XCTAssertEqual(try m.value(named: "ResultInt"),.integer(-1))
     }
     func testMixedScopeRetainsDistinctListAndTableAdmission() throws {
         let m = try run("\\var,table,t\n\\var,list,x\n\\scp,t,x\n\\l,\"owned.txt\"\n\\?v,\"key\",7",files: [("owned.txt",utf8("key=first//owned\n"))])

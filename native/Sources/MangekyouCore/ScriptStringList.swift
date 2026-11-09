@@ -39,6 +39,27 @@ struct ScriptStringList: Sendable {
         rawLines.append(text)
         generatedBytes += bytes
     }
+    mutating func setValue(_ value: String, for name: String, at location: ScriptLocation) throws {
+        guard !name.isEmpty, !name.contains("="), name.unicodeScalars.allSatisfy(\.isASCII) else {
+            throw ResourceError.rejected("list_write_name_outside_profile")
+        }
+        let text = name + "=" + value
+        guard text.utf8.count <= 8192,
+              !text.unicodeScalars.contains(where: { $0 == "\r" || $0 == "\n" || $0.value == 0 }) else {
+            throw ResourceError.rejected("list_write_line_outside_profile")
+        }
+        let key = asciiLower(name)
+        if let index = rawLines.firstIndex(where: { line in
+            line.firstIndex(of: "=").map { asciiLower(String(line[..<$0])) == key } ?? false
+        }), let entry = entries.firstIndex(where: { asciiLower($0.0) == key }) {
+            generatedBytes += max(0, text.utf8.count - rawLines[index].utf8.count)
+            rawLines[index] = text
+            entries[entry] = (name, value, location)
+        } else {
+            try append(text, at: location)
+        }
+    }
+
     init() {}
 
     init(data: Data, relativePath: String) throws {

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Run the native CLI to its next real stop, with an explicit experimental source cohort."""
 import argparse
-from collections import Counter
+from collections import Counter, defaultdict
 import hashlib
 import json
 from pathlib import Path
@@ -16,6 +16,38 @@ from control_state_analysis import processing_deadline
 def sha(data):return hashlib.sha256(data).hexdigest()
 
 
+def resource_index_preflight(archive_report):
+    archives = {row['path']: row for row in archive_report['items']}
+    names = []
+    candidates = defaultdict(list)
+    extensions = Counter()
+    ascii_lower = str.maketrans('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')
+    for number in range(9):
+        path = f'GameData/data{number}.pack'
+        archive = archives.get(path)
+        if not archive or archive.get('index_status') != 'verified':
+            raise ProbeError('cli_resource_index_unverified:' + path)
+        rows = archive['index']['entries']
+        if len(rows) != archive['declared_entry_count']:
+            raise ProbeError('cli_resource_index_incomplete:' + path)
+        for row in rows:
+            name = safe_member_name(row['name'].replace(chr(92), '/'))
+            key = name.translate(ascii_lower)
+            names.append(name)
+            candidates[key].append(dict(archive=path, name=name))
+            extensions[Path(key).suffix or '(none)'] += 1
+    if not 1 <= len(names) <= 50_000:
+        raise ProbeError('cli_resource_index_count_limit')
+    return names, dict(
+        status='verified', scope='Archive index metadata only',
+        member_count=len(names), logical_name_count=len(candidates),
+        extension_counts=dict(extensions),
+        ambiguous_names={key: rows for key, rows in candidates.items() if len(rows) > 1},
+        payload_read_status='not_tested', decode_status='not_tested',
+        archive_precedence_status='not_tested',
+    )
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--assets-dir',required=True,type=Path);p.add_argument('--script',default='data0.pack/startup.s')
@@ -25,26 +57,52 @@ def main():
     p.add_argument('--click-ticks',type=int)
     p.add_argument('--dispatch-stop-callback',action='store_true')
     p.add_argument('--message-click',action='store_true')
-    p.add_argument('--message-clicks',type=int,choices=range(1,97))
+    p.add_argument('--message-clicks',type=int,choices=range(1,24001))
     p.add_argument('--button-index',type=int)
+    p.add_argument('--story-choice',type=int,choices=range(6),action='append',default=[])
+    p.add_argument('--verify-route-return',action='store_true',
+                   help='Open and cancel the title load menu, then require every supplied choice and a return to title')
+    p.add_argument('--load-task-capture',type=Path)
+    p.add_argument('--save-dir',type=Path,help='Read-only save directory for the route load-menu replay')
+    p.add_argument('--load-task-page',type=int,action='append',default=[])
+    p.add_argument('--scene-preview-background',help='Local resource path for strict final-frame compositing')
+    p.add_argument('--replay-dir',type=Path,help='Reuse a private combined catalog, image recipe and resource receipts')
     p.add_argument('--pointer',help='Explicit input sample X,Y for the stop callback')
     p.add_argument('--movie-source')
+    p.add_argument('--large-movie-source', help='One pinned local Ogg movie up to 192 MiB')
     p.add_argument('--audio-source',action='append',default=[])
     p.add_argument('--wave-source',action='append',default=[])
     p.add_argument('--headless-movie-tools',type=Path)
     p.add_argument('--image-source',action='append',default=[])
     p.add_argument('--image-audit',type=Path,action='append',default=[])
     p.add_argument('--plain-image-source',action='append',default=[])
+    p.add_argument('--resource-provider',type=Path,help='Explicit local single-resource supplier')
     p.add_argument('--resource-index',type=Path)
+    p.add_argument('--resource-cache',type=Path,help='Reuse local provider receipts with runtime digest checks')
     p.add_argument('--selection-seed',type=Path,help='Reuse pinned choices from a previous same-cohort report')
     report_mode=p.add_mutually_exclusive_group()
     report_mode.add_argument('--private-report',action='store_true',help='Keep the summary alongside the private trace (default)')
     report_mode.add_argument('--publish-summary',action='store_true',help='Write a reviewed milestone summary under reports/p1')
     p.add_argument('--full-trace',action='store_true',help='Retain and validate every execution record')
     p.add_argument('--stage',default='round29');a=p.parse_args()
+    if a.scene_preview_background and a.publish_summary:
+        p.error('--scene-preview-background requires private output')
+    scene_background = safe_member_name(a.scene_preview_background) if a.scene_preview_background else None
+    if a.verify_route_return:
+        if not a.load_task_capture or not a.story_choice or a.publish_summary:
+            p.error('--verify-route-return requires a local capture, story choices and private output')
+    elif a.load_task_capture or a.load_task_page or a.replay_dir or a.save_dir:
+        p.error('load-task options require --verify-route-return')
+    if a.replay_dir and any((a.selection_seed, a.resource_index, a.image_source, a.image_audit,
+                             a.plain_image_source, a.audio_source, a.wave_source, a.movie_source,
+                             a.large_movie_source, a.resource_provider, a.resource_cache)):
+        p.error('--replay-dir cannot be combined with options that build or supply resources')
     if not re.fullmatch(r'data(?:[0-9]|[12][0-9]|3[01])',a.source_cohort) or not re.fullmatch(r'round[1-9][0-9]*',a.stage):raise ProbeError('cli_progress_invalid_cohort_or_stage')
     assets=absolute(a.assets_dir);script=safe_member_name(a.script);private=ROOT/'private'/('p1-'+a.stage)/('cli-progress-'+a.source_cohort)
     if assets==private or assets in private.parents or private in assets.parents:raise ProbeError('cli_progress_input_output_overlap')
+    save_directory = absolute(a.save_dir) if a.save_dir else None
+    if save_directory and (save_directory == private or save_directory in private.parents or private in save_directory.parents):
+        raise ProbeError('cli_progress_save_output_overlap')
     private.mkdir(parents=True,exist_ok=True)
     compiled_sources=[ROOT/'native/Package.swift',*sorted((ROOT/'native/Sources').rglob('*.swift'))]
     sources={s.relative_to(ROOT).as_posix():sha(read_bounded(s)) for s in compiled_sources}
@@ -62,7 +120,7 @@ def main():
         name=safe_member_name(name)
         if not re.fullmatch(r'data[0-9]+\.pack/.+',name) or not name.endswith(suffix) or name in index:
             raise ProbeError('cli_image_source_identity')
-        content=read_bounded(assets/name,16*1024*1024)
+        content=read_bounded(assets/name,(32 if name.endswith(".b") else 16)*1024*1024)
         entry=dict(source_file=name,logical_path=name.split('/',1)[1],sha256=sha(content))
         index[name]=entry;extra_entries.append(entry);image_sources.add(name)
         return content
@@ -85,11 +143,22 @@ def main():
                 if sha(content[start:start+length])!=ref['sha256']:raise ProbeError('cli_image_member_identity')
                 if member.get('nested'):
                     collect(member['nested'],start,length,ref['sha256'],depth+1)
-                elif member.get('format') in {'PNG','JPEG'} and member.get('content_decode_status')=='verified':
-                    recipes.append(dict(container_sha256=root_sha,offset=start,length=length,sha256=ref['sha256'],name=member['name']))
+                elif member.get('imoavi_status') == 'verified':
+                    recipes.append(dict(container_sha256=root_sha,offset=start,length=length,sha256=ref['sha256'],
+                                        format='IMOAVI',width=member['width'],height=member['height']))
+                elif (member.get('format') in {'PNG','JPEG','BMP'} and member.get('content_decode_status')=='verified'
+                      or member.get('format')=='DPNG' and member.get('dpng', {}).get('metadata_status')=='verified'
+                      or member.get('format')=='Ogg' and member['name'].lower().endswith('.ogv')):
+                    recipes.append(dict(container_sha256=root_sha,offset=start,length=length,sha256=ref['sha256'],name=member['name'],format=member['format']))
+                    if depth == 0 and 'image_slot' in member:
+                        recipes[-1]['image_slot'] = member['image_slot']
+                        if member.get('width') and member.get('height'):
+                            recipes[-1].update(width=member['width'], height=member['height'])
+                        anchor = member.get('image_anchor_offset_inputs', {})
+                        if 'raw_words' in anchor:
+                            recipes[-1]['image_anchor_words'] = anchor['raw_words']
                     if len(recipes)>128:raise ProbeError('cli_image_recipe_limit')
         before=len(recipes);collect(audit,0,len(content),root_sha,0)
-        if len(recipes)==before:raise ProbeError('cli_image_members_missing')
         metadata=[m for m in audit['members'] if m.get('name')=='data_000.bin']
         if len(metadata)==1 and (metadata[0].get('extended_key_markers_absent') is True
             or 'extended_scalar_values' in metadata[0] or 'motion_name_candidates' in metadata[0]):
@@ -97,10 +166,54 @@ def main():
             if (ref['container_sha256']!=root_sha or not 0<=start<start+length<=len(content)
                 or sha(content[start:start+length])!=ref['sha256']):
                 raise ProbeError('cli_image_metadata_identity')
-            if metadata[0].get('extended_key_markers_absent') is True or 'extended_scalar_values' in metadata[0]:
+            if len(recipes) == before and len(audit['members']) == 1 and metadata[0].get('motion_name_candidates'):
+                recipes.append(dict(container_sha256=root_sha, offset=start, length=length,
+                                    sha256=ref['sha256'], format='MotionOnly'))
+            if len(recipes) > before and (metadata[0].get('extended_key_markers_absent') is True or 'extended_scalar_values' in metadata[0]):
                 recipes[before]['extended_scalar_values']=metadata[0].get('extended_scalar_values',{})
-            if 'motion_name_candidates' in metadata[0]:
+            if len(recipes) > before and 'motion_name_candidates' in metadata[0]:
                 recipes[before]['motion_name_candidates']=metadata[0]['motion_name_candidates']
+                if 'motion_canvas_inputs' in metadata[0]:
+                    recipes[before]['motion_canvas_inputs'] = metadata[0]['motion_canvas_inputs']
+                motion_types = {
+                    motion['motion_index']: sorted({
+                        key['type'] for layer in motion['layers'] for key in layer['key_image_fields']
+                    })
+                    for motion in metadata[0].get('motion_layer_layout_candidates', [])
+                    if motion['layers'] and all(layer.get('key_image_fields') for layer in motion['layers'])
+                }
+                if motion_types:
+                    recipes[before]['motion_key_types'] = motion_types
+                timelines = {}
+                for motion in metadata[0].get('motion_layer_layout_candidates', []):
+                    layers = motion['layers']
+                    if not layers or not all(layer.get('key_time_values') and
+                            len(layer['key_time_values']) == len(layer.get('key_image_fields', [])) for layer in layers):
+                        continue
+                    timelines[motion['motion_index']] = [
+                        [dict(time=time, type=key['type'], offset=key['offset'],
+                              texture_numbers=key['numbers'], source_areas=key.get('source_areas'),
+                              blend=key.get('blend'), sampling=key.get('sampling'),
+                              type11_color_inputs=key.get('type11_color_inputs'),
+                              type1_color_inputs=key.get('type1_color_inputs'),
+                              transform_fields=key.get('converted_transform_fields'),
+                              anchor_ratio_inputs=key.get('anchor_ratio_inputs'),
+                              literal_opacity_input=key.get('literal_opacity_input'),
+                              opacity_mode_input=key.get('opacity_mode_input'),
+                              position_mode_input=key.get('position_mode_input'),
+                              time_control_inputs=key.get('time_control_inputs'),
+                              position_strength_input=key.get('position_strength_input'))
+                         for time, key in zip(layer['key_time_values'], layer['key_image_fields'])]
+                        for layer in layers
+                    ]
+                if timelines:
+                    recipes[before]['motion_timelines'] = timelines
+                non_drawing = [index for index, types in motion_types.items() if types == [0]]
+                if non_drawing:
+                    recipes[before]['non_drawing_motion_indices'] = non_drawing
+
+
+        if len(recipes) == before:raise ProbeError('cli_image_members_missing')
 
     if recipes:
         recipe_path=private/'image-recipe.json'
@@ -113,6 +226,18 @@ def main():
         entry=dict(source_file=movie_source,logical_path=movie_source.split('/',1)[1],sha256=sha(content))
         index[movie_source]=entry
         extra_entries.append(entry)
+    large_movie_source = safe_member_name(a.large_movie_source) if a.large_movie_source else None
+    if large_movie_source:
+        if not re.fullmatch(r'data[0-8]\.pack/.+\.ogv', large_movie_source) or large_movie_source in index:
+            raise ProbeError('cli_large_movie_source_identity')
+        content = read_bounded(assets/large_movie_source, 192*1024*1024)
+        if not content.startswith(b'OggS'):
+            raise ProbeError('cli_large_movie_source_signature')
+        entry = dict(source_file=large_movie_source, logical_path=large_movie_source.split('/',1)[1], sha256=sha(content))
+        index[large_movie_source] = entry
+        extra_entries.append(entry)
+        del content
+    trace_byte_limit = (128 + (192 if large_movie_source else 0))*1024*1024
     if len(a.audio_source)>128:raise ProbeError('cli_audio_source_limit')
     audio_sources=[]
     for raw_source in a.audio_source:
@@ -131,28 +256,49 @@ def main():
     resource_names=None
     if a.resource_index:
         raw_index=read_bounded(absolute(a.resource_index),8*1024*1024)
-        index_sha=sha(raw_index);archive_report=json.loads(raw_index)
-        archives={r['path']:r for r in archive_report['items']}
-        resource_names=[]
-        for number in range(9):
-            archive=archives[f'GameData/data{number}.pack']
-            rows=archive['index']['entries']
-            if archive['index_status']!='verified' or len(rows)!=archive['declared_entry_count']:
-                raise ProbeError('cli_resource_index_incomplete')
-            resource_names.extend(safe_member_name(r['name'].replace(chr(92),'/')) for r in rows)
+        index_sha=sha(raw_index)
+        resource_names, preflight = resource_index_preflight(json.loads(raw_index))
+        write_json(private/'resource-preflight.json', dict(index_sha256=index_sha, **preflight))
     if extra_entries or resource_names is not None:
         manifest=private/'combined-catalog.json'
         write_json(manifest,dict(items=[*items,*extra_entries],indexedResourceNames=resource_names))
         manifest_bytes=read_bounded(manifest)
+    receipts = None
+    if a.replay_dir:
+        replay = absolute(a.replay_dir)
+        manifest = replay / 'combined-catalog.json'
+        manifest_bytes = read_bounded(manifest, 32*1024*1024)
+        recipe_path = replay / 'image-recipe.json'
+        receipts = replay / 'summary.json'
+        pinned = json.loads(read_bounded(receipts, 8*1024*1024))
+        if pinned.get('source_cohort') != a.source_cohort:
+            raise ProbeError('cli_progress_seed_cohort_mismatch')
+        items = json.loads(manifest_bytes)['items']
+        index = {entry['source_file']: entry for entry in items}
+        if len(index) != len(items) or not 1 <= len(items) <= 2000 or script not in index:
+            raise ProbeError('cli_progress_catalog_identity')
+        for field, destination in (('image_resources', image_sources), ('audio_resources', audio_sources)):
+            for entry in pinned.get(field, []):
+                name = safe_member_name(entry['source_file'])
+                if name in index and index[name]['sha256'] != entry['sha256']:
+                    raise ProbeError('cli_resource_receipt_identity')
+                index[name] = entry
+                if field == 'image_resources':
+                    destination.add(name)
+                else:
+                    destination.append(name)
     cache={};total=0
     def lookup(name):
         nonlocal total
         name=safe_member_name(name)
         if name not in index:raise ProbeError('cli_progress_source_not_in_catalog')
         if name not in cache:
-            data=read_bounded(assets/name,16*1024*1024);total+=len(data)
-            if total>128*1024*1024 or sha(data)!=index[name]['sha256']:raise ProbeError('cli_progress_source_identity_or_budget')
-            if name in image_sources or name == movie_source or name in audio_sources:document={'records':[]}
+            limit = 192 if name == large_movie_source else (32 if name.endswith(".b") else 16)
+            data=read_bounded(assets/name,limit*1024*1024);total+=len(data)
+            if total>trace_byte_limit:raise ProbeError('cli_progress_trace_cache_byte_limit')
+            if sha(data)!=index[name]['sha256']:raise ProbeError('cli_progress_trace_copy_identity')
+            is_wave = name.lower().endswith('.wav') and data[:4] == b'RIFF' and data[8:12] == b'WAVE'
+            if name in image_sources or name in (movie_source,large_movie_source) or name in audio_sources or is_wave:document={'records':[]}
             else:_,document=fingerprints(data,name)
             cache[name]=(data,document)
         return cache[name]
@@ -160,8 +306,8 @@ def main():
     config_sha=sha(read_bounded(config_path,1024*1024)) if config_path else None
     root,root_doc=lookup(script);selected=[];attempts=[];final=None
     seed_sha=None
-    if a.selection_seed:
-        seed_bytes=read_bounded(absolute(a.selection_seed),4*1024*1024)
+    if a.selection_seed or receipts:
+        seed_bytes=read_bounded(receipts or absolute(a.selection_seed),8*1024*1024)
         seed_sha=sha(seed_bytes);seed=json.loads(seed_bytes)
         if seed.get('source_cohort')!=a.source_cohort:
             raise ProbeError('cli_progress_seed_cohort_mismatch')
@@ -174,8 +320,21 @@ def main():
     for attempt in range(129-len(selected)):
         command=[str(binary),'--assets-dir',str(assets),'--script',script,'--experimental-run','--maximum-steps',str(a.maximum_steps),'--catalog',str(manifest)]
         if not (a.full_trace or a.publish_summary):command.append("--compact-trace")
+        if a.resource_cache:command += ["--resource-cache",str(absolute(a.resource_cache))]
+        if a.resource_provider:command += ["--resource-provider",str(absolute(a.resource_provider))]
         if a.game_dir:command+=['--game-dir',str(absolute(a.game_dir))]
         if a.headless_movie_tools:command+=['--headless-movie-tools',str(absolute(a.headless_movie_tools))]
+        for choice in a.story_choice:command+=['--story-choice',str(choice)]
+        if scene_background:
+            command += ['--scene-preview-background', scene_background, '--require-complete-scene-preview']
+        if a.verify_route_return:
+            command += ['--inspect-load-task','--open-title-load','--load-task-escape',
+                        '--start-after-load-escape','--require-route-return','--load-task-ticks','3000',
+                        '--load-task-capture',str(absolute(a.load_task_capture))]
+            for page in a.load_task_page:
+                command += ['--load-task-page',str(page)]
+            if save_directory:
+                command += ['--save-dir', str(save_directory)]
         if a.button_index is not None:command+=['--button-index',str(a.button_index)]
         if a.pointer is not None:command+=['--pointer',a.pointer]
         if a.dispatch_stop_callback:command+=['--dispatch-stop-callback']
@@ -183,16 +342,40 @@ def main():
         if a.message_clicks:command+=['--message-clicks',str(a.message_clicks)]
         if a.click_ticks is not None:command+=['--click-ticks',str(a.click_ticks)]
         if recipe_path:command+=['--image-recipe',str(recipe_path)]
+        if receipts:command+=['--resource-receipts',str(receipts)]
         for source in selected:command+=['--select-source',source]
-        run=subprocess.run(command,capture_output=True,timeout=150,cwd=ROOT)
-        (private/f'attempt-{attempt:02}-stderr.log').write_bytes(run.stderr)
+        stderr_path = private/f'attempt-{attempt:02}-stderr.log'
+        with stderr_path.open('wb') as stderr:
+            run=subprocess.run(command,stdout=subprocess.PIPE,stderr=stderr,
+                               timeout=3600 if a.resource_provider or a.verify_route_return else 150,cwd=ROOT)
         if run.returncode not in {0,2} or len(run.stdout)>512*1024*1024:raise ProbeError(f'cli_progress_process_failure: exit={run.returncode}, output_bytes={len(run.stdout)}')
+        if not run.stdout:
+            raise ProbeError(f'cli_progress_missing_json: exit={run.returncode}, see {stderr_path}')
         document=json.loads(run.stdout);write_json(private/f'attempt-{attempt:02}.json',document)
+        receipt_bytes = 0
+        for line in read_bounded(stderr_path, 32*1024*1024).splitlines():
+            if not line.startswith(b'supplied_resource='):continue
+            if not a.resource_provider or len(line)>16*1024:raise ProbeError('cli_resource_receipt_invalid')
+            entry=json.loads(line.split(b'=',1)[1])
+            name=safe_member_name(entry['source_file'])
+            if (not re.fullmatch(r'data[0-8]\.pack/.+\.(png|ogg|ogv)',name)
+                or entry['logical_path']!=name.split('/',1)[1] or name in index and index[name]!=entry):
+                raise ProbeError('cli_resource_receipt_identity')
+            index[name]=entry
+            if name.endswith('.ogg'):
+                if name not in audio_sources:audio_sources.append(name)
+            else:image_sources.add(name)
+            content = read_bounded(assets/name, 16*1024*1024)
+            receipt_bytes += len(content)
+            if receipt_bytes > 4*1024*1024*1024:
+                raise ProbeError('cli_resource_receipt_byte_limit')
+            if sha(content) != entry['sha256']:
+                raise ProbeError('cli_resource_receipt_copy_identity')
         record=document['reports'][0];machine=record.get('machine')
         if not machine:raise ProbeError('cli_progress_program_preparation_failed')
-        with processing_deadline(120):references=validate_trace(machine,root,script,root_doc,source_lookup=lookup,allow_trace_suffix=not (a.full_trace or a.publish_summary))
+        with processing_deadline(120):references=validate_trace(machine,root,script,root_doc,source_lookup=lookup,allow_trace_suffix=not (a.full_trace or a.publish_summary),source_byte_limit=trace_byte_limit)
         row=dict(attempt=attempt,steps=machine['steps'],phase=machine['phase'],stop_reason=machine.get('stopReason'),
-            location=machine.get('currentLocation'),source_byte_references=references)
+            location=machine.get('currentLocation'),replay_budget=record.get('replayBudget'),source_byte_references=references)
         attempts.append(row);final=machine
         if machine.get('stopReason')!='ambiguous_module_variants':break
         candidates=record.get('moduleCandidates') or []
@@ -205,7 +388,7 @@ def main():
     else:raise ProbeError('cli_progress_selection_limit')
     if sha(read_bounded(binary))!=binary_sha or any(sha(read_bounded(ROOT/n))!=h for n,h in sources.items()):raise ProbeError('cli_progress_sources_changed')
     if config_path and sha(read_bounded(config_path,1024*1024))!=config_sha:raise ProbeError('cli_progress_config_changed')
-    report=dict(message_click=a.message_click,message_clicks=a.message_clicks,audio_resource=index.get(audio_sources[-1]) if audio_sources else None,audio_resources=[index[name] for name in audio_sources],headless_movie_decode=bool(a.headless_movie_tools),movie_resource=index.get(movie_source),supplied_click_tick_budget=a.click_ticks,maximum_steps=a.maximum_steps,dispatch_stop_callback=a.dispatch_stop_callback,pointer_sample=a.pointer,button_index=a.button_index,wave_resources=[index[name] for name in sorted(image_sources) if name.endswith(".wav")],image_resources=[index[name] for name in sorted(image_sources) if not name.endswith(".wav")],configuration_source=dict(source_file='GameData/System/config.txt',sha256=config_sha) if config_sha else None,schema_version=1,status='inferred',dataset='real',scope='One explicit source-cohort CLI path; no original package winner or complete-game claim',
+    report=dict(large_movie_resource=index.get(large_movie_source),story_choices=a.story_choice,message_click=a.message_click,message_clicks=a.message_clicks,audio_resource=index.get(audio_sources[-1]) if audio_sources else None,audio_resources=[index[name] for name in audio_sources],headless_movie_decode=bool(a.headless_movie_tools),movie_resource=index.get(movie_source),supplied_click_tick_budget=a.click_ticks,maximum_steps=a.maximum_steps,dispatch_stop_callback=a.dispatch_stop_callback,pointer_sample=a.pointer,button_index=a.button_index,wave_resources=[index[name] for name in sorted(image_sources) if name.endswith(".wav")],image_resources=[index[name] for name in sorted(image_sources) if not name.endswith(".wav")],configuration_source=dict(source_file='GameData/System/config.txt',sha256=config_sha) if config_sha else None,schema_version=1,status='inferred',dataset='real',scope='One explicit source-cohort CLI path; no original package winner or complete-game claim',
         profile=final['profile'],source_cohort=a.source_cohort,source_choice_is_original_precedence='not_tested',
         native_binary_sha256=binary_sha,native_source_sha256=sources,corpus_report_sha256=sha(manifest_bytes),
         selection_seed_sha256=seed_sha,resource_index_sha256=index_sha,attempts=attempts,selected_sources=[dict(source_file=s,sha256=index[s]['sha256']) for s in selected],
@@ -221,9 +404,21 @@ def main():
         report['trace_scope']='suffix'
         report['trace_first_step']=final['trace'][0]['sequence']
         report['trace_action_counts']=report.pop('action_counts')
+    if a.verify_route_return:
+        report['route_return_status']='verified' if run.returncode == 0 else 'unsupported'
+        report['route_return_issue']=record.get('issue')
+        report['route_return_replay_budget']=record.get('replayBudget')
+    if scene_background:
+        preview = record.get('scenePreview')
+        report['scene_preview_status'] = (
+            'inferred' if preview and not preview['omittedLayers'] and not preview['textPreviewIssues']
+            else 'unsupported'
+        )
+        if report['scene_preview_status'] == 'unsupported':
+            report['scene_preview_issue'] = record.get('scenePreviewIssue') or 'scene_preview_incomplete'
     write_json(report_path,report)
     print(json.dumps(dict(steps=final['steps'],stop=final.get('stopReason'),selected_sources=len(selected),checked_sources=len(cache))))
-    return 0
+    return run.returncode if a.verify_route_return or scene_background else 0
 
 
 if __name__=='__main__':raise SystemExit(main())

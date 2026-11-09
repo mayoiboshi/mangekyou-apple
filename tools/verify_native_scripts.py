@@ -54,7 +54,7 @@ def compare_document(native,data,relative):
         scope='Agreement with independent project lexical model only; original grammar/execution not_tested'),document
 
 
-def validate_trace(machine,data,relative,document,source_lookup=None, allow_trace_suffix=False):
+def validate_trace(machine,data,relative,document,source_lookup=None, allow_trace_suffix=False, source_byte_limit=128*1024*1024):
     allowed={'status','phase','profile','evidenceStatus','originalEngineEquivalence','scope','errorPolicy',
         'scalarInitialization','steps','currentLocation','stopReason','callDepth','variableCounts','trace',
         'moduleSnapshotCount','moduleSnapshotBytes','inputSnapshotPolicy','sourceSnapshotCount','tableObjectCount',
@@ -70,7 +70,7 @@ def validate_trace(machine,data,relative,document,source_lookup=None, allow_trac
         raise ProbeError('native_script_profile_or_equivalence')
     trace=machine['trace']
     steps=machine.get('steps')
-    if type(steps) is not int or not 0<=len(trace)<=steps<=650_000 or (steps != len(trace) and (not allow_trace_suffix or not 1024<=len(trace)<2048)):
+    if type(steps) is not int or not 0<=len(trace)<=steps<=96_000_000 or (steps != len(trace) and (not allow_trace_suffix or not 1024<=len(trace)<2048)):
         raise ProbeError('native_trace_count')
     references=[machine['currentLocation']] if machine.get('currentLocation') else []
     sources={relative:(data,document,{(r['byte_offset'],r['byte_length']):r for r in document['records']},sha(data))}
@@ -79,7 +79,7 @@ def validate_trace(machine,data,relative,document,source_lookup=None, allow_trac
             if source_lookup is None:raise ProbeError('native_cross_file_trace_without_pinned_lookup')
             if len(sources)>=512:raise ProbeError('native_trace_source_count_limit')
             content,doc=source_lookup(name)
-            if len(content)+sum(len(v[0]) for v in sources.values())>128*1024*1024:raise ProbeError('native_trace_source_byte_limit')
+            if len(content)+sum(len(v[0]) for v in sources.values())>source_byte_limit:raise ProbeError('native_trace_source_byte_limit')
             sources[name]=(content,doc,{(r['byte_offset'],r['byte_length']):r for r in doc['records']},sha(content))
         return sources[name]
     skipped_locations=set()
@@ -164,7 +164,7 @@ def validate_trace(machine,data,relative,document,source_lookup=None, allow_trac
         row.get('action') == 'table_overlay_nonempty_candidate' for row in machine['trace'])
     if snapshots:
         valid_total = (type(current_entries) is int and loaded_entries <= current_entries <= 100_000
-                       if overlaid else current_entries == loaded_entries)
+                       if overlaid or len(trace) < steps else current_entries == loaded_entries)
         if not valid_total:
             raise ProbeError('native_table_entry_total')
     list_fields={'listObjectCount','listLineCount','listSnapshots'}

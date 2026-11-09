@@ -129,17 +129,30 @@ import MangekyouMedia
 
 @main struct MangekyouApplication: App {
     @StateObject private var model = LibraryModel()
+    @Environment(\.openWindow) private var openWindow
+    private let launch = PlayerLaunch(arguments: Array(CommandLine.arguments.dropFirst()))
     var body: some Scene {
-        WindowGroup("Mangekyou") {
-            LibraryView(model: model)
-                .frame(minWidth: 960, minHeight: 640)
-                .preferredColorScheme(.dark)
+        WindowGroup(launch == nil ? "Mangekyou" : "万華鏡试玩") {
+            Group {
+                if let launch {
+                    PlayerWindow(library: model, launch: launch)
+                } else {
+                    LibraryView(model: model)
+                        .frame(minWidth: 960, minHeight: 640)
+                }
+            }
+            .preferredColorScheme(.dark)
         }
         .defaultSize(width: 1180, height: 790)
         .commands {
             CommandGroup(replacing: .newItem) {
                 Button("导入游戏目录…") { model.chooseDirectory() }.keyboardShortcut("o")
+                Button("打开试玩窗口") { openWindow(id: "player") }
             }
+        }
+        Window("万華鏡试玩", id: "player") {
+            PlayerWindow(library: model)
+                .preferredColorScheme(.dark)
         }
     }
 }

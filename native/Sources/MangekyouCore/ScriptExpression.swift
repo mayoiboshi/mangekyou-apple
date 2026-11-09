@@ -118,6 +118,8 @@ public indirect enum ScriptExpression: Sendable {
             case "&": value = left & right
             case "|": value = left | right
             case "^": value = left ^ right
+            case "<<": value = left << (right & 31) // 0x69af1e, x86 32-bit SHL.
+
             case "==": value = left == right ? 1 : 0
             case "!=": value = left != right ? 1 : 0
             case "<": value = left < right ? 1 : 0

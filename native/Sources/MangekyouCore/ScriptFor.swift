@@ -3,13 +3,21 @@ import Foundation
 /// Bounded three-field loop contract, based on the retained control/update instruction evidence.
 /// Standalone postfix updates are supported only where their expression value is discarded.
 struct ScriptForPlan: Sendable {
-    let initial: ScriptExpression
+    let initial: ScriptExpression?
     let condition: ScriptExpression
     let update: ScriptExpression?
     let updateName: String?
     let updateDelta: Int32
 
     init(_ fields: [ScriptField]) throws {
+        if fields.isEmpty {
+            initial = nil
+            condition = .literal("1")
+            update = nil
+            updateName = nil
+            updateDelta = 0
+            return
+        }
         guard fields.count == 3, fields.allSatisfy({ $0.key == nil && !$0.raw.isEmpty })
         else { throw ResourceError.rejected("for_requires_three_nonempty_fields") }
         initial = try ScriptExpression.parse(fields[0].raw)
@@ -38,7 +46,7 @@ struct ScriptForPlan: Sendable {
     }
     func enter(_ storage: inout ScriptStorage) throws -> Bool {
         var working = storage
-        _ = try evaluate(initial,storage: &working)
+        if let initial { _ = try evaluate(initial,storage: &working) }
         let result = try test(working); storage = working; return result
     }
     func advance(_ storage: inout ScriptStorage) throws -> Bool {

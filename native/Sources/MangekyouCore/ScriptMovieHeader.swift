@@ -1,17 +1,22 @@
 import Foundation
 
-enum ScriptMovieHeader {
-    static func validateTheora(_ data: Data) throws {
-        try validate(data, identification: Data([0x80]) + Data("theora".utf8), minimumPacket: 42,
-                     failure: "ogg_theora_identification_missing")
-    }
-
+public enum ScriptMovieHeader {
     static func validateVorbis(_ data: Data) throws {
-        try validate(data, identification: Data([0x01]) + Data("vorbis".utf8), minimumPacket: 30,
+        _ = try packetOffset(data, identification: Data([0x01]) + Data("vorbis".utf8), minimumPacket: 30,
                      failure: "ogg_vorbis_identification_missing")
     }
 
-    private static func validate(_ data: Data, identification: Data, minimumPacket: Int, failure: String) throws {
+    public static func theoraDimensions(_ data: Data) throws -> (Int, Int) {
+        let start = try packetOffset(data, identification: Data([0x80]) + Data("theora".utf8),
+            minimumPacket: 42, failure: "ogg_theora_identification_missing")
+        func dimension(_ offset: Int) -> Int {
+            let i = start + offset
+            return (Int(data[i]) << 16) | (Int(data[i+1]) << 8) | Int(data[i+2])
+        }
+        return (dimension(14), dimension(17))
+    }
+
+    private static func packetOffset(_ data: Data, identification: Data, minimumPacket: Int, failure: String) throws -> Int {
         let magic = Data("OggS".utf8)
         var start = 0
         for _ in 0..<16 {
@@ -23,7 +28,7 @@ enum ScriptMovieHeader {
             let size = data[start+27..<body].reduce(0) { $0+Int($1) }
             guard size <= data.count-body else { break }
             if Int(data[start+27]) >= minimumPacket,
-               data[body..<body+identification.count].elementsEqual(identification) { return }
+               data[body..<body+identification.count].elementsEqual(identification) { return body }
             start = body+size
         }
         throw ResourceError.rejected(failure)

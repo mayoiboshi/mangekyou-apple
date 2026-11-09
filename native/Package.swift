@@ -11,7 +11,11 @@ let package = Package(
         .executable(name: "mangekyou-script", targets: ["MangekyouScript"])
     ],
     targets: [
-        .target(name: "MangekyouCore"),
+        // The interpreter's dispatch frame exceeds the Swift worker-thread stack
+        // under -Onone. Keep debug symbols and optimize the core; the app stays unoptimized.
+        .target(name: "MangekyouCore", swiftSettings: [
+            .unsafeFlags(["-O"], .when(configuration: .debug))
+        ]),
         .target(name: "MangekyouMedia", dependencies: ["MangekyouCore"]),
         .executableTarget(name: "MangekyouApp", dependencies: ["MangekyouCore", "MangekyouMedia"]),
         .executableTarget(name: "MangekyouInspect", dependencies: ["MangekyouCore", "MangekyouMedia"]),

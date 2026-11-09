@@ -21,7 +21,7 @@ public struct DPNGDescriptor: Sendable {
         let width = Int(try data.u32(12)), height = Int(try data.u32(16))
         guard field <= 1 else { throw ResourceError.rejected("unreviewed_dpng_header_field") }
         guard width > 0, height > 0, width <= 16_000, height <= 16_000,
-              Int64(width) * Int64(height) <= 16_000_000, count <= 32,
+              Int64(width) * Int64(height) <= 32_000_000, count <= 32,
               count <= (data.count - 20) / 28 else { throw ResourceError.rejected("dpng_canvas_or_tile_limit") }
         var offset = 20, tilePixels: Int64 = 0, tiles: [Tile] = []
         for index in 0..<count {

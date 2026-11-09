@@ -1,4 +1,5 @@
 import Foundation
+import CryptoKit
 #if canImport(Darwin)
 import Darwin
 #else
@@ -105,6 +106,19 @@ public struct SafeDirectory: Sendable {
         var info = stat()
         guard fstat(fd, &info) == 0, info.st_size >= 0 else { throw ResourceError.system("file_size", errno) }
         return try body(fd, Int64(info.st_size))
+    }
+
+    public static func movieSHA256(fd: Int32, size: Int64) throws -> String {
+        guard size > 0, size <= 192*1024*1024 else { throw ResourceError.rejected("movie_size_limit") }
+        var digest = SHA256()
+        var offset: Int64 = 0
+        while offset < size {
+            try Task.checkCancellation()
+            let count = Int(min(1024*1024, size-offset))
+            digest.update(data: try read(fd: fd, offset: offset, count: count))
+            offset += Int64(count)
+        }
+        return digest.finalize().map { String(format: "%02x", $0) }.joined()
     }
 
     public static func read(fd: Int32, offset: Int64, count: Int) throws -> Data {

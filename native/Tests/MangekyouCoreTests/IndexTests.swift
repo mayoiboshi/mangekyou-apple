@@ -33,17 +33,20 @@ final class IndexTests: XCTestCase {
         }
     }
     func testIndexTypeErrorsAndArithmeticFailuresDoNotCoerce() throws {
-        for coordinate in ["\"0\"","1/0","2147483647+1"] {
+        for coordinate in ["\"invalid\"","1/0","2147483647+1"] {
             let m = try run("\\var,str,a\n\\cal,a=\"owned\"\n\\cal,a[\(coordinate)]")
             XCTAssertEqual(m.phase,.stopped); XCTAssertEqual(try m.value(named: "a"),.string("owned"))
         }
         let m = try run("\\var,int,a\n\\cal,a[0]=\"7\"")
-        XCTAssertEqual(m.stopReason,"scalar_assignment_type_outside_profile"); XCTAssertEqual(try m.value(named: "a"),.integer(0))
+        XCTAssertEqual(m.phase,.finished); XCTAssertEqual(try m.value(named: "a"),.integer(7))
+        XCTAssertEqual(try run("\\var,int,a\n\\cal,a[\"0\"]=7\n\\cal,a[0]").lastResult, .integer(7))
     }
-    func testMissingBindingAndObjectIndicesRemainExplicitlyUnsupported() throws {
+    func testMissingBindingAndInvalidObjectWritesRemainExplicitlyUnsupported() throws {
         XCTAssertEqual(try run("\\cal,missing[0]").stopReason,"undefined_or_unbound_scalar")
-        XCTAssertEqual(try run("\\var,table,t\n\\cal,t[0]").stopReason,"object_index_outside_profile")
-        XCTAssertEqual(try run("\\var,table,t\n\\cal,t[0]=1").stopReason,"object_index_outside_profile")
+        let table = try run("\\var,table,t\n\\cal,t[0]")
+        XCTAssertEqual(table.phase, .finished)
+        XCTAssertEqual(table.lastResult, try table.value(named: "t"))
+        XCTAssertEqual(try run("\\var,table,t\n\\cal,t[0]=1").stopReason,"scalar_assignment_type_outside_profile")
     }
     func testIndexSyntaxCannotIntroduceDimensionsCallsOrMutatingCoordinates() throws {
         for expression in ["a[]","a[0,0]","a[0][0]","a[0","a[(i=0)]","a[(b[0]=0)]","a[0]++","\"a\"[0]","(a+1)[0]"] {
@@ -81,7 +84,7 @@ final class IndexTests: XCTestCase {
         }
         XCTAssertEqual(try run("\\var,int,a[4097]").stopReason,"array_element_count_limit")
         XCTAssertEqual(try run("\\var,int,a[\"2\"]").stopReason,"array_dimension_requires_integer")
-        XCTAssertEqual(try run("\\var,table,a[1]").stopReason,"object_array_outside_profile")
+        XCTAssertEqual(try run("\\var,table,a[1]").phase,.finished)
     }
     func testOutOfRangeArrayWriteRetainsPreviouslyCommittedElements() throws {
         let m = try run("\\var,int,a[2]\n\\cal,a[0]=5\n\\cal,a[1]=8\n\\cal,a[2]=99")

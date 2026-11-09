@@ -63,10 +63,10 @@ final class TableTests: XCTestCase {
             XCTAssertThrowsError(try ScriptTable(data: bytes,relativePath: "owned.txt"))
         }
     }
-    func testStringDeclarationsAssignmentsAndTypeErrorsAreAtomic() throws {
+    func testStringDeclarationsAndIntegerFallback() throws {
         try withFiles("\\var,str,#s\n\\cal,#s=\"owned\"\n\\var,int,n\n\\cal,n=#s") { m in
             XCTAssertEqual(try m.value(named: "#s"),.string("owned")); XCTAssertEqual(try m.value(named: "n"),.integer(0))
-            XCTAssertEqual(m.stopReason,"scalar_assignment_type_outside_profile")
+            XCTAssertEqual(m.phase,.finished)
         }
         try withFiles("\\var,str,x") { m in XCTAssertEqual(m.phase,.finished); XCTAssertEqual(try m.value(named: "x"),.string("")) }
     }
@@ -103,7 +103,8 @@ final class TableTests: XCTestCase {
     }
     func testFailedLoadPreservesTableRegistersAndRepositorySnapshot() throws {
         let script = "\\var,table,t\n\\scp,t\n\\l,\"a.txt\"\n\\?v,\"key\"\n\\l,\"bad.txt\"\n\\cal,999"
-        try withFiles(script,files: [("a.txt",utf8("key=3\n")),("bad.txt",utf8("ok=1\n鍵=x\n"))]) { m in
+        let oversized = utf8("ok=1\nkey=" + String(repeating: "x", count: 8193) + "\n")
+        try withFiles(script,files: [("a.txt",utf8("key=3\n")),("bad.txt",oversized)]) { m in
             XCTAssertEqual(m.phase,.stopped); XCTAssertEqual(try m.value(named: "ResultInt"),.integer(3))
             XCTAssertEqual(m.summary.sourceSnapshotCount,2); XCTAssertEqual(m.summary.tableSnapshots.first?.source.sourceFile,"a.txt")
             XCTAssertEqual(m.traces.last?.resource?.sourceFile,"bad.txt"); XCTAssertEqual(m.traces.last?.resource?.lineNumber,2)
@@ -129,8 +130,12 @@ final class TableTests: XCTestCase {
     }
     func testUnknownSelectorsDefaultsAliasesAndTableCommandsStop() throws {
         for tail in ["\\scp,\"t\"", "\\scp,t,,t", "\\scp,"+Array(repeating:"t",count:17).joined(separator:","),
-            "\\cal,t=t", "\\scp,t\n\\?v,\"k\",0x1", "\\scp,t\n\\?v,\"k\",t", "\\scp,t\n\\unreviewed"] {
+            "\\cal,t=t", "\\scp,t\n\\?v,\"k\",t", "\\scp,t\n\\unreviewed"] {
             try withFiles("\\var,table,t\n"+tail) { m in XCTAssertEqual(m.phase,.stopped); XCTAssertEqual(m.summary.currentLocation,m.traces.last?.location) }
+        }
+        try withFiles("\\var,table,t\n\\scp,t\n\\?v,\"k\",0x1") { m in
+            XCTAssertEqual(m.phase,.finished)
+            XCTAssertEqual(try m.value(named: "ResultInt"),.integer(1))
         }
     }
 }

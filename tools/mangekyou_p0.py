@@ -106,7 +106,7 @@ def footer_probe(tail, size):
 def signature(data):
     pairs = [(b'\x89PNG\r\n\x1a\n', 'PNG'), (b'DPNG', 'DPNG'),
              (b'\xff\xd8\xff', 'JPEG'), (b'GIF87a', 'GIF'), (b'GIF89a', 'GIF'),
-             (b'BM', 'BMP'), (b'OggS', 'Ogg'), (b'fLaC', 'FLAC'),
+             (b'BM', 'BMP'), (b'ARGBSaveData1', 'ARGB'), (b'OggS', 'Ogg'), (b'fLaC', 'FLAC'),
              (b'ID3', 'MP3-ID3'), (b'MZ', 'PE-candidate'),
              (b'OTTO', 'OpenType'), (b'\x00\x01\x00\x00', 'TrueType-candidate'),
              (b'ttcf', 'TTC'), (b'1PC\xff', 'QLIE-BPE'),

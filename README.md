@@ -1,6 +1,56 @@
 # Project Mangekyou — 第四作原生移植
 
-**当前工作范围**：用户授权完整应用，随后要求加速并优先命令行推进。现在冻结 UI 开发及常规界面打包/回放，先补齐命令行核心并验证完整运行能力，再继续 UI。静态取证、原目录只读、资源不外传和未知行为明确停止的约束继续生效。**整作尚不能游玩**。
+**当前状态**：Apple Silicon 发布版已用真实资源完成一条从开场、正文、六次选择到片尾并返回标题的 GUI 回放。回放使用自动输入和加速计时，影片按实际时长播放。现在优先完善图层、对话排版和交互。其他路线的 GUI 覆盖、持久存档和原版演出还原仍待验证。原始目录始终只读。
+
+### 打开试玩窗口
+
+运行 `python3 tools/build_native.py` 后打开 `build/Mangekyou.app`。先在资源检查窗口导入本地资源副本，再从菜单打开「试玩窗口」，依次选择本地回放目录、对应的原版游戏目录和本机 `ffmpeg`。回放目录需要包含 `summary.json`、`combined-catalog.json`、`image-recipe.json`。新版摘要包含资源清单时可直接启动，旧版摘要仍需要相应的回放日志。试玩仍依赖这些由本地研究流程生成的资料。首次成功加载后，可在同一窗口使用「打开上次试玩配置」。
+
+可用 `python3 tools/merge_replay_receipts.py --base "$BASE_REPLAY" --donor "$OTHER_REPLAY" --output private/merged-replay` 合并本地回放的资源记录。`--donor` 可重复传入，输出目录须为新目录。命令保留基础回放的脚本、选项和已有图像解码配置，并补入资源摘要匹配的新配方。同名资源记录冲突或新增配方冲突会停止。播放器读取资源时仍会核对文件摘要。
+
+标题菜单默认收在画面右侧。把鼠标移到右侧会展开菜单，移回左侧会收起。菜单位置按脚本给出的时长逐帧更新。
+
+也可以直接启动发布构建。以下环境变量均应指向本机的绝对路径。
+
+```sh
+swift run --package-path native -c release Mangekyou \
+  --assets-dir "$MANGEKYOU_ASSETS_DIR" --replay-dir "$MANGEKYOU_REPLAY_DIR" \
+  --game-dir "$MANGEKYOU_GAME_DIR" --ffmpeg "$MANGEKYOU_FFMPEG"
+```
+
+在末尾加 `--check-choices=3` 可使用回放清单的选项顺序，验证前三次剧情选择。该模式加速等待并跳过音频播放，到达指定选项后的等待点即停止自动推进。
+
+### 读档入口的任务切换
+
+使用与试玩相同的四个路径参数，并在末尾加 `--open-load-menu`，可复现标题读档入口。真实回放在 `data8.pack/script/title/main.s` 第 86 行发出 `@@!Load` 任务请求，主实例进入等待并保留画面。主程序静态证据显示，`0x6b091f` 识别 `thrd`，`0x6b0ff6` 和 `0x6b1002` 分别为模式 0、1 写入状态 `0x17`、`0x16`，`0x6b1014` 保存第二操作数。调度器在 `0x6d579c` 读状态并通过 `0x6d57be` 跳转表分派。模式 1 经 `0x6d5b74 → 0x6d77e0`，在 `0x6d785b` 用位于 `0x6d7930` 的格式串构造进入 `SysStartUp.s` 的跳转，再对 `[host + 0x50]` 中的脚本实例调用 `0x6bec70` 和 `0x6d16f4`。模式 0 经 `0x6d5b6a → 0x6d7a90`，调用同一实例的清理入口 `0x6aedb4` 并分派停止事件。模式 1 的事件名位于 `0x6d796c` 和 `0x6d79a4`，模式 0 的事件名位于 `0x6d7af4` 和 `0x6d7b28`。
+
+独立脚本 `data0.pack/sysstartup.s` 的读档入口在第 22 行，第 24 行转入 `script/saveload/main_load.s`。该读档脚本在清理界面后于第 158 行执行模式 0。把标题中的同名标签当作普通子程序目标会再次进入同一条任务指令。系统脚本目标已有原版静态证据。宿主在 `0x6d6141` 和 `0x6d61a9` 分别构造脚本实例，并将它们存入 `+0x4c` 和 `+0x50`。第二实例在 `0x6d61d3` 把第一实例作为初始化参数传入，两次初始化也收到同一组宿主服务引用。模式 1 在 `0x6d7836` 把宿主切至状态 6，模式 0 在 `0x6d7abc` 切回状态 5。`0x6d64dc` 在状态 6 选第二实例，其余状态选第一实例。退出时，`0x6d7ae0` 还会向第一实例分派事件。第二实例把第一实例引用存入自身 `+0xc8`（`0x6be972`）。初始化尾部在 `0x6beb9c–0x6bebbb` 从第一实例的 `+0xe8` 读取表引用，经 `0x69f3a0` 取有效表，再由 `0x69f270` 写入第二实例表对象的 `+0xc`。同一访问器也用于 `0x69d101`、`0x69d218` 等操作，优先返回该引用，缺失时使用自身 `+0x8`。名称查找在 `0x69f43a` 用另一访问器 `0x69f278` 查类别 2，命中后在 `0x69f44e` 返回类别 2。下一层在 `0x69f45c` 用共享表访问器 `0x69f3a0` 查找，命中后在 `0x69f470` 返回类别 1。结合已核验的声明分派，`svar` 走共享表，`gvar` 走独立的类别 2 存储路径。共享对象所有权、退出清理范围和跨实例写入仍待验证。
+
+将真实 `sysstartup.s` 的 `@@!Load` 入口最初单独交给命令行解释器时，第 6 步停在第 126 行的 `srct,1`。原版分派 `0x6afe2f → 0x6b0740` 求值后在 `0x6b076a` 写入实例的 `+0x174`。系统指令分派 `0x6b2228–0x6b2238` 在该值为零时使用当前实例，非零时使用 `0x6cb45c` 返回的主实例引用。紧接着的 `sys p,0` 在 `0x6b2388–0x6b238a` 对选中的实例执行模式重置。因此读档入口需要跨实例更新主任务状态。单实例探针现在覆盖已核对的自引用回退。显式选择 data8 脚本变体后，真实读档探针越过系统入口，第 56 步停在 `main_load.s:243` 的主画布快照请求。`imoscripter_base.s:101–105` 将 `%%%capture_` 参数映射到 `$$$GameThreadImageZ` 名称，解释器已将此请求与归档缺件区分。标题播放器已能启动独立读档任务，并让已核对的 `srct` 系统播放模式读写作用于主实例。真实标题回放已将等待中的主画布渲染为 1280×720 的内存快照，并交给读档任务。副任务运行期间与暂停的主任务同步 `svar` 标量表。真实标题回放已越过 `main_load.s:251` 的 `#NewSaveFilename` 读取，并越过第 83 步的 `sys ?in`。原版 `0x6b2d2b`、`0x6b2d5a` 和 `0x6b2d72` 分别重置、写入和读取 `srct` 选中实例的 `+0x164` 字段。原生核心已接通这些状态操作，宿主事件过滤仍待验证。真实标题回放在第 113 步停于 `script/dialog/layout_message.s:16`，本次回放清单缺少它请求的资源。共享对象、任务退出和实际读档仍待实现。
+
+### 命令行路线回放
+
+下例使用本地资源副本、原游戏目录和私有回放清单，验证从标题读档菜单翻页、取消、开始新游戏到再次返回标题的路径。设置 `ASSETS_DIR`、`GAME_DIR`、`REPLAY_DIR`、`CAPTURE_PNG` 和 `MOVIE_TOOLS` 为本机路径。回放目录需有 `combined-catalog.json`、`image-recipe.json` 和 `summary.json`。截图输入使用 1280×720 PNG，可用合成图。
+
+```sh
+.venv/bin/python tools/advance_cli.py \
+  --assets-dir "$ASSETS_DIR" --game-dir "$GAME_DIR" --source-cohort data8 \
+  --stage round9911 --verify-route-return --replay-dir "$REPLAY_DIR" \
+  --load-task-capture "$CAPTURE_PNG" --load-task-page 1 \
+  --headless-movie-tools "$MOVIE_TOOLS" --pointer 1100,360 --dispatch-stop-callback \
+  --maximum-steps 96000000 --click-ticks 3000000 --message-clicks 24000 \
+  --story-choice 0 --story-choice 0 --story-choice 0 \
+  --story-choice 1 --story-choice 1 --story-choice 1
+```
+
+页码和选项从 0 开始。退出码为 0 要求消费全部选项，并回到可响应输入的标题菜单。回放停点和剩余选项保存在 `private/`。这项验收覆盖所选路线的脚本执行，原版画面对照、其他路线和实际存档恢复仍需独立验证。
+
+直接调用 `mangekyou-script` 回放单个脚本时，可在 `--scene-preview-background` 之外加上 `--scene-preview-png`，将合成画面写到标准输出。JSON 报告作为标准错误的最后一行输出。请将两路输出分别重定向到 `private/` 下的新文件。即使预览报告有遗漏，仍可检查已合成的部分，退出码以报告状态为准。
+
+旧回放的图像配方可通过 `tools/merge_replay_receipts.py --refresh-recipe SHA256` 从供体回放刷新。该选项要求成员范围、摘要、格式及槽号保持一致，并将结果写入新的私有目录。
+
+### 历史开发记录
+
 
 目标是将《美少女万華鏡 -罪と罰の少女-》移植到 Apple Silicon。P0 与多轮 P1 已建立资源/脚本的可追溯证据；用户随后明确授权完整应用开发。现已构建 ARM64 原生应用，支持只读导入、包尾检查和有限图片预览，**整作可玩性尚未实现**。以下 P1 说明按当时范围保留；支持状态以实际测试为准。
 
@@ -151,3 +201,87 @@ P0 不运行游戏，未测试分支执行、存档、动画时间线或整作�
 ```sh
 .venv/bin/python tools/verify_upstream.py
 ```
+
+命令行 v7 接入内建 `cfg` 的两条整数配置写入。原程序构造函数 `0x68db84` 写入对象类型 24，分派入口 `0x6ab090` 进入配置处理器。`vtv` 和 `vtm` 的写入位置分别见 `0x6c3864` 与 `0x6c3943`。命令行保留配置状态，原版宿主回调效果仍待验证。两套真实启动路径均处理 939 条记录，在 `comb` 停止。详见 [data7](reports/p1/cli-progress-round30-data7.json) 和 [data8](reports/p1/cli-progress-round30-data8.json)。
+
+命令行 v8 接入 `comb` 的表合并分支。原程序 `0x6cde17` 的累计比较对应该命令，`0x6ce208` 核对源对象类型，`0x56372a` 跳过空值，`0x56374d` 写入目标表。当前模型合并已载入的 ASCII 键表，保留两份加载来源，Windows 区域比较仍待验证。两套启动路径均处理 943 条记录，随后在读取 `ParamInt[0]` 的条件处停止。[data7](reports/p1/cli-progress-round31-data7.json) · [data8](reports/p1/cli-progress-round31-data8.json)
+
+命令行 v9 接入 `sub` 的整数参数。原程序 `0x6b7838` 从参数区读取字段，`0x6b794c` 将槽位限制为 16 个。当前以调用帧保存整数参数，缺省槽位取零，带参数且文件字段为空时选择当前脚本。默认值和空字段映射属于静态推断，字符串参数和原版等价性仍待验证。两套实际启动路径均执行到第 953 条记录，停在 `?fn`。[data7](reports/p1/cli-progress-round32-data7.json) · [data8](reports/p1/cli-progress-round32-data8.json)
+
+命令行 v10 可用 `--game-dir` 只读载入 `GameData/System/config.txt`，为 `cfg` 的字体查询提供初始配置。原程序 `0x6c3af2` 至 `0x6c3b15` 读取八个名称并写入字符串结果槽。字号以外的字体属性查询也已接入，实际启动只走到名称查询，其余查询和 Windows 字体显示效果仍待验证。两套实际启动路径均推进至 955 条记录并停在 `rep`。[data7](reports/p1/cli-progress-round33-data7.json) · [data8](reports/p1/cli-progress-round33-data8.json)
+
+命令行 v11 接入三字符串参数的 `rep`。原程序在 `0x6afa4b` 调用字面替换，在 `0x6afa67` 清理结果绑定，再写 `ResultStr[0]`。当前以 ASCII 大小写匹配为限，依据 `0x4e0900` 至 `0x4e0934` 选择替换首处或全部。两套启动路径均执行替换和后续字体属性查询，推进至 985 条记录，停在 `?v` 的字符串表达式。[data7](reports/p1/cli-progress-round34-data7.json) · [data8](reports/p1/cli-progress-round34-data8.json)
+
+命令行 v12 支持字符串拼接及空串和 ASCII 字符串的相等比较。原程序的同类型非整数加法路径在 `0x69a9ac` 调用字符串助手，比较路径在 `0x69aca6` 至 `0x69acbe` 折叠大小写后比较。循环内的 `cnt` 按候选控制结构关联到最近的循环，实际启动路径尚未执行该跳转。两套真实启动路径均处理 1006 条记录。[data7](reports/p1/cli-progress-round35-data7.json) · [data8](reports/p1/cli-progress-round35-data8.json)
+
+命令行 v13 将 `fn2`、`faa2`、`fst2`、`fsc2` 写入同一字体状态供后续查询使用。原程序对应写入见 `0x6c3ac4`、`0x6c3cbb`、`0x6c3df8`、`0x6c3f3a`，颜色写入保留低 24 位。宿主渲染与回调仍待接入。两套真实启动路径均推进至 1030 条记录，停在表查询的十六进制缺省值。[data7](reports/p1/cli-progress-round36-data7.json) · [data8](reports/p1/cli-progress-round36-data8.json)
+
+命令行 v14 支持 `?v` 的十六进制缺省值。依据 `0x69b04c` 至 `0x69b065` 的字面量描述符路径与 `0x6cdf11` 至 `0x6cdf1d` 的两个字段读取，当前保留十六进制拼写并单独解析整数。字符串比较按 `0x41493c` 的 ASCII 折叠路径处理，保留其他字符。两套实际启动路径均处理 1276 条记录。[data7](reports/p1/cli-progress-round37-data7.json) · [data8](reports/p1/cli-progress-round37-data8.json)
+
+命令行 v15 接入新会话的 `dat,g` 存档查询。原程序在 `0x68c30f` 设置对象类型 2，`0x6b41ce` 先检查 `SaveData` 内的文件，`0x6b420b` 再确认可读取，最后在 `0x6b423d` 写入整数结果。移植端的新会话存档命名空间为空，原存档导入和恢复仍待实现。两套启动路径均处理 1290 条记录。[data7](reports/p1/cli-progress-round38-data7.json) · [data8](reports/p1/cli-progress-round38-data8.json)
+
+命令行 v16 接入 `skey` 的清空和两参数绑定。原程序 `0x68dd27` 设置对象类型 27，`0x6ab1da` 分派至处理器，`0x6cafee` 清空集合，`0x6cb0d3` 写入绑定。两套启动路径各登记四条绑定并推进至 1302 条记录，随后停在选择 `sys` 的指令。宿主输入和事件触发仍待接入。[data7](reports/p1/cli-progress-round39-data7.json) · [data8](reports/p1/cli-progress-round39-data8.json)
+
+命令行 v17 接入 `sys,lk` 的掩码写入。`0x6bd2ee` 将 `_lkScreen` 初始化为 1，`0x6b256e` 写入显式掩码，`0x6b2539` 处理无参数形式。两套实际路径均执行锁定设置并推进至 1308 条记录，停在 `img` 声明。输入消费、图像资源对象和画面输出仍待接入。[data7](reports/p1/cli-progress-round40-data7.json) · [data8](reports/p1/cli-progress-round40-data8.json)
+
+警告画面的 `caution.b` 已从 `GameData/data7.pack` 单独取样，资源摘要为 `21aecc464c87bd4fd1f4f8cfbe6d0efa3735e58ec447513ca22f5857192bf18e`。容器为 ABMP12，其中一个 PNG 已通过像素解码，另一个成员的内容类型仍未知。复现时用 `tools/sample_resources.py --archive GameData/data7.pack --member script/caution/caution.b`，并传入原目录、锁定上游源码与 private 输出目录，再用 `tools/abmp_probe.py --input` 检查该副本。脚本内的 `img` 对象仍待接入。
+
+命令行 v18 接入 `img` 对象声明和初始化。`0x68be5b` 写入对象类型 6，`0x6aafe0` 分派图像对象，`0x6c6956` 进入初始化虚函数，`0x6c7093` 进入资源加载。data8 启动路径处理 1314 条记录，停在 `l`。脚本目录表尚未登记单独取样的 ABMP，运行时也尚未接入容器解码。[data8](reports/p1/cli-progress-round41-data8.json)
+
+命令行 v19 接通警告画面的图像加载。使用 `tools/advance_cli.py --image-source data7.pack/script/caution/caution.b --image-audit "$AUDIT"`，另传入原目录、资源副本、实验包组和报告轮次。将上一段取样命令的输出指向本次 `--assets-dir`，将 ABMP 探测的 JSON 输出作为 `$AUDIT`。运行时核对容器和成员摘要，使用原生解码器加载已验证的未压缩 PNG，并保存图像尺寸与资源来源。该路径依赖单成员审计结果，容器的未知成员和通用 ABMP 演出仍待支持。两套路径均推进至 1316 条记录，停在图像定位指令 `p`。[data7](reports/p1/cli-progress-round42-data7.json) · [data8](reports/p1/cli-progress-round42-data8.json)
+
+命令行 v20 保留已加载图像的 `p` 定位参数及 `m,0` 成员选择。原程序 `0x6c5a06` 将定位参数转给图像助手，`0x6c7b3d` 将整数索引交给图像选择助手。当前只支持已审计单图像成员，尚待核对定位细节及呈现行为。两套路径均推进至 1320 条记录。[data7](reports/p1/cli-progress-round43-data7.json) · [data8](reports/p1/cli-progress-round43-data8.json)
+
+命令行 v21 接通已选中图像成员的零参数 `e`。原程序 `0x6c7a95` 调用 `TImageLib` 的虚表槽 `+0x24`，实际入口 `0x5aca20` 将两个状态字节置一，另有条件调用图像选择助手。命令行保留启用状态。两套启动路径均处理 1322 条记录，停在 `zero`，其作用仍待确认。[data7](reports/p1/cli-progress-round44-data7.json) · [data8](reports/p1/cli-progress-round44-data8.json)
+
+命令行 v22 接入 `zero` 的直接状态写入。分派链 `0x6af842` 至 `0x6af852` 解析命令，`0x6afbc8` 调用 `0x6bbb08`，将引擎字段 `+0x98` 写为 2。字段的宿主消费和呈现效果仍未知。两套路径均处理 1326 条记录，停在 `clk`。[data7](reports/p1/cli-progress-round45-data7.json) · [data8](reports/p1/cli-progress-round45-data8.json)
+
+命令行 v23 在 `clk` 进入等待。原程序 `0x6b042b` 初始化 `ResultClkInt`，`0x6b043e` 设置等待状态 4，`0x6b04bc` 写入计数，`0x6bb01e` 检查计数是否归零。核心可由宿主传入计数增量来恢复有限等待，命令行此次验证只运行到等待入口，实际时钟和点击尚未接通。[data7](reports/p1/cli-progress-round46-data7.json) · [data8](reports/p1/cli-progress-round46-data8.json)
+
+命令行增加显式 `--click-ticks`，用有限的宿主计数预算推进 `clk`。传入 10000 后，两套真实启动脚本均从等待恢复并推进至 1330 条记录，在选择 `eff` 时停止。此次使用显式计数，原版计数与墙钟的换算及点击事件仍待核对。[data7](reports/p1/cli-progress-round47-data7.json) · [data8](reports/p1/cli-progress-round47-data8.json)
+
+命令行 v24 保留 `eff,c` 的黑色填充请求并支持删除已声明的全局图像。原程序 `0x6b610a` 进入效果助手，`0x693755` 压入黑色值，`0x6b0b7f` 将删除名称交给绑定助手。命令行只验证场景状态，宿主呈现和效果完成时机仍待接入。两套路径均推进至 1340 条记录，停在 `fdi`。[data7](reports/p1/cli-progress-round48-data7.json) · [data8](reports/p1/cli-progress-round48-data8.json)
+
+命令行 v25 保存 `eff,fdi` 的模式零淡入请求。原程序 `0x6b5a2e` 分派到 `0x6b5b94`，`0x6b5bdd` 取得第二参数，`0x6b5c9b` 将其交给效果助手。以 10500 个显式等待计数，两套路径均从警告模块返回，推进至 1369 条记录。当前验证的是请求和脚本控制流，淡入渲染仍待接入。[data7](reports/p1/cli-progress-round49-data7.json) · [data8](reports/p1/cli-progress-round49-data8.json)
+
+命令行 v26 支持声明和初始化 `theora` 对象。原程序 `0x68ea46` 设置类型 34，`0x6ab0fe` 分派至 `0x6b8330`，`0x6b8908` 调用初始化助手。两套真实路径均推进至 1375 条记录，停在视频加载。现有本地 `omegastar.ogv` 副本的 Ogg 容器包含 1280×720、24 fps 的 Theora 视频与 Vorbis 音频，视频约 7.04 秒。FFmpeg 已独立完整解码视频与音频到空输出，运行时媒体加载、时钟及呈现仍待接入。[data7](reports/p1/cli-progress-round50-data7.json) · [data8](reports/p1/cli-progress-round50-data8.json)
+
+命令行 v27 支持 `theora,l` 的资源绑定。`0x6b851f` 是原引擎加载分支，`0x6b85c3` 调用路径助手，`0x6b85d6` 读取第二参数。复现时在既有命令追加 `--movie-source data7.pack/script/makerlogo/omegastar.ogv`。当前读取固定摘要的副本并核对 Ogg Theora 标识。两套路径均推进至 1377 条记录，停在 `pp`，媒体解码尚未接到运行时。[data7](reports/p1/cli-progress-round51-data7.json) · [data8](reports/p1/cli-progress-round51-data8.json)
+
+命令行 v28 接入视频 `pp` 定位参数与 `e` 启用。`0x6b843a` 分派至三参数路径，`0x6b881b` 传给定位助手。`0x6b8767` 调用启用助手，`0x6839a0` 设置状态字节。两套路径均推进至 1381 条记录，在播放指令 `p` 明确等待媒体宿主实现。[data7](reports/p1/cli-progress-round52-data7.json) · [data8](reports/p1/cli-progress-round52-data8.json)
+
+命令行 v29 的视频 `p` 将资源引用与定位交给宿主并进入 `waitingForMedia`。原程序 `0x6b8704` 调用播放状态助手，`0x6b897b` 至 `0x6b8988` 将时长字段写入整数结果。原版 DLL 的总时长导出在 `0x10003900` 读取字段 `+0xd8`，候选写入路径 `0x10001bfb` 乘以 1000 后在 `0x10001c06` 存储。当前宿主接口接受整数计数，尚未实际调用恢复接口或执行 `?tt`。两套路径均在第 1381 条记录进入媒体等待。[data7](reports/p1/cli-progress-round53-data7.json) · [data8](reports/p1/cli-progress-round53-data8.json)
+
+命令行现可通过 `--headless-movie-tools` 指定本地 FFmpeg 工具目录。视频请求触发完整音视频解码到空输出，时长由 FFprobe 提供并转换成整数毫秒。通过已核对摘要的只读文件描述符传递媒体，进程限时且禁用其他输入协议。以 18000 个显式等待计数，两套启动路径均完成视频时长查询、等待和释放，推进至 2271 条记录。实际音画输出和同步仍待接入。[data7](reports/p1/cli-progress-round54-data7.json) · [data8](reports/p1/cli-progress-round54-data8.json)
+
+确认读档槽位并配置本地电影解码工具后，可加 `--click-after-saved-movie` 向隔离回放中电影解码后的首个点击等待发送一次模拟点击。 可用 `--saved-replay-step-limit N` 调整隔离回放的步数预算，默认 512，最大 262144。
+
+长读档回放可加 `--compact-saved-replay`，仅输出末尾 256 步及省略步数，仍保留停点和合成诊断。
+
+
+
+命令行 v30 接入带显式文件和标签的 `go`。原程序 `0x6b753b` 调用脚本切换助手，成功后 `0x6b754f` 和 `0x6b7564` 清理例程和控制栈。当前保留根帧与全局状态，目标文件仍按摘要和显式选择加载，原引擎的路径寄存器更新尚待接入。两套路径均进入标题模块并推进至 2389 条记录。[data7](reports/p1/cli-progress-round55-data7.json) · [data8](reports/p1/cli-progress-round55-data8.json)
+
+命令行 v31 支持以字符串表达式构造调用标签。原程序 `0x6b76d3` 调用目标处理助手，`0x6c07a6` 区分现成标签与后续处理路径。计算结果仍须解析为当前目标脚本中的唯一标签。两套路径均推进至 2404 条记录。[data7](reports/p1/cli-progress-round56-data7.json) · [data8](reports/p1/cli-progress-round56-data8.json)
+
+标题布局验证可重复传入 `--image-source` 和一一对应的 `--image-audit`，普通 PNG 使用 `--plain-image-source`。本轮加入标题背景、光标和边框三个私有资源副本。命令行核对嵌套容器成员的边界和摘要，逐个解码经审计的未压缩 PNG。返回的尺寸是成员尺寸上限，原版布局、图层组合和动画仍待实现。data8 路径推进至 2420 条记录。[运行报告](reports/p1/cli-progress-round57-data8.json)
+
+命令行 v32 支持已加载图像的零参数 `d`。原程序 `0x6c739c` 调用 `TImageLib` 虚表槽 `+0x28`，对应 `0x5ac9cc` 的禁用路径。两套标题布局均完成三份资源加载，关闭边框状态并返回调用者，在位置查询 `?p` 停止。[data7](reports/p1/cli-progress-round58-data7.json) · [data8](reports/p1/cli-progress-round58-data8.json)
+
+命令行 v33 接入零锚点下的图像位置查询 `?p`。`0x5ac85f` 至 `0x5ac87a` 写入位置字段，`0x5ae371` 和 `0x5ae379` 初始化锚点为零，`0x6c5aa3` 至 `0x6c5ad7` 读取坐标和第三位置字段。两套路径均完成查询并推进至 2432 条记录。[data7](reports/p1/cli-progress-round59-data7.json) · [data8](reports/p1/cli-progress-round59-data8.json)
+
+命令行 v34 绑定 `snd[0]` 并加载标题音频。`0x6bcb25` 注册声音对象，`0x68d03b` 写入类型 4，`0x6ab064` 分派声音命令，`0x6b52d0` 进入初始化助手。通过 `--audio-source` 加入单个只读副本，核心验证 Ogg Vorbis 标识和资源摘要。data8 路径推进至 2438 条记录，尚未进入音频播放。[运行报告](reports/p1/cli-progress-round60-data8.json)
+
+命令行 v35 保存声音通道的 `vtn` 和 `v` 参数。原程序 `0x6b5589` 调用通道字段写入助手，`0x5a155a` 写入字段，`0x6b5353` 调用音量路径。data8 路径执行两次设置后推进至 2442 条记录，在声音 `p` 停止。此处仍落入现有图像分派的错误提示，声音播放后端尚待接入。[运行报告](reports/p1/cli-progress-round61-data8.json)
+
+命令行 v36 将声音 `p,1` 交给本地媒体后端。后端核对资源摘要并完整解码音频至空输出，成功后恢复脚本。data8 路径推进至 2446 条记录，停在标题背景的 `e`，当前图像启用仍要求显式成员选择。音量混合、循环与实际输出仍待接入。[运行报告](reports/p1/cli-progress-round62-data8.json)
+
+命令行 v37 允许启用已加载但未显式选成员的图像。原程序在 `0x5ad278` 保存自动启用目标，由 `0x5aca4e` 读取。当前记录启用请求，尚未解析多成员容器的自动演出目标。同轮接入 `sub` 的 `ParamStr` 和整数缓存，依据 `0x6b78f5` 起的双字段写入。data8 路径推进至 2462 条记录，停在对象数组声明。[运行报告](reports/p1/cli-progress-round63-data8.json)
+
+命令行 v39 加载按钮容器。固定上游读取器对 `button.b` 在 16635 处报截断，研究适配层仅在剩余字节完全匹配连续空声音描述符时接管该分支，随后验证容器完整消费 16660 字节及三份 PNG。data8 启动执行按钮 `l` 后推进至 2472 条记录，停在图像绑定 `li`。[运行报告](reports/p1/cli-progress-round65-data8.json)
+
+命令行 v40 通过 `li` 读取并解码按钮槽位 0 和 1 的外部图像。原程序的 `0x6c7153` 调用资源查找，`0x6c7163` 将图像写入指定槽位。data8 路径推进至 2476 条记录，停在声音绑定 `ls`。[运行报告](reports/p1/cli-progress-round66-data8.json)
+
+命令行 v41 接入按钮 `ls`。原程序 `0x6c7290` 解析资源，`0x6c72a0` 调用绑定助手。相对路径在逻辑目录内消解，不能越过目录表根。data8 验证两个 WAVE 绑定后推进至 2480 条记录，停在按钮定位 `p`。[运行报告](reports/p1/cli-progress-round67-data8.json)
+
+第 81 轮通过显式按钮索引重放标题选择。原程序的 `gbc` 在 `0x6ca40e` 进入结果助手，`0x6c9be5`、`0x6c9c04` 和 `0x6c9c27` 分别写入对象、整数和字符串结果。无界面宿主只接受已启用且未锁定的按钮，标签取自原剧本的 `us`。未设置的附加结果使用零值和空字符串，`play` 通过回调返回恢复等待中的脚本，这些是当前推断模型。data8 在 2900 步进入“开始游戏”分支，停于双参数声音 `v`。原版鼠标命中、附加结果和完整调度行为仍待验证。[运行报告](reports/p1/cli-progress-round81-data8.json)

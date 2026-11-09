@@ -38,7 +38,10 @@ final class ForTests: XCTestCase {
         for header in ["\\for,1","\\for,i=0,1,","\\for,i=0,i=1,i++","\\for,i=0,1,a[0]++"] {
             XCTAssertEqual(try run("\\var,int,i\n"+header+"\n\\end").phase,.stopped)
         }
-        XCTAssertEqual(try run("\\var,int,i\n\\for,i=0,1,i++\n\\brk\n\\end").stopReason,"for_control_markers_outside_profile")
+        XCTAssertThrowsError(try run("\\brk"))
+        let broken = try run("\\var,int,i\n\\for,i=0,1,i++\n\\brk\n\\end")
+        XCTAssertEqual(broken.phase, .finished)
+        XCTAssertEqual(try broken.value(named: "i"), .integer(0))
     }
     func testFailedConditionAndOverflowDoNotCommitPartialInstruction() throws {
         let m = try run("\\var,int,i\n\\cal,i=9\n\\for,i=4,\"owned\",i++\n\\end")

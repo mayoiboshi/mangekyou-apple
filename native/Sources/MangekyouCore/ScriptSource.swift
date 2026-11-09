@@ -6,13 +6,23 @@ public extension Data {
     var sha256Hex: String { SHA256.hash(data: self).map { String(format: "%02x", $0) }.joined() }
 }
 
-public struct ScriptLocation: Encodable, Sendable, Equatable {
+public struct ScriptLocation: Encodable, Sendable, Hashable {
     public let sourceFile: String
     public let sourceSHA256: String
     public let byteOffset: Int
     public let byteLength: Int
     public let rangeSHA256: String
     public let lineNumber: Int
+
+    package init(sourceFile: String, sourceSHA256: String, byteOffset: Int, byteLength: Int,
+                 rangeSHA256: String, lineNumber: Int) {
+        self.sourceFile = sourceFile
+        self.sourceSHA256 = sourceSHA256
+        self.byteOffset = byteOffset
+        self.byteLength = byteLength
+        self.rangeSHA256 = rangeSHA256
+        self.lineNumber = lineNumber
+    }
 }
 
 public struct ScriptScalar: Sendable {
@@ -119,7 +129,8 @@ public struct ScriptSource: Sendable {
 }
 
 public func asciiLower(_ text: String) -> String {
-    String(String.UnicodeScalarView(text.unicodeScalars.map { scalar in
-        (65...90).contains(scalar.value) ? Unicode.Scalar(scalar.value + 32)! : scalar
-    }))
+    let bytes = text.utf8
+    guard bytes.contains(where: { (65...90).contains($0) }) else { return text }
+    // ASCII bytes cannot occur inside a multibyte UTF-8 scalar.
+    return String(decoding: bytes.map { (65...90).contains($0) ? $0 + 32 : $0 }, as: UTF8.self)
 }

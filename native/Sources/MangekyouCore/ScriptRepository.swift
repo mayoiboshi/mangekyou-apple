@@ -10,6 +10,11 @@ public struct ScriptModuleReference: Codable, Sendable, Equatable {
     public init(logicalPath: String, sourceFile: String, sourceSHA256: String) {
         self.logicalPath = logicalPath; self.sourceFile = sourceFile; self.sourceSHA256 = sourceSHA256
     }
+
+    public func wholeFileLocation(byteLength: Int) -> ScriptLocation {
+        ScriptLocation(sourceFile: sourceFile, sourceSHA256: sourceSHA256, byteOffset: 0,
+                       byteLength: byteLength, rangeSHA256: sourceSHA256, lineNumber: 1)
+    }
 }
 
 public struct ScriptCatalogFile: Codable, Sendable {
@@ -92,6 +97,10 @@ public struct ScriptModuleCatalog: Sendable {
         }
     }
 
+    func isIndexed(_ logical: String) throws -> Bool {
+        indexedResourceKeys?.contains(try Self.key(logical)) == true
+    }
+
     public func reference(forPhysical relative: String) -> ScriptModuleReference? { physical[Data(relative.utf8)] }
 
     /// Reviewed self-directory candidate, then the literal logical name. Configured
@@ -159,7 +168,11 @@ public struct ScriptRepository: Sendable {
     public let directory: SafeDirectory
     public let catalog: ScriptModuleCatalog
     private var cache: [Data: ScriptProgram] = [:]
+    private var cacheOrder: [Data] = []
+    private var cachedInstructionCount = 0
     private var dataCache: [Data: Data] = [:]
+    private var suppliedResources: [Data: ScriptModuleReference] = [:]
+    private let supplyResource: (@Sendable (String) throws -> ScriptModuleReference)?
     public private(set) var snapshotBytes = 0
     public var loadedModuleCount: Int { cache.count }
     public var sourceSnapshotCount: Int { dataCache.count }
@@ -168,10 +181,12 @@ public struct ScriptRepository: Sendable {
     public private(set) var pendingVariants: [ScriptModuleReference] = []
 
     public init(directory: SafeDirectory, catalog: ScriptModuleCatalog, maximumModules: Int = 512,
-                maximumBytes: Int = 128*1024*1024) throws {
+                maximumBytes: Int = 128*1024*1024,
+                supplyResource: (@Sendable (String) throws -> ScriptModuleReference)? = nil) throws {
         guard (1...512).contains(maximumModules), (1...128*1024*1024).contains(maximumBytes)
         else { throw ResourceError.rejected("module_repository_limits") }
         self.directory = directory; self.catalog = catalog; self.maximumModules = maximumModules; self.maximumBytes = maximumBytes
+        self.supplyResource = supplyResource
     }
 
     mutating func attachRoot(_ program: ScriptProgram) throws -> ScriptProgram {
@@ -185,32 +200,92 @@ public struct ScriptRepository: Sendable {
     private mutating func store(_ program: ScriptProgram) throws {
         let key = Data(program.document.source.relativePath.utf8)
         if cache[key] != nil { return }
-        guard cache.values.reduce(program.document.records.count, { $0+$1.document.records.count }) <= 400_000
+        let instructionCount = program.document.records.count
+        guard instructionCount <= 400_000
         else { throw ResourceError.rejected("module_instruction_cache_limit") }
         if dataCache[key] == nil {
             guard dataCache.count < maximumModules, program.document.source.data.count <= maximumBytes - snapshotBytes
             else { throw ResourceError.rejected("module_snapshot_budget") }
             snapshotBytes += program.document.source.data.count; dataCache[key] = program.document.source.data
         }
+        // Active calls keep their program values in frames. Eviction only drops
+        // reusable parsed entries and preserves the pinned source snapshots.
+        while instructionCount > 400_000 - cachedInstructionCount {
+            let evicted = cacheOrder.removeFirst()
+            if let previous = cache.removeValue(forKey: evicted) {
+                cachedInstructionCount -= previous.document.records.count
+            }
+        }
         cache[key] = program
+        cacheOrder.append(key)
+        cachedInstructionCount += instructionCount
+    }
+
+    static func vorbisLocation(_ reference: ScriptModuleReference, data: Data) throws -> ScriptLocation {
+        try ScriptMovieHeader.validateVorbis(data)
+        return ScriptLocation(sourceFile: reference.sourceFile, sourceSHA256: reference.sourceSHA256,
+                              byteOffset: 0, byteLength: data.count, rangeSHA256: reference.sourceSHA256, lineNumber: 1)
     }
 
     public mutating func readResource(_ logical: String) throws -> (ScriptModuleReference, Data) {
         pendingVariants = try catalog.variants(for: logical)
-        if pendingVariants.isEmpty { try catalog.requireResourceCopyIfIndexed(logical) }
-        let entry = try catalog.resolve(logical), key = Data(entry.sourceFile.utf8)
+        let logicalKey = try ScriptModuleCatalog.key(logical)
+        let entry: ScriptModuleReference
+        if let supplied = suppliedResources[logicalKey] {
+            entry = supplied
+        } else if pendingVariants.isEmpty, try catalog.isIndexed(logical), let supplyResource {
+            guard suppliedResources.count < 50_000 else { throw ResourceError.rejected("supplied_resource_count_limit") }
+            entry = try supplyResource(logical)
+            guard try ScriptModuleCatalog.key(entry.logicalPath) == logicalKey,
+                  catalog.reference(forPhysical: entry.sourceFile).map({ $0 == entry }) ?? true else {
+                throw ResourceError.rejected("supplied_resource_identity")
+            }
+        } else {
+            if pendingVariants.isEmpty { try catalog.requireResourceCopyIfIndexed(logical) }
+            entry = try catalog.resolve(logical)
+        }
+        let key = Data(entry.sourceFile.utf8)
         if let data = dataCache[key] { return (entry,data) }
-        guard dataCache.count < maximumModules else { throw ResourceError.rejected("module_snapshot_budget") }
-        let data = try directory.read(entry.sourceFile)
+        let data = try directory.read(entry.sourceFile, limit: entry.sourceFile.hasSuffix(".b") ? 32*1024*1024 : 16*1024*1024)
         guard data.sha256Hex == entry.sourceSHA256 else { throw ResourceError.rejected("module_source_identity") }
+        if pendingVariants.isEmpty { suppliedResources[logicalKey] = entry }
+        let media = [".png", ".jpg", ".jpeg", ".ogg", ".ogv", ".wav", ".b"].contains {
+            asciiLower(entry.sourceFile).hasSuffix($0)
+        }
+        if media { return (entry,data) }
+        guard dataCache.count < maximumModules else { throw ResourceError.rejected("module_snapshot_budget") }
         guard data.count <= maximumBytes - snapshotBytes else { throw ResourceError.rejected("module_snapshot_budget") }
-        snapshotBytes += data.count; dataCache[key] = data; return (entry,data)
+        snapshotBytes += data.count; dataCache[key] = data
+        return (entry,data)
+    }
+
+    mutating func movieLocation(_ logical: String) throws -> (location: ScriptLocation, size: (Int32, Int32)) {
+        pendingVariants = try catalog.variants(for: logical)
+        let reference = try catalog.resolve(logical)
+        return try directory.withFile(reference.sourceFile) { fd, size in
+            let digest = try SafeDirectory.movieSHA256(fd: fd, size: size)
+            guard digest == reference.sourceSHA256 else {
+                throw ResourceError.rejected("movie_source_identity")
+            }
+            let header = try SafeDirectory.read(fd: fd, offset: 0, count: Int(min(size, 1024*1024)))
+            let (width, height) = try ScriptMovieHeader.theoraDimensions(header)
+            guard (1...8192).contains(width), (1...8192).contains(height) else {
+                throw ResourceError.rejected("theora_movie_dimensions")
+            }
+            let location = ScriptLocation(sourceFile: reference.sourceFile, sourceSHA256: digest,
+                byteOffset: 0, byteLength: Int(size), rangeSHA256: digest, lineNumber: 1)
+            return (location, (Int32(width), Int32(height)))
+        }
     }
 
     public mutating func load(_ logical: String) throws -> ScriptProgram {
         pendingVariants = try catalog.variants(for: logical)
         let entry = try catalog.resolve(logical), key = Data(entry.sourceFile.utf8)
-        if let snapshot = cache[key] { return snapshot }
+        if let snapshot = cache[key] {
+            cacheOrder.removeAll { $0 == key }
+            cacheOrder.append(key)
+            return snapshot
+        }
         let (_,data) = try readResource(logical)
         let document = try ScriptDocument(data: data,relativePath: entry.sourceFile)
         let program: ScriptProgram
