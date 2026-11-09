@@ -57,6 +57,50 @@ public struct SaveReaderCursor: Encodable {
         public let hasResultSnapshot: Bool
         public let childCount: Int32
         public let controlBlocks: [ControlBlock]
+
+        package static func encodeResultSnapshot(integers: [Int32], strings: [String], objects: [String],
+                                                 button: String, buttonInts: [Int32], buttonStrings: [String],
+                                                 click: Int32, stop: Int32,
+                                                 subInts: [Int32], subStrings: [String]) throws -> Data {
+            guard integers.count == 16, strings.count == 16, objects.count == 16,
+                  buttonInts.count == 4, buttonStrings.count == 4,
+                  subInts.count == 4, subStrings.count == 4 else {
+                throw ResourceError.rejected("saved_result_snapshot_encode_count")
+            }
+            var record = Data()
+            for value in integers { appendInteger(value, to: &record) }
+            for value in strings + objects + [button] { try appendRecordText(value, to: &record) }
+            for value in buttonInts { appendInteger(value, to: &record) }
+            for value in buttonStrings { try appendRecordText(value, to: &record) }
+            appendInteger(click, to: &record)
+            appendInteger(stop, to: &record)
+            for value in subInts { appendInteger(value, to: &record) }
+            for value in subStrings { try appendRecordText(value, to: &record) }
+            return record
+        }
+
+        /// Assemble a v10 routine from resolved fields and already encoded sections.
+        package static func encode(scope: [String], rawState: UInt8, waitTime: Int32,
+                                   skipTime: Int32, channel: Int32, jumpLabel: String,
+                                   eventLabel: String, eventName: String, resultSnapshot: Data?,
+                                   controlBlocks: [Data]) throws -> Data {
+            guard scope.count == 16, rawState <= 10, controlBlocks.count <= 1024 else {
+                throw ResourceError.rejected("saved_routine_encode_bounds")
+            }
+            var record = Data("routine\0".utf8)
+            appendInteger(Int32(10), to: &record)
+            for value in scope { try appendRecordText(value, to: &record) }
+            record.append(rawState)
+            appendInteger(waitTime, to: &record)
+            appendInteger(skipTime, to: &record)
+            appendInteger(channel, to: &record)
+            for value in [jumpLabel, eventLabel, eventName] { try appendRecordText(value, to: &record) }
+            record.append(resultSnapshot == nil ? 0 : 1)
+            if let resultSnapshot { try appendSection(resultSnapshot, to: &record) }
+            appendInteger(Int32(controlBlocks.count), to: &record)
+            for block in controlBlocks { try appendSection(block, to: &record) }
+            return record
+        }
     }
 
     public struct ControlBlock: Encodable {
@@ -69,6 +113,21 @@ public struct SaveReaderCursor: Encodable {
         // Reader 0x6c0df0 calls setters for FSrcFile and FLabelName,
         // then reads the eight Option slots.
         public let stringReferences: [Reference]
+
+        package static func encode(rawState: UInt8, rawValueAt38: Int32, rawValueAt3C: Int32,
+                                   strings: [String]) throws -> Data {
+            guard strings.count == 10 else {
+                throw ResourceError.rejected("saved_control_block_encode_string_count")
+            }
+            var record = Data()
+            appendInteger(Int32(10), to: &record)
+            for value in strings.prefix(2) { try appendRecordText(value, to: &record) }
+            record.append(rawState)
+            appendInteger(rawValueAt38, to: &record)
+            appendInteger(rawValueAt3C, to: &record)
+            for value in strings.dropFirst(2) { try appendRecordText(value, to: &record) }
+            return record
+        }
 
         func matchesThreeFieldLoop(_ fields: [ScriptField]) -> Bool {
             guard fields.count == 3, stringReferences.count == 10, (try? ScriptForPlan(fields)) != nil else { return false }
@@ -244,6 +303,81 @@ public struct SaveReaderCursor: Encodable {
 }
 
 extension SaveReaderCursor {
+    package static func encodeThread(routines: [Data], reader: Data) throws -> Data {
+        guard routines.count <= 1024 else {
+            throw ResourceError.rejected("routine_tree_limit")
+        }
+        var thread = Data("thread\0\0".utf8)
+        appendInteger(Int32(10), to: &thread)
+        appendInteger(Int32(routines.count), to: &thread)
+        var routineOffsets: [Int] = []
+        for routine in routines {
+            routineOffsets.append(thread.count)
+            try appendSection(routine, to: &thread)
+        }
+        let readerOffset = thread.count
+        try appendSection(reader, to: &thread)
+        let decoded = try Self(threadState: thread)
+        guard decoded.routines.map(\.decodedOffset) == routineOffsets,
+              decoded.decodedOffset == readerOffset, decoded.nextDecodedOffset == thread.count else {
+            throw ResourceError.rejected("thread_encode_section_boundary")
+        }
+        return thread
+    }
+
+    private static func appendSection(_ section: Data, to record: inout Data) throws {
+        guard !section.isEmpty, section.count <= SaveEnvelope.maxFileBytes - record.count else {
+            throw ResourceError.rejected("saved_routine_encode_section_bounds")
+        }
+        record.append(section)
+    }
+
+    private static func appendInteger<T: FixedWidthInteger>(_ value: T, to record: inout Data) {
+        var littleEndian = value.littleEndian
+        withUnsafeBytes(of: &littleEndian) { record.append(contentsOf: $0) }
+    }
+
+    private static func appendRecordText(_ value: String, to record: inout Data) throws {
+        guard let units = Int16(exactly: value.utf16.count),
+              let bytes = value.data(using: .utf16LittleEndian),
+              bytes.count <= SaveEnvelope.maxFileBytes - record.count - 2 else {
+            throw ResourceError.rejected("reader_record_encode_text_bounds")
+        }
+        appendInteger(units, to: &record)
+        record.append(bytes)
+    }
+
+    /// Encode the reader record after the thread routines, with caller-supplied
+    /// opaque bytes. The caller still owns routine and engine-state serialization.
+    package static func encodeRecord(relativeLine: Int32, utf16Position: Int32,
+                                     replaceEnableByte: UInt8, opaqueFields: Data,
+                                     lineBuffer: String, scriptPath: String, label: String,
+                                     textPrefix: String, emptyLineText: String,
+                                     replacements: [(first: String, second: String, raw: Int32)] = []) throws -> Data {
+        guard opaqueFields.count == 64, replacements.count <= 65_536 else {
+            throw ResourceError.rejected("reader_record_encode_bounds")
+        }
+        var record = Data()
+        appendInteger(Int32(10), to: &record)
+        appendInteger(relativeLine, to: &record)
+        appendInteger(utf16Position, to: &record)
+        record.append(replaceEnableByte)
+        record.append(opaqueFields)
+        for value in [lineBuffer, scriptPath, label, textPrefix, emptyLineText] {
+            try appendRecordText(value, to: &record)
+        }
+        appendInteger(Int32(replacements.count), to: &record)
+        for replacement in replacements {
+            try appendRecordText(replacement.first, to: &record)
+            try appendRecordText(replacement.second, to: &record)
+            appendInteger(replacement.raw, to: &record)
+        }
+        guard record.count <= SaveEnvelope.maxFileBytes else {
+            throw ResourceError.rejected("reader_record_encode_bounds")
+        }
+        return record
+    }
+
     /// Validate the reader text and routine data before building frames.
     package func validateRoutinePayloads(in state: Data) throws -> Int {
         for field in [lineBuffer, textPrefix, emptyLineText] {
@@ -278,6 +412,31 @@ extension SaveReaderCursor {
                                  utf16Position: utf16Position, lineBuffer: lineBuffer)
     }
 
+    /// Project a known script location into the reader's line and UTF-16 units.
+    static func sourceRecordFields(position: ScriptLocation, anchor: ScriptLocation,
+                                   source: ScriptSource) throws -> (line: Int32, position: Int32, text: String) {
+        guard position.sourceFile.utf8.elementsEqual(source.relativePath.utf8),
+              anchor.sourceFile.utf8.elementsEqual(source.relativePath.utf8),
+              position.sourceSHA256 == source.sha256, anchor.sourceSHA256 == source.sha256 else {
+            throw ResourceError.rejected("save_reader_source_mismatch")
+        }
+        let (difference, overflow) = position.lineNumber.subtractingReportingOverflow(anchor.lineNumber)
+        guard !overflow, let relativeLine = Int32(exactly: difference) else {
+            throw ResourceError.rejected("save_reader_cursor_bounds")
+        }
+        let range = try lineRange(position.lineNumber, in: source)
+        let scalars = source.scalars
+        let endByte = range.upperBound < scalars.count
+            ? scalars[range.upperBound].bytes.lowerBound : source.data.count
+        let index = position.byteOffset == endByte ? range.upperBound : range.first {
+            scalars[$0].bytes.lowerBound == position.byteOffset
+        }
+        guard let index, let units = Int32(exactly: source.string(range.lowerBound..<index).utf16.count) else {
+            throw ResourceError.rejected("save_reader_cursor_not_scalar_boundary")
+        }
+        return (relativeLine, units, source.string(range))
+    }
+
     private static func resolvePosition(anchor: ScriptLocation, source: ScriptSource,
                                         relativeLine: Int32, utf16Position: Int32,
                                         lineBuffer: Reference?) throws -> ScriptLocation {
@@ -289,18 +448,10 @@ extension SaveReaderCursor {
         guard !overflow, target > 0, utf16Position >= 0 else {
             throw ResourceError.rejected("save_reader_cursor_bounds")
         }
+        let range = try lineRange(target, in: source)
         let scalars = source.scalars
-        var index = 0
-        var line = 1
-        while line < target, index < scalars.count {
-            let scalar = scalars[index].value
-            index += 1
-            if scalar == "\r", index < scalars.count, scalars[index].value == "\n" { index += 1 }
-            if scalar == "\r" || scalar == "\n" { line += 1 }
-        }
-        guard line == target, index < scalars.count else { throw ResourceError.rejected("save_reader_line_unavailable") }
-        var end = index
-        while end < scalars.count, scalars[end].value != "\r", scalars[end].value != "\n" { end += 1 }
+        var index = range.lowerBound
+        let end = range.upperBound
         if let lineBuffer {
             let text = source.string(index..<end)
             guard let encoded = text.data(using: .utf16LittleEndian),
@@ -317,6 +468,22 @@ extension SaveReaderCursor {
         guard position == 0 else { throw ResourceError.rejected("save_reader_cursor_not_scalar_boundary") }
         let byte = index < scalars.count ? scalars[index].bytes.lowerBound : source.data.count
         return source.location(byte..<byte, line: target)
+    }
+
+    private static func lineRange(_ target: Int, in source: ScriptSource) throws -> Range<Int> {
+        let scalars = source.scalars
+        var index = 0
+        var line = 1
+        while line < target, index < scalars.count {
+            let scalar = scalars[index].value
+            index += 1
+            if scalar == "\r", index < scalars.count, scalars[index].value == "\n" { index += 1 }
+            if scalar == "\r" || scalar == "\n" { line += 1 }
+        }
+        guard line == target, index < scalars.count else { throw ResourceError.rejected("save_reader_line_unavailable") }
+        var end = index
+        while end < scalars.count, scalars[end].value != "\r", scalars[end].value != "\n" { end += 1 }
+        return index..<end
     }
 
     static func controlPosition(_ block: ControlBlock, in state: Data,
@@ -364,6 +531,14 @@ extension SaveReaderCursor {
         let path = try scriptPath.utf16Text(in: state)
         let name = try label.utf16Text(in: state)
         return try Self.resolveLabel(path: path, name: name, repository: &repository)
+    }
+
+    func resolveResumeInstruction(in state: Data, repository: inout ScriptRepository) throws
+        -> (location: ScriptLocation, program: ScriptProgram, index: Int) {
+        let resolved = try resolveLabel(in: state, repository: &repository)
+        let position = try resolved.program.sourcePosition(for: self, anchor: resolved.location)
+        let index = try resolved.program.savedResumeIndex(position, reader: self)
+        return (resolved.location, resolved.program, index)
     }
 
     private static func resolveLabel(path: String, name: String,
@@ -415,20 +590,52 @@ extension ScriptProgram {
         return (document.records[index].location, ancestors[index].count)
     }
 
+    /// Build fields for a dispatched command, including the post-command
+    /// position used by a suspended native timed wait.
+    func savedReaderFields(commandIndex: Int, anchor: ScriptLocation, afterWaitCommand: String? = nil)
+        throws -> (line: Int32, position: Int32, text: String) {
+        let records = document.records
+        guard records.indices.contains(commandIndex), records[commandIndex].kind == .command else {
+            throw ResourceError.rejected("save_reader_command_index_unavailable")
+        }
+        let location = records[commandIndex].location
+        guard let source = sources[Data(location.sourceFile.utf8)] else {
+            throw ResourceError.rejected("save_reader_source_mismatch")
+        }
+        let byte = location.byteOffset + (afterWaitCommand != nil ? location.byteLength : 0)
+        let cursor = source.location(byte..<byte, line: location.lineNumber)
+        if let afterWaitCommand {
+            guard records[commandIndex].command.map(asciiLower) == afterWaitCommand else {
+                throw ResourceError.rejected("save_timed_wait_successor_unresolved")
+            }
+            _ = try savedWaitSuccessor(cursor, command: afterWaitCommand)
+        } else if try saveCommandIndex(cursor) != commandIndex {
+            throw ResourceError.rejected("save_reader_command_index_unavailable")
+        }
+        return try SaveReaderCursor.sourceRecordFields(position: cursor, anchor: anchor, source: source)
+    }
+
     package func savedResumeIndex(_ position: ScriptLocation, reader: SaveReaderCursor) throws -> Int {
         if reader.routines.last?.rawState == 3 {
             return try savedTimedWaitSuccessor(position)
+        }
+        if reader.routines.last?.rawState == 4 {
+            return try savedWaitSuccessor(position, command: "clk")
         }
         return try saveCommandIndex(position)
     }
 
     /// Native timed waits leave the reader after the dispatched command.
     func savedTimedWaitSuccessor(_ position: ScriptLocation) throws -> Int {
+        try savedWaitSuccessor(position, command: "wait")
+    }
+
+    private func savedWaitSuccessor(_ position: ScriptLocation, command: String) throws -> Int {
         let records = document.records
         let waits = records.indices.filter {
             let record = records[$0]
             let location = record.location
-            return record.kind == .command && record.command.map(asciiLower) == "wait" &&
+            return record.kind == .command && record.command.map(asciiLower) == command &&
                 location.sourceFile.utf8.elementsEqual(position.sourceFile.utf8) &&
                 location.sourceSHA256 == position.sourceSHA256 && location.lineNumber == position.lineNumber &&
                 location.byteOffset + location.byteLength == position.byteOffset
@@ -437,7 +644,7 @@ extension ScriptProgram {
               let next = records.indices.dropFirst(waits[0] + 1).first(where: {
                   ![.layout, .comment].contains(records[$0].kind)
               }), records[next].location.sourceFile.utf8.elementsEqual(position.sourceFile.utf8) else {
-            throw ResourceError.rejected("save_timed_wait_successor_unresolved")
+            throw ResourceError.rejected(command == "clk" ? "save_click_wait_successor_unresolved" : "save_timed_wait_successor_unresolved")
         }
         return next
     }

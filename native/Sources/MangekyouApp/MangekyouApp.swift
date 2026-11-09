@@ -21,6 +21,7 @@ import MangekyouMedia
     private var previewGeneration = UUID()
     private var executionGeneration = UUID()
     private var scriptDocument: ScriptDocument?
+    private var imageDecodeTask: Task<ResourceImage, Error>?
     private var scriptDecodeTask: Task<ScriptPreview,Error>?
     private var scriptExecutionTask: Task<ScriptExecution,Error>?
     private struct ScriptPreview: Sendable {
@@ -46,7 +47,8 @@ import MangekyouMedia
 
     func load(_ url: URL) {
         guard !busy else { return }
-        busy = true; error = nil; selected = nil; image = nil; previewError = nil; imageNotes = []
+        busy = true; error = nil; selected = nil
+        preview()
         preferredModuleSources = [:]; moduleChoices = []
         Task {
             do {
@@ -60,6 +62,8 @@ import MangekyouMedia
 
     func preview() {
         image = nil; imageNotes = []; previewError = nil
+        imageDecodeTask?.cancel()
+        imageDecodeTask = nil
         scriptDecodeTask?.cancel(); scriptExecutionTask?.cancel()
         previewGeneration = UUID(); executionGeneration = UUID()
         let generation = previewGeneration
@@ -86,11 +90,25 @@ import MangekyouMedia
             return
         }
         guard ["PNG", "DPNG", "JPEG"].contains(entry.format) else { return }
-        do {
-            let decoded = try ResourceImage.decode(directory.read(entry.relativePath))
-            image = NSImage(cgImage: decoded.image, size: NSSize(width: decoded.image.width, height: decoded.image.height))
-            imageNotes = decoded.notes
-        } catch { previewError = String(describing: error) }
+        let worker = Task.detached(priority: .userInitiated) {
+            let data = try directory.read(entry.relativePath)
+            try Task.checkCancellation()
+            return try ResourceImage.decode(data)
+        }
+        imageDecodeTask = worker
+        Task {
+            let result = await worker.result
+            guard previewGeneration == generation, selected == entry.id,
+                  self.directory?.root == directory.root else { return }
+            imageDecodeTask = nil
+            switch result {
+            case .success(let decoded):
+                image = NSImage(cgImage: decoded.image, size: NSSize(width: decoded.image.width, height: decoded.image.height))
+                imageNotes = decoded.notes
+            case .failure(let error):
+                previewError = String(describing: error)
+            }
+        }
     }
 
     func inspectScriptExecution(preferredSource: String? = nil) {
@@ -130,7 +148,22 @@ import MangekyouMedia
 @main struct MangekyouApplication: App {
     @StateObject private var model = LibraryModel()
     @Environment(\.openWindow) private var openWindow
-    private let launch = PlayerLaunch(arguments: Array(CommandLine.arguments.dropFirst()))
+    private let launch: PlayerLaunch?
+
+    init() {
+        let arguments = Array(CommandLine.arguments.dropFirst())
+        launch = PlayerLaunch(arguments: arguments)
+        if launch == nil, arguments.contains(where: { $0.hasPrefix("--") }) {
+            let usage = """
+            试玩启动参数无效。请提供绝对路径，并确认 ffmpeg 可执行。
+            用法: Mangekyou --assets-dir PATH --replay-dir PATH --game-dir PATH [--ffmpeg PATH] [--save-dir PATH]
+
+            """
+            FileHandle.standardError.write(Data(usage.utf8))
+            exit(64)
+        }
+    }
+
     var body: some Scene {
         WindowGroup(launch == nil ? "Mangekyou" : "万華鏡试玩") {
             Group {

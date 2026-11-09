@@ -2,9 +2,45 @@
 
 **当前状态**：Apple Silicon 发布版已用真实资源完成一条从开场、正文、六次选择到片尾并返回标题的 GUI 回放。回放使用自动输入和加速计时，影片按实际时长播放。现在优先完善图层、对话排版和交互。其他路线的 GUI 覆盖、持久存档和原版演出还原仍待验证。原始目录始终只读。
 
+### 动态 CG 与汉化验证
+
+- `verified` · 较早的发布构建已用本地汉化覆盖完成一条 GUI 路线，记录六次选择、两段影片结束及返回标题。验收依据为同一次私有回放的 `player_choices_resolved`、`player_movie_finished` 与 `player_route_returned_to_title`。
+- `verified` · ARM64 发布版以实际选项索引 1、0、0、1、1、1 完成汉化替代路线，记录 81 次动态 CG 首帧，并在片尾后返回标题。首帧次数包含重复进入同一资源。依据为同一次私有回放的 `selected_index`、`player_scene_video_first_frame` 和 `player_route_returned_to_title`。该次长回放使用随后一批边框和立绘绘制改动之前的发布版。
+- `verified` · 当前构建的定向 A→B→A 回放输出三次首帧，记录两次视频准备。可分别核对 `player_scene_video_first_frame` 和 `player_scene_video_prepared`。
+- `unsupported` · 汉化长程回放仍报告部分 ABMP 复合演出及立绘动作图层问题。可核对 `player_missing_layers` 和 `unsupported_animation_layers`。
+- `not_tested` · 汉化全路线、动态 CG 的原版时序和图层合成一致性仍待验收。
+
+### 实验性读档
+
+- `verified` · 在隔离存档中以单精度浮点字段写入 1,001 毫秒，并用真实游戏音频复测原生窗口。预检通过，窗口从存档通道 0 发起 1,001 毫秒定位并起播。同一次采样的原始位置为 1.000997732426304 秒，比请求早约 2.27 微秒，截断后记为 1,000 毫秒。可核对同一次私有回放的 `player_save_stream_started` 和 `player_experimental_save_playback`。
+- `verified` · 用合成脚本、本地真实 Ogg 音频和混合构造的私有模板，命令行导出了包含活动流音轨的槽位。独立检查进程读回通道 0，确认 `rawSeekBits` 与 1,001 毫秒的单精度表示一致。
+- `verified` · 合成脚本在等待前把局部整数从模板中的 −2 更新为 87。命令行导出的槽位经独立读取确认值为 87，原生窗口读档后通过依赖该值的计算并进入下一次点击等待。依据为 `calValArrays.indexed.groupSpans` 和 `player_experimental_save_playback`。
+- `verified` · 合成 `sub` 调用在子程序等待时导出槽位。原生窗口恢复后，分别执行依赖整数和字符串参数的计算，从子程序返回并进入调用方的点击等待。依据为 `player_experimental_save_adopted` 和 `player_experimental_save_playback`。
+- `verified` · 合成脚本用真实游戏音频导出待播音轨。独立原生窗口读档时只加载资源，随后执行播放指令，以 1,251 毫秒的请求位置、0.5 的初始增益和 −0.125 的声像起播，再进入点击等待。依据为 `staged_streams`、`scheduled_streams` 和 `player_save_stream_started`。
+- `not_tested` · 原引擎的定位舍入规则，以及应用写档后重新加载完整游戏状态，仍待验证。
+
+命令行可在有目录索引的单脚本实验运行中追加 `--save-dir "$DONOR_DIR" --export-timed-wait-slot SaveData0.svd`。二进制槽位写到标准输出，诊断写到标准错误。将输出定向到独立的 `private/` 路径。当前支持符合写档约束的计时等待和点击等待。模板缺少简单 ASCII 名称的一维整数或字符串全局绑定时可实验性生成记录，已支持的内嵌列表和表也可生成记录，缺少其他对象记录时会报告缺失数量并拒绝导出。已有 `ValIdx` 分组且局部绑定与模板一致时，可写入整数和字符串局部变量。模板提供完整参数组时，也可写入 `sub` 调用的整数和字符串参数。局部对象和对象参数仍不支持。带活动流音轨时，须用可重复的 `--save-stream-position 通道=毫秒` 提供每个通道的实测位置，且模板和运行状态的活动通道必须匹配。输出沿用模板的元数据和缩略图，使用未变换的状态。导出时关闭模板直播放音轨的重新加载标记，避免读档后播放旧音效。当前运行中的直播放音轨尚未纳入写档。可用 `--save-display-surface 索引=绝对路径` 分别替换索引 0 和 1 的已有内嵌画面（每个索引使用一次参数），图像须可解码且与模板格式一致。其他画面字段仍取自模板。追加 `--save-scene-thumbnail --scene-preview-background 相对路径` 可把当前命令行场景编码为 JPEG 缩略图，尺寸由背景画布决定。预览不完整时拒绝导出。
+
 ### 打开试玩窗口
 
-运行 `python3 tools/build_native.py` 后打开 `build/Mangekyou.app`。先在资源检查窗口导入本地资源副本，再从菜单打开「试玩窗口」，依次选择本地回放目录、对应的原版游戏目录和本机 `ffmpeg`。回放目录需要包含 `summary.json`、`combined-catalog.json`、`image-recipe.json`。新版摘要包含资源清单时可直接启动，旧版摘要仍需要相应的回放日志。试玩仍依赖这些由本地研究流程生成的资料。首次成功加载后，可在同一窗口使用「打开上次试玩配置」。
+运行 `python3 tools/build_native.py` 后打开 `build/Mangekyou.app`。从菜单打开「试玩窗口」，在「载入本地回放配置」菜单点「选择回放配置…」，依次选择已准备的本地资源副本目录、本地回放目录、对应的原版游戏目录。已有本地解码的汉化脚本和 PNG 时，可将它们按游戏逻辑路径放在资源目录内的独立子目录，再生成私有回放清单。每个覆盖目录用一次 `--overlay` 指定。工具输出的新清单目录可直接传给播放器的 `--replay-dir`。
+
+```sh
+python3 tools/prepare_localization_replay.py \
+  --assets-dir "$MANGEKYOU_ASSETS_DIR" --replay-dir "$MANGEKYOU_REPLAY_DIR" \
+  --overlay local-cn.pack --overlay local-cn-png.pack
+```
+
+也可从本地已验证版本的 `.cn` 生成覆盖目录。先从自己持有的 1.00 补丁取得匹配的 EXE，再运行下列命令。它只读取 EXE 字节，并将脚本、带 BOM 的 UTF-16 配置、PNG、Ogg 视频和 ABMP 容器写入工作区 `private/` 下的资源目录。把输出的 `overlay` 值传给上面的 `--overlay`。
+
+```sh
+python3 tools/decode_localization_cn.py --assets-dir "$MANGEKYOU_ASSETS_DIR" \
+  --loader "$MANGEKYOU_CN_LOADER" --cn "$MANGEKYOU_CN_FILE"
+```
+
+命令按 SHA-256 识别已验证的 1.00 加载器和两份 `.cn`。其他版本尚待接入。已核对的 GBK 音乐鉴赏表会转换为带 BOM 的 UTF-16LE。若覆盖目录含 `.b`，先用固定版本的上游环境运行 `tools/abmp_probe.py --input FILE --private-extended-values`，将各报告写入独立的私有目录，按逻辑路径把 `.b` 后缀换成 `.json`。生成回放清单时用 `--abmp-audit-dir` 指定报告目录。工具按容器和成员摘要核对报告后生成配方。
+
+应用优先复用上次配置中的 `ffmpeg`，其次检查 Apple Silicon Homebrew 的默认位置，两者均不可用时才提示手动选择。回放目录需要包含 `summary.json`、`combined-catalog.json`、`image-recipe.json`。新版摘要包含资源清单时可直接启动，旧版摘要仍需要相应的回放日志。试玩仍依赖这些由本地研究流程生成的资料。也可以选择「选择回放配置及只读存档…」，在最后一步指定存档目录。首次成功加载后，可在同一窗口使用「打开上次试玩配置」。
 
 可用 `python3 tools/merge_replay_receipts.py --base "$BASE_REPLAY" --donor "$OTHER_REPLAY" --output private/merged-replay` 合并本地回放的资源记录。`--donor` 可重复传入，输出目录须为新目录。命令保留基础回放的脚本、选项和已有图像解码配置，并补入资源摘要匹配的新配方。同名资源记录冲突或新增配方冲突会停止。播放器读取资源时仍会核对文件摘要。
 
@@ -17,6 +53,10 @@ swift run --package-path native -c release Mangekyou \
   --assets-dir "$MANGEKYOU_ASSETS_DIR" --replay-dir "$MANGEKYOU_REPLAY_DIR" \
   --game-dir "$MANGEKYOU_GAME_DIR" --ffmpeg "$MANGEKYOU_FFMPEG"
 ```
+
+Apple Silicon Homebrew 默认位置已有可执行的 `ffmpeg` 时，命令行也可省略 `--ffmpeg`。
+
+可通过 `--save-dir "$MANGEKYOU_SAVE_DIR"` 只读导入剧情存档。若同时使用探针选项，探针选项放在最后。读档菜单显示可识别的槽位和元数据，并在已支持的图层条件下合成缩略图。遇到暂不支持的合成条件时会显示静态缩略图。导入目录仅供读取，菜单中的删除按钮目前只显示贴图。确认后，应用尝试恢复已支持的脚本与媒体状态，失败时保留读档前的会话并显示原因。变换存档的校验模板来自已核验的第四作原版 EXE，应用只读取该文件。本地提供的 `SaveData` 目录仅有 `SavePath.txt`，附带的 `SystemData.dat` 是系统数据。当前续跑验证使用私有研究槽位，原版生成的剧情槽位兼容性待验证。
 
 在末尾加 `--check-choices=3` 可使用回放清单的选项顺序，验证前三次剧情选择。该模式加速等待并跳过音频播放，到达指定选项后的等待点即停止自动推进。
 
@@ -43,11 +83,11 @@ swift run --package-path native -c release Mangekyou \
   --story-choice 1 --story-choice 1 --story-choice 1
 ```
 
-页码和选项从 0 开始。退出码为 0 要求消费全部选项，并回到可响应输入的标题菜单。回放停点和剩余选项保存在 `private/`。这项验收覆盖所选路线的脚本执行，原版画面对照、其他路线和实际存档恢复仍需独立验证。
+页码和选项从 0 开始。 每次路线验收使用未占用的 `--stage`，以便保留之前的回放证据。退出码为 0 要求消费全部选项，并回到可响应输入的标题菜单。回放停点和剩余选项保存在 `private/`。这项验收覆盖所选路线的脚本执行，原版画面对照、其他路线和实际存档恢复仍需独立验证。私有回执已确认 `0,1,0,1,1,1`（round9912）和 `0,0,1,1,1,1`（round9913）均消费六次选择并返回标题。后者的 `story_choice_available` 日志显示六处均可选索引 0 和 1。该结果按选项组合计，不能据此确定独立结局数。
 
 直接调用 `mangekyou-script` 回放单个脚本时，可在 `--scene-preview-background` 之外加上 `--scene-preview-png`，将合成画面写到标准输出。JSON 报告作为标准错误的最后一行输出。请将两路输出分别重定向到 `private/` 下的新文件。即使预览报告有遗漏，仍可检查已合成的部分，退出码以报告状态为准。
 
-旧回放的图像配方可通过 `tools/merge_replay_receipts.py --refresh-recipe SHA256` 从供体回放刷新。该选项要求成员范围、摘要、格式及槽号保持一致，并将结果写入新的私有目录。
+旧回放的图像配方可通过 `tools/merge_replay_receipts.py --refresh-recipe SHA256` 从供体回放刷新。 仅更新指定配方并保留基础回放的脚本、资源清单和选项时，同时传入 `--recipe-only`。该选项要求成员范围、摘要、格式及已记录的槽号保持一致，允许补齐旧配方缺失的槽号，并将结果写入新的私有目录。 如果旧回放的读档菜单报告 `unsupported_two_texture_key`，先核对供体的缩略图配方是否包含新版探针生成的双纹理参数。用实际 `thumimage.b` 的 SHA-256 指定刷新目标。已验证刷新后的配方能在原生菜单中合成测试槽缩略图并进入续播。
 
 ### 历史开发记录
 
@@ -257,6 +297,16 @@ P0 不运行游戏，未测试分支执行、存档、动画时间线或整作�
 确认读档槽位并配置本地电影解码工具后，可加 `--click-after-saved-movie` 向隔离回放中电影解码后的首个点击等待发送一次模拟点击。 可用 `--saved-replay-step-limit N` 调整隔离回放的步数预算，默认 512，最大 262144。
 
 长读档回放可加 `--compact-saved-replay`，仅输出末尾 256 步及省略步数，仍保留停点和合成诊断。
+
+命令行标题读档验证可额外加 `--adopt-experimental-save-candidate`。确认槽位后，已构建的恢复候选会替换当前命令行会话，并由正常的脚本和媒体循环继续执行。结果见 `loadTask.experimentalAdoption`。使用已有研究样本和 `--maximum-steps 2000000`，实测执行 159529 步后抵达 `waitingForEvent`。该验证覆盖命令行执行交接，原版画面和音轨恢复等价性仍待核对。
+
+同一研究槽位可用播放器启动探针 `--check-experimental-save-adoption=SaveData0.svd` 验证。提供原有 `--assets-dir`、`--replay-dir`、`--game-dir` 和私有 `--save-dir` 参数。样本从标题确认读档后，日志出现 `player_experimental_save_adopted=1`，并在恢复实例执行 261 步时启动片尾影片。片尾播放 91.163 秒后，探针通过常规输入路径送入一次点击。脚本由第 159397 步推进至第 163877 步，再次进入 `waitingForEvent`，当时播放器报告 16 个图层。播放器常规读档确认也使用同一恢复流程。若无法建立恢复候选、音频状态不受支持或待播放音频预检失败，播放器会保留读档前的会话。启动探针用于自动点击和记录结果。 剧情内入口可改用 `--check-dialogue-save-adoption=SaveData0.svd`。私有组合样本从对白界面确认读档后清理了两条旧音轨，从 1.25 秒处启动存档音轨，并进入片尾影片。 越界音轨位置的私有样本可用 `--check-dialogue-save-rejection=SaveData0.svd` 验证。播放器回到同一对白，保留两条循环音轨，下一次点击继续执行。
+
+实验交接会把有精确毫秒位置的流式音轨放入对应声道。原版 `0x5a056f–0x5a057f → 0x5a0db4 → 0x59d014` 在模式值至少为 2 时请求播放，重复次数来自记录偏移 `0x27`。私有组合样本预载并启动了 1 条音轨，播放器报告 `actual_seconds=1.25 playing=true`，随后启动片尾影片。该样本仍报告画面预览不完整，完整的原版混音和淡入参数仍待核对。
+
+初始图层的私有组合验证使用同一存档布局。普通 PNG 能在脚本执行前绘制为半透明图层。改用需要动作状态的 `button_delete.b` 后，预检以 `saved_initial_layer_unavailable` 报出具体资源，标题恢复到 `waitingForEvent`。
+
+直接音效使用独立声道。模式 2 按 `0x59fc60` 检查解码缓冲区是否大于 `0xd7550` 字节。探针以 44.1 kHz、单声道、16 位 PCM 检查前 11 秒。私有组合样本的短音效为 199050 字节，未启动。长音乐样本达到 970200 字节，原生播放器确认启动一次。模式 3 的私有组合样本已验证循环启动。
 
 
 

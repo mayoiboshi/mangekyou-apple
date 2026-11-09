@@ -4,11 +4,17 @@ import CoreText
 import ImageIO
 import MangekyouCore
 
-public struct ResourceImage {
+public struct ResourceImage: Sendable {
     public let image: CGImage
     public let format: String
     public let notes: [String]
     public let originalRendererEquivalence: EvidenceStatus = .notTested
+
+    package init(image: CGImage, format: String, notes: [String]) {
+        self.image = image
+        self.format = format
+        self.notes = notes
+    }
 
     package static func savedDisplayRectPreview(_ rect: SaveStatePrefix.DisplaySummary.ProceduralRect,
                                                 width: Int, height: Int) throws -> CGImage {

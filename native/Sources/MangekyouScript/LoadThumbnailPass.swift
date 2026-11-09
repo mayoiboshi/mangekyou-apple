@@ -25,6 +25,7 @@ struct LoadThumbnailPass: Encodable {
     let status: EvidenceStatus = .inferred
     let borderBlend = "default_fixed_point_preview"
     let layerCount: Int
+    let sceneLayerCount: Int
     struct CompositedMotionLayer: Encodable {
         let id: UInt64
         let resource: ScriptLocation
@@ -36,7 +37,8 @@ struct LoadThumbnailPass: Encodable {
 
     let staticRasterCount: Int
     let compositedMotionLayers: [CompositedMotionLayer]
-    let interfaceBackgroundPreviewCount: Int
+    let interfaceBackgroundPreviews: [ScriptLocation]
+    var interfaceBackgroundPreviewCount: Int { interfaceBackgroundPreviews.count }
     let textPreviewCount: Int
     let textPreviewWithoutCoverageCount: Int
     let textPreviewIssues: [UInt64: String]
@@ -59,7 +61,7 @@ struct LoadThumbnailPass: Encodable {
     init(task: ScriptMachine, assets: SafeDirectory, recipe: ScriptImageRecipe, backgroundPath: String,
          suppliedCapture: Data?, saveDirectory: SafeDirectory?, choicePointer: CGPoint? = nil,
          atDrawRequest: Bool = false, capturePriority: Int32? = nil, overlapProgress: (elapsed: UInt32, duration: UInt32)? = nil,
-         exportPNG: ((Data) -> Void)? = nil) throws {
+         exportPNG: ((Data) -> Void)? = nil, exportJPEG: ((Data) -> Void)? = nil) throws {
         let sceneLayers = task.staticImageLayers.filter { layer in
             overlapProgress != nil || (capturePriority.map { layer.priority <= $0 } ?? true)
         }
@@ -81,7 +83,9 @@ struct LoadThumbnailPass: Encodable {
         func read(_ source: ScriptLocation) throws -> Data {
             if let payload = verifiedPayloads[source] { return payload }
             let data: Data
-            if source.sourceFile == "system-capture.png", let suppliedCapture {
+            if let embedded = task.savedTextureBytes(source) {
+                data = embedded
+            } else if source.sourceFile == "system-capture.png", let suppliedCapture {
                 data = suppliedCapture
             } else if source.sourceFile.hasPrefix("save-slot/") {
                 guard let saveDirectory else { throw ResourceError.rejected("save_thumbnail_directory_unavailable") }
@@ -110,7 +114,7 @@ struct LoadThumbnailPass: Encodable {
         var omitted: [OmittedLayer] = []
         var rasters = 0
         var compositedMotions: [CompositedMotionLayer] = []
-        var interfacePreviews = 0
+        var interfacePreviews: [ScriptLocation] = []
         var uncovered: [ScriptMachine.SavedDisplayDraw.UncoveredMotion] = []
         var clipped: [ScriptMachine.SavedDisplayDraw.ClippedRaster] = []
         var nonDrawing: [String: Int] = [:]
@@ -156,22 +160,20 @@ struct LoadThumbnailPass: Encodable {
                         let anchor = percent < 0 ? far : near
                         return Int(floor(anchor + CGFloat(edge - Int64(placement)) * CGFloat(percent) / 100))
                     }
+                    guard message.scaleXPercent != 0, message.scaleYPercent != 0 else {
+                        textCount += 1
+                        uncoveredTextCount += 1
+                        continue
+                    }
                     let raster = try ResourceImage.textPreview(message,
                         width: Int(bounds[2] - bounds[0]), height: Int(bounds[3] - bounds[1]))
                     let x = position(bounds[0], bounds[2], placement: message.x,
                                      near: background.minX, far: background.maxX, percent: message.scaleXPercent)
                     let y = position(bounds[1], bounds[3], placement: message.y,
                                      near: background.minY, far: background.maxY, percent: message.scaleYPercent)
-                    let width = CGFloat(raster.image.width) * abs(CGFloat(message.scaleXPercent)) / 100
-                    let height = CGFloat(raster.image.height) * abs(CGFloat(message.scaleYPercent)) / 100
-                    guard width > 0, height > 0 else {
-                        textCount += 1
-                        uncoveredTextCount += 1
-                        continue
-                    }
-                    let target = CGRect(x: CGFloat(x), y: CGFloat(y), width: width, height: height)
-                    let covered = try raster.drawRasterPreview(bounds: target, opacity: 255,
-                        flipX: message.scaleXPercent < 0, flipY: message.scaleYPercent < 0, canvas: &canvas)
+                    // textPreview already scales and mirrors the glyph surface.
+                    let target = CGRect(x: x, y: y, width: raster.image.width, height: raster.image.height)
+                    let covered = try raster.drawRasterPreview(bounds: target, opacity: 255, canvas: &canvas)
                     if !covered {
                         uncoveredTextCount += 1
                         let canvasBounds = CGRect(x: 0, y: 0, width: canvas.first?.count ?? 0, height: canvas.count)
@@ -212,6 +214,9 @@ struct LoadThumbnailPass: Encodable {
             }
             midpointPending = false
         }
+        let dialogueWindow = task.dialogueWindowMotion.map {
+            ScriptImageRecipe.sampleDialogueWindow(closing: $0.closing, ticks: $0.ticks)
+        }
         for layer in sceneLayers {
             if midpointPending, let cutoff = capturePriority, layer.priority > cutoff {
                 try applyMidpoint()
@@ -236,19 +241,28 @@ struct LoadThumbnailPass: Encodable {
                         nonDrawing["cursor_hidden", default: 0] += 1
                         continue
                     }
-                    if choice == nil, layer.boundRasterPreview == nil, let member = layer.selectedMember,
+                    if choice == nil, let member = layer.selectedMember,
                        let time = layer.motionElapsedTicks,
-                       let keys = recipe.motionKeys(layer.resource, selectedMember: member, time: time),
-                       keys.allSatisfy({ $0.type == 0 }) {
-                        // A known timeline can also emit nothing before its first key.
+                       recipe.hasNoActiveDrawKey(layer.resource, selectedMember: member, time: time) {
                         _ = try read(layer.resource)
                         nonDrawing["no_active_draw_key", default: 0] += 1
+                        continue
+                    }
+                    if let dialogueWindow, recipe.windowTextureIsOffCanvas(layer, offsetY: dialogueWindow.y,
+                                                                          canvasHeight: canvas.count) {
+                        _ = try read(layer.resource)
+                        nonDrawing["window_texture_outside_canvas", default: 0] += 1
                         continue
                     }
                     guard !layer.unappliedTransform else { throw ResourceError.rejected("unsupported_static_layer_3d_transform") }
                     // The dc field feeds the ABMP sound callback at 0x580283.
                     // It does not select a destination for this raster preview.
-                    if choice == nil, let member = layer.selectedMember, let time = layer.motionElapsedTicks,
+                    // Share the player's audited opaque text-effect raster for its active interval.
+                    let staticTextEffect = layer.resource.rangeSHA256 ==
+                        "cd20f60e0984abd828a5f8c8567335a385339372dd99c2731def35ac4b4e972b" &&
+                        layer.selectedMember == 0 && layer.boundRasterPreview == nil &&
+                        (0..<1000).contains(layer.motionElapsedTicks ?? -1)
+                    if choice == nil, !staticTextEffect, let member = layer.selectedMember, let time = layer.motionElapsedTicks,
                        let keys = recipe.motionKeys(layer.resource, selectedMember: member, time: time) {
                         let draws = keys.filter { $0.type != 0 }
                         let payload = try read(layer.resource)
@@ -262,8 +276,11 @@ struct LoadThumbnailPass: Encodable {
                                 ? SIMD2(Double(layer.alignmentXPercent) / 100, Double(layer.alignmentYPercent) / 100)
                                 : nil
                             let scale = SIMD2(Double(layer.scaleXPercent) / 100, Double(layer.scaleYPercent) / 100)
+                            let referencedSlots = Set(scoped.compactMap { $0.texture.texture_numbers?.first })
+                            let boundTextures = try layer.boundTextureLocations.filter { referencedSlots.contains($0.key) }
+                                .mapValues(read)
                             let covered = try recipe.drawScopedTexturePreview(scoped, container: payload,
-                                boundSlotZero: try layer.boundRasterPreview.map(read), origin: origin,
+                                boundTextures: boundTextures, origin: origin,
                                 hostScale: scale, anchorOverride: anchor, layerOpacity: layer.opacity, canvas: &canvas)
                             if !covered {
                                 nonDrawing["texture_no_coverage", default: 0] += 1
@@ -287,34 +304,42 @@ struct LoadThumbnailPass: Encodable {
                                   layer.opacity == 255, layer.scaleXPercent == 100, layer.scaleYPercent == 100,
                                   layer.alignmentXPercent == 0, layer.alignmentYPercent == 0 {
                             // Reuse the bounded type-11 scanner profile from the thumbnail pass.
-                            let bound = try layer.boundRasterPreview.map { (try read($0), $0) }
+                            let slots = Set(key.texture_numbers ?? [])
+                            let bound = try layer.boundTextureLocations.filter { slots.contains($0.key) }
+                                .mapValues { (try read($0), $0) }
                             guard try recipe.drawFullTwoTextureKey(key, container: payload,
-                                boundFirst: bound, origin: origin, canvas: &canvas) else {
+                                boundTextures: bound, origin: origin, canvas: &canvas) else {
                                 nonDrawing["two_texture_no_coverage", default: 0] += 1
                                 uncovered.append(.init(resource: layer.resource, member: member,
                                                        ticks: time, drawOffsets: draws.map(\.offset)))
                                 continue
                             }
                         } else if draws.count == 1, let key = draws.first, member == 0,
-                                  let size = recipe.whiteFlashPreviewSize(key, container: layer.resource) {
+                                  let flash = recipe.whiteFlashPreview(key, container: layer.resource) {
                             guard layer.opacity == 255, layer.scaleXPercent == 100, layer.scaleYPercent == 100,
                                   layer.boundRasterPreview == nil,
                                   layer.alignmentXPercent == 50, layer.alignmentYPercent == 50 else {
                                 throw ResourceError.rejected("white_flash_host_state_outside_profile")
                             }
-                            let x = origin.x - size.x / 2
-                            let y = origin.y - size.y / 2
+                            let x = origin.x - flash.size.x / 2
+                            let y = origin.y - flash.size.y / 2
                             let left = max(0, x)
                             let top = max(0, y)
-                            let right = min(canvas.first?.count ?? 0, x + size.x)
-                            let bottom = min(canvas.count, y + size.y)
+                            let right = min(canvas.first?.count ?? 0, x + flash.size.x)
+                            let bottom = min(canvas.count, y + flash.size.y)
                             guard left < right, top < bottom else {
                                 nonDrawing["outside_canvas", default: 0] += 1
                                 continue
                             }
-                            let white = SIMD4<UInt8>(255, 255, 255, 255)
+                            let alpha = Int(flash.alpha)
+                            func overWhite(_ value: UInt8) -> UInt8 {
+                                UInt8((Int(value) * (255 - alpha) + 255 * alpha + 127) / 255)
+                            }
                             for y in top..<bottom {
-                                for x in left..<right { canvas[y][x] = white }
+                                for x in left..<right {
+                                    let pixel = canvas[y][x]
+                                    canvas[y][x] = SIMD4(overWhite(pixel.x), overWhite(pixel.y), overWhite(pixel.z), 255)
+                                }
                             }
                         } else if draws.count == 1, let key = draws.first, key.type == 1,
                                   layer.scaleXPercent == 100, layer.scaleYPercent == 100,
@@ -363,7 +388,7 @@ struct LoadThumbnailPass: Encodable {
                         ? try recipe.interfaceBackgroundPreview(source, sourceFile: layer.resource.sourceFile)
                         : nil
                     let staticClick = path.hasSuffix("/avg/window/click.b") && layer.selectedMember != nil
-                    guard choice != nil || preview != nil || staticClick || (layer.motionElapsedTicks == nil &&
+                    guard choice != nil || preview != nil || staticClick || staticTextEffect || (layer.motionElapsedTicks == nil &&
                           (layer.selectedMember == nil || (layer.selectedMember == 0 && plainRaster))) else {
                         if layer.selectedMember != nil, layer.motionElapsedTicks != nil {
                             throw ResourceError.rejected("scene_motion_timeline_unavailable")
@@ -409,7 +434,7 @@ struct LoadThumbnailPass: Encodable {
                         flipX: layer.scaleXPercent < 0, flipY: layer.scaleYPercent < 0,
                         // Like the window preview, filter 2 approximates fractional sampling.
                         interpolation: layer.textureFilter == 2 ? .low : .none, canvas: &canvas)
-                    if preview != nil { interfacePreviews += 1 }
+                    if preview != nil { interfacePreviews.append(layer.resource) }
                     if let beforeCapture {
                         captureChanges = zip(beforeCapture, canvas).reduce(0) { count, rows in
                             count + zip(rows.0, rows.1).count { $0 != $1 }
@@ -469,16 +494,20 @@ struct LoadThumbnailPass: Encodable {
                   layer.alignmentXPercent == 0, layer.alignmentYPercent == 0, !layer.unappliedTransform,
                   let action = layer.selectedMember, let time = layer.motionElapsedTicks,
                   let keys = recipe.motionKeys(layer.resource, selectedMember: action, time: time),
-                  let bound = layer.boundRasterPreview else {
+                  layer.boundRasterPreview != nil else {
                 throw ResourceError.rejected("unsupported_load_thumbnail_layer")
             }
             let draws = keys.filter { $0.type != 0 }
             guard draws.map(\.type) == [4, 11] else { throw ResourceError.rejected("unsupported_thumbnail_draw_order") }
             let container = try read(layer.resource)
             let origin = SIMD2(Int(layer.x), Int(layer.y))
-            try recipe.drawFullTexturePreview(draws[0], container: container, origin: origin, canvas: &canvas)
+            let usedSlots = Set(draws.flatMap { $0.texture_numbers ?? [] })
+            let bindings = try layer.boundTextureLocations.filter { usedSlots.contains($0.key) }
+                .mapValues { (try read($0), $0) }
+            try recipe.drawFullTexturePreview(draws[0], container: container,
+                boundTextures: bindings.mapValues { $0.0 }, origin: origin, canvas: &canvas)
             try recipe.drawFullTwoTextureKey(draws[1], container: container,
-                boundFirst: (read(bound), bound), origin: origin, canvas: &canvas)
+                boundTextures: bindings, origin: origin, canvas: &canvas)
         }
         if midpointPending { try applyMidpoint() }
         drawMessages(before: .max, id: .max)
@@ -489,11 +518,12 @@ struct LoadThumbnailPass: Encodable {
         }
         textPreviewIssues = textIssues
         layerCount = thumbnails
+        sceneLayerCount = sceneLayers.count
         staticRasterCount = rasters
         compositedMotionLayers = compositedMotions
         choiceLabelPreviewCount = drawnChoiceLabels.count
         hoveredChoicePreview = hoveredChoice
-        interfaceBackgroundPreviewCount = interfacePreviews
+        interfaceBackgroundPreviews = interfacePreviews
         uncoveredMotions = uncovered
         clippedRasters = clipped
         nonDrawingReasons = nonDrawing
@@ -509,27 +539,28 @@ struct LoadThumbnailPass: Encodable {
         changedPixels = changes
         canvasSHA256 = hash.finalize().map { String(format: "%02x", $0) }.joined()
         transitionMidpointSHA256 = overlapProgress != nil ? canvasSHA256 : nil
-        if let exportPNG {
+        if let export = exportPNG ?? exportJPEG {
             let width = blankRow.count
             let height = canvas.count
             var pixels = Data(capacity: width * height * 4)
             for row in canvas { row.withUnsafeBytes { pixels.append(contentsOf: $0) } }
             let format = CGBitmapInfo.byteOrder32Little.union(
                 CGBitmapInfo(rawValue: CGImageAlphaInfo.noneSkipFirst.rawValue))
-            let png = NSMutableData()
+            let encoded = NSMutableData()
+            let type = exportPNG != nil ? "public.png" : "public.jpeg"
             guard let provider = CGDataProvider(data: pixels as CFData),
                   let image = CGImage(width: width, height: height, bitsPerComponent: 8,
                     bitsPerPixel: 32, bytesPerRow: width * 4, space: CGColorSpaceCreateDeviceRGB(),
                     bitmapInfo: format, provider: provider, decode: nil, shouldInterpolate: false,
                     intent: .defaultIntent),
-                  let destination = CGImageDestinationCreateWithData(png, "public.png" as CFString, 1, nil) else {
-                throw ResourceError.rejected("scene_preview_png_initialization")
+                  let destination = CGImageDestinationCreateWithData(encoded, type as CFString, 1, nil) else {
+                throw ResourceError.rejected("scene_preview_image_initialization")
             }
             CGImageDestinationAddImage(destination, image, nil)
             guard CGImageDestinationFinalize(destination) else {
-                throw ResourceError.rejected("scene_preview_png_encoding")
+                throw ResourceError.rejected("scene_preview_image_encoding")
             }
-            exportPNG(png as Data)
+            export(encoded as Data)
         }
     }
 }

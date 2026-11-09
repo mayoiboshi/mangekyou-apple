@@ -33,7 +33,13 @@ struct HeadlessMovieHost: Sendable {
         }
     }
 
-    mutating func decodeSound(_ source: ScriptLocation) throws {
+    mutating func decodeSound(_ source: ScriptLocation, seekMilliseconds: Int32? = nil) throws {
+        if let seekMilliseconds {
+            guard try savedSoundPCMBytes(source, seekMilliseconds: seekMilliseconds) > 0 else {
+                throw ResourceError.rejected("saved_stream_playback_seek_no_samples")
+            }
+            return
+        }
         try assets.withFile(source.sourceFile) { fd, size in
             guard size == Int64(source.byteLength), size <= 16*1024*1024,
                   try SafeDirectory.read(fd: fd,offset: 0,count: Int(size)).sha256Hex == source.sourceSHA256 else {

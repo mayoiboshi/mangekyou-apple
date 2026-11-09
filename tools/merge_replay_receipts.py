@@ -41,11 +41,13 @@ def recipe_groups(directory):
     return groups
 
 
-def merge(base, donors, output, refresh_digests=()):
+def merge(base, donors, output, refresh_digests=(), *, recipe_only=False):
     if ROOT / "private" not in output.parents or output.exists() or output.is_symlink():
         raise ProbeError("replay_output_must_be_new_private_directory")
     summary, catalog = load_replay(base)
-    sources = chain((summary,), (load_replay(directory)[0] for directory in donors))
+    if recipe_only and not refresh_digests:
+        raise ProbeError("recipe_only_requires_refresh_digest")
+    sources = () if recipe_only else chain((summary,), (load_replay(directory)[0] for directory in donors))
     indexed = {key(name) for name in catalog.get("indexedResourceNames", [])}
     by_logical = {}
     for entry in catalog["items"]:
@@ -83,18 +85,26 @@ def merge(base, donors, output, refresh_digests=()):
     if not refresh_digests <= base_digests:
         raise ProbeError("refresh_recipe_not_in_base")
     refreshed = {}
-    identity_fields = ("offset", "length", "sha256", "format", "image_slot")
+    identity_fields = ("offset", "length", "sha256", "format")
     admitted_digests = {entry["sha256"] for entry in seen.values()}
     admitted_digests.update(entry["sha256"] for entry in catalog["items"])
+    if recipe_only:
+        admitted_digests.update(entry["sha256"] for field in FIELDS for entry in summary[field])
     retained = set()
     for directory in donors:
         for digest, group in recipe_groups(directory).items():
-            if digest not in admitted_digests:
+            if digest not in admitted_digests or (recipe_only and digest not in refresh_digests):
                 continue
             if digest in refresh_digests:
                 original = [tuple(entry.get(field) for field in identity_fields) for entry in recipes[digest]]
                 replacement = [tuple(entry.get(field) for field in identity_fields) for entry in group]
-                if original != replacement:
+                # Old receipts may omit slot metadata. A refresh can add it,
+                # while existing slot assignments remain pinned.
+                slots_match = all(
+                    old.get("image_slot") is None or old.get("image_slot") == new.get("image_slot")
+                    for old, new in zip(recipes[digest], group)
+                )
+                if original != replacement or not slots_match:
                     raise ProbeError(f"refresh_recipe_member_identity: {digest}")
                 if digest in refreshed and refreshed[digest] != group:
                     raise ProbeError(f"image_recipe_conflict: {digest}")
@@ -111,15 +121,17 @@ def merge(base, donors, output, refresh_digests=()):
         raise ProbeError("refresh_recipe_missing_from_donors")
     recipes.update(refreshed)
     recipe = list(chain.from_iterable(recipes.values()))
-    if len(json.dumps(recipe, indent=2, ensure_ascii=False).encode("utf-8")) + 1 > RECIPE_LIMIT:
+    recipe_indent = None if recipe_only else 2
+    if len(json.dumps(recipe, indent=recipe_indent, ensure_ascii=False).encode("utf-8")) + 1 > RECIPE_LIMIT:
         raise ProbeError("replay_image_recipe_size_limit")
     added["image_recipe_containers"] = len(recipes) - len(base_digests)
     write_json(output / "combined-catalog.json", catalog)
-    summary.update(merged)
+    if not recipe_only:
+        summary.update(merged)
     summary["corpus_report_sha256"] = hashlib.sha256(
         read_bounded(output / "combined-catalog.json", LIMIT)
     ).hexdigest()
-    write_json(output / "image-recipe.json", recipe)
+    write_json(output / "image-recipe.json", recipe, indent=recipe_indent)
     write_json(output / "summary.json", summary)
     return {"added": added, "retained_base_recipe_containers": len(retained), "refreshed_recipe_containers": len(refreshed)}
 
@@ -131,11 +143,13 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--refresh-recipe", action="append", default=[], metavar="SHA256",
                         help="Replace this base recipe using a donor with identical member ranges and digests")
+    parser.add_argument("--recipe-only", action="store_true", help="Refresh selected recipes without merging donor resource receipts")
     args = parser.parse_args()
     if len(args.donor) > 32:
         parser.error("at most 32 donor replays are supported")
     try:
-        result = merge(absolute(args.base), [absolute(path) for path in args.donor], absolute(args.output), args.refresh_recipe)
+        result = merge(absolute(args.base), [absolute(path) for path in args.donor], absolute(args.output),
+                       args.refresh_recipe, recipe_only=args.recipe_only)
     except (OSError, ValueError, KeyError, TypeError) as exc:
         parser.exit(1, f"{exc}\n")
     print(json.dumps(result))

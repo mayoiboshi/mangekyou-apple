@@ -11,6 +11,7 @@ import subprocess
 from mangekyou_p0 import ROOT, ProbeError, absolute, read_bounded, safe_member_name, write_json
 from verify_native_scripts import fingerprints, validate_trace
 from control_state_analysis import processing_deadline
+from image_recipe import append_image_recipe
 
 
 def sha(data):return hashlib.sha256(data).hexdigest()
@@ -103,7 +104,10 @@ def main():
     save_directory = absolute(a.save_dir) if a.save_dir else None
     if save_directory and (save_directory == private or save_directory in private.parents or private in save_directory.parents):
         raise ProbeError('cli_progress_save_output_overlap')
-    private.mkdir(parents=True,exist_ok=True)
+    try:
+        private.mkdir(parents=True, exist_ok=not a.verify_route_return)
+    except FileExistsError:
+        p.error('route_replay_stage_already_exists: choose a new --stage')
     compiled_sources=[ROOT/'native/Package.swift',*sorted((ROOT/'native/Sources').rglob('*.swift'))]
     sources={s.relative_to(ROOT).as_posix():sha(read_bounded(s)) for s in compiled_sources}
     compiled=subprocess.run(['swift','build','--package-path',str(ROOT/'native'),'-c','release','--product','mangekyou-script'],capture_output=True,timeout=120,cwd=ROOT)
@@ -129,91 +133,9 @@ def main():
     for name in a.plain_image_source:
         add_image(name,'.png')
     for name,audit_path in zip(a.image_source,a.image_audit):
-        content=add_image(name,'.b');root_sha=sha(content)
+        content=add_image(name,'.b')
         audit=json.loads(read_bounded(absolute(audit_path),1024*1024))
-        def collect(node,base,span,expected,depth):
-            if depth>4 or node.get('status')!='verified' or node.get('container_sha256')!=expected:
-                raise ProbeError('cli_image_audit_identity')
-            for member in node['members']:
-                if member.get('compressed'):continue
-                ref=member['raw_bytes_reference'];offset=ref['offset'];length=ref['length']
-                if ref['container_sha256']!=expected or not 0<=offset<offset+length<=span:
-                    raise ProbeError('cli_image_member_bounds')
-                start=base+offset
-                if sha(content[start:start+length])!=ref['sha256']:raise ProbeError('cli_image_member_identity')
-                if member.get('nested'):
-                    collect(member['nested'],start,length,ref['sha256'],depth+1)
-                elif member.get('imoavi_status') == 'verified':
-                    recipes.append(dict(container_sha256=root_sha,offset=start,length=length,sha256=ref['sha256'],
-                                        format='IMOAVI',width=member['width'],height=member['height']))
-                elif (member.get('format') in {'PNG','JPEG','BMP'} and member.get('content_decode_status')=='verified'
-                      or member.get('format')=='DPNG' and member.get('dpng', {}).get('metadata_status')=='verified'
-                      or member.get('format')=='Ogg' and member['name'].lower().endswith('.ogv')):
-                    recipes.append(dict(container_sha256=root_sha,offset=start,length=length,sha256=ref['sha256'],name=member['name'],format=member['format']))
-                    if depth == 0 and 'image_slot' in member:
-                        recipes[-1]['image_slot'] = member['image_slot']
-                        if member.get('width') and member.get('height'):
-                            recipes[-1].update(width=member['width'], height=member['height'])
-                        anchor = member.get('image_anchor_offset_inputs', {})
-                        if 'raw_words' in anchor:
-                            recipes[-1]['image_anchor_words'] = anchor['raw_words']
-                    if len(recipes)>128:raise ProbeError('cli_image_recipe_limit')
-        before=len(recipes);collect(audit,0,len(content),root_sha,0)
-        metadata=[m for m in audit['members'] if m.get('name')=='data_000.bin']
-        if len(metadata)==1 and (metadata[0].get('extended_key_markers_absent') is True
-            or 'extended_scalar_values' in metadata[0] or 'motion_name_candidates' in metadata[0]):
-            ref=metadata[0]['raw_bytes_reference'];start=ref['offset'];length=ref['length']
-            if (ref['container_sha256']!=root_sha or not 0<=start<start+length<=len(content)
-                or sha(content[start:start+length])!=ref['sha256']):
-                raise ProbeError('cli_image_metadata_identity')
-            if len(recipes) == before and len(audit['members']) == 1 and metadata[0].get('motion_name_candidates'):
-                recipes.append(dict(container_sha256=root_sha, offset=start, length=length,
-                                    sha256=ref['sha256'], format='MotionOnly'))
-            if len(recipes) > before and (metadata[0].get('extended_key_markers_absent') is True or 'extended_scalar_values' in metadata[0]):
-                recipes[before]['extended_scalar_values']=metadata[0].get('extended_scalar_values',{})
-            if len(recipes) > before and 'motion_name_candidates' in metadata[0]:
-                recipes[before]['motion_name_candidates']=metadata[0]['motion_name_candidates']
-                if 'motion_canvas_inputs' in metadata[0]:
-                    recipes[before]['motion_canvas_inputs'] = metadata[0]['motion_canvas_inputs']
-                motion_types = {
-                    motion['motion_index']: sorted({
-                        key['type'] for layer in motion['layers'] for key in layer['key_image_fields']
-                    })
-                    for motion in metadata[0].get('motion_layer_layout_candidates', [])
-                    if motion['layers'] and all(layer.get('key_image_fields') for layer in motion['layers'])
-                }
-                if motion_types:
-                    recipes[before]['motion_key_types'] = motion_types
-                timelines = {}
-                for motion in metadata[0].get('motion_layer_layout_candidates', []):
-                    layers = motion['layers']
-                    if not layers or not all(layer.get('key_time_values') and
-                            len(layer['key_time_values']) == len(layer.get('key_image_fields', [])) for layer in layers):
-                        continue
-                    timelines[motion['motion_index']] = [
-                        [dict(time=time, type=key['type'], offset=key['offset'],
-                              texture_numbers=key['numbers'], source_areas=key.get('source_areas'),
-                              blend=key.get('blend'), sampling=key.get('sampling'),
-                              type11_color_inputs=key.get('type11_color_inputs'),
-                              type1_color_inputs=key.get('type1_color_inputs'),
-                              transform_fields=key.get('converted_transform_fields'),
-                              anchor_ratio_inputs=key.get('anchor_ratio_inputs'),
-                              literal_opacity_input=key.get('literal_opacity_input'),
-                              opacity_mode_input=key.get('opacity_mode_input'),
-                              position_mode_input=key.get('position_mode_input'),
-                              time_control_inputs=key.get('time_control_inputs'),
-                              position_strength_input=key.get('position_strength_input'))
-                         for time, key in zip(layer['key_time_values'], layer['key_image_fields'])]
-                        for layer in layers
-                    ]
-                if timelines:
-                    recipes[before]['motion_timelines'] = timelines
-                non_drawing = [index for index, types in motion_types.items() if types == [0]]
-                if non_drawing:
-                    recipes[before]['non_drawing_motion_indices'] = non_drawing
-
-
-        if len(recipes) == before:raise ProbeError('cli_image_members_missing')
+        append_image_recipe(recipes, content, audit)
 
     if recipes:
         recipe_path=private/'image-recipe.json'
@@ -277,13 +199,13 @@ def main():
         index = {entry['source_file']: entry for entry in items}
         if len(index) != len(items) or not 1 <= len(items) <= 2000 or script not in index:
             raise ProbeError('cli_progress_catalog_identity')
-        for field, destination in (('image_resources', image_sources), ('audio_resources', audio_sources)):
+        for field, destination in (('image_resources', image_sources), ('audio_resources', audio_sources), ('wave_resources', image_sources)):
             for entry in pinned.get(field, []):
                 name = safe_member_name(entry['source_file'])
                 if name in index and index[name]['sha256'] != entry['sha256']:
                     raise ProbeError('cli_resource_receipt_identity')
                 index[name] = entry
-                if field == 'image_resources':
+                if field != 'audio_resources':
                     destination.add(name)
                 else:
                     destination.append(name)
@@ -353,7 +275,12 @@ def main():
             raise ProbeError(f'cli_progress_missing_json: exit={run.returncode}, see {stderr_path}')
         document=json.loads(run.stdout);write_json(private/f'attempt-{attempt:02}.json',document)
         receipt_bytes = 0
+        decoded_movies = []
         for line in read_bounded(stderr_path, 32*1024*1024).splitlines():
+            if a.verify_route_return:
+                movie = re.fullmatch(rb'decoded_movie=([0-9a-f]{64}) ticks=([0-9]{1,6})', line)
+                if movie:
+                    decoded_movies.append(dict(sha256=movie[1].decode('ascii'), duration_ticks=int(movie[2])))
             if not line.startswith(b'supplied_resource='):continue
             if not a.resource_provider or len(line)>16*1024:raise ProbeError('cli_resource_receipt_invalid')
             entry=json.loads(line.split(b'=',1)[1])
@@ -408,6 +335,7 @@ def main():
         report['route_return_status']='verified' if run.returncode == 0 else 'unsupported'
         report['route_return_issue']=record.get('issue')
         report['route_return_replay_budget']=record.get('replayBudget')
+        report['route_decoded_movies']=decoded_movies
     if scene_background:
         preview = record.get('scenePreview')
         report['scene_preview_status'] = (

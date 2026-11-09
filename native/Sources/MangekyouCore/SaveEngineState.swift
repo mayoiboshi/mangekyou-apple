@@ -38,6 +38,45 @@ package struct SaveEngineState: Encodable, Sendable {
         }
     }
 
+    /// Replace the exposed system fields while preserving the opaque eighth slot.
+    static func replacingSystemFields(in state: Data, at offset: Int, names: [String],
+                                      lockMask: Int32, customLockMask: Int32) throws -> Data {
+        let tail = try Self(state: state, at: offset)
+        guard names.count == 7, tail.status == .verified, tail.tailStringSpans.count == 8,
+              let first = tail.tailStringSpans.first, let opaque = tail.tailStringSpans.last else {
+            throw ResourceError.rejected("save_system_name_slot_bounds")
+        }
+        var encoded = Data()
+        for name in names {
+            guard let count = Int16(exactly: name.utf16.count),
+                  let bytes = name.data(using: .utf16LittleEndian) else {
+                throw ResourceError.rejected("invalid_save_system_name_encoding")
+            }
+            withUnsafeBytes(of: count.littleEndian) { encoded.append(contentsOf: $0) }
+            encoded.append(bytes)
+        }
+        let replacedBytes = opaque.decodedOffset - first.decodedOffset
+        guard encoded.count <= SaveEnvelope.maxFileBytes - (state.count - replacedBytes) else {
+            throw ResourceError.rejected("save_system_name_slot_bounds")
+        }
+        var result = state
+        let lockOffset = state.startIndex + offset + 12
+        withUnsafeBytes(of: lockMask.littleEndian) {
+            result.replaceSubrange(lockOffset..<(lockOffset + 4), with: $0)
+        }
+        withUnsafeBytes(of: customLockMask.littleEndian) {
+            result.replaceSubrange((lockOffset + 4)..<(lockOffset + 8), with: $0)
+        }
+        result.replaceSubrange((state.startIndex + first.decodedOffset)..<(state.startIndex + opaque.decodedOffset),
+                               with: encoded)
+        let decoded = try Self(state: result, at: offset)
+        guard decoded.status == .verified, decoded.systemLockMask == lockMask,
+              decoded.systemCustomLockMask == customLockMask, try decoded.systemNameSlots(in: result) == names else {
+            throw ResourceError.rejected("save_system_field_roundtrip")
+        }
+        return result
+    }
+
     package init(state: Data, at start: Int) throws {
         decodedOffset = start
         (systemLockMask, systemCustomLockMask, stringListCount, blobCount, imotwtOffset, finalObjectOffset, finalObjectVersion,

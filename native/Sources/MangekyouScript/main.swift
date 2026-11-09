@@ -34,6 +34,12 @@ struct HeadlessLoadTask: Encodable {
     let machine: ScriptMachineSummary
     let captureRequired: Bool
     let exitRequested: Bool
+    var experimentalAdoption: ScriptMachineSummary? = nil
+    var experimentalAdoptionIssue: String? = nil
+    var experimentalAdoptionStagedStreams: Int? = nil
+    var experimentalAdoptionScheduledStreams: Int? = nil
+    var experimentalAdoptionScheduledDirectSounds: Int? = nil
+    var experimentalAdoptionAudioGaps: [ScriptMachine.ExperimentalSaveAudio.Gap]? = nil
     let saveResumeBoundary: ScriptMachine.SaveResumeBoundary?
     struct SoundBufferCheck: Encodable {
         let recordOffset: Int
@@ -159,9 +165,14 @@ struct HeadlessResourceReceipts: Decodable {
             var requireCompleteScenePreview = false
             var stopAfterStoryChoices = false
             var recoverUnsupportedSave = false
+            var adoptSaveCandidate = false
             var startAfterSaveRecovery = false
             var loadTaskCapturePath: String?
             var saveDirectoryPath: String?
+            var researchSlotDonor: String?
+            var saveSceneThumbnail = false
+            var researchStreamPositions: [Int32: Int32] = [:]
+            var researchDisplaySurfaces: [Int: String] = [:]
             var inferSaveStateSeed = false
             var saveHeaderTemplateFromStdin = false
             var saveHeaderExecutable: String?
@@ -191,10 +202,12 @@ struct HeadlessResourceReceipts: Decodable {
                 if args[i] == "--save-header-template-stdin" { saveHeaderTemplateFromStdin = true; i += 1; continue }
                 if args[i] == "--start-after-load-escape" { startAfterLoadEscape = true; i += 1; continue }
                 if args[i] == "--require-route-return" { requireRouteReturn = true; i += 1; continue }
+                if args[i] == "--save-scene-thumbnail" { saveSceneThumbnail = true; i += 1; continue }
                 if args[i] == "--scene-preview-png" { exportScenePreviewPNG = true; i += 1; continue }
                 if args[i] == "--require-complete-scene-preview" { requireCompleteScenePreview = true; i += 1; continue }
                 if args[i] == "--stop-after-story-choices" { stopAfterStoryChoices = true; i += 1; continue }
                 if args[i] == "--start-after-save-recovery" { startAfterSaveRecovery = true; i += 1; continue }
+                if args[i] == "--adopt-experimental-save-candidate" { adoptSaveCandidate = true; i += 1; continue }
                 if args[i] == "--recover-unsupported-save" { recoverUnsupportedSave = true; i += 1; continue }
                 if args[i] == "--dispatch-stop-callback" { dispatchStop = true; i += 1; continue }
                 if args[i] == "--click-saved-auto-wait" {
@@ -290,6 +303,27 @@ struct HeadlessResourceReceipts: Decodable {
                 case "--load-task-capture":
                     guard loadTaskCapturePath == nil else { throw ResourceError.rejected("duplicate_load_task_capture") }
                     loadTaskCapturePath = args[i+1]
+                case "--save-display-surface":
+                    let fields = args[i+1].split(separator: "=", maxSplits: 1, omittingEmptySubsequences: false)
+                    guard fields.count == 2,
+                          let index = Int(fields[0]), (0...1).contains(index), fields[1].hasPrefix("/"),
+                          researchDisplaySurfaces[index] == nil else {
+                        throw ResourceError.rejected("invalid_or_duplicate_save_display_surface")
+                    }
+                    researchDisplaySurfaces[index] = String(fields[1])
+                case "--save-stream-position":
+                    let fields = args[i+1].split(separator: "=", omittingEmptySubsequences: false)
+                    guard fields.count == 2, let channel = Int32(fields[0]), channel >= 0,
+                          let milliseconds = Int32(fields[1]), milliseconds >= 0,
+                          researchStreamPositions[channel] == nil else {
+                        throw ResourceError.rejected("invalid_or_duplicate_save_stream_position")
+                    }
+                    researchStreamPositions[channel] = milliseconds
+                case "--export-timed-wait-slot":
+                    guard researchSlotDonor == nil, try SafeDirectory.components(args[i+1]).count == 1 else {
+                        throw ResourceError.rejected("invalid_research_slot_donor")
+                    }
+                    researchSlotDonor = args[i+1]
                 case "--save-dir":
                     guard saveDirectoryPath == nil else { throw ResourceError.rejected("duplicate_save_directory") }
                     saveDirectoryPath = args[i+1]
@@ -316,7 +350,7 @@ struct HeadlessResourceReceipts: Decodable {
                 case "--manifest": guard manifest == nil else { throw ResourceError.rejected("duplicate_manifest_option") }; manifest = args[i+1]
                 case "--entry-label": guard entry == nil else { throw ResourceError.rejected("duplicate_entry_option") }; entry = args[i+1]
                 case "--catalog": guard catalogPath == nil else { throw ResourceError.rejected("duplicate_catalog_option") }; catalogPath = args[i+1]
-                case "--select-source": selections.append(args[i+1]); guard selections.count <= 128 else { throw ResourceError.rejected("module_selection_limit") }
+                case "--select-source": selections.append(args[i+1]); guard selections.count <= 512 else { throw ResourceError.rejected("module_selection_limit") }
                 default: throw ResourceError.rejected("unknown_cli_option")
                 }
                 i += 2
@@ -402,6 +436,9 @@ struct HeadlessResourceReceipts: Decodable {
             guard !recoverUnsupportedSave || (openTitleLoad && loadTaskConfirmation == true) else {
                 throw ResourceError.rejected("recover_unsupported_save_requires_title_load_confirmation")
             }
+            guard !adoptSaveCandidate || (inspectLoadTask && openTitleLoad && loadTaskConfirmation == true && !recoverUnsupportedSave) else {
+                throw ResourceError.rejected("adopt_save_requires_confirmed_title_load")
+            }
             let saveDirectory = try saveDirectoryPath.map {
                 try SafeDirectory(URL(fileURLWithPath: $0, isDirectory: true))
             }
@@ -420,9 +457,18 @@ struct HeadlessResourceReceipts: Decodable {
                 guard template.count == 40 else { throw ResourceError.rejected("save_header_verification_bounds") }
                 saveHeaderTemplate = template
             }
-            let saveSlots = try saveDirectory.map { try SaveSlotInventory.scan($0, includeMetadata: true) }
+            let saveSlots = try saveDirectory.map { directory in
+                try SaveSlotInventory.scan(directory, includeMetadata: true) { payload in
+                    _ = try ResourceImage.decode(payload)
+                }
+            }
             guard saveSlots?.contains(where: { $0.status == .unsupported }) != true else {
                 throw ResourceError.rejected("save_directory_contains_unsupported_entries")
+            }
+            for slot in saveSlots ?? [] {
+                if let issue = slot.issue {
+                    FileHandle.standardError.write(Data("save_thumbnail_issue=\(issue)\n".utf8))
+                }
             }
             guard imageRecipePath == nil || execute else { throw ResourceError.rejected("image_recipe_requires_execution") }
             let imageRecipe = try imageRecipePath.map { path in
@@ -456,6 +502,8 @@ struct HeadlessResourceReceipts: Decodable {
                     let receipts = try file.indexed(catalogData: catalogData)
                     supply = { logical in
                         guard let receipt = receipts[try ScriptModuleCatalog.key(logical)] else {
+                            let path = String(reflecting: logical)
+                            FileHandle.standardError.write(Data("missing_replay_resource=\(path)\n".utf8))
                             throw ResourceError.rejected("resource_copy_not_in_replay")
                         }
                         return receipt
@@ -481,6 +529,17 @@ struct HeadlessResourceReceipts: Decodable {
             guard !exportScenePreviewPNG || (scenePreviewBackground != nil && source != nil && items.count == 1) else {
                 throw ResourceError.rejected("scene_preview_png_requires_single_script_and_background")
             }
+            guard (researchStreamPositions.isEmpty && researchDisplaySurfaces.isEmpty) || researchSlotDonor != nil else {
+                throw ResourceError.rejected("save_state_options_require_slot_export")
+            }
+            guard researchSlotDonor == nil || (execute && source != nil && items.count == 1 &&
+                  saveDirectory != nil && repository != nil && !exportScenePreviewPNG && !inspectLoadTask && !requireRouteReturn) else {
+                throw ResourceError.rejected("research_slot_export_requires_single_script_catalog_and_save_directory")
+            }
+            guard !saveSceneThumbnail || (researchSlotDonor != nil && scenePreviewBackground != nil && scenePreviewTicks == nil) else {
+                throw ResourceError.rejected("save_scene_thumbnail_requires_slot_export_and_current_scene_background")
+            }
+            var researchSlot: Data?
             var scenePNG: Data?
             for item in items {
                 var sha: String?
@@ -500,6 +559,7 @@ struct HeadlessResourceReceipts: Decodable {
                     var saveResumeBoundary: ScriptMachine.SaveResumeBoundary?
                     var scenePreview: LoadThumbnailPass?
                     var scenePreviewIssue: String?
+                    var researchSlotIssue: String?
                     if execute {
                         var machine = try ScriptMachine(program: ScriptProgram(document),allowExperimental: true,entryLabel: entry,maximumSteps: maximumSteps ?? 10_000,repository: repository,configuration: configuration, imageLoader: imageRecipe.dimensions,
                             imageMemberLookup: imageRecipe.member, imageExtendedValues: imageRecipe.extendedValues,
@@ -509,6 +569,8 @@ struct HeadlessResourceReceipts: Decodable {
                                                              inferStateSeed: inferSaveStateSeed,
                                                              headerTemplate: saveHeaderTemplate)
                         }
+                        machine.savedMotionUpdateThreshold = imageRecipe.motionUpdateThreshold
+                        machine.retainExperimentalSaveCandidate = adoptSaveCandidate
                         try machine.run(stepQuota: maximumSteps ?? 10_000)
                         var budget = clickTicks
                         var pendingDispatch = dispatchStop
@@ -531,8 +593,13 @@ struct HeadlessResourceReceipts: Decodable {
                                 } else if let request = machine.moviePlaybackRequest, let movieHost {
                                     try machine.acknowledgeMoviePlayback(durationTicks: movieHost.decode(request))
                                 } else if let request = machine.soundPlaybackRequest, movieHost != nil {
-                                    try movieHost!.decodeSound(request)
+                                    let seek = adoptSaveCandidate ? machine.takePendingPlaybackSeek() : nil
+                                    try movieHost!.decodeSound(request, seekMilliseconds: seek)
+                                    if let seek {
+                                        FileHandle.standardError.write(Data("experimental_saved_stream_playback seek_ms=\(seek)\n".utf8))
+                                    }
                                     try machine.acknowledgeSoundPlayback()
+                                    if machine.phase != .ready { continue }
                                 } else if machine.phase == .waiting, let remaining = machine.clickWaitRemaining,
                                           remaining >= 0, let available = budget {
                                     let delta = min(available, remaining, machine.ticksUntilTimer ?? remaining)
@@ -557,6 +624,11 @@ struct HeadlessResourceReceipts: Decodable {
                                     }
                                     try machine.dispatchStopCallback(pointer: pointer)
                                 } else if machine.isWaitingForStoryChoice {
+                                    if requireRouteReturn {
+                                        let available = machine.availableStoryChoices.map(String.init).joined(separator: ",")
+                                        let receipt = "story_choice_available=\(choiceCursor) indices=\(available)\n"
+                                        FileHandle.standardError.write(Data(receipt.utf8))
+                                    }
                                     guard choiceCursor < storyChoices.count else { break }
                                     let choice = storyChoices[choiceCursor]
                                     try machine.dispatchStoryChoice(choice)
@@ -602,9 +674,9 @@ struct HeadlessResourceReceipts: Decodable {
                             task.savedReplayStepLimit = savedReplayStepLimit ?? 512
                             if let host = movieHost {
                                 task.savedMovieDecodeHandler = { try host.decode($0) }
-                                task.savedSoundDecodeHandler = { request in
+                                task.savedSoundDecodeHandler = { request, seek in
                                     var audioHost = host
-                                    try audioHost.decodeSound(request)
+                                    try audioHost.decodeSound(request, seekMilliseconds: seek)
                                 }
                             }
                             task.savedDisplayDrawHandler = { preview in
@@ -656,6 +728,7 @@ struct HeadlessResourceReceipts: Decodable {
                                         nonDrawingReasons: scene.nonDrawingReasons,
                                         textLayers: scene.textPreviewCount,
                                         textLayersWithoutCoverage: scene.textPreviewWithoutCoverageCount)
+                                    receipt.interfaceBackgroundPreviews = scene.interfaceBackgroundPreviews
                                     receipt.clippedRasters = scene.clippedRasters
                                     receipt.uncoveredMotions = scene.uncoveredMotions
                                     receipt.transitionMidpointSHA256 = scene.transitionMidpointSHA256
@@ -741,7 +814,9 @@ struct HeadlessResourceReceipts: Decodable {
                                 throw ResourceError.rejected("load_task_page_did_not_change")
                             }
                             guard loadTaskSlot == nil || clickedSlot else {
-                                throw ResourceError.rejected("load_slot_button_not_reached")
+                                let status = task.playbackStatus
+                                let cause = status.stopReason ?? status.phase.rawValue
+                                throw ResourceError.rejected("load_slot_button_not_reached: \(cause)")
                             }
                             guard loadTaskConfirmation == nil || answeredConfirmation else {
                                 throw ResourceError.rejected("load_confirmation_not_reached")
@@ -770,6 +845,25 @@ struct HeadlessResourceReceipts: Decodable {
                                 }
                             }
                             var report = HeadlessLoadTask(task, suppliedCaptureSHA256: suppliedCapture?.sha256Hex)
+                            if adoptSaveCandidate {
+                                let directBufferBytes: ((ScriptLocation) throws -> Int)? = movieHost.map { host in
+                                    { try host.savedSoundPCMBytes($0) }
+                                }
+                                let suspendedMachine = machine
+                                do {
+                                    let audio = try machine.adoptExperimentalSaveCandidate(from: task, directBufferBytes: directBufferBytes)
+                                    report.experimentalAdoptionStagedStreams = audio.stagedStreams
+                                    report.experimentalAdoptionScheduledStreams = audio.scheduledStreams
+                                    report.experimentalAdoptionScheduledDirectSounds = audio.scheduledDirectSounds
+                                    report.experimentalAdoptionAudioGaps = audio.gaps
+                                    try machine.run(stepQuota: maximumSteps ?? 10_000)
+                                    try runHost()
+                                    report.experimentalAdoption = machine.summary
+                                } catch {
+                                    machine = suspendedMachine
+                                    report.experimentalAdoptionIssue = String(describing: error)
+                                }
+                            }
                             if recoverUnsupportedSave {
                                 try machine.discardFailedSaveLoadTask(task)
                                 try machine.run(stepQuota: 10_000)
@@ -831,8 +925,8 @@ struct HeadlessResourceReceipts: Decodable {
                                     do {
                                         let bytes = try host.savedSoundPCMBytes(seek.source, seekMilliseconds: seek.milliseconds)
                                         return .init(recordOffset: seek.recordOffset, milliseconds: seek.milliseconds,
-                                                     decodedBytes: bytes, status: bytes > 0 ? .verified : .unsupported,
-                                                     issue: bytes > 0 ? nil : "saved_stream_seek_no_samples")
+                                                     decodedBytes: bytes, status: bytes > 0 ? seek.status : .unsupported,
+                                                     issue: bytes > 0 ? seek.issue : "saved_stream_seek_no_samples")
                                     } catch {
                                         return .init(recordOffset: seek.recordOffset, milliseconds: seek.milliseconds,
                                                      decodedBytes: nil, status: .unsupported, issue: String(describing: error))
@@ -866,12 +960,17 @@ struct HeadlessResourceReceipts: Decodable {
                             consumedStoryChoices: choiceCursor, remainingStoryChoices: storyChoices.count - choiceCursor)
                         result = machine.summary
                         saveResumeBoundary = machine.saveResumeBoundary
-                        if scenePreviewBackground != nil, !exportScenePreviewPNG,
-                           machine.phase == .waitingForSystemTask,
-                           let draw = loadTask?.saveResumeBoundary?.replaySceneDraw {
-                            // The suspended parent owns no scene while the load task is active.
-                            if draw.status == .unsupported {
-                                scenePreviewIssue = draw.issue ?? "saved_scene_preview_incomplete"
+                        var saveThumbnail: Data?
+                        if scenePreviewBackground != nil, machine.phase == .waitingForSystemTask {
+                            // Only the isolated continuation can supply a scene while the parent is suspended.
+                            if exportScenePreviewPNG {
+                                scenePreviewIssue = "saved_scene_png_export_unavailable"
+                            } else if let draw = loadTask?.saveResumeBoundary?.replaySceneDraw {
+                                if draw.status == .unsupported {
+                                    scenePreviewIssue = draw.issue ?? "saved_scene_preview_incomplete"
+                                }
+                            } else if loadTask?.machine.status != .unsupported {
+                                scenePreviewIssue = "saved_scene_preview_unavailable"
                             }
                         } else if let background = scenePreviewBackground {
                             do {
@@ -881,7 +980,8 @@ struct HeadlessResourceReceipts: Decodable {
                                     recipe: imageRecipe, backgroundPath: background, suppliedCapture: nil,
                                     saveDirectory: saveDirectory,
                                     choicePointer: pointer.map { CGPoint(x: Int($0.x), y: Int($0.y)) },
-                                    exportPNG: exportScenePreviewPNG ? { scenePNG = $0 } : nil)
+                                    exportPNG: exportScenePreviewPNG ? { scenePNG = $0 } : nil,
+                                    exportJPEG: saveSceneThumbnail ? { saveThumbnail = $0 } : nil)
                                 scenePreview = preview
                                 if requireCompleteScenePreview,
                                    preview.isIncomplete {
@@ -889,6 +989,36 @@ struct HeadlessResourceReceipts: Decodable {
                                 }
                             } catch {
                                 scenePreviewIssue = String(describing: error)
+                            }
+                        }
+                        if let donorName = researchSlotDonor, let saveDirectory {
+                            do {
+                                let donor = try saveDirectory.read(donorName, limit: SaveEnvelope.maxFileBytes)
+                                guard let slot = try SaveEnvelope(donor).slot else {
+                                    throw ResourceError.rejected("research_slot_donor_required")
+                                }
+                                let template = try SaveEnvelope.decodeSlotState(donor, inferSeed: inferSaveStateSeed)
+                                if saveSceneThumbnail {
+                                    guard saveThumbnail != nil, scenePreview?.isIncomplete == false else {
+                                        throw ResourceError.rejected(scenePreviewIssue ?? "save_scene_thumbnail_incomplete")
+                                    }
+                                }
+                                let thumbnail = saveThumbnail ?? Data(donor.dropFirst(slot.thumbnail.offset).prefix(slot.thumbnail.length))
+                                let now = Date()
+                                let localSeconds = now.timeIntervalSince1970 + Double(TimeZone.current.secondsFromGMT(for: now))
+                                let displaySurfaces = try researchDisplaySurfaces.mapValues { path in
+                                    let url = URL(fileURLWithPath: path)
+                                    let directory = try SafeDirectory(url.deletingLastPathComponent())
+                                    let payload = try directory.read(url.lastPathComponent, limit: SaveEnvelope.maxFileBytes)
+                                    _ = try ResourceImage.decode(payload)
+                                    return payload
+                                }
+                                researchSlot = try machine.encodeTimedWaitResearchSlot(template: template, positions: researchStreamPositions,
+                                    displaySurfaces: displaySurfaces,
+                                    metadata: SaveEnvelope.readSlotMetadata(donor), thumbnail: thumbnail,
+                                    savedDays: localSeconds / 86_400 + 25_569)
+                            } catch {
+                                researchSlotIssue = String(describing: error)
                             }
                         }
                         if requireRouteReturn {
@@ -903,9 +1033,12 @@ struct HeadlessResourceReceipts: Decodable {
                         if machine.stopReason == "ambiguous_module_variants" { candidates = machine.pendingModuleCandidates }
                     }
                     guard try directory.read(item.source_file).sha256Hex == sha else { throw ResourceError.rejected("script_source_changed") }
-                    let loadFailure = loadTask?.machine.status == .unsupported
-                    let issue = routeIssue ?? scenePreviewIssue ?? loadTask?.thumbnailIssue ??
-                        (loadFailure ? loadTask?.machine.stopReason : nil)
+                    let adoptedFromRestoreBoundary = loadTask?.experimentalAdoption != nil &&
+                        loadTask?.machine.stopReason == "save_restore_execution_state_unsupported"
+                    let loadFailure = loadTask?.machine.status == .unsupported && !adoptedFromRestoreBoundary
+                    let issue = researchSlotIssue ?? loadTask?.experimentalAdoptionIssue ?? routeIssue ?? scenePreviewIssue ?? loadTask?.thumbnailIssue ??
+                        (loadFailure ? loadTask?.machine.stopReason : nil) ??
+                        (result?.status == .unsupported ? result?.stopReason : nil)
                     reports.append(ScriptRunReport(
                         status: issue != nil || loadFailure ? .unsupported : (result?.status ?? .inferred),
                         lexical: lexical, machine: result, issue: issue,sourceFile: item.source_file,sourceSHA256: sha,moduleCandidates: candidates,
@@ -920,7 +1053,14 @@ struct HeadlessResourceReceipts: Decodable {
                 mode: execute ? (repository == nil ? "experimental_single_file" : "experimental_pinned_modules") : "lexical_metadata_only",reports: reports)
             let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys,.withoutEscapingSlashes]
             let json = try encoder.encode(report) + Data([10])
-            if exportScenePreviewPNG {
+            if researchSlotDonor != nil {
+                FileHandle.standardError.write(json)
+                if report.status != .unsupported, let researchSlot {
+                    try FileHandle.standardOutput.write(contentsOf: researchSlot)
+                } else {
+                    exit(2)
+                }
+            } else if exportScenePreviewPNG {
                 FileHandle.standardError.write(json)
                 if let scenePNG { FileHandle.standardOutput.write(scenePNG) }
             } else {

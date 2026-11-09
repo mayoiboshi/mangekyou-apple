@@ -20,7 +20,7 @@ public struct ScriptStringListSummary: Encodable, Sendable {
 
 /// Distinct from the table component: no comment filter or empty-marker conversion.
 struct ScriptStringList: Sendable {
-    private var rawLines: [String] = []
+    private(set) var rawLines: [String] = []
     private var firstValues: [Data: String] = [:]
     private var entries: [(String,String,ScriptLocation)] = []
     private(set) var summary: ScriptStringListSummary?

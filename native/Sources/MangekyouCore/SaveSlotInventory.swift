@@ -5,7 +5,7 @@ public struct SaveSlotInventory {
         public let name: String
         public let status: EvidenceStatus
         public let envelope: SaveEnvelope?
-        public let issue: String?
+        public internal(set) var issue: String?
         var metadata: [String]? = nil
         var thumbnail: ScriptLocation? = nil
         var sourceSHA256: String? = nil
@@ -15,7 +15,8 @@ public struct SaveSlotInventory {
         }
     }
 
-    public static func scan(_ directory: SafeDirectory, includeMetadata: Bool = false) throws -> [Entry] {
+    public static func scan(_ directory: SafeDirectory, includeMetadata: Bool = false,
+                            validateThumbnail: ((Data) throws -> Void)? = nil) throws -> [Entry] {
         let entries = try directory.entries()
         guard entries.count <= 1024 else { throw ResourceError.rejected("save_inventory_entry_limit") }
         var remaining = 128 * 1024 * 1024
@@ -48,12 +49,18 @@ public struct SaveSlotInventory {
                     if slot.thumbnail.length > 0 {
                         let offset = slot.thumbnail.offset
                         let payload = data.subdata(in: offset..<(offset + slot.thumbnail.length))
-                        guard InventoryScanner.signature(payload) == "JPEG" else {
-                            throw ResourceError.rejected("save_thumbnail_requires_jpeg")
+                        if InventoryScanner.signature(payload) == "JPEG" {
+                            do {
+                                try validateThumbnail?(payload)
+                                result.thumbnail = ScriptLocation(sourceFile: "save-slot/" + entry.name,
+                                    sourceSHA256: digest, byteOffset: offset, byteLength: payload.count,
+                                    rangeSHA256: payload.sha256Hex, lineNumber: 1)
+                            } catch {
+                                result.issue = "save_thumbnail_decode_failed: \(error)"
+                            }
+                        } else {
+                            result.issue = "save_thumbnail_requires_jpeg"
                         }
-                        result.thumbnail = ScriptLocation(sourceFile: "save-slot/" + entry.name,
-                            sourceSHA256: digest, byteOffset: offset, byteLength: payload.count,
-                            rangeSHA256: payload.sha256Hex, lineNumber: 1)
                     }
                 }
                 return result

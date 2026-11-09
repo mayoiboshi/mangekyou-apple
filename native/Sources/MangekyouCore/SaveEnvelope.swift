@@ -275,6 +275,27 @@ public struct SaveEnvelope: Encodable {
             withUnsafeBytes(of: UInt32(section.count).littleEndian) { payload.append(contentsOf: $0) }
             payload.append(section)
         }
+        return wrapPayload(payload)
+    }
+
+    /// Replace only the preview image in memory, preserving the stored state
+    /// including its compression and transformation fields.
+    package static func replacingSlotThumbnail(in data: Data, with jpeg: Data) throws -> Data {
+        guard let slot = try Self(data).slot, InventoryScanner.signature(jpeg) == "JPEG",
+              jpeg.count <= maxFileBytes - (data.count - slot.thumbnail.length) else {
+            throw ResourceError.rejected("save_thumbnail_replacement_bounds")
+        }
+        let start = data.startIndex + slot.thumbnail.offset
+        var payload = Data(data[(data.startIndex + 12)..<(start - 4)])
+        withUnsafeBytes(of: UInt32(jpeg.count).littleEndian) { payload.append(contentsOf: $0) }
+        payload.append(jpeg)
+        payload.append(contentsOf: data[(start + slot.thumbnail.length)...])
+        let result = wrapPayload(payload)
+        _ = try Self(result)
+        return result
+    }
+
+    private static func wrapPayload(_ payload: Data) -> Data {
         let checksum = payload.withUnsafeBytes { payloadChecksum($0) }
         var result = Data()
         for field: UInt32 in [0xfd324d4e, checksum, UInt32(payload.count)] {

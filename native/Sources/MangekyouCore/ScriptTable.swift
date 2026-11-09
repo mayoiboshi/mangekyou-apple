@@ -126,6 +126,31 @@ public struct ScriptTable: Sendable {
         return result
     }
 
+    func savedTextLines() throws -> [String] {
+        guard count <= 10_000, storedBytes <= 1024 * 1024 else {
+            throw ResourceError.rejected("saved_text_object_size_limit")
+        }
+        let lines = try orderedKeys.map { key -> String in
+            guard let name = keySpellings[key], let value = values[key],
+                  !name.contains("="),
+                  !(name + value).unicodeScalars.contains(where: { $0 == "\r" || $0 == "\n" || $0.value == 0 }) else {
+                throw ResourceError.rejected("saved_table_line_outside_profile")
+            }
+            return name + "=" + value
+        }
+        var bytes = Data([0xef, 0xbb, 0xbf])
+        for line in lines {
+            bytes.append(contentsOf: line.utf8)
+            bytes.append(10)
+        }
+        let restored = try ScriptTable(data: bytes, relativePath: "save-table-preview.txt", allowWideKeys: true)
+        guard restored.orderedKeys == orderedKeys, restored.values == values,
+              restored.keySpellings == keySpellings else {
+            throw ResourceError.rejected("saved_table_line_roundtrip_mismatch")
+        }
+        return lines
+    }
+
     public init(data: Data, relativePath: String) throws {
         try self.init(data: data, relativePath: relativePath, allowWideKeys: false)
     }

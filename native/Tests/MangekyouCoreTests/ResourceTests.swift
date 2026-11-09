@@ -22,6 +22,82 @@ final class ResourceTests: XCTestCase {
         XCTAssertFalse(canvas.contains { $0.prefix(60).contains { $0 != black } })
     }
 
+    func testTheoraHeaderAcceptsNonzeroDataSliceIndex() throws {
+        var page = Data("OggS".utf8) + Data(repeating: 0, count: 23)
+        page[5] = 2
+        page[26] = 1
+        page.append(42)
+        var packet = Data([0x80]) + Data("theora".utf8) + Data(repeating: 0, count: 35)
+        packet[15] = 5
+        packet[18] = 2
+        packet[19] = 208
+        page.append(packet)
+        let container = Data(repeating: 0, count: 385) + page
+        let embedded = container.dropFirst(385)
+        XCTAssertEqual(embedded.startIndex, 385)
+        let (width, height) = try ScriptMovieHeader.theoraDimensions(embedded)
+        XCTAssertEqual(width, 1280)
+        XCTAssertEqual(height, 720)
+        XCTAssertThrowsError(try ScriptMovieHeader.theoraDimensions(embedded.dropLast()))
+
+        try temporary { directory in
+            let reference = ScriptModuleReference(logicalPath: "ending.ogv", sourceFile: "ending.ogv",
+                                                  sourceSHA256: page.sha256Hex)
+            try page.write(to: directory.appendingPathComponent(reference.sourceFile))
+            let root = ScriptModuleReference(logicalPath: "root.s", sourceFile: "root.s",
+                                             sourceSHA256: page.sha256Hex)
+            let catalog = try ScriptModuleCatalog(entries: [root], indexedResourceNames: [reference.logicalPath])
+            var repository = try ScriptRepository(directory: SafeDirectory(directory), catalog: catalog) { _ in reference }
+            let movie = try repository.movieLocation(reference.logicalPath)
+            XCTAssertEqual(movie.location.sourceSHA256, reference.sourceSHA256)
+            XCTAssertEqual(movie.size.0, 1280)
+            XCTAssertEqual(movie.size.1, 720)
+        }
+    }
+
+    func testSimplifiedChineseScriptMessageProducesRasterCoverage() throws {
+        let text = #"""
+        \gvar,msg,sample
+        \scp,sample
+        \ts,0,0,240,80
+        \p,0,0,1
+        \e
+        \o,"林晓：这边走。[n]请跟上！"
+        \if,1\then
+        \stop,@@!Resume
+        \end
+        @@!Resume
+        \ret
+        """#
+        let bytes = Data([0xff, 0xfe]) + Data(text.utf16.flatMap {
+            [UInt8(truncatingIfNeeded: $0), UInt8($0 >> 8)]
+        })
+        let document = try ScriptDocument(data: bytes, relativePath: "synthetic.s")
+        var machine = try ScriptMachine(program: ScriptProgram(document), allowExperimental: true)
+        try machine.run(stepQuota: 100)
+        XCTAssertTrue(try machine.commitHeadlessMessageOutput())
+        let layer = try XCTUnwrap(machine.messageTextLayers.first)
+        XCTAssertTrue(layer.isVisible)
+        XCTAssertEqual(layer.runs.map(\.text).joined(), "林晓：这边走。\n请跟上！")
+        let raster = try ResourceImage.textPreview(layer, width: 240, height: 80)
+        let black = SIMD4<UInt8>(0, 0, 0, 255)
+        var canvas = Array(repeating: Array(repeating: black, count: 240), count: 80)
+        XCTAssertTrue(try raster.drawRasterPreview(origin: .zero, opacity: 255, canvas: &canvas))
+    }
+
+    func testSimplifiedChineseChoiceLabelsFitTheButton() throws {
+        let style = ScriptMachine.ChoiceTextStyle(fontName: "SimHei", height: 24, colorARGB: 0xffff_ffff)
+        let black = SIMD4<UInt8>(0, 0, 0, 255)
+        let rasters = try ["继续调查", "返回房间"].map { label in
+            let raster = try ResourceImage.choiceLabelPreview(label, style: style, width: 128, height: 40)
+            var canvas = Array(repeating: Array(repeating: black, count: 128), count: 40)
+            XCTAssertTrue(try raster.drawRasterPreview(origin: .zero, opacity: 255, canvas: &canvas))
+            XCTAssertTrue(canvas.allSatisfy { $0.first == black && $0.last == black })
+            return canvas
+        }
+        XCTAssertNotEqual(rasters[0], rasters[1])
+    }
+
     func testRasterPreviewMirrorsBothAxesBeforeClipping() throws {
         let source = try ResourceImage.decode(png([
             255, 0, 0, 255, 0, 255, 0, 255,
@@ -301,13 +377,14 @@ final class ResourceTests: XCTestCase {
         let receipt = """
         [{"container_sha256":"\(digest)","offset":0,"length":5,"sha256":"\(digest)",
           "motion_timelines":{"1":[[
-            {"time":0,"type":4,"offset":0,"time_control_inputs":[0,0,0,0]},
+            {"time":100,"type":4,"offset":0,"time_control_inputs":[0,0,0,0]},
             {"time":300,"type":4,"offset":1,"time_control_inputs":[0,0,0,0]},
             {"time":700,"type":4,"offset":2,"time_control_inputs":[0,0,0,0]},
             {"time":1800,"type":0,"offset":3,"time_control_inputs":[1,1,0,0]},
             {"time":2800,"type":0,"offset":4,"time_control_inputs":[0,0,0,0]}]]}}]
         """
         let recipe = try JSONDecoder().decode(ScriptImageRecipe.self, from: Data(receipt.utf8))
+        XCTAssertEqual(recipe.motionKeys(location, selectedMember: 1, time: 99)?.count, 0)
         for (time, offset): (Int32, Int) in [(299, 0), (1799, 2), (1800, 1), (3700, 2)] {
             XCTAssertEqual(recipe.motionKeys(location, selectedMember: 1, time: time)?.first?.offset, offset)
         }
@@ -382,7 +459,7 @@ final class ResourceTests: XCTestCase {
 
         var repeated = [[black, black]]
         try recipe.drawScopedTexturePreview([(key, []), (key, [])], container: container,
-            boundSlotZero: nil, origin: SIMD2(1, 0), hostScale: SIMD2(1, 1),
+            boundTextures: [:], origin: SIMD2(1, 0), hostScale: SIMD2(1, 1),
             anchorOverride: nil, layerOpacity: 128, canvas: &repeated)
         XCTAssertGreaterThan(repeated[0][1].z, translucent[0][1].z)
 
@@ -391,11 +468,11 @@ final class ResourceTests: XCTestCase {
             255, 255, 0, 255, 255, 0, 255, 255, 0, 255, 255, 255
         ], width: 3, height: 2)
         var upright = Array(repeating: Array(repeating: black, count: 3), count: 2)
-        try recipe.drawFullTexturePreview(key, container: container, boundSlotZero: asymmetric,
+        try recipe.drawFullTexturePreview(key, container: container, boundTextures: [0: asymmetric],
                                           origin: .zero, canvas: &upright)
         XCTAssertEqual(Set(upright.flatMap { $0 }).count, 6)
         var mirrored = Array(repeating: Array(repeating: black, count: 3), count: 2)
-        try recipe.drawFullTexturePreview(key, container: container, boundSlotZero: asymmetric,
+        try recipe.drawFullTexturePreview(key, container: container, boundTextures: [0: asymmetric],
             origin: SIMD2(2, 2), hostScale: SIMD2(-1, -1), canvas: &mirrored)
         XCTAssertEqual(mirrored, [
             [upright[1][1], upright[1][0], black],
@@ -406,7 +483,7 @@ final class ResourceTests: XCTestCase {
             from: Data(#"{"time":0,"type":0,"offset":0}"#.utf8))
         let prior = repeated
         XCTAssertThrowsError(try recipe.drawScopedTexturePreview([(key, []), (invalid, [])],
-            container: container, boundSlotZero: nil, origin: SIMD2(1, 0), hostScale: SIMD2(1, 1),
+            container: container, boundTextures: [:], origin: SIMD2(1, 0), hostScale: SIMD2(1, 1),
             anchorOverride: nil, layerOpacity: 255, canvas: &repeated))
         XCTAssertEqual(repeated, prior)
 
@@ -432,10 +509,16 @@ final class ResourceTests: XCTestCase {
         let upperKey = try XCTUnwrap(upperRecipe.motionKeys(location, selectedMember: 0, time: 0)?.first)
         var sortedCanvas = [[black]]
         XCTAssertTrue(try upperRecipe.drawScopedTexturePreview([(upperKey, []), (key, [])],
-            container: container, boundSlotZero: gray, origin: .zero, hostScale: SIMD2(1, 1),
+            container: container, boundTextures: [0: gray], origin: .zero, hostScale: SIMD2(1, 1),
             anchorOverride: nil, layerOpacity: 255, canvas: &sortedCanvas))
         XCTAssertGreaterThan(sortedCanvas[0][0].z, 240)
         XCTAssertLessThan(sortedCanvas[0][0].x, 16)
+        var boundCanvas = [[black]]
+        let red = try png([255, 0, 0, 255])
+        XCTAssertTrue(try upperRecipe.drawScopedTexturePreview([(upperKey, []), (key, [])],
+            container: container, boundTextures: [0: gray, 1: red], origin: .zero, hostScale: SIMD2(1, 1),
+            anchorOverride: nil, layerOpacity: 255, canvas: &boundCanvas))
+        XCTAssertEqual(boundCanvas, [[SIMD4(0, 0, 255, 255)]])
     }
 
     func testABMPRecipeDrawsVerifiedDPNGMember() throws {

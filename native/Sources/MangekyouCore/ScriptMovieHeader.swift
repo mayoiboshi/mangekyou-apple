@@ -18,15 +18,16 @@ public enum ScriptMovieHeader {
 
     private static func packetOffset(_ data: Data, identification: Data, minimumPacket: Int, failure: String) throws -> Int {
         let magic = Data("OggS".utf8)
-        var start = 0
+        var start = data.startIndex
+        let end = data.endIndex
         for _ in 0..<16 {
-            guard data.count-start >= 27, data[start..<start+4].elementsEqual(magic),
+            guard end-start >= 27, data[start..<start+4].elementsEqual(magic),
                   data[start+4] == 0, data[start+5] & 2 != 0 else { break }
             let count = Int(data[start+26])
             let body = start+27+count
-            guard body <= data.count, count > 0 else { break }
+            guard body <= end, count > 0 else { break }
             let size = data[start+27..<body].reduce(0) { $0+Int($1) }
-            guard size <= data.count-body else { break }
+            guard size <= end-body else { break }
             if Int(data[start+27]) >= minimumPacket,
                data[body..<body+identification.count].elementsEqual(identification) { return body }
             start = body+size

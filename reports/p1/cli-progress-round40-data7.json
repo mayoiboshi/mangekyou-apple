@@ -1,0 +1,416 @@
+{
+  "configuration_source": {
+    "source_file": "GameData/System/config.txt",
+    "sha256": "5aa7b865e283b615fea65866381595edbfc28d63eb1b466371e4a1cd1436b0df"
+  },
+  "schema_version": 1,
+  "status": "inferred",
+  "dataset": "real",
+  "scope": "One explicit source-cohort CLI path; no original package winner or complete-game claim",
+  "profile": "experimental_static_contracts_v17",
+  "source_cohort": "data7",
+  "source_choice_is_original_precedence": "not_tested",
+  "native_binary_sha256": "4a1d1968c9f88028677c114860aed2e539e820464e44ba6fb04d8539bddc81c5",
+  "native_source_sha256": {
+    "native/Package.swift": "b5c5411837acfa54a9bd24dee6db30bb6cd65a985dd085f4f31c7bb6f9287d5c",
+    "native/Sources/MangekyouApp/MangekyouApp.swift": "8a350e039e0173862fea9b5fcdfcadb8ba39fdef469bddd9a9531f2bf72b6e55",
+    "native/Sources/MangekyouCore/DPNGDescriptor.swift": "dbc88afe01023f2c530fbe3de28423e33c6e5b45a336a51e9e4a908564d8f1ff",
+    "native/Sources/MangekyouCore/Inventory.swift": "3ec7bab6f1359f986a5d9fabd1e18611484663086fdb8f40e311744318f327cb",
+    "native/Sources/MangekyouCore/SafeDirectory.swift": "3dfcc344e51c948a1b08909a6df3b2412ecb44eb24e9a619ab1670b0c3bd6118",
+    "native/Sources/MangekyouCore/ScriptDocument.swift": "ccbc245e463c473614591a26c761b17ebf99758c7831909db4cefbe24f8b9408",
+    "native/Sources/MangekyouCore/ScriptExpression.swift": "7708fdf210cf5670e117ded320be835a58bd9ff7faf5aa9da61acef04037fbca",
+    "native/Sources/MangekyouCore/ScriptFingerprint.swift": "5a4c3057a7222eebb7144e514b669ec07800620e91eace715b9c2411fda974bb",
+    "native/Sources/MangekyouCore/ScriptFor.swift": "e1cb922516a6be1c83ea49162b3092bf0081b21ba9f6650f3f62c5d122437f5a",
+    "native/Sources/MangekyouCore/ScriptFormat.swift": "9eef5bbf81e037d7b4617551417f0876c50eeecd6ff34555c1aa4af034ff6198",
+    "native/Sources/MangekyouCore/ScriptLiteralReplace.swift": "8dff713d90533ea9030df120549c9f6ac4fb0e93fbc53e6a8ed6c40db73df7b2",
+    "native/Sources/MangekyouCore/ScriptMachine.swift": "e210dcd727912b500a2256f18377815f6dff616740f7d79d59b07c2107bd9394",
+    "native/Sources/MangekyouCore/ScriptRepository.swift": "4d2e488a4bb27780c41a734bdb48771f12e34cfce91add6d75d58b0bbbdf54b3",
+    "native/Sources/MangekyouCore/ScriptSource.swift": "ab25a07127d62552cab592e170b4226ddea69cd9754fc941be9201eaf07cf92a",
+    "native/Sources/MangekyouCore/ScriptStorage.swift": "2b4bb915b76448edc73d185d2b9f396eff5387640e86e008cf8f69dd5c248365",
+    "native/Sources/MangekyouCore/ScriptStringList.swift": "f9e5712e4dffc2a0ca6a598eab44da88355819f543412b8c2cf096ce39cef009",
+    "native/Sources/MangekyouCore/ScriptTable.swift": "72574b7b8d3fa9923cd1bc0688637ad6c394e9fc89eacd8e16132417ca556820",
+    "native/Sources/MangekyouInspect/main.swift": "8a3d06cea3f59b50867831be4f4349c3a913285bb5b65fd4b6153d1138043c19",
+    "native/Sources/MangekyouMedia/ResourceImage.swift": "447d6a2e0248849e617ea0669b92a712b2f4124ee2fd517bdc86ceb47601b69f",
+    "native/Sources/MangekyouScript/main.swift": "3c27e78a3a34fdd18131e40c30522b5847029bf74e7a58ff94f4bce5c02f373b"
+  },
+  "corpus_report_sha256": "40a57e053214a4498c2a62eadf4ee1b9002ea13b353a66820392f96df11a1206",
+  "attempts": [
+    {
+      "attempt": 0,
+      "steps": 20,
+      "phase": "stopped",
+      "stop_reason": "ambiguous_module_variants",
+      "location": {
+        "byteLength": 76,
+        "byteOffset": 1012,
+        "lineNumber": 45,
+        "rangeSHA256": "3c8f1ab8e60afa006342a0204663c63967817964592c55662d2c349f42bd7dae",
+        "sourceFile": "data0.pack/startup.s",
+        "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+      },
+      "source_byte_references": 24,
+      "explicit_selection": {
+        "source_file": "data7.pack/misc/value.s",
+        "sha256": "6d2791eca5a9c82ff4d525b3b99c31869de7dca383dd5ed51de8779522e63080"
+      }
+    },
+    {
+      "attempt": 1,
+      "steps": 29,
+      "phase": "stopped",
+      "stop_reason": "ambiguous_module_variants",
+      "location": {
+        "byteLength": 20,
+        "byteOffset": 57,
+        "lineNumber": 9,
+        "rangeSHA256": "5f560c2d50b7d933772f694f9e78aaa22a310bcdbb162beb2ffe899b35a5197d",
+        "sourceFile": "data7.pack/misc/value.s",
+        "sourceSHA256": "6d2791eca5a9c82ff4d525b3b99c31869de7dca383dd5ed51de8779522e63080"
+      },
+      "source_byte_references": 34,
+      "explicit_selection": {
+        "source_file": "data7.pack/avg/setting.txt",
+        "sha256": "e6529391b05d5cb7841f6dc713bdbec51417f8ba1660e0a2826d11443a7532ad"
+      }
+    },
+    {
+      "attempt": 2,
+      "steps": 145,
+      "phase": "stopped",
+      "stop_reason": "ambiguous_module_variants",
+      "location": {
+        "byteLength": 27,
+        "byteOffset": 1307,
+        "lineNumber": 61,
+        "rangeSHA256": "fe0e847f82dbdfb1e78857da20383619765184a40ebc30930c94fd110fe04161",
+        "sourceFile": "data7.pack/misc/value.s",
+        "sourceSHA256": "6d2791eca5a9c82ff4d525b3b99c31869de7dca383dd5ed51de8779522e63080"
+      },
+      "source_byte_references": 363,
+      "explicit_selection": {
+        "source_file": "data7.pack/avg/projectsetting.txt",
+        "sha256": "8b0b8a8a66d1459aa0bf5c414bfe85fe220ddb8d3f98eddec019cb0e48afb98e"
+      }
+    },
+    {
+      "attempt": 3,
+      "steps": 257,
+      "phase": "stopped",
+      "stop_reason": "ambiguous_module_variants",
+      "location": {
+        "byteLength": 94,
+        "byteOffset": 1100,
+        "lineNumber": 47,
+        "rangeSHA256": "6dbed632101c11c4fe1424ef88a89e1af2e70caf2b867f1109a01fa8fd9cfc14",
+        "sourceFile": "data0.pack/startup.s",
+        "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+      },
+      "source_byte_references": 302,
+      "explicit_selection": {
+        "source_file": "data7.pack/script/config/value.s",
+        "sha256": "ec485c55279636e663991e317bbb7feeea85a969f5b8a8c522c76a59fb3e98b4"
+      }
+    },
+    {
+      "attempt": 4,
+      "steps": 266,
+      "phase": "stopped",
+      "stop_reason": "ambiguous_module_variants",
+      "location": {
+        "byteLength": 21,
+        "byteOffset": 66,
+        "lineNumber": 8,
+        "rangeSHA256": "9709f15514e48fdd478e1337cc1f6c2834cc5abc368acfe64b0da395b57f4c1f",
+        "sourceFile": "data7.pack/script/config/value.s",
+        "sourceSHA256": "ec485c55279636e663991e317bbb7feeea85a969f5b8a8c522c76a59fb3e98b4"
+      },
+      "source_byte_references": 312,
+      "explicit_selection": {
+        "source_file": "data7.pack/script/config/valuedefault.txt",
+        "sha256": "e3a7d235cfeeed4c767ecebea05fbe36f2809cba343735365394e72f9fd378f3"
+      }
+    },
+    {
+      "attempt": 5,
+      "steps": 795,
+      "phase": "stopped",
+      "stop_reason": "ambiguous_module_variants",
+      "location": {
+        "byteLength": 90,
+        "byteOffset": 1206,
+        "lineNumber": 49,
+        "rangeSHA256": "fcb7f61f813e81df136a71d321fe6e454591778cee3b597ae7e4e5e721edf570",
+        "sourceFile": "data0.pack/startup.s",
+        "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+      },
+      "source_byte_references": 927,
+      "explicit_selection": {
+        "source_file": "data7.pack/avg/avgsystem_value.s",
+        "sha256": "7e462d467ffd803a5959cb3999b392302161e443f157a91de2458ebf97af6b2a"
+      }
+    },
+    {
+      "attempt": 6,
+      "steps": 795,
+      "phase": "stopped",
+      "stop_reason": "ambiguous_module_variants",
+      "location": {
+        "byteLength": 90,
+        "byteOffset": 1206,
+        "lineNumber": 49,
+        "rangeSHA256": "fcb7f61f813e81df136a71d321fe6e454591778cee3b597ae7e4e5e721edf570",
+        "sourceFile": "data0.pack/startup.s",
+        "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+      },
+      "source_byte_references": 927,
+      "explicit_selection": {
+        "source_file": "data7.pack/avg/avgsystem_rewind.s",
+        "sha256": "b3c7e33772e5c92da2f3cbb09c027334dd2efc2025ba968bcf05e245ede2e3a5"
+      }
+    },
+    {
+      "attempt": 7,
+      "steps": 873,
+      "phase": "stopped",
+      "stop_reason": "ambiguous_module_variants",
+      "location": {
+        "byteLength": 76,
+        "byteOffset": 1308,
+        "lineNumber": 51,
+        "rangeSHA256": "e31167de46f2d8538e10ff5251c098e49656057662da0b837454b61e39f5846a",
+        "sourceFile": "data0.pack/startup.s",
+        "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+      },
+      "source_byte_references": 1009,
+      "explicit_selection": {
+        "source_file": "data7.pack/misc/misc.s",
+        "sha256": "2bab8e247a68c514c82533bf4aee67f22009a0827efe7b7f841f82a3fb300c5c"
+      }
+    },
+    {
+      "attempt": 8,
+      "steps": 931,
+      "phase": "stopped",
+      "stop_reason": "ambiguous_module_variants",
+      "location": {
+        "byteLength": 33,
+        "byteOffset": 1910,
+        "lineNumber": 125,
+        "rangeSHA256": "7eb0ef4606e199152210af2194f4c4475aef7ed8c472657909bfa53f2ea57916",
+        "sourceFile": "data7.pack/misc/misc.s",
+        "sourceSHA256": "2bab8e247a68c514c82533bf4aee67f22009a0827efe7b7f841f82a3fb300c5c"
+      },
+      "source_byte_references": 1076,
+      "explicit_selection": {
+        "source_file": "data7.pack/avg/imoscripter_fontlist.txt",
+        "sha256": "a4361195cd8e338f8dac472e8be74b9c5ed962b97944a4c59498a35a35be7099"
+      }
+    },
+    {
+      "attempt": 9,
+      "steps": 1269,
+      "phase": "stopped",
+      "stop_reason": "ambiguous_module_variants",
+      "location": {
+        "byteLength": 92,
+        "byteOffset": 386,
+        "lineNumber": 18,
+        "rangeSHA256": "0ab57e9d3a19cebb8736e8036a0e31a231f90d9f98b05506600b3d8d8b4687d2",
+        "sourceFile": "data0.pack/startup.s",
+        "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+      },
+      "source_byte_references": 1691,
+      "explicit_selection": {
+        "source_file": "data7.pack/script/dialog/main.s",
+        "sha256": "aad32427e0b79bd5c3a49c3658c5ef89a825fefffb64b951077e3b282fa31243"
+      }
+    },
+    {
+      "attempt": 10,
+      "steps": 1269,
+      "phase": "stopped",
+      "stop_reason": "ambiguous_module_variants",
+      "location": {
+        "byteLength": 92,
+        "byteOffset": 386,
+        "lineNumber": 18,
+        "rangeSHA256": "0ab57e9d3a19cebb8736e8036a0e31a231f90d9f98b05506600b3d8d8b4687d2",
+        "sourceFile": "data0.pack/startup.s",
+        "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+      },
+      "source_byte_references": 1691,
+      "explicit_selection": {
+        "source_file": "data7.pack/script/dialog/layout_yesno.s",
+        "sha256": "05a29e400ef9315b6857c494e2259d667725ff801221eb65f417802b4e9253bb"
+      }
+    },
+    {
+      "attempt": 11,
+      "steps": 1269,
+      "phase": "stopped",
+      "stop_reason": "ambiguous_module_variants",
+      "location": {
+        "byteLength": 92,
+        "byteOffset": 386,
+        "lineNumber": 18,
+        "rangeSHA256": "0ab57e9d3a19cebb8736e8036a0e31a231f90d9f98b05506600b3d8d8b4687d2",
+        "sourceFile": "data0.pack/startup.s",
+        "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+      },
+      "source_byte_references": 1691,
+      "explicit_selection": {
+        "source_file": "data7.pack/script/dialog/layout_message.s",
+        "sha256": "541bdb023b53fac9f334c770b8261a4b73be1c9d62ca60dab4434ad6e2258567"
+      }
+    },
+    {
+      "attempt": 12,
+      "steps": 1287,
+      "phase": "stopped",
+      "stop_reason": "ambiguous_module_variants",
+      "location": {
+        "byteLength": 76,
+        "byteOffset": 490,
+        "lineNumber": 20,
+        "rangeSHA256": "886681d90bab3da66326dd9e14b7427270532066d4a8bf31858ce1899de8ba17",
+        "sourceFile": "data0.pack/startup.s",
+        "sourceSHA256": "793c5f20ea7b732168e3211642853e19c4a4be969f2aab84f660616f3c7294d1"
+      },
+      "source_byte_references": 1711,
+      "explicit_selection": {
+        "source_file": "data7.pack/script/caution/main.s",
+        "sha256": "f70cb49a9a89afd62df149664f37632f3d071b25b6ca0f9b200e351394e521de"
+      }
+    },
+    {
+      "attempt": 13,
+      "steps": 1308,
+      "phase": "stopped",
+      "stop_reason": "declaration_type_outside_profile",
+      "location": {
+        "byteLength": 15,
+        "byteOffset": 203,
+        "lineNumber": 19,
+        "rangeSHA256": "40c271c16794cd7bca9870b6e6dcd11f878c10ec80d06f624c865a6bf19860aa",
+        "sourceFile": "data7.pack/script/caution/main.s",
+        "sourceSHA256": "f70cb49a9a89afd62df149664f37632f3d071b25b6ca0f9b200e351394e521de"
+      },
+      "source_byte_references": 1733
+    }
+  ],
+  "selected_sources": [
+    {
+      "source_file": "data7.pack/misc/value.s",
+      "sha256": "6d2791eca5a9c82ff4d525b3b99c31869de7dca383dd5ed51de8779522e63080"
+    },
+    {
+      "source_file": "data7.pack/avg/setting.txt",
+      "sha256": "e6529391b05d5cb7841f6dc713bdbec51417f8ba1660e0a2826d11443a7532ad"
+    },
+    {
+      "source_file": "data7.pack/avg/projectsetting.txt",
+      "sha256": "8b0b8a8a66d1459aa0bf5c414bfe85fe220ddb8d3f98eddec019cb0e48afb98e"
+    },
+    {
+      "source_file": "data7.pack/script/config/value.s",
+      "sha256": "ec485c55279636e663991e317bbb7feeea85a969f5b8a8c522c76a59fb3e98b4"
+    },
+    {
+      "source_file": "data7.pack/script/config/valuedefault.txt",
+      "sha256": "e3a7d235cfeeed4c767ecebea05fbe36f2809cba343735365394e72f9fd378f3"
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_value.s",
+      "sha256": "7e462d467ffd803a5959cb3999b392302161e443f157a91de2458ebf97af6b2a"
+    },
+    {
+      "source_file": "data7.pack/avg/avgsystem_rewind.s",
+      "sha256": "b3c7e33772e5c92da2f3cbb09c027334dd2efc2025ba968bcf05e245ede2e3a5"
+    },
+    {
+      "source_file": "data7.pack/misc/misc.s",
+      "sha256": "2bab8e247a68c514c82533bf4aee67f22009a0827efe7b7f841f82a3fb300c5c"
+    },
+    {
+      "source_file": "data7.pack/avg/imoscripter_fontlist.txt",
+      "sha256": "a4361195cd8e338f8dac472e8be74b9c5ed962b97944a4c59498a35a35be7099"
+    },
+    {
+      "source_file": "data7.pack/script/dialog/main.s",
+      "sha256": "aad32427e0b79bd5c3a49c3658c5ef89a825fefffb64b951077e3b282fa31243"
+    },
+    {
+      "source_file": "data7.pack/script/dialog/layout_yesno.s",
+      "sha256": "05a29e400ef9315b6857c494e2259d667725ff801221eb65f417802b4e9253bb"
+    },
+    {
+      "source_file": "data7.pack/script/dialog/layout_message.s",
+      "sha256": "541bdb023b53fac9f334c770b8261a4b73be1c9d62ca60dab4434ad6e2258567"
+    },
+    {
+      "source_file": "data7.pack/script/caution/main.s",
+      "sha256": "f70cb49a9a89afd62df149664f37632f3d071b25b6ca0f9b200e351394e521de"
+    }
+  ],
+  "phase": "stopped",
+  "steps": 1308,
+  "stop_reason": "declaration_type_outside_profile",
+  "location": {
+    "byteLength": 15,
+    "byteOffset": 203,
+    "lineNumber": 19,
+    "rangeSHA256": "40c271c16794cd7bca9870b6e6dcd11f878c10ec80d06f624c865a6bf19860aa",
+    "sourceFile": "data7.pack/script/caution/main.s",
+    "sourceSHA256": "f70cb49a9a89afd62df149664f37632f3d071b25b6ca0f9b200e351394e521de"
+  },
+  "terminal_command": "gvar",
+  "source_snapshot_count": 15,
+  "loaded_programs": 7,
+  "action_counts": {
+    "advance": 722,
+    "declare_int_candidate": 52,
+    "calculate": 77,
+    "if_not_exact_one": 18,
+    "local_call": 2,
+    "module_call": 7,
+    "declare_table_candidate": 3,
+    "select_table_scope_candidate": 98,
+    "load_table_candidate": 5,
+    "declare_str_candidate": 16,
+    "query_table_candidate": 75,
+    "module_return": 6,
+    "declare_list_candidate": 5,
+    "variable_exists_category_candidate": 29,
+    "if_exact_one_true": 36,
+    "then_marker": 36,
+    "end_if": 32,
+    "for_enter_candidate": 2,
+    "format_pairs_candidate": 15,
+    "select_scope_empty_suffix_candidate": 8,
+    "for_update_then_repeat": 13,
+    "for_update_then_exit": 2,
+    "local_return": 2,
+    "config_vtv_candidate": 5,
+    "config_vtm_candidate": 5,
+    "table_overlay_nonempty_candidate": 1,
+    "config_font_query_candidate": 4,
+    "literal_replace_candidate": 5,
+    "config_font_write_candidate": 16,
+    "for_continue_to_update_candidate": 3,
+    "session_save_presence_candidate": 1,
+    "system_key_reset_candidate": 1,
+    "system_key_bind_candidate": 4,
+    "system_lock_mask_candidate": 1,
+    "stop": 1
+  },
+  "trace_sha256": "925cba68d237ca0097cea42ced18634760ace941c0a08a5e972311c50c3728e5",
+  "source_byte_reference_status": "verified",
+  "checked_sources": 15,
+  "checked_source_bytes": 32505,
+  "full_corpus_retested": false,
+  "original_engine_equivalence": "not_tested",
+  "full_game_compatibility": "not_tested",
+  "original_files_written": false,
+  "external_game_data_uploads": false,
+  "private_trace_directory": "private/p1-round40/cli-progress-data7"
+}

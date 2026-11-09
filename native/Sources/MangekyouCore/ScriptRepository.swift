@@ -227,7 +227,7 @@ public struct ScriptRepository: Sendable {
                               byteOffset: 0, byteLength: data.count, rangeSHA256: reference.sourceSHA256, lineNumber: 1)
     }
 
-    public mutating func readResource(_ logical: String) throws -> (ScriptModuleReference, Data) {
+    private mutating func resolveResource(_ logical: String) throws -> ScriptModuleReference {
         pendingVariants = try catalog.variants(for: logical)
         let logicalKey = try ScriptModuleCatalog.key(logical)
         let entry: ScriptModuleReference
@@ -244,13 +244,23 @@ public struct ScriptRepository: Sendable {
             if pendingVariants.isEmpty { try catalog.requireResourceCopyIfIndexed(logical) }
             entry = try catalog.resolve(logical)
         }
+        return entry
+    }
+
+    public mutating func readResource(_ logical: String, byteLimit: Int = 32 * 1024 * 1024) throws -> (ScriptModuleReference, Data) {
+        let entry = try resolveResource(logical)
+        let logicalKey = try ScriptModuleCatalog.key(logical)
         let key = Data(entry.sourceFile.utf8)
-        if let data = dataCache[key] { return (entry,data) }
-        let data = try directory.read(entry.sourceFile, limit: entry.sourceFile.hasSuffix(".b") ? 32*1024*1024 : 16*1024*1024)
+        if let data = dataCache[key] {
+            guard data.count <= byteLimit else { throw ResourceError.rejected("resource_read_byte_limit") }
+            return (entry, data)
+        }
+        let foldedPath = asciiLower(entry.sourceFile)
+        let data = try directory.read(entry.sourceFile, limit: min(byteLimit, foldedPath.hasSuffix(".b") ? 32*1024*1024 : 16*1024*1024))
         guard data.sha256Hex == entry.sourceSHA256 else { throw ResourceError.rejected("module_source_identity") }
         if pendingVariants.isEmpty { suppliedResources[logicalKey] = entry }
         let media = [".png", ".jpg", ".jpeg", ".ogg", ".ogv", ".wav", ".b"].contains {
-            asciiLower(entry.sourceFile).hasSuffix($0)
+            foldedPath.hasSuffix($0)
         }
         if media { return (entry,data) }
         guard dataCache.count < maximumModules else { throw ResourceError.rejected("module_snapshot_budget") }
@@ -260,9 +270,8 @@ public struct ScriptRepository: Sendable {
     }
 
     mutating func movieLocation(_ logical: String) throws -> (location: ScriptLocation, size: (Int32, Int32)) {
-        pendingVariants = try catalog.variants(for: logical)
-        let reference = try catalog.resolve(logical)
-        return try directory.withFile(reference.sourceFile) { fd, size in
+        let reference = try resolveResource(logical)
+        let movie = try directory.withFile(reference.sourceFile) { fd, size in
             let digest = try SafeDirectory.movieSHA256(fd: fd, size: size)
             guard digest == reference.sourceSHA256 else {
                 throw ResourceError.rejected("movie_source_identity")
@@ -276,6 +285,8 @@ public struct ScriptRepository: Sendable {
                 byteOffset: 0, byteLength: Int(size), rangeSHA256: digest, lineNumber: 1)
             return (location, (Int32(width), Int32(height)))
         }
+        if pendingVariants.isEmpty { suppliedResources[try ScriptModuleCatalog.key(logical)] = reference }
+        return movie
     }
 
     public mutating func load(_ logical: String) throws -> ScriptProgram {

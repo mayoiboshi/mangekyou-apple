@@ -74,6 +74,10 @@ struct TwoTextureCheck: Encodable {
     let width: Int
     let height: Int
     let changedPixels: Int
+    let baseTextureChangedPixels: Int?
+    let twoTextureChangedPixels: Int
+    let twoTextureChangedOnNonOpaquePixels: Int
+    let twoTextureChangedPixelsSHA256: String
     let canvasSHA256: String
     let originalRendererEquivalence: EvidenceStatus = .notTested
 }
@@ -82,8 +86,52 @@ struct TwoTextureCheck: Encodable {
     static func main() {
         do {
             var args = Array(CommandLine.arguments.dropFirst())
+            if args.first == "--inspect-partial-motion" {
+                guard args.count == 6, let action = Int32(args[4]), action >= 0,
+                      let time = Int32(args[5]), time >= 0 else {
+                    throw ResourceError.rejected("invalid_partial_motion_arguments")
+                }
+                let assets = try SafeDirectory(URL(fileURLWithPath: args[1], isDirectory: true))
+                let recipeURL = URL(fileURLWithPath: args[2])
+                let recipes = try SafeDirectory(recipeURL.deletingLastPathComponent())
+                let recipe = try JSONDecoder().decode(ScriptImageRecipe.self,
+                    from: recipes.read(recipeURL.lastPathComponent, limit: 32 * 1024 * 1024))
+                let payload = try assets.read(args[3])
+                let location = ScriptModuleReference(logicalPath: args[3], sourceFile: args[3],
+                    sourceSHA256: payload.sha256Hex).wholeFileLocation(byteLength: payload.count)
+                guard let keys = recipe.samplePartialMotion(location, selectedMember: action, time: time) else {
+                    throw ResourceError.rejected("partial_motion_unavailable")
+                }
+                let samples: [[String: Any]] = keys.map { key in
+                    var fields: [String: Any] = ["offset": key.offset, "type": Int(key.type)]
+                    fields["opacity"] = recipe.composedOpacity(texture: key, states: []).map { Int($0) }
+                    if let slot = key.texture_numbers?.first {
+                        fields["slot"] = slot
+                        if let texture = recipe.embeddedTexture(location, slot: slot), let size = texture.size,
+                           let rect = recipe.fullTextureRectangle(key, size: size, host: .identity) {
+                            fields["localBounds"] = [rect.minX, rect.minY, rect.width, rect.height]
+                        }
+                    }
+                    return fields
+                }
+                let report: [String: Any] = ["status": "inferred", "samples": samples]
+                print(String(decoding: try JSONSerialization.data(withJSONObject: report, options: [.sortedKeys]), as: UTF8.self))
+                return
+            }
             if args.first == "--inspect-two-texture" {
-                guard args.count == 9, let action = Int32(args[6]), action >= 0,
+                var time: Int32 = 0
+                if let last = args.last, last.hasPrefix("--time=") {
+                    guard let parsed = Int32(last.dropFirst("--time=".count)), parsed >= 0 else {
+                        throw ResourceError.rejected("invalid_two_texture_sample_time")
+                    }
+                    time = parsed
+                    args.removeLast()
+                }
+                let transparent = args.last == "--transparent-target"
+                if transparent { args.removeLast() }
+                let includeBase = args.last == "--include-type4-base"
+                if includeBase { args.removeLast() }
+                guard (9...10).contains(args.count), let action = Int32(args[6]), action >= 0,
                       let x = Int(args[7]), let y = Int(args[8]) else {
                     throw ResourceError.rejected("invalid_two_texture_inspection_arguments")
                 }
@@ -98,23 +146,60 @@ struct TwoTextureCheck: Encodable {
                     ScriptModuleReference(logicalPath: path, sourceFile: path, sourceSHA256: data.sha256Hex)
                         .wholeFileLocation(byteLength: data.count)
                 }
-                guard let keys = recipe.motionKeys(location(args[3], container), selectedMember: action, time: 0) else {
+                guard let keys = recipe.motionKeys(location(args[3], container), selectedMember: action, time: time) else {
                     throw ResourceError.rejected("two_texture_timeline_unavailable")
                 }
                 let draws = keys.filter { $0.type == 11 }
                 guard draws.count == 1 else { throw ResourceError.rejected("two_texture_key_count") }
-                let background = try ResourceImage.decode(assets.read(args[4])).opaqueCanvas(over: CGColor(gray: 0, alpha: 1))
+                let opaque = try ResourceImage.decode(assets.read(args[4])).opaqueCanvas(over: CGColor(gray: 0, alpha: 1))
+                let background = transparent
+                    ? opaque.map { $0.map { _ in SIMD4<UInt8>.zero } } : opaque
                 var canvas = background
+                guard let slots = draws[0].texture_numbers, slots.count == 2 else {
+                    throw ResourceError.rejected("two_texture_slot_count")
+                }
+                var bindings = [slots[0]: (bound, location(args[5], bound))]
+                if args.count == 10 {
+                    let second = try assets.read(args[9])
+                    bindings[slots[1]] = (second, location(args[9], second))
+                }
+                var baseTextureChangedPixels: Int?
+                if includeBase {
+                    let ordered = keys.filter { $0.type != 0 }
+                    guard ordered.map(\.type) == [4, 11] else {
+                        throw ResourceError.rejected("unsupported_thumbnail_draw_order")
+                    }
+                    try recipe.drawFullTexturePreview(ordered[0], container: container,
+                        boundTextures: bindings.mapValues { $0.0 }, origin: SIMD2(x, y), canvas: &canvas)
+                    baseTextureChangedPixels = zip(background, canvas).reduce(0) { count, rows in
+                        count + zip(rows.0, rows.1).count { $0 != $1 }
+                    }
+                }
+                let beforeTwoTexture = canvas
                 try recipe.drawFullTwoTextureKey(draws[0], container: container,
-                    boundFirst: (bound, location(args[5], bound)), origin: SIMD2(x, y), canvas: &canvas)
+                    boundTextures: bindings, origin: SIMD2(x, y), canvas: &canvas)
                 var hash = SHA256()
                 var changed = 0
                 for (before, after) in zip(background, canvas) {
                     changed += zip(before, after).count { $0 != $1 }
                     after.withUnsafeBytes { hash.update(bufferPointer: $0) }
                 }
+                var twoTextureHash = SHA256()
+                var twoTextureChanged = 0
+                var twoTextureChangedOnNonOpaque = 0
+                for (before, after) in zip(beforeTwoTexture, canvas) {
+                    for (previous, var pixel) in zip(before, after) where previous != pixel {
+                        twoTextureChanged += 1
+                        if previous.w != 255 { twoTextureChangedOnNonOpaque += 1 }
+                        withUnsafeBytes(of: &pixel) { twoTextureHash.update(bufferPointer: $0) }
+                    }
+                }
                 let report = TwoTextureCheck(width: canvas[0].count, height: canvas.count,
-                    changedPixels: changed, canvasSHA256: hash.finalize().map { String(format: "%02x", $0) }.joined())
+                    changedPixels: changed, baseTextureChangedPixels: baseTextureChangedPixels,
+                    twoTextureChangedPixels: twoTextureChanged,
+                    twoTextureChangedOnNonOpaquePixels: twoTextureChangedOnNonOpaque,
+                    twoTextureChangedPixelsSHA256: twoTextureHash.finalize().map { String(format: "%02x", $0) }.joined(),
+                    canvasSHA256: hash.finalize().map { String(format: "%02x", $0) }.joined())
                 FileHandle.standardOutput.write(try JSONEncoder().encode(report))
                 print("")
                 return
@@ -346,7 +431,8 @@ struct TwoTextureCheck: Encodable {
                             try catalog.select(sourceFile: source)
                         }
                         if let size = previewDisplayReload, let reload = previewReload {
-                            let (_, bytes) = try reload.readImage(in: state, catalog: catalog, directory: assets)
+                            var repository = try ScriptRepository(directory: assets, catalog: catalog)
+                            let (_, bytes) = try reload.readImage(in: state, repository: &repository)
                             let image = try ResourceImage.decode(bytes)
                             try writePreview(image.savedDisplayPreview(transform: reload.transform,
                                                                        width: size.width, height: size.height))
@@ -358,7 +444,7 @@ struct TwoTextureCheck: Encodable {
                             check.resolvedLabel = resolved.location
                             let position = try resolved.program.sourcePosition(for: check.readerCursor, anchor: resolved.location)
                             check.resolvedSourcePosition = position
-                            if check.readerCursor.routines.last?.rawState == 3 {
+                            if let mode = check.readerCursor.routines.last?.rawState, mode == 3 || mode == 4 {
                                 let index = try resolved.program.savedResumeIndex(position, reader: check.readerCursor)
                                 let record = resolved.program.document.records[index]
                                 check.resolvedResumeRecord = record.location
@@ -393,7 +479,7 @@ struct TwoTextureCheck: Encodable {
                   args.count == 2 || args[2] == "--verify-images" else {
                 throw ResourceError.rejected("""
                     Usage: mangekyou-inspect (--game-dir|--assets-dir) PATH [--verify-images]
-                           mangekyou-inspect --inspect-two-texture ASSETS RECIPE CONTAINER BACKGROUND FIRST ACTION X Y
+                           mangekyou-inspect --inspect-two-texture ASSETS RECIPE CONTAINER BACKGROUND FIRST ACTION X Y [SECOND] [--include-type4-base] [--transparent-target] [--time=TICKS]
                            mangekyou-inspect --inspect-save-directory DIRECTORY
                            mangekyou-inspect --inspect-save DIRECTORY SLOT
                            mangekyou-inspect --inspect-save-thumbnail DIRECTORY SLOT

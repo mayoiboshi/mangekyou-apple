@@ -26,6 +26,39 @@ package struct SaveStatePrefix: Encodable, Sendable {
         let rawMode: UInt8
         let rawLoadOption: UInt8
         let rawSeekBits: UInt32
+        let resumeRepeatCount: Int32?
+        let resumeVolume: Int32
+        let resumePan: Int32
+
+        func matchesEncodedMilliseconds(_ milliseconds: Int32) -> Bool {
+            milliseconds >= 0 && rawSeekBits == Float(Double(milliseconds) / 1000).bitPattern
+        }
+
+        /// Update playback fields of an existing streaming record. The caller
+        /// verifies the resource identity and supplies the measured host cursor.
+        static func replacingPlayback(in template: Data, milliseconds: Int32, repeats: Int32?,
+                                      volume: Int32, pan: Int32) throws -> Data {
+            guard template.count == 131, milliseconds >= 0 else {
+                throw ResourceError.rejected("saved_stream_write_outside_profile")
+            }
+            let mode = template[template.startIndex + 0x10]
+            guard repeats.map({ mode >= 2 && $0 >= -1 }) ?? (mode == 1) else {
+                throw ResourceError.rejected("saved_stream_write_outside_profile")
+            }
+            let seconds = Float(Double(milliseconds) / 1000)
+            guard (Double(seconds) * 1000).rounded(.toNearestOrEven) == Double(milliseconds) else {
+                throw ResourceError.rejected("saved_stream_write_seek_precision")
+            }
+            var record = Data(template)
+            func replace(_ offset: Int, with bits: UInt32) {
+                withUnsafeBytes(of: bits.littleEndian) { record.replaceSubrange(offset..<(offset + 4), with: $0) }
+            }
+            replace(4, with: UInt32(bitPattern: volume))
+            replace(0x15, with: seconds.bitPattern)
+            replace(0x1d, with: UInt32(bitPattern: pan))
+            if let repeats { replace(0x27, with: UInt32(bitPattern: repeats)) }
+            return record
+        }
 
         init(bytes: UnsafeRawBufferPointer, start: Int) {
             // 0x5a04e4 gates reload on +0x10, then passes +0x11 to
@@ -33,6 +66,12 @@ package struct SaveStatePrefix: Encodable, Sendable {
             rawMode = bytes[start + 0x10]
             rawLoadOption = bytes[start + 0x11]
             rawSeekBits = UInt32(littleEndian: bytes.loadUnaligned(fromByteOffset: start + 0x15, as: UInt32.self))
+            // 0x5a053e and 0x5a0560 pass these values to the volume and pan setters.
+            resumeVolume = Int32(littleEndian: bytes.loadUnaligned(fromByteOffset: start + 4, as: Int32.self))
+            resumePan = Int32(littleEndian: bytes.loadUnaligned(fromByteOffset: start + 0x1d, as: Int32.self))
+            // 0x5a056f–0x5a057f passes record +0x27 to the play endpoint for modes >= 2.
+            resumeRepeatCount = rawMode >= 2
+                ? Int32(littleEndian: bytes.loadUnaligned(fromByteOffset: start + 0x27, as: Int32.self)) : nil
         }
     }
 
@@ -156,6 +195,126 @@ package struct SaveStatePrefix: Encodable, Sendable {
 }
 
 extension SaveStatePrefix {
+    /// Experimental slots have no live direct-buffer snapshot. Set the
+    /// reader's reload-bypass byte so the donor cannot start an old sound.
+    func bypassingDonorDirectReloads(in state: Data) -> Data {
+        var result = state
+        for entry in dsndReferences where entry.directReloadRequested == true {
+            result[result.startIndex + entry.record.decodedOffset + 0x11] = 1
+        }
+        return result
+    }
+
+    /// Apply host positions for every playing template channel as one update.
+    func replacingLiveStreams(in state: Data, storage: ScriptStorage, catalog: ScriptModuleCatalog,
+                              positions: [Int32: Int32]) throws -> Data {
+        let playing = Set(ssndReferences.indices.compactMap { index -> Int32? in
+            guard ssndReferences[index].streamChannel?.resumeRepeatCount != nil else { return nil }
+            return Int32(index)
+        })
+        let handles = try playing.map { channel -> UInt64 in
+            guard case .object(let handle) = try storage.readIndexed("snd", channel) else {
+                throw ResourceError.rejected("saved_stream_write_channel_unavailable")
+            }
+            return handle
+        }
+        let liveHandles = Set(storage.soundChannels.keys.filter {
+            ScriptStorage.isStreamHandle($0) && storage.soundChannels[$0]?.playing == true
+        })
+        guard Set(positions.keys) == playing, Set(handles) == liveHandles else {
+            let live = liveHandles.compactMap(ScriptStorage.streamChannelIndex).sorted()
+            throw ResourceError.rejected(
+                "saved_stream_write_position_coverage: live=\(live) template=\(playing.sorted()) supplied=\(positions.keys.sorted())")
+        }
+        var result = state
+        let liveIdle = Set(storage.soundChannels.compactMap { handle, channel -> Int32? in
+            guard !channel.playing, channel.resource != nil else { return nil }
+            return ScriptStorage.streamChannelIndex(handle)
+        })
+        var matchedIdle = Set<Int32>()
+        for (index, entry) in ssndReferences.enumerated() where entry.streamChannel?.rawMode == 1 {
+            let channel = Int32(index)
+            if !liveIdle.contains(channel) {
+                // Mode zero bypasses the saved stream reload.
+                result[result.startIndex + entry.record.decodedOffset + 0x10] = 0
+                continue
+            }
+            guard case .object(let handle) = try storage.readIndexed("snd", channel),
+                  let live = storage.soundChannels[handle], let source = live.resource,
+                  let name = entry.strings.first, name.length > 0 else {
+                throw ResourceError.rejected("saved_idle_stream_write_source_mismatch")
+            }
+            let reference = try catalog.resolve(name.utf16Text(in: state))
+            guard reference.sourceFile == source.sourceFile, reference.sourceSHA256 == source.sourceSHA256,
+                  (live.volumeDuration ?? 0) == 0, (live.volumeDelay ?? 0) == 0,
+                  (live.panRequest?.duration ?? 0) == 0, (live.panRequest?.delay ?? 0) == 0 else {
+                throw ResourceError.rejected("saved_idle_stream_write_state_mismatch")
+            }
+            let start = result.startIndex + entry.record.decodedOffset
+            let range = start..<(start + 131)
+            let encoded = try StreamChannel.replacingPlayback(in: Data(result[range]),
+                milliseconds: live.seekRequest ?? 0, repeats: nil,
+                volume: live.volume ?? 256, pan: live.panRequest?.position ?? 0)
+            result.replaceSubrange(range, with: encoded)
+            matchedIdle.insert(channel)
+        }
+        guard matchedIdle == liveIdle else {
+            throw ResourceError.rejected("saved_idle_stream_write_coverage")
+        }
+        for channel in playing.sorted() {
+            guard let milliseconds = positions[channel] else {
+                throw ResourceError.rejected("saved_stream_write_position_coverage")
+            }
+            result = try replacingLiveStreamPlayback(in: result, channel: channel, storage: storage,
+                                                       catalog: catalog, milliseconds: milliseconds)
+        }
+        return result
+    }
+
+    func replacingLiveStreamPlayback(in state: Data, channel: Int32, storage: ScriptStorage,
+                                     catalog: ScriptModuleCatalog, milliseconds: Int32) throws -> Data {
+        guard channel >= 0, case .object(let handle) = try storage.readIndexed("snd", channel),
+              let live = storage.soundChannels[handle], live.playing,
+              let source = live.resource, let repeats = live.loopRequest,
+              !live.volumeChangePending || ((live.volumeDuration ?? 0) == 0 && (live.volumeDelay ?? 0) == 0),
+              !live.panChangePending || ((live.panRequest?.duration ?? 0) == 0 && (live.panRequest?.delay ?? 0) == 0) else {
+            throw ResourceError.rejected("saved_stream_live_channel_outside_profile")
+        }
+        return try replacingStreamPlayback(in: state, channel: Int(channel), source: source,
+            catalog: catalog, milliseconds: milliseconds, repeats: repeats,
+            volume: live.volume ?? 256, pan: live.panRequest?.position ?? 0)
+    }
+
+    func replacingStreamPlayback(in state: Data, channel: Int, source: ScriptLocation,
+                                 catalog: ScriptModuleCatalog, milliseconds: Int32, repeats: Int32,
+                                 volume: Int32, pan: Int32) throws -> Data {
+        guard ssndReferences.indices.contains(channel) else {
+            throw ResourceError.rejected("saved_stream_write_channel_unavailable")
+        }
+        let entry = ssndReferences[channel]
+        let offset = entry.record.decodedOffset
+        let length = entry.record.length
+        guard length >= 131, offset >= 0, offset <= state.count, length <= state.count - offset else {
+            throw ResourceError.rejected("saved_stream_write_record_bounds")
+        }
+        let start = state.startIndex + offset
+        guard Data(state[start..<(start + length)]).sha256Hex == entry.record.sha256,
+              let name = entry.strings.first, name.length > 0 else {
+            throw ResourceError.rejected("saved_stream_write_record_identity")
+        }
+        let reference = try catalog.resolve(name.utf16Text(in: state))
+        guard reference.sourceFile.utf8.elementsEqual(source.sourceFile.utf8),
+              reference.sourceSHA256 == source.sourceSHA256 else {
+            throw ResourceError.rejected("saved_stream_write_source_mismatch")
+        }
+        let range = start..<(start + 131)
+        let encoded = try StreamChannel.replacingPlayback(in: Data(state[range]), milliseconds: milliseconds,
+                                                           repeats: repeats, volume: volume, pan: pan)
+        var result = state
+        result.replaceSubrange(range, with: encoded)
+        return result
+    }
+
     struct SoundResourceMatch: Encodable, Sendable {
         let recordOffset: Int
         let status: EvidenceStatus
@@ -173,6 +332,7 @@ extension SaveStatePrefix {
     /// and channel state are separate from this lookup.
     func soundResources(in state: Data, repository: ScriptRepository,
                         streamed: Bool = false) -> [SoundResourceMatch] {
+        var repository = repository
         var remainingBytes = 64 * 1024 * 1024
         var attempts = 0
         let records = streamed ? ssndReferences : dsndReferences
@@ -181,52 +341,53 @@ extension SaveStatePrefix {
             guard reload == true else { return nil }
             let field = entry.strings[0]
             let offset = entry.record.decodedOffset
-            guard field.length <= 8192, field.decodedOffset <= state.count,
-                  field.length <= state.count - field.decodedOffset,
-                  let path = String(data: state.dropFirst(field.decodedOffset).prefix(field.length),
-                                    encoding: .utf16LittleEndian) else {
+            guard (1...8192).contains(field.length), let path = try? field.utf16Text(in: state),
+                  !path.contains("\0") else {
                 return .init(recordOffset: offset, status: .unsupported, sourceSHA256: nil,
                              issue: "invalid_saved_sound_name")
             }
-            do {
-                let source = try repository.catalog.resolve(path)
-                var match = SoundResourceMatch(recordOffset: offset, status: .inferred,
-                                               sourceSHA256: source.sourceSHA256, issue: nil)
-                guard remainingBytes > 0, attempts < 64 else {
-                    match.vorbisHeader = .notTested
-                    match.mediaIssue = "saved_sound_validation_budget"
-                    return match
-                }
-                attempts += 1
-                do {
-                    let data = try repository.directory.read(source.sourceFile, limit: min(remainingBytes, 16 * 1024 * 1024))
-                    remainingBytes -= data.count
-                    guard data.sha256Hex == source.sourceSHA256 else {
-                        throw ResourceError.rejected("module_source_identity")
-                    }
-                    match.stagedLocation = try ScriptRepository.vorbisLocation(source, data: data)
-                    match.vorbisHeader = .verified
-                    if let stream = entry.streamChannel {
-                        // The native x87 conversion uses its current rounding mode.
-                        // Accept integral milliseconds independently of that mode.
-                        let scaled = Double(Float(bitPattern: stream.rawSeekBits)) * 1000
-                        if scaled >= 0, let milliseconds = Int32(exactly: scaled) {
-                            match.requestedSeekMilliseconds = milliseconds
-                            match.seekStatus = .verified
-                        } else {
-                            match.seekStatus = .unsupported
-                            match.seekIssue = "saved_stream_seek_outside_exact_profile"
-                        }
-                    }
-                } catch {
-                    match.vorbisHeader = .unsupported
-                    match.mediaIssue = String(describing: error)
-                }
+            let knownSource = try? repository.catalog.resolve(path)
+            var match = SoundResourceMatch(recordOffset: offset, status: .inferred,
+                                           sourceSHA256: knownSource?.sourceSHA256, issue: nil)
+            guard remainingBytes > 0, attempts < 64 else {
+                match.vorbisHeader = .notTested
+                match.mediaIssue = "saved_sound_validation_budget"
                 return match
-            } catch {
-                return .init(recordOffset: offset, status: .unsupported, sourceSHA256: nil,
-                             issue: String(describing: error))
             }
+            attempts += 1
+            do {
+                let (source, data) = try repository.readResource(path,
+                    byteLimit: min(remainingBytes, 16 * 1024 * 1024))
+                remainingBytes -= data.count
+                match = SoundResourceMatch(recordOffset: offset, status: .inferred,
+                                           sourceSHA256: source.sourceSHA256, issue: nil)
+                match.stagedLocation = try ScriptRepository.vorbisLocation(source, data: data)
+                match.vorbisHeader = .verified
+                if let stream = entry.streamChannel {
+                    // x87 uses the current rounding mode. A fractional value
+                    // can be probed using nearest-even without claiming that
+                    // the original process used that mode.
+                    let scaled = Double(Float(bitPattern: stream.rawSeekBits)) * 1000
+                    if scaled >= 0, let milliseconds = Int32(exactly: scaled.rounded(.toNearestOrEven)) {
+                        match.requestedSeekMilliseconds = milliseconds
+                        match.seekStatus = scaled == Double(milliseconds) ? .verified : .inferred
+                        if match.seekStatus == .inferred {
+                            match.seekIssue = "saved_stream_seek_rounding_mode_unverified"
+                        }
+                    } else {
+                        match.seekStatus = .unsupported
+                        match.seekIssue = "saved_stream_seek_out_of_range"
+                    }
+                }
+            } catch {
+                if match.sourceSHA256 == nil {
+                    return .init(recordOffset: offset, status: .unsupported, sourceSHA256: nil,
+                                 issue: String(describing: error))
+                }
+                match.vorbisHeader = .unsupported
+                match.mediaIssue = String(describing: error)
+            }
+            return match
         }
     }
 
@@ -268,7 +429,7 @@ extension SaveStatePrefix {
         let generators: [SaveImageGenerators.Record]
     }
 
-    private static func imageDecoder(for name: String) -> String? {
+    static func imageDecoder(for name: String) -> String? {
         let decoders = ["bmp": "BMP", "jpg": "JPEG", "png": "PNG", "dpng": "DPNG", "argb": "ARGB"]
         return decoders[asciiLower((name as NSString).pathExtension)]
     }
@@ -295,17 +456,12 @@ extension SaveStatePrefix {
             let normalizedOperands: [Double]
             package let transform: Transform
 
-            package func readImage(in state: Data, catalog: ScriptModuleCatalog,
-                                   directory: SafeDirectory) throws -> (ScriptModuleReference, Data) {
+            package func readImage(in state: Data, repository: inout ScriptRepository) throws -> (ScriptModuleReference, Data) {
                 let path = try resource.utf16Text(in: state)
                 guard !path.isEmpty, path.utf8.count <= 4096 else {
                     throw ResourceError.rejected("saved_display_resource_name_outside_profile")
                 }
-                let source = try catalog.resolve(path)
-                let bytes = try directory.read(source.sourceFile, limit: 16 * 1024 * 1024)
-                guard bytes.sha256Hex == source.sourceSHA256 else {
-                    throw ResourceError.rejected("module_source_identity")
-                }
+                let (source, bytes) = try repository.readResource(path, byteLimit: 16 * 1024 * 1024)
                 let signature = InventoryScanner.signature(Data(bytes.prefix(16)))
                 guard SaveStatePrefix.imageDecoder(SaveStatePrefix.imageDecoder(for: path), accepts: signature) else {
                     throw ResourceError.rejected("saved_display_resource_native_decoder_mismatch")
@@ -402,10 +558,34 @@ extension SaveStatePrefix {
         return Data(state[start..<(start + selected.embeddedLength)])
     }
 
+    /// Replace an embedded surface in the existing display profile. The host
+    /// owns image encoding and validates the captured image before calling.
+    func replacingDisplaySurface(in state: Data, index: Int, payload: Data) throws -> Data {
+        let display = try inspectDisplay(in: state)
+        guard let slot = display.surfaces.first(where: { $0.index == index }),
+              slot.embeddedLength > 0, !payload.isEmpty,
+              payload.count <= SaveEnvelope.maxFileBytes - (state.count - slot.embeddedLength),
+              slot.embeddedSignature == InventoryScanner.signature(payload),
+              Self.imageDecoder(slot.nativeDecoder, accepts: InventoryScanner.signature(payload)) else {
+            throw ResourceError.rejected("saved_display_surface_write_outside_profile")
+        }
+        let start = state.startIndex + slot.embeddedOffset
+        var result = state
+        var encoded = withUnsafeBytes(of: Int32(payload.count).littleEndian) { Data($0) }
+        encoded.append(payload)
+        result.replaceSubrange((start - 4)..<(start + slot.embeddedLength), with: encoded)
+        guard try displaySurfaceBytes(in: result, index: index) == payload else {
+            throw ResourceError.rejected("saved_display_surface_write_roundtrip")
+        }
+        return result
+    }
+
     @discardableResult
     static func walkImageLibrary(_ bytes: UnsafeRawBufferPointer, take: (Int) throws -> Int,
                                  integer: () throws -> Int, stringRange: () throws -> Range<Int>,
                                  imageSlot: ((Int, Range<Int>, Int, Int, Bool) -> ImageLibrarySummary.Slot)? = nil,
+                                 visitUserString: ((Range<Int>) -> Void)? = nil,
+                                 visitSoundName: ((Range<Int>) -> Void)? = nil,
                                  visit: ((Int, Int, Range<Int>, [ImageLibrarySummary.Slot], [SaveImageGenerators.Record]) -> Void)? = nil) throws -> Bool {
         let start = try take(0xA5E)
         let sourceRange = try stringRange()
@@ -418,7 +598,11 @@ extension SaveStatePrefix {
                 slots.append(imageSlot(index, name, payload, length, length != 0))
             }
         }
-        for _ in 0..<64 { _ = try stringRange() }
+        for _ in 0..<32 {
+            let sound = try stringRange()
+            visitSoundName?(sound)
+        }
+        for _ in 0..<32 { _ = try stringRange() }
         _ = try take(256)
         var generators: [SaveImageGenerators.Record] = []
         let visitGenerator: ((SaveImageGenerators.Record) -> Void)? =
@@ -427,7 +611,8 @@ extension SaveStatePrefix {
         try SaveImageGenerators.skipGroup(bytes, take: take, visit: visitGenerator)
         for _ in 0..<8 {
             _ = try take(4)
-            _ = try stringRange()
+            let text = try stringRange()
+            visitUserString?(text)
         }
         _ = try stringRange()
         visit?(start, try take(0), sourceRange, slots, generators)

@@ -82,6 +82,36 @@ struct ScriptStorage: Sendable {
         replacementRules[normalized] = ReplacementRule(key: key,value: value)
     }
 
+    mutating func restoreReaderReplacements(_ cursor: SaveReaderCursor, in state: Data) throws {
+        guard cursor.replaceEnableByte != 0 else { return }
+        guard cursor.replacements.count <= 512 else {
+            throw ResourceError.rejected("saved_reader_replacement_limit")
+        }
+        var candidate = self
+        for rule in cursor.replacements {
+            let key = try rule.firstText.utf16Text(in: state)
+            let value = try rule.secondText.utf16Text(in: state)
+            guard rule.rawField == 0, key.hasPrefix("^"),
+                  candidate.replacementRules[Data(asciiLower(key).utf8)] == nil else {
+                throw ResourceError.rejected("saved_reader_replacement_outside_profile")
+            }
+            try candidate.registerReplacement(key: key, value: value)
+        }
+        self = candidate
+    }
+
+    mutating func restoreReaderPrefixes(_ cursor: SaveReaderCursor, in state: Data) throws {
+        let text = try cursor.textPrefix.utf16Text(in: state)
+        let empty = try cursor.emptyLineText.utf16Text(in: state)
+        guard [text, empty].allSatisfy({ prefix in
+            prefix.utf8.count <= 8192 && !prefix.unicodeScalars.contains { $0.value < 32 }
+        }) else {
+            throw ResourceError.rejected("saved_reader_prefix_outside_profile")
+        }
+        exceptTextPrefix = text.isEmpty ? nil : text
+        noWordLineText = empty.isEmpty ? nil : empty
+    }
+
     static let nullHandle = UInt64.max-6
     var voiceActorAliases: [[String]]?
     static let configHandle: UInt64 = 0
@@ -114,6 +144,7 @@ struct ScriptStorage: Sendable {
     var effectField5F: UInt8?
     var fadeInMode: Int32?
     var fadeInDuration: Int32?
+    var fadeInStartTick: Int64?
     var fadeInPriority: Int32?
     var fadeInAnimation: ScriptLocation?
     var fadeInRule: (resource: ScriptLocation, power: Int32)?
@@ -171,8 +202,9 @@ struct ScriptStorage: Sendable {
     var systemNameSlots = Array(repeating: "", count: 7)
     var thumbnailPriorities: (Int32, Int32)?
     var systemFrameEvent: ScriptLocation?
-    var systemLockMask: Int32?
-    var systemCustomLockMask: Int32?
+    // The reset at 0x6aef06 clears both fields, then 0x6aef33 sets only the main lock.
+    var systemLockMask: Int32 = 0x0fff_ffff
+    var systemCustomLockMask: Int32 = 0
     // The zero command writes this engine field; its downstream effect is unresolved.
     var engineField98: Int32?
     static let systemKeyHandle = UInt64.max-1
@@ -218,6 +250,18 @@ struct ScriptStorage: Sendable {
         let duration: Int32
         var elapsed: Int32 = 0
         var destinationTransform: ImageTransform?
+        var savedMode: UInt8?
+        var quantizedProgress: Double {
+            let remaining = Int64(duration - elapsed)
+            return Double(1024 - remaining * 1024 / Int64(duration)) / 1024
+        }
+
+        func sampleSavedLinearAxis(from origin: Int32, to target: Int32) -> Int32 {
+            let progress = quantizedProgress
+            // 0x50b9e4 stores the weighted sum as a single-precision value.
+            let value = Float(Double(origin) * (1 - progress) + Double(target) * progress)
+            return Int32(value.rounded(.toNearestOrEven))
+        }
     }
     var placementTransitions: [UInt64: PlacementTransition] = [:]
 
@@ -282,6 +326,7 @@ struct ScriptStorage: Sendable {
         var inputMask: Int32?
         var outputMask: Int32?
         var resource: ScriptLocation?
+        var isTheoraResource = false
         var resourceLoadLocation: ScriptLocation?
         var width: Int?
         var height: Int?
@@ -292,6 +337,17 @@ struct ScriptStorage: Sendable {
         var selectedMember: Int32?
         var motionStartTick: Int64?
         var motionElapsedBeforeSpeedChange: Int64 = 0
+        var restoredMotionThreshold: Int64?
+        var restoredMotionRemainder: Int64 = 0
+
+        mutating func advanceRestoredMotion(ticks: Int32) {
+            guard let threshold = restoredMotionThreshold, motionStartTick != nil else { return }
+            restoredMotionRemainder += Int64(ticks) * Int64(playbackSpeed ?? 100)
+            if restoredMotionRemainder >= threshold {
+                motionElapsedBeforeSpeedChange = min(motionElapsedBeforeSpeedChange + restoredMotionRemainder, Int64(Int32.max) * 100)
+                restoredMotionRemainder = 0
+            }
+        }
 
         var isDialogueWindowAnimation: Bool {
             placement?.dropFirst(2).first == 1500 &&
@@ -300,11 +356,15 @@ struct ScriptStorage: Sendable {
 
         func motionElapsedHundredths(at tick: Int64) -> Int64? {
             guard let motionStartTick else { return nil }
+            if restoredMotionThreshold != nil { return motionElapsedBeforeSpeedChange }
             let speed = Int64(playbackSpeed ?? 100)
             let elapsed = min(tick - motionStartTick, Int64(Int32.max) * 100)
             return min(motionElapsedBeforeSpeedChange + elapsed * speed, Int64(Int32.max) * 100)
         }
         var enabled = false
+        // A restored image can still draw while the separate enable byte is zero.
+        var savedDrawGate: Bool?
+        var isDrawable: Bool { savedDrawGate ?? enabled }
     }
     struct MovieObject: Sendable {
         var initialized = false
@@ -427,19 +487,28 @@ struct ScriptStorage: Sendable {
     var buttonMI: Set<UInt64> = []
     var buttonTabOrder: [UInt64: Int32] = [:]
     var buttonScale: [UInt64: [Int32]] = [:]
+    var savedButtonPlacementScale: [UInt64: SIMD2<Int32>] = [:]
     var buttonMotion: [UInt64: MotionSettings] = [:]
     var buttonPlacement: [UInt64: [Int32]] = [:]
     var buttonSounds: [UInt64: [Int32: ScriptLocation]] = [:]
     var buttonImages: [UInt64: [Int32: ScriptLocation]] = [:]
     var buttonResources: [UInt64: ScriptLocation] = [:]
     var images: [UInt64: ImageObject] = [:]
+    var savedTextureData: [ScriptLocation: Data] = [:]
     private var nextObject: UInt64 = 1
 
     private static let indexedSoundBase = UInt64.max - 1024
     private static let indexedSoundCount: Int32 = 25
 
     static func isStreamHandle(_ handle: UInt64) -> Bool {
-        handle == soundHandle || (indexedSoundBase - UInt64(indexedSoundCount - 1)..<indexedSoundBase).contains(handle)
+        streamChannelIndex(handle) != nil
+    }
+
+    static func streamChannelIndex(_ handle: UInt64) -> Int32? {
+        if handle == soundHandle { return 0 }
+        guard handle < indexedSoundBase,
+              handle >= indexedSoundBase - UInt64(indexedSoundCount - 1) else { return nil }
+        return Int32(indexedSoundBase - handle)
     }
 
     func isAliasTarget(_ handle: UInt64) -> Bool {
@@ -635,7 +704,7 @@ struct ScriptStorage: Sendable {
         category == "var" && type == "int" && !raw.isEmpty &&
             raw.utf8.allSatisfy { (48...57).contains($0) }
     }
-    @discardableResult mutating func declare(_ raw: String, category: String, type: String, count: Int = 1) throws -> Bool {
+    @discardableResult mutating func declare(_ raw: String, category: String, type: String, count: Int = 1, validateAfter: Bool = true) throws -> Bool {
         guard (1...4096).contains(count) else { throw ResourceError.rejected("array_element_count_limit") }
         guard !["theora","timer"].contains(type) || count == 1 else { throw ResourceError.rejected("object_array_outside_profile") }
         guard raw.utf8.count <= 4096, Self.isDecimalDeclarationName(raw,category: category,type: type) || raw.range(of: #"^#?[\p{L}_][\p{L}\p{N}_]*$"#, options: .regularExpression) != nil
@@ -734,7 +803,8 @@ struct ScriptStorage: Sendable {
         if category == "var" { frames[i].locals[name] = binding }
         else if category == "gvar" { global[name] = binding }
         else { system[name] = binding }
-        try validate(); return true
+        if validateAfter { try validate() }
+        return true
     }
     mutating func results(string: String, integer: Int32) throws {
         guard string.utf8.count <= 8192 else { throw ResourceError.rejected("string_value_limit") }
@@ -786,6 +856,7 @@ struct ScriptStorage: Sendable {
             buttonMotion.removeValue(forKey: handle)
             buttonPlacement.removeValue(forKey: handle)
             buttonScale.removeValue(forKey: handle)
+            savedButtonPlacementScale.removeValue(forKey: handle)
             buttonUserIntegers.removeValue(forKey: handle)
             buttonText.removeValue(forKey: handle)
             drawableRectangles.removeValue(forKey: handle)
@@ -851,6 +922,64 @@ struct ScriptStorage: Sendable {
     mutating func stageRoutineResultScalars(from routine: SaveReaderCursor.Routine, in state: Data) throws {
         guard let values = try routine.savedResultScalars(in: state) else { return }
         try applySavedResultScalars(values)
+    }
+
+    /// Encode the currently populated result banks. Object names must already
+    /// be resolved in the save namespace by the caller.
+    func encodeRoutineResultSnapshot(objectNames: [String]? = nil, buttonName: String) throws -> Data {
+        func integers(_ binding: ScriptBinding?) throws -> [Int32] {
+            try (binding?.elements ?? []).map {
+                guard let value = $0.integer else {
+                    throw ResourceError.rejected("saved_result_snapshot_requires_integer")
+                }
+                return value
+            }
+        }
+        func strings(_ binding: ScriptBinding?) throws -> [String] {
+            try (binding?.elements ?? []).map {
+                guard case .string(let value) = $0 else {
+                    throw ResourceError.rejected("saved_result_snapshot_requires_string")
+                }
+                return value
+            }
+        }
+        guard let click = global[Data("resultclkint".utf8)]?.first.integer,
+              let stop = resultStopInt else {
+            throw ResourceError.rejected("saved_result_snapshot_click_or_stop_unavailable")
+        }
+        return try SaveReaderCursor.Routine.encodeResultSnapshot(
+            integers: integers(global[Data("resultint".utf8)]),
+            strings: strings(global[Data("resultstr".utf8)]),
+            objects: objectNames ?? savedRoutineResultObjectNames(), button: buttonName,
+            buttonInts: integers(system[Data("resultbtnint".utf8)]),
+            buttonStrings: strings(system[Data("resultbtnstr".utf8)]), click: click, stop: stop,
+            subInts: integers(global[Data("resultsubint".utf8)]),
+            subStrings: strings(global[Data("resultsubstr".utf8)]))
+    }
+
+    private func savedRoutineResultObjectNames() throws -> [String] {
+        let resultKey = Data("resultobj".utf8)
+        let results = global[resultKey]?.elements ?? []
+        guard results.count <= 16 else {
+            throw ResourceError.rejected("saved_result_object_count")
+        }
+        let names = try results.map { value -> String in
+            guard case .object(let handle) = value, lists[handle] != nil || tables[handle] != nil else {
+                throw ResourceError.rejected("saved_result_object_kind_unsupported")
+            }
+            let candidates = global.keys.filter { key in
+                guard key != resultKey, !globalObjectAliases.contains(key),
+                      frames.last?.locals[key] == nil, frames.last?.objectParameterNames[key] == nil,
+                      key.allSatisfy({ (97...122).contains($0) || (48...57).contains($0) || $0 == 95 }),
+                      let binding = global[key], binding.elements.count == 1 else { return false }
+                return binding.first == .object(handle)
+            }
+            guard candidates.count == 1, let key = candidates.first else {
+                throw ResourceError.rejected("saved_result_object_name_unresolved")
+            }
+            return String(decoding: key, as: UTF8.self)
+        }
+        return names + Array(repeating: "", count: 16 - names.count)
     }
 
     mutating func applySavedResultScalars(_ values: ScriptFrame.SavedResultScalars) throws {
@@ -928,19 +1057,22 @@ struct ScriptStorage: Sendable {
                 continue
             }
             guard staged.global[key] == nil,
-                  try staged.declare(name, category: "gvar", type: type, count: values.count),
+                  try staged.declare(name, category: "gvar", type: type, count: values.count, validateAfter: false),
                   staged.global[key] != nil else {
                 throw ResourceError.rejected("save_global_binding_identity")
             }
             staged.global[key] = ScriptBinding(elements: values)
-            try staged.validate()
         }
+        try staged.validate()
         return staged
     }
 
     /// Allocate identities for inline saved buttons in the isolated calculation probe.
-    /// Drawable state and callbacks are outside this probe's command profile.
-    mutating func stageSavedGlobalButtonIdentities(_ arrays: SaveVariableArrays, resources: [Int: ScriptLocation] = [:]) throws -> Int {
+    /// Reuse the script's single-label adapter when a saved target resolves in the resumed program.
+    mutating func stageSavedGlobalButtonIdentities(_ arrays: SaveVariableArrays, resources: [Int: ScriptLocation] = [:],
+                                                   textures: [Int: [Int32: ScriptLocation]] = [:],
+                                                   sounds: [Int: [Int32: ScriptLocation]] = [:],
+                                                   savedState: Data? = nil, program: ScriptProgram? = nil) throws -> Int {
         var staged = self
         var count = 0
         for record in arrays.records {
@@ -960,6 +1092,13 @@ struct ScriptStorage: Sendable {
                 }
                 let rectangle = payload.drawableRectangle
                 staged.buttonResources[handle] = resources[payload.decodedOffset]
+                staged.buttonImages[handle] = textures[payload.decodedOffset]
+                staged.buttonSounds[handle] = sounds[payload.decodedOffset]
+                // The sbtn input paths at 0x67c57b and 0x67c940 test the
+                // inherited enable byte through 0x5ad0dc.
+                if payload.rawImageEnableFlag != 0, staged.buttonResources[handle] != nil {
+                    staged.enabledButtons.insert(handle)
+                }
                 guard rectangle[2] >= rectangle[0], rectangle[3] >= rectangle[1] else {
                     throw ResourceError.rejected("saved_button_rectangle_inverted")
                 }
@@ -967,6 +1106,50 @@ struct ScriptStorage: Sendable {
                 let right = Int32(min(Int64(rectangle[2]), Int64(rectangle[0]) + 4096))
                 let bottom = Int32(min(Int64(rectangle[3]), Int64(rectangle[1]) + 4096))
                 staged.drawableRectangles[handle] = [rectangle[0], rectangle[1], right, bottom]
+                if let placement = payload.staticPlacement {
+                    staged.buttonPlacement[handle] = [placement.x, placement.y, placement.z]
+                }
+                if let scale = payload.staticScale {
+                    staged.savedButtonPlacementScale[handle] = SIMD2(scale.x, scale.y)
+                }
+                if let savedState {
+                    let strings = try payload.userStrings.prefix(4).map { try $0.utf16Text(in: savedState) }
+                    let populated = strings.enumerated().filter { !$0.element.isEmpty }
+                    staged.buttonUserStrings[handle] = Dictionary(uniqueKeysWithValues: populated.map { ($0.offset, $0.element) })
+                    if populated.count == 1, let first = populated.first, first.offset == 0,
+                       let program, let destination = try? program.label(first.element),
+                       program.ancestors[destination].isEmpty {
+                        staged.buttonScriptTargets[handle] = first.element
+                    }
+                }
+            }
+            count += 1
+        }
+        self = staged
+        return count
+    }
+
+    mutating func stageSavedInactiveTimers(_ arrays: SaveVariableArrays) throws -> Int {
+        var staged = self
+        var count = 0
+        for record in arrays.records {
+            guard asciiLower(record.textFields[1]) == "timer",
+                  case .objectText(let elements) = record.values, elements.count == 1,
+                  elements.allSatisfy({ element in
+                      element.reference.isEmpty && element.timerPayload?.isInactiveWithoutCallback == true
+                  }) else { continue }
+            let name = record.textFields[0]
+            guard try staged.declare(name, category: "gvar", type: "timer", count: elements.count),
+                  let binding = staged.global[Data(asciiLower(name).utf8)],
+                  binding.elements.count == elements.count else {
+                throw ResourceError.rejected("save_global_timer_binding_identity")
+            }
+            for (element, value) in zip(elements, binding.elements) {
+                guard case .object(let handle) = value, let timer = element.timerPayload,
+                      staged.timers[handle] != nil else {
+                    throw ResourceError.rejected("save_global_timer_binding_identity")
+                }
+                staged.timers[handle]?.interval = timer.interval
             }
             count += 1
         }
@@ -975,7 +1158,19 @@ struct ScriptStorage: Sendable {
     }
 
     /// Stage inline image identities and verified static placement fields.
-    mutating func stageSavedGlobalImageIdentities(_ arrays: SaveVariableArrays, resources: [Int: ScriptLocation] = [:]) throws -> Int {
+    struct SavedImageResource {
+        let location: ScriptLocation
+        let width: Int
+        let height: Int
+        let memberCount: Int
+        let hasExtendedContainerMetadata: Bool
+        var motionCount: Int? = nil
+        var motionUpdateThreshold: Int32? = nil
+        var boundTextures: [Int32: ScriptLocation] = [:]
+    }
+
+    mutating func stageSavedGlobalImageIdentities(_ arrays: SaveVariableArrays,
+                                                  resources: [Int: SavedImageResource] = [:]) throws -> Int {
         var staged = self
         var count = 0
         for record in arrays.records {
@@ -993,9 +1188,49 @@ struct ScriptStorage: Sendable {
                 guard case .object(let handle) = value, let payload = element.imagePayload else {
                     throw ResourceError.rejected("save_global_image_binding_identity")
                 }
-                staged.images[handle]?.resource = resources[payload.decodedOffset]
+                guard payload.drawGate == 0 || payload.staticOpacity != nil || payload.opacityTransition != nil else {
+                    throw ResourceError.rejected("saved_drawable_image_opacity_unrestored:\(payload.decodedOffset)")
+                }
+                guard payload.drawGate == 0 || payload.staticPlacement != nil || payload.activePlacement != nil else {
+                    throw ResourceError.rejected("saved_drawable_image_placement_unrestored:\(payload.decodedOffset)")
+                }
+                guard payload.drawGate == 0 || payload.staticScale != nil else {
+                    throw ResourceError.rejected("saved_drawable_image_scale_or_transform_unrestored:\(payload.decodedOffset)")
+                }
+                if let resource = resources[payload.decodedOffset] {
+                    staged.images[handle]?.resource = resource.location
+                    staged.images[handle]?.boundImages = resource.boundTextures
+                    staged.images[handle]?.width = resource.width > 0 ? resource.width : nil
+                    staged.images[handle]?.height = resource.height > 0 ? resource.height : nil
+                    staged.images[handle]?.memberCount = resource.memberCount
+                    staged.images[handle]?.hasExtendedContainerMetadata = resource.hasExtendedContainerMetadata
+                    if let count = resource.motionCount, payload.rawActionIndex >= 0,
+                       Int(payload.rawActionIndex) < count {
+                        staged.images[handle]?.selectedMember = payload.rawActionIndex
+                        if payload.rawActionElapsed >= 0 {
+                            staged.images[handle]?.motionStartTick = staged.visualTicks
+                            staged.images[handle]?.motionElapsedBeforeSpeedChange = Int64(payload.rawActionElapsed) * 100
+                            staged.images[handle]?.playbackSpeed = min(3000, max(0, payload.rawActionSpeed))
+                            if let threshold = resource.motionUpdateThreshold, threshold > 0,
+                               payload.rawActionClockRemainder >= 0 {
+                                staged.images[handle]?.restoredMotionThreshold = Int64(threshold) * 100
+                                staged.images[handle]?.restoredMotionRemainder = Int64(payload.rawActionClockRemainder) * 100
+                            }
+                        }
+                    }
+                }
+                staged.images[handle]?.savedDrawGate = payload.drawGate != 0
+                staged.images[handle]?.enabled = payload.enableFlag != 0
                 if let placement = payload.staticPlacement {
                     staged.images[handle]?.placement = [placement.x, placement.y, placement.z]
+                } else if let motion = payload.activePlacement {
+                    staged.images[handle]?.placement = [motion.origin.x, motion.origin.y, motion.origin.z]
+                    staged.placementTransitions[handle] = .init(
+                        destination: [motion.destination.x, motion.destination.y, motion.destination.z],
+                        duration: motion.duration, elapsed: motion.duration - motion.remaining,
+                        destinationTransform: .init(depth: 0, scale: [motion.destinationScale.x, motion.destinationScale.y, motion.destinationScale.z],
+                                                    rotation: [0, 0, 0], loop: 0),
+                        savedMode: motion.mode)
                 }
                 if let fade = payload.opacityTransition {
                     staged.images[handle]?.immediateOpacity = fade.origin

@@ -34,7 +34,8 @@ public struct ScriptImageRecipe: Decodable, Sendable {
         validTimelines = grouped.compactMapValues { members in
             members.first { $0.motion_timelines != nil }?.motion_timelines?.filter { _, layers in
                 (1...256).contains(layers.count) && layers.allSatisfy { layer in
-                    (1...255).contains(layer.count) && zip(layer, layer.dropFirst()).allSatisfy { $0.time < $1.time }
+                    (1...255).contains(layer.count) && (layer.first?.time ?? -1) >= 0 &&
+                        zip(layer, layer.dropFirst()).allSatisfy { $0.time < $1.time }
                 }
             }
         }
@@ -47,7 +48,7 @@ public struct ScriptImageRecipe: Decodable, Sendable {
         })?.motion_key_types?[Int(selectedMember)]
     }
 
-    public func embeddedTexture(_ container: ScriptLocation, slot: Int32) -> (name: String, hasZeroAnchorOffset: Bool, size: CGSize?)? {
+    public func embeddedTexture(_ container: ScriptLocation, slot: Int32) -> (name: String, hasZeroAnchorOffset: Bool, size: CGSize?, location: ScriptLocation)? {
         guard container.byteOffset == 0, container.sourceSHA256 == container.rangeSHA256,
               let member = texturesByContainer[container.sourceSHA256]?[Int(slot)],
               let name = member.name else { return nil }
@@ -58,7 +59,9 @@ public struct ScriptImageRecipe: Decodable, Sendable {
         } else {
             size = nil
         }
-        return (name, member.image_anchor_words == [0, 0, 0], size)
+        let location = ScriptLocation(sourceFile: container.sourceFile, sourceSHA256: container.sourceSHA256,
+            byteOffset: member.offset, byteLength: member.length, rangeSHA256: member.sha256, lineNumber: 1)
+        return (name, member.image_anchor_words == [0, 0, 0], size, location)
     }
 
     public struct MotionKey: Decodable, Sendable {
@@ -94,13 +97,36 @@ public struct ScriptImageRecipe: Decodable, Sendable {
         }
     }
 
+    public func hasNoActiveDrawKey(_ container: ScriptLocation, selectedMember: Int32, time: Int32) -> Bool {
+        // A known timeline emits nothing before its first key. Type 0 also emits no draw (0x587a32).
+        motionKeys(container, selectedMember: selectedMember, time: time)?
+            .allSatisfy { $0.type == 0 } == true
+    }
+
     public func motionKeys(_ container: ScriptLocation, selectedMember: Int32, time: Int32) -> [MotionKey]? {
-        guard time >= 0, container.byteOffset == 0, container.sourceSHA256 == container.rangeSHA256,
+        guard container.byteOffset == 0, container.sourceSHA256 == container.rangeSHA256,
               let layers = validTimelines[container.sourceSHA256]?[Int(selectedMember)] else { return nil }
+        return sampleMotion(layers, container: container, selectedMember: selectedMember, time: time)
+    }
+
+    package func samplePartialMotion(_ container: ScriptLocation, selectedMember: Int32, time: Int32) -> [MotionKey]? {
+        guard container.byteOffset == 0, container.sourceSHA256 == container.rangeSHA256,
+              let layers = entriesByContainer[container.sourceSHA256]?.first(where: {
+                  $0.partial_motion_timelines != nil
+              })?.partial_motion_timelines?[Int(selectedMember)],
+              (1...256).contains(layers.count), layers.allSatisfy({ layer in
+                  (1...255).contains(layer.count) && (layer.first?.time ?? -1) >= 0 &&
+                        zip(layer, layer.dropFirst()).allSatisfy { $0.time < $1.time }
+              }) else { return nil }
+        return sampleMotion(layers, container: container, selectedMember: selectedMember, time: time)
+    }
+
+    private func sampleMotion(_ layers: [[MotionKey]], container: ScriptLocation,
+                              selectedMember: Int32, time: Int32) -> [MotionKey]? {
+        guard time >= 0 else { return nil }
         return layers.compactMap { layer -> MotionKey? in
             let sampleTime: Int32
-            if layer.first?.time == 0,
-               layer.allSatisfy({ $0.time_control_inputs?.count == 4 }),
+            if layer.allSatisfy({ $0.time_control_inputs?.count == 4 }),
                let control = layer.first(where: { ($0.time_control_inputs?.first ?? 0) != 0 }),
                let inputs = control.time_control_inputs,
                inputs[0] == 1, inputs[2] == 0, inputs[3] == 0,
@@ -108,7 +134,8 @@ public struct ScriptImageRecipe: Decodable, Sendable {
                case let start = layer[Int(inputs[1])].time, start < control.time {
                 // Zero disables both variable lookups. The literal target is
                 // +0xd4, and the jump carries excess time (0x57f7c7–0x57f8cf).
-                sampleTime = time < control.time ? time : start + (time - control.time) % (control.time - start)
+                let period = Int64(control.time) - Int64(start)
+                sampleTime = time < control.time ? time : Int32(Int64(start) + (Int64(time) - Int64(control.time)) % period)
             } else if container.sourceSHA256 == "5b0f2bc31cc6b14311642df53590c1efd3edec3b6a032e13b90424ce70e99b03",
                selectedMember == 0, layer.first?.offset == 2133,
                layer.count == 4, layer[1].offset == 2573, layer[1].time == 1000 {
@@ -301,8 +328,31 @@ public struct ScriptImageRecipe: Decodable, Sendable {
     /// Returns whether a nontransparent sample reached the canvas.
     /// Actual scanner selection and color preparation remain unverified.
     @discardableResult
+    package func windowTextureIsOffCanvas(_ layer: ScriptMachine.StaticImageLayer, offsetY: CGFloat, canvasHeight: Int) -> Bool {
+        guard layer.resource.sourceSHA256 == "49c040e37eebc295e9fc2b8fdf9db40e70cc773dd41ab9ae486e95dd84cdda39",
+              layer.priority == 1500, layer.selectedMember == 0, layer.boundRasterPreview == nil,
+              !layer.unappliedTransform, layer.alignmentXPercent == 0, layer.alignmentYPercent == 0,
+              layer.scaleXPercent == 100, layer.scaleYPercent == 100,
+              let time = layer.motionElapsedTicks, let keys = motionKeys(layer.resource, selectedMember: 0, time: time),
+              keys.map(\.type) == [16, 4, 17],
+              let texture = embeddedTexture(layer.resource, slot: 0), texture.hasZeroAnchorOffset,
+              let size = texture.size, keys[1].texture_numbers == [0, 0],
+              let rect = fullTextureRectangle(keys[1], size: size,
+                  host: CGAffineTransform(translationX: CGFloat(layer.x), y: CGFloat(layer.y))) else { return false }
+        // In this audited action the scope changes Y and alpha only.
+        return rect.minY + offsetY >= CGFloat(canvasHeight)
+    }
+
+    package static func sampleDialogueWindow(closing: Bool, ticks: Int32) -> (y: CGFloat, alpha: UInt8) {
+        // The audited *Enable and *Disable keys use modes 3 and 4, respectively.
+        let fraction = Float(min(ticks, 250)) / 250
+        let progress = closing ? fraction : 1 - fraction
+        return (CGFloat(40 * pow(progress, 2.4)),
+                UInt8(clamping: Int((255 * (1 - progress)).rounded(.toNearestOrEven))))
+    }
+
     package func drawScopedTexturePreview(_ entries: [(texture: MotionKey, states: [MotionKey])],
-                                          container: Data, boundSlotZero: Data?, origin: SIMD2<Int>,
+                                          container: Data, boundTextures: [Int32: Data], origin: SIMD2<Int>,
                                           hostScale: SIMD2<Double>, anchorOverride: SIMD2<Double>?,
                                           layerOpacity: UInt8, canvas: inout [[SIMD4<UInt8>]]) throws -> Bool {
         guard (1...64).contains(entries.count) else {
@@ -320,7 +370,7 @@ public struct ScriptImageRecipe: Decodable, Sendable {
         var covered = false
         for entry in ordered {
             let drew = try drawFullTexturePreview(entry.texture, container: container,
-                boundSlotZero: boundSlotZero, origin: origin, hostScale: hostScale,
+                boundTextures: boundTextures, origin: origin, hostScale: hostScale,
                 anchorOverride: anchorOverride, layerOpacity: layerOpacity, states: entry.states, canvas: &staged)
             covered = covered || drew
         }
@@ -329,7 +379,7 @@ public struct ScriptImageRecipe: Decodable, Sendable {
     }
 
     package func drawFullTexturePreview(_ key: MotionKey, container data: Data,
-                                        boundSlotZero: Data? = nil,
+                                        boundTextures: [Int32: Data] = [:],
                                         origin: SIMD2<Int>, hostScale: SIMD2<Double> = SIMD2(1, 1),
                                         anchorOverride: SIMD2<Double>? = nil,
                                         layerOpacity: UInt8 = 255,
@@ -349,8 +399,8 @@ public struct ScriptImageRecipe: Decodable, Sendable {
         }
         let payload: Data
         var decodedRaster: ResourceImage?
-        if let boundSlotZero, key.texture_numbers?.first == 0 {
-            payload = boundSlotZero
+        if let slot = key.texture_numbers?.first, let bound = boundTextures[slot] {
+            payload = bound
             decodedRaster = try ResourceImage.decode(payload)
         } else {
             guard let slot = key.texture_numbers?.first,
@@ -438,7 +488,7 @@ public struct ScriptImageRecipe: Decodable, Sendable {
     /// Draw a full type-11 PNG pair over the existing pixels of a clipped canvas.
     @discardableResult
     package func drawFullTwoTextureKey(_ key: MotionKey, container data: Data,
-                                      boundFirst: (data: Data, location: ScriptLocation)? = nil,
+                                      boundTextures: [Int32: (data: Data, location: ScriptLocation)] = [:],
                                       origin: SIMD2<Int>,
                                       canvas: inout [[SIMD4<UInt8>]]) throws -> Bool {
         guard let canvasWidth = canvas.first?.count, (1...8192).contains(canvasWidth),
@@ -459,35 +509,33 @@ public struct ScriptImageRecipe: Decodable, Sendable {
               secondMember.image_anchor_words == [0, 0, 0] else {
             throw ResourceError.rejected("unsupported_two_texture_key")
         }
-        let firstPayload: Data
-        if let boundFirst {
-            guard slots[0] == 0,
-                  boundFirst.data.count <= 16 * 1024 * 1024,
-                  boundFirst.data.count == boundFirst.location.byteLength,
-                  ImageMemberRecipe.digest(boundFirst.data) == boundFirst.location.rangeSHA256 else {
+        func pixels(_ slot: Int32, _ member: ImageMemberRecipe) throws -> [[SIMD4<UInt8>]] {
+            guard let bound = boundTextures[slot] else {
+                return try ResourceImage.straightPNGPixels(member.payload(data))
+            }
+            guard bound.data.count <= 16 * 1024 * 1024,
+                  bound.data.count == bound.location.byteLength,
+                  ImageMemberRecipe.digest(bound.data) == bound.location.rangeSHA256 else {
                 throw ResourceError.rejected("two_texture_bound_member_identity")
             }
-            firstPayload = boundFirst.data
-        } else {
-            firstPayload = try firstMember.payload(data)
+            if InventoryScanner.signature(bound.data) == "JPEG" {
+                return try ResourceImage.decode(bound.data).opaqueCanvas(over: CGColor(gray: 0, alpha: 1))
+            }
+            return try ResourceImage.straightPNGPixels(bound.data)
         }
-        let first: [[SIMD4<UInt8>]]
-        if boundFirst?.location.sourceFile.hasPrefix("save-slot/") == true,
-           InventoryScanner.signature(firstPayload) == "JPEG" {
-            first = try ResourceImage.decode(firstPayload).opaqueCanvas(over: CGColor(gray: 0, alpha: 1))
-        } else {
-            first = try ResourceImage.straightPNGPixels(firstPayload)
-        }
-        let second = try ResourceImage.straightPNGPixels(secondMember.payload(data))
+        let first = try pixels(slots[0], firstMember)
+        let second = try pixels(slots[1], secondMember)
         let colors = TwoTexturePixel.scannerColors(additiveRGB: UInt32(inputs[0]),
             multiplierRGB: UInt32(inputs[1]), multiplierAlpha: multiplierAlpha)
         guard let firstRow = first.first, let secondRow = second.first,
               let geometry = fullTwoTextureGeometry(key,
                   first: CGSize(width: firstRow.count, height: first.count),
                   second: CGSize(width: secondRow.count, height: second.count), origin: .zero),
-              geometry.scanSelector == 1 else {
+              (0...1).contains(geometry.scanSelector) else {
             throw ResourceError.rejected("unsupported_two_texture_geometry")
         }
+        // 0x53ed38 advances both equal-span sources by one pixel. The same
+        // rectangle sampler yields unit steps when both sources match the target.
         let size = SIMD2(Int(geometry.target.width), Int(geometry.target.height))
         let left = max(0, origin.x), top = max(0, origin.y)
         let right = min(canvasWidth, origin.x + size.x), bottom = min(canvas.count, origin.y + size.y)
@@ -508,17 +556,29 @@ public struct ScriptImageRecipe: Decodable, Sendable {
     }
 
     /// Candidate for the audited untextured white flash at its default dimension inputs.
-    package func whiteFlashPreviewSize(_ key: MotionKey, container: ScriptLocation) -> SIMD2<Int>? {
-        guard container.rangeSHA256 == "dea47b18a5dac17a733523ca0a8c00167bf24217b168bf5330e8f11097f0d354",
-              container.byteOffset == 0, container.sourceSHA256 == container.rangeSHA256,
-              key.type == 1, key.offset == 5649, key.blend == 1, key.sampling == 0,
-              key.opacity_mode_input == 0, key.sampledOpacity == 255,
-              key.type1_color_inputs == [0xffffff, 0xffffff],
-              key.transform_fields?["0x90"] == 0x10000107,
-              key.transform_fields?["0x94"] == 0x10000108,
+    package func whiteFlashPreview(_ key: MotionKey, container: ScriptLocation) -> (size: SIMD2<Int>, alpha: UInt8)? {
+        guard container.byteOffset == 0, container.sourceSHA256 == container.rangeSHA256,
+              key.type == 1, key.blend == 1, key.sampling == 0,
+              let alpha = key.sampledOpacity, key.type1_color_inputs == [0xffffff, 0xffffff],
               let size = entriesByContainer[container.sourceSHA256]?.compactMap(\.motion_canvas_inputs).first,
               size.width == 1280, size.height == 720 else { return nil }
-        return SIMD2(size.width, size.height)
+        switch container.rangeSHA256 {
+        case "dea47b18a5dac17a733523ca0a8c00167bf24217b168bf5330e8f11097f0d354":
+            guard key.offset == 5649, key.opacity_mode_input == 0, alpha == 255,
+                  key.transform_fields?["0x90"] == 0x10000107,
+                  key.transform_fields?["0x94"] == 0x10000108 else { return nil }
+        case "fec9d49e9c5fe248bb6ec76d6c60b87f93c87ed70533a9c829c6e8621d811370":
+            guard key.offset == 5298, key.opacity_mode_input == 1,
+                  key.transform_fields?["0x90"] == 1280,
+                  key.transform_fields?["0x94"] == 720 else { return nil }
+        case "1ac81465631f953bcd762639ea41a940a5c9ae1bc42ce438fdf776a88f4ab497":
+            guard [762, 924].contains(key.offset), key.opacity_mode_input == 1,
+                  key.transform_fields?["0x90"] == 0x10000107,
+                  key.transform_fields?["0x94"] == 0x10000108 else { return nil }
+        default:
+            return nil
+        }
+        return (SIMD2(size.width, size.height), alpha)
     }
 
     public func isNonDrawingMotion(_ container: ScriptLocation, selectedMember: Int32?) -> Bool {
@@ -562,6 +622,9 @@ public struct ScriptImageRecipe: Decodable, Sendable {
         case "script/title/cursor.b": staticMember = "cursor01.png"
         case "script/saveload/button_l.b": staticMember = "戻る_off.png"
         case "script/saveload/button_data.b": staticMember = "セーブファイル_off.png"
+        case "script/saveload/button_delete.b": staticMember = "削除ボタン_off.png"
+        case "script/dialog/button_yes.b": staticMember = "確認_はい_off.png"
+        case "script/dialog/button_no.b": staticMember = "確認_いいえ_off.png"
         default: staticMember = nil
         }
         if let staticMember {
@@ -623,12 +686,19 @@ public struct ScriptImageRecipe: Decodable, Sendable {
         guard members.count == 2, members.allSatisfy({ $0.format == "PNG" }),
               let background = members.first(where: { $0.name == backgroundName }),
               let surface = members.first(where: { $0.name == "*MesSurface.png" }) else { return nil }
-        if backgroundName == "*MesAlpha.png", members.contains(where: { $0.image_slot != nil }) {
-            guard let slotZero = texturesByContainer[digest]?[0], slotZero.name == background.name,
-                  texturesByContainer[digest]?[1]?.name == surface.name else {
+        let backgroundSlot: Int?
+        switch path {
+        case "avg/window/windowframe_window.b", "avg/window/windowframe_window02.b": backgroundSlot = 0
+        case "script/dialog/message.b": backgroundSlot = 1
+        default: backgroundSlot = nil
+        }
+        if let backgroundSlot, members.contains(where: { $0.image_slot != nil }) {
+            let slots = texturesByContainer[digest]
+            guard let pinnedBackground = slots?[backgroundSlot], pinnedBackground.name == background.name,
+                  slots?[1 - backgroundSlot]?.name == surface.name else {
                 throw ResourceError.rejected("abmp_interface_texture_slot_mismatch")
             }
-            return try slotZero.payload(data)
+            return try pinnedBackground.payload(data)
         }
         return try background.payload(data)
     }
@@ -654,11 +724,32 @@ public struct ScriptImageRecipe: Decodable, Sendable {
                 let dimensions: (Int, Int)
                 if member.format == "Ogg" {
                     dimensions = try ScriptMovieHeader.theoraDimensions(payload)
+                    guard (1...8192).contains(dimensions.0), (1...8192).contains(dimensions.1) else {
+                        throw ResourceError.rejected("theora_image_dimensions")
+                    }
                 } else if member.format == "IMOAVI" {
                     guard payload.starts(with: Data("IMOAVI".utf8)),
                           let width = member.width, let height = member.height,
                           (1...8192).contains(width), (1...8192).contains(height) else {
                         throw ResourceError.rejected("imoavi_image_recipe_required")
+                    }
+                    if let frames = member.imoavi_frame_references {
+                        guard (1...255).contains(frames.count) else {
+                            throw ResourceError.rejected("imoavi_frame_count")
+                        }
+                        var cursor = 0
+                        for frame in frames {
+                            guard frame.offset >= cursor, frame.offset <= payload.count,
+                                  frame.length > 0, frame.length <= payload.count - frame.offset else {
+                                throw ResourceError.rejected("imoavi_frame_range")
+                            }
+                            cursor = frame.offset + frame.length
+                            let jpeg = payload.subdata(in: frame.offset..<cursor)
+                            guard InventoryScanner.signature(jpeg) == "JPEG",
+                                  ImageMemberRecipe.digest(jpeg) == frame.sha256 else {
+                                throw ResourceError.rejected("imoavi_frame_identity")
+                            }
+                        }
                     }
                     dimensions = (width, height)
                 } else {
@@ -699,6 +790,10 @@ public struct ScriptImageRecipe: Decodable, Sendable {
         entriesByContainer[container.sourceSHA256]?.first { $0.extended_scalar_values != nil }?.extended_scalar_values
     }
 
+    package func motionUpdateThreshold(_ container: ScriptLocation) -> Int32? {
+        entriesByContainer[container.sourceSHA256]?.compactMap(\.motion_update_threshold).first?.effective_value
+    }
+
     public func motionNames(_ container: ScriptLocation) -> [String]? {
         entriesByContainer[container.sourceSHA256]?.first { $0.motion_name_candidates != nil }?.motion_name_candidates
     }
@@ -709,7 +804,15 @@ private struct ImageMemberRecipe: Decodable, Sendable {
         let width: Int
         let height: Int
     }
+    struct FrameReference: Decodable, Sendable {
+        let offset: Int
+        let length: Int
+        let sha256: String
+    }
+    let imoavi_frame_references: [FrameReference]?
     let motion_canvas_inputs: MotionCanvasInputs?
+    struct MotionUpdateThreshold: Decodable, Sendable { let effective_value: Int32 }
+    let motion_update_threshold: MotionUpdateThreshold?
     let name: String?
     let format: String?
     let width: Int?
@@ -720,6 +823,7 @@ private struct ImageMemberRecipe: Decodable, Sendable {
     let image_slot: Int?
     let image_anchor_words: [UInt32]?
     let motion_timelines: [Int: [[ScriptImageRecipe.MotionKey]]]?
+    let partial_motion_timelines: [Int: [[ScriptImageRecipe.MotionKey]]]?
     let extended_scalar_values: [Int: Int32]?
     let container_sha256: String
     let offset: Int

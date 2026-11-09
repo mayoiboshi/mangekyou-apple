@@ -501,7 +501,7 @@ def report_summary(items, missing_reason):
                 missing_reason=None if items else missing_reason)
 
 
-def write_json(path, data):
+def write_json(path, data, *, indent=2):
     path = absolute(path)
     # Validate existing ancestors before mkdir, then open the created dir safely.
     for parent in [path] + list(path.parents):
@@ -514,7 +514,7 @@ def write_json(path, data):
         out_fd = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=fd)
         try:
             with os.fdopen(out_fd, 'w', encoding='utf-8') as stream:
-                json.dump(data, stream, indent=2, ensure_ascii=False)
+                json.dump(data, stream, indent=indent, ensure_ascii=False)
                 stream.write('\n')
             os.replace(temporary, path.name, src_dir_fd=fd, dst_dir_fd=fd)
         finally:

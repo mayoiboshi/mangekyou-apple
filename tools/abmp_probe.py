@@ -52,6 +52,61 @@ def legacy_transform_value(value: int) -> int:
     return value
 
 
+def wide_motion_layers(data, header_end, end):
+    """Describe the observed ablayer22 layout without assigning draw semantics."""
+    if header_end + 9 > end or data[header_end:header_end+8] != bytes(8):
+        return None
+    count = data[header_end+8]
+    cursor = header_end + 9
+    layers = []
+    for _ in range(count):
+        if cursor + 18 > end or data[cursor:cursor+16] != b'ablayer22' + bytes(7):
+            return None
+        name_units = struct.unpack_from('<H', data, cursor+16)[0]
+        body = cursor + 18 + 2 * name_units
+        if body + 3 > end or data[body] != 1:
+            return None
+        # 0x5929dd reads the count, then 0x5929f7 reads a separate byte.
+        key_count = data[body+1]
+        first_key = body + 3
+        stride = 0x1b8  # Both native loaders read this stride directly into the key array.
+        next_layer = first_key + key_count * stride
+        if not key_count or next_layer > end:
+            return None
+        keys = []
+        for offset in range(first_key, next_layer, stride):
+            time = struct.unpack_from('<i', data, offset)[0]
+            raw_type = data[offset+4]  # The native evaluator reads only this byte at 0x58d81a.
+            # These offsets match fields in ablayer21. Preserve the raw
+            # values until the ablayer22 conversion path is confirmed.
+            word_offsets = (0x04, 0x08, 0x0c, 0x1c, 0x20, 0x24, 0x28, 0x84, 0x88, 0xa8, 0xc4)
+            key = dict(decoded_offset=offset, time=time, raw_type=raw_type,
+                sha256=digest(data[offset:offset+stride]),
+                raw_words={hex(field): struct.unpack_from('<i', data, offset+field)[0]
+                           for field in word_offsets})
+            if raw_type == 4:
+                # The first texture evaluator reads the mode byte and signed
+                # input at 0x58c05b and 0x58c096 respectively.
+                # 0x58d82e and 0x58d842 copy the draw modes as bytes.
+                key['draw_mode_inputs'] = dict(blend=data[offset+8], sampling=data[offset+12])
+                key['geometry_inputs'] = dict(
+                    source_areas=[list(struct.unpack_from('<4i', data, offset+field))
+                                  for field in (0x50, 0x60)],
+                    anchor_ratio_inputs=list(struct.unpack_from('<2i', data, offset+0x70)),
+                    transform_fields={hex(field): struct.unpack_from('<i', data, offset+field)[0]
+                                      for field in range(0x84, 0xac, 4)})
+                key['first_texture_input'] = dict(mode=data[offset+0x1c],
+                                                  number=key['raw_words']['0x24'])
+            # 0x58c2c3 gates the mode and 0x58c2de reads the next key's value.
+            key['opacity_input'] = dict(mode=data[offset+0xb4] if data[offset+0x180] & 1 else 0,
+                                        raw_value=key['raw_words']['0xc4'])
+            keys.append(key)
+        layers.append(dict(decoded_offset=cursor, length=next_layer-cursor, raw_header_tail=data[body+2], key_stride=stride,
+                           key_stride_status='verified', keys=keys))
+        cursor = next_layer
+    return layers if layers and cursor == end else None
+
+
 def inspect_container(data, upstream, budget=None, chain=None, depth=0, include_extended_values=False):
     budget=budget or Budget();chain=chain or []
     result=dict(status='unsupported',container_sha256=digest(data),container_chain=chain,
@@ -141,6 +196,10 @@ def inspect_container(data, upstream, budget=None, chain=None, depth=0, include_
             version, width, height = struct.unpack_from('<iii', decoded, 8)
             if version == 1:
                 item['motion_canvas_inputs'] = dict(decoded_offset=12, width=width, height=height)
+                # 0x594dde reads the last header word into resource +0x38.
+                raw_threshold, = struct.unpack_from('<i', decoded, 28)
+                item['motion_update_threshold'] = dict(
+                    decoded_offset=28, raw_value=raw_threshold, effective_value=max(1, raw_threshold))
         if inferred_name == 'data_000.bin' and (narrow_header or wide_header):
             prefixes = ('*rep[', '*value[')
             item['extended_key_markers_absent'] = not any(
@@ -314,20 +373,36 @@ def inspect_container(data, upstream, budget=None, chain=None, depth=0, include_
 
         if include_extended_values and inferred_name == 'data_000.bin' and wide_header:
             tag = b'abmotion11' + bytes(6)
-            if len(decoded) >= 57 and decoded[41:57] == tag:
-                count = decoded[40]
+            count_offset = 40
+            if result['tags'][-1]['tag'] == 'abdata14' and len(decoded) >= 40:
+                # Wide metadata has a UTF-16 parameter block before the action count.
+                count_offset += 2 * int.from_bytes(decoded[38:40], 'little')
+            first_motion = count_offset + 1
+            if decoded[first_motion:first_motion+16] == tag:
+                count = decoded[count_offset]
                 names = []
-                for match in re.finditer(re.escape(tag), decoded[41:]):
-                    offset = 41 + match.end()
+                boundaries = []
+                for match in re.compile(re.escape(tag)).finditer(decoded, first_motion):
+                    offset = match.end()
                     size = int.from_bytes(decoded[offset+4:offset+6], 'little') * 2
                     if decoded[offset:offset+4] != b'\x01\x00\x00\x00' or not 0 < size <= 512 or offset+6+size >= len(decoded):
                         break
                     try:
                         names.append(decoded[offset+6:offset+6+size].decode('utf-16le'))
+                        boundaries.append((match.start(), offset+6+size))
                     except UnicodeDecodeError:
                         break
                 if 0 < count <= 128 and len(names) == count:
                     item['motion_name_candidates'] = names
+                    if result['tags'][-1]['tag'] == 'abdata14':
+                        layouts = []
+                        for index, (start, header_end) in enumerate(boundaries):
+                            end = boundaries[index+1][0] if index+1 < count else len(decoded)
+                            layers = wide_motion_layers(decoded, header_end, end)
+                            layouts.append(dict(motion_index=index, decoded_offset=start,
+                                status='inferred' if layers is not None else 'unsupported',
+                                layers=layers))
+                        item['wide_motion_layout_candidates'] = layouts
 
         try:safe_member_name(inferred_name);item['destination_name_status']='verified'
         except ProbeError:item['destination_name_status']='unsupported'  # Data only, never used as output path.
@@ -374,7 +449,15 @@ def inspect_container(data, upstream, budget=None, chain=None, depth=0, include_
                         raise ProbeError('imoavi_frame_count')
                     dimensions = set()
                     pixels = 0
+                    frame_references = []
+                    cursor = 64
                     for frame in frames:
+                        offset = decoded.find(frame.data, cursor)
+                        if offset < 0:
+                            raise ProbeError('imoavi_frame_range_unavailable')
+                        cursor = offset + len(frame.data)
+                        frame_references.append(dict(offset=offset, length=len(frame.data),
+                                                     sha256=digest(frame.data)))
                         with Image.open(io.BytesIO(frame.data)) as image:
                             width, height = image.size
                             pixels += width * height
@@ -385,7 +468,8 @@ def inspect_container(data, upstream, budget=None, chain=None, depth=0, include_
                     if len(dimensions) != 1:
                         raise ProbeError('imoavi_frame_dimensions')
                     width,height = dimensions.pop()
-                    item.update(imoavi_status='verified',width=width,height=height,frame_count=len(frames))
+                    item.update(imoavi_status='verified',width=width,height=height,frame_count=len(frames),
+                                imoavi_frame_references=frame_references)
                 except (ValueError, OSError, ProbeError) as exc:
                     item.update(imoavi_status='unsupported',imoavi_issue=type(exc).__name__)
     result.update(total_budget_bytes=budget.total,total_budget_members=budget.members)

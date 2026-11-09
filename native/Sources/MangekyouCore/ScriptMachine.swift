@@ -157,7 +157,7 @@ public struct ScriptMachine: Sendable {
     private var saveDirectory: SafeDirectory?
     private var inferSaveStateSeed = false
     private var saveHeaderTemplate: Data?
-    private var saveSources: [Data: (name: String, sha256: String)] = [:]
+    private var saveSources: [Data: (name: String, sha256: String, verifyHeader: Bool)] = [:]
     package enum SavedDisplayPreview: Sendable {
         case externalImage(Data, SaveStatePrefix.DisplaySummary.Reload.Transform)
         case rectangle(SaveStatePrefix.DisplaySummary.ProceduralRect)
@@ -165,6 +165,7 @@ public struct ScriptMachine: Sendable {
     }
 
     package struct SavedDisplayDraw: Encodable, Sendable {
+        package var interfaceBackgroundPreviews: [ScriptLocation]? = nil
         package let status: EvidenceStatus
         let width: Int?
         let height: Int?
@@ -267,12 +268,20 @@ public struct ScriptMachine: Sendable {
     }
 
     private var savedDisplayPreview: SavedDisplayPreview?
+    package func savedTextureBytes(_ source: ScriptLocation) -> Data? { storage.savedTextureData[source] }
+
+    package var savedCapturedDisplay: Data? {
+        if case .capturedSurface(let bytes) = savedDisplayPreview { return bytes }
+        return nil
+    }
     package var compactSavedReplay = false
+    package var inspectSaveRestoreBoundary = true
+    package var savedMotionUpdateThreshold: (@Sendable (ScriptLocation) -> Int32?)?
     package var savedReplayStepLimit = 512
     package var savedAutoWaitClicks = 0
     package var savedDialogueClicks = 0
     package var clickAfterSavedMovie = false
-    package var savedSoundDecodeHandler: (@Sendable (ScriptLocation) throws -> Void)?
+    package var savedSoundDecodeHandler: (@Sendable (ScriptLocation, Int32?) throws -> Void)?
     package var savedMovieDecodeHandler: (@Sendable (MoviePlaybackRequest) throws -> Int32)?
     package enum SavedScenePass: Sendable {
         case scene
@@ -288,6 +297,16 @@ public struct ScriptMachine: Sendable {
         return replayEffectSurface
     }
     private var replayEffectSurface: Data?
+    package var savedCaptureIsBound: Bool { replayEffectSurface != nil }
+    package var savedCaptureFade: (priority: Int32, opacity: UInt8)? {
+        guard savedOverlapPreviewSurface != nil, let priority = storage.effectCapturePriority,
+              storage.fadeInPriority == priority, storage.fadeTiming?.mode == 1,
+              storage.fadeTiming?.power == 100, let duration = storage.fadeInDuration,
+              let start = storage.fadeInStartTick else { return nil }
+        let remaining = Int64(duration) - (storage.visualTicks - start)
+        guard remaining > 0 else { return nil }
+        return (priority, UInt8(remaining * 255 / Int64(duration)))
+    }
     package var savedDisplayDrawHandler: (@Sendable (SavedDisplayPreview) throws -> SavedDisplayDraw)?
     package var savedDisplayDrawReceipt: SavedDisplayDraw? {
         saveResumeBoundary?.isolatedContinuation?.previewDraw
@@ -301,7 +320,8 @@ public struct ScriptMachine: Sendable {
         var isolatedContinuation: SavedCalculationContinuation? = nil
         package var replaySceneDraw: SavedDisplayDraw? {
             guard let replay = isolatedContinuation else { return nil }
-            return replay.advancedEventFrame ?? replay.eventFrame ?? replay.textDraw ?? replay.sceneDraw
+            let frames = [replay.sceneDraw, replay.textDraw, replay.eventFrame, replay.advancedEventFrame].compactMap { $0 }
+            return frames.first { $0.status == .unsupported } ?? frames.last
         }
         var isolatedCallFrameStatus: EvidenceStatus? = nil
         var isolatedReturnScalarFrameCount: Int? = nil
@@ -339,6 +359,7 @@ public struct ScriptMachine: Sendable {
             let issue: String?
         }
         let unresolvedResultObjectReferenceCount: Int
+        var unresolvedResultButtonReferenceCount: Int? = nil
         package struct SoundResumeRequest: Encodable, Sendable {
             package let recordOffset: Int
             package let source: ScriptLocation
@@ -365,10 +386,11 @@ public struct ScriptMachine: Sendable {
                                           volumeInput: channel.volumeInput)
             }
         }
-        package var stagedStreamSeeks: [(recordOffset: Int, source: ScriptLocation, milliseconds: Int32)] {
+        package var stagedStreamSeeks: [(recordOffset: Int, source: ScriptLocation, milliseconds: Int32, status: EvidenceStatus, issue: String?)] {
             (streamedSoundResources ?? []).compactMap { match in
-                guard let source = match.stagedLocation, let milliseconds = match.requestedSeekMilliseconds else { return nil }
-                return (match.recordOffset, source, milliseconds)
+                guard let source = match.stagedLocation, let milliseconds = match.requestedSeekMilliseconds,
+                      let status = match.seekStatus else { return nil }
+                return (match.recordOffset, source, milliseconds, status, match.seekIssue)
             }
         }
 
@@ -418,9 +440,19 @@ public struct ScriptMachine: Sendable {
         }
         var savedButtonImageChecks: [SavedButtonImageCheck]? = nil
         var savedImageResourceChecks: [SavedButtonImageCheck]? = nil
+        struct SavedTextureBindingCheck: Encodable, Sendable {
+            let objectOffset: Int
+            let slot: Int
+            let status: EvidenceStatus
+            let issue: String?
+        }
+        var savedTextureBindings: [SavedTextureBindingCheck]? = nil
+        var savedButtonSoundBindings: [SavedTextureBindingCheck]? = nil
         var savedImageStaticPlacements: [Int: SIMD3<Int32>]? = nil
         struct SavedImageVisibility: Encodable, Sendable {
             let objectDecodedOffset: Int
+            let drawGateDecodedOffset: Int
+            let enableFlagDecodedOffset: Int
             let drawGate: UInt8
             let enableFlag: UInt8
         }
@@ -453,6 +485,8 @@ public struct ScriptMachine: Sendable {
         var stagedGlobalButtonIdentityArrayCount: Int? = nil
         var globalButtonIdentityIssue: String? = nil
         var stagedGlobalImageIdentityArrayCount: Int? = nil
+        var stagedGlobalInactiveTimerArrayCount: Int? = nil
+        var globalTimerIdentityIssue: String? = nil
         var globalImageIdentityIssue: String? = nil
         var isolatedStorageIssue: String? = nil
         var firstAbsentGlobalBindingOffset: Int? = nil
@@ -483,6 +517,7 @@ public struct ScriptMachine: Sendable {
     private let maximumSteps: Int
     private let maximumFrames: Int
     public private(set) var clickWaitRemaining: Int32?
+    private var clickWaitInitial: Int32?
     private struct LogJumpCheckpoint: Sendable {
         let name: String
         let options: Int32
@@ -503,16 +538,18 @@ public struct ScriptMachine: Sendable {
     public private(set) var timedStopRequest: (duration: Int32, alternateDuration: Int32)?
     private var stopCallback: Int?
     private var stopCallbackFrameDepth: Int?
-    private var timerReturn: (depth: Int, phase: ScriptMachinePhase)?
+    private var timerReturn: (depth: Int, phase: ScriptMachinePhase, clickWait: Int32?, clickInitial: Int32?)?
 
     public var ticksUntilTimer: Int32? {
-        storage.timers.values.filter { $0.enabled }.map { $0.interval - $0.elapsed }.min()
+        guard timerReturn == nil else { return nil }
+        return storage.timers.values.filter { $0.enabled && $0.callback != nil }
+            .map { $0.interval - $0.elapsed }.min()
     }
 
     public mutating func dispatchDueTimer() throws -> Bool {
         guard timerReturn == nil, phase == .ready || phase == .waiting || phase == .waitingForEvent,
               let handle = storage.timers.keys.sorted().first(where: {
-                  guard let timer = storage.timers[$0], timer.enabled else { return false }
+                  guard let timer = storage.timers[$0], timer.enabled, timer.callback != nil else { return false }
                   return timer.elapsed >= timer.interval
               }), let timer = storage.timers[handle], let callback = timer.callback else { return false }
         guard storage.frames.count < maximumFrames, timer.argument.isEmpty else {
@@ -520,7 +557,8 @@ public struct ScriptMachine: Sendable {
         }
         storage.timers[handle]?.elapsed = 0
         storage.frames.append(ScriptFrame(returnIndex: pc, returnProgram: program, entryLabel: callback.label))
-        timerReturn = (storage.frames.count, phase)
+        timerReturn = (storage.frames.count, phase, clickWaitRemaining, clickWaitInitial)
+        clickWaitRemaining = nil
         program = callback.program
         pc = callback.index
         phase = .ready
@@ -534,12 +572,21 @@ public struct ScriptMachine: Sendable {
 
     /// Placement animations for which the native canvas can show intermediate positions.
     public var hasSampledPlacementTransition: Bool {
-        storage.placementTransitions.keys.contains { handle in
+        storage.placementTransitions.contains { handle, transition in
             if let image = storage.images[handle] {
-                return image.enabled && image.resource != nil && (canStartFromTitle || image.motion?.mode == 3)
+                guard image.isDrawable, image.resource != nil else { return false }
+                if let savedMode = transition.savedMode { return savedMode == 1 }
+                return canStartFromTitle || image.motion?.mode == 3
             }
             return storage.enabledButtons.contains(handle)
                 && (canStartFromTitle || storage.buttonMotion[handle]?.mode == 3)
+        }
+    }
+
+    package func hasAdvancingImage(sourceSHA256: String) -> Bool {
+        storage.images.values.contains {
+            $0.isDrawable && $0.resource?.sourceSHA256 == sourceSHA256 &&
+                $0.motionStartTick != nil && ($0.playbackSpeed ?? 100) > 0
         }
     }
 
@@ -556,10 +603,7 @@ public struct ScriptMachine: Sendable {
     /// Advance the headless visual clock to known endpoints.
     public mutating func advancePlacementClock(ticks: Int32) throws {
         guard ticks >= 0 else { throw ResourceError.rejected("negative_placement_ticks") }
-        for (handle, var timer) in storage.timers where timer.enabled {
-            timer.elapsed += min(ticks, timer.interval - timer.elapsed)
-            storage.timers[handle] = timer
-        }
+        advanceTimerClock(ticks: ticks)
         for (handle, var movie) in storage.movies {
             if let remaining = movie.remainingTicks, remaining > 0 {
                 movie.remainingTicks = max(0, remaining - ticks)
@@ -569,10 +613,25 @@ public struct ScriptMachine: Sendable {
         advanceVisualClock(ticks: ticks)
     }
 
+    package mutating func advanceTimerClock(ticks: Int32) {
+        guard ticks > 0 else { return }
+        for (handle, var timer) in storage.timers {
+            let elapsed = timer.enabled ? timer.elapsed + min(ticks, timer.interval - timer.elapsed) : 0
+            if elapsed != timer.elapsed {
+                timer.elapsed = elapsed
+                storage.timers[handle] = timer
+            }
+        }
+    }
+
     public mutating func advanceVisualClock(ticks: Int32) {
         guard ticks > 0 else { return }
         storage.visualTicks += min(Int64(ticks), Int64.max - storage.visualTicks)
         advanceOpacityClock(ticks: ticks)
+        for (handle, var image) in storage.images where image.restoredMotionThreshold != nil {
+            image.advanceRestoredMotion(ticks: ticks)
+            storage.images[handle] = image
+        }
         for (handle,var transition) in storage.placementTransitions {
             transition.elapsed += min(ticks,transition.duration-transition.elapsed)
             if transition.elapsed == transition.duration {
@@ -662,6 +721,8 @@ public struct ScriptMachine: Sendable {
         public let textureFilter: Int32?
         public let unappliedTransform: Bool
         public let drawChannel: Int32?
+        public var isTheoraResource = false
+        package var boundTextureLocations: [Int32: ScriptLocation] = [:]
     }
 
     /// State for the audited window animation's effect on separately drawn controls.
@@ -688,14 +749,13 @@ public struct ScriptMachine: Sendable {
         }
         func position(_ handle: UInt64, _ placement: [Int32]) -> (Int32, Int32) {
             let settings = storage.images[handle]?.motion ?? storage.buttonMotion[handle]
-            guard sampleTitlePlacement || settings?.mode == 3,
-                  let motion = storage.placementTransitions[handle] else {
+            guard let motion = storage.placementTransitions[handle], motion.savedMode != 0,
+                  sampleTitlePlacement || settings?.mode == 3 || motion.savedMode == 1 else {
                 return (placement[0], placement[1])
             }
             // Script queries still see the committed placement. The original
             // position evaluator quantizes remaining time to 1/1024 (0x5ab3ee).
-            let remaining = Int64(motion.duration - motion.elapsed)
-            let fraction = Double(1024 - remaining * 1024 / Int64(motion.duration)) / 1024
+            let fraction = motion.quantizedProgress
             let progress: Double
             if let settings, settings.mode == 3 {
                 // Mode 3 dispatches to 0x50ba30. The original executable
@@ -705,24 +765,38 @@ public struct ScriptMachine: Sendable {
                 progress = fraction
             }
             func axis(_ index: Int) -> Int32 {
+                if motion.savedMode == 1 {
+                    return motion.sampleSavedLinearAxis(from: placement[index], to: motion.destination[index])
+                }
                 let start = Double(placement[index])
                 return Int32((start + (Double(motion.destination[index]) - start) * progress).rounded())
             }
             return (axis(0), axis(1))
         }
         let images: [StaticImageLayer] = storage.images.compactMap { handle, image in
-            guard image.enabled, let resource = image.resource,
+            guard image.isDrawable, let resource = image.resource,
                   let placement = image.placement, placement.count >= 3 else { return nil }
             let (x, y) = position(handle, placement)
+            var scale = image.transform?.scale ?? [100, 100, 100]
+            var priority = placement[2]
+            if let motion = storage.placementTransitions[handle], motion.savedMode == 1,
+               let target = motion.destinationTransform?.scale {
+                // 0x5ab599 samples priority with the same evaluator as position.
+                priority = motion.sampleSavedLinearAxis(from: priority, to: motion.destination[2])
+                for axis in 0..<2 {
+                    scale[axis] = motion.sampleSavedLinearAxis(from: scale[axis], to: target[axis])
+                }
+            }
             return StaticImageLayer(id: handle, resource: resource, x: x, y: y,
-                                    priority: placement[2], selectedMember: image.selectedMember,
+                                    priority: priority, selectedMember: image.selectedMember,
                                     motionElapsedTicks: image.motionElapsedHundredths(at: storage.visualTicks).map { Int32($0 / 100) },
                                     motionIsAdvancing: image.motionStartTick != nil && (image.playbackSpeed ?? 100) > 0, opacity: image.presentedOpacity,
-                                    scaleXPercent: image.transform?.scale[0] ?? 100,
-                                    scaleYPercent: image.transform?.scale[1] ?? 100, hoverResource: nil,
+                                    scaleXPercent: scale[0],
+                                    scaleYPercent: scale[1], hoverResource: nil,
                                     boundRasterPreview: image.boundImages[0],
                                     hasExplicitAlignment: image.alignment != nil, alignmentXPercent: image.alignment?.x ?? 0, alignmentYPercent: image.alignment?.y ?? 0, textureFilter: image.textureFilter,
-                                    unappliedTransform: hasUnappliedTransform(image.transform), drawChannel: image.drawChannel)
+                                    unappliedTransform: hasUnappliedTransform(image.transform), drawChannel: image.drawChannel,
+                                    isTheoraResource: image.isTheoraResource, boundTextureLocations: image.boundImages)
         }
         let buttons: [StaticImageLayer] = storage.enabledButtons.compactMap { handle in
             let container = storage.buttonResources[handle]
@@ -734,8 +808,10 @@ public struct ScriptMachine: Sendable {
             guard let resource = checkedTexture ?? textures?[0] ?? container,
                   let placement = storage.buttonPlacement[handle], placement.count >= 3 else { return nil }
             let (x, y) = position(handle, placement)
+            let scale = storage.savedButtonPlacementScale[handle] ?? SIMD2(100, 100)
             return StaticImageLayer(id: handle, resource: resource, x: x, y: y,
-                                    priority: placement[2], selectedMember: nil, motionElapsedTicks: nil, motionIsAdvancing: false, opacity: 255, scaleXPercent: 100, scaleYPercent: 100,
+                                    priority: placement[2], selectedMember: nil, motionElapsedTicks: nil,
+                                    motionIsAdvancing: false, opacity: 255, scaleXPercent: scale.x, scaleYPercent: scale.y,
                                     hoverResource: !checkedPage && storage.buttonLocks[handle, default: 0] == 0 ? textures?[1] : nil,
                                     boundRasterPreview: nil, hasExplicitAlignment: false, alignmentXPercent: 0, alignmentYPercent: 0, textureFilter: nil, unappliedTransform: false, drawChannel: nil)
         }
@@ -877,6 +953,8 @@ public struct ScriptMachine: Sendable {
         storage.dialogueLogEntries.suffix(256).map { .init(speaker: $0.speaker, text: $0.text) }
     }
 
+    package var hasVisibleMessageSurface: Bool { storage.messages.values.contains(where: \.enabled) }
+
     public var committedMessageText: [String] { messageTextLayers.map(\.text) }
 
     public var titleButtons: [UInt64: Int32] {
@@ -919,16 +997,31 @@ public struct ScriptMachine: Sendable {
         return matches.first
     }
 
-    package mutating func dispatchLoadConfirmation(accept: Bool) throws -> Bool {
+    package var isWaitingForLoadConfirmation: Bool {
         guard phase == .waitingForEvent, stopCallbackFrameDepth == nil,
               let stopCallback, stopCallback == (try? program.label("@@!Dialog_YesNoOnStop")),
-              pc > 0, asciiLower(program.document.records[pc - 1].location.sourceFile)
-                .hasSuffix("/script/dialog/main.s") else { return false }
-        let label = accept ? "yes" : "no"
-        let matches = staticImageLayers.filter {
-            storage.enabledButtons.contains($0.id) && storage.buttonLocks[$0.id, default: 0] == 0 &&
-                storage.buttonUserStrings[$0.id]?[0].map(asciiLower) == label
+              pc > 0 else { return false }
+        return asciiLower(program.document.records[pc - 1].location.sourceFile)
+            .hasSuffix("/script/dialog/main.s")
+    }
+
+    package var loadConfirmationButtons: [UInt64: Bool] {
+        guard isWaitingForLoadConfirmation else { return [:] }
+        var buttons: [UInt64: Bool] = [:]
+        for handle in storage.enabledButtons where storage.buttonLocks[handle, default: 0] == 0 {
+            switch storage.buttonUserStrings[handle]?[0].map(asciiLower) {
+            case "yes": buttons[handle] = true
+            case "no": buttons[handle] = false
+            default: break
+            }
         }
+        return buttons
+    }
+
+    package mutating func dispatchLoadConfirmation(accept: Bool) throws -> Bool {
+        guard isWaitingForLoadConfirmation else { return false }
+        let buttons = loadConfirmationButtons
+        let matches = staticImageLayers.filter { buttons[$0.id] == accept }
         guard matches.count == 1, let button = matches.first else {
             throw ResourceError.rejected("load_confirmation_button_unavailable")
         }
@@ -1071,6 +1164,26 @@ public struct ScriptMachine: Sendable {
         return handle
     }
 
+    package var windowLoadButton: UInt64? {
+        guard phase == .waitingForEvent, stopCallback != nil, stopCallbackFrameDepth == nil,
+              timedStopRequest == nil, !isWaitingForStoryChoice, !isDialogueWindowHidden,
+              case .object(let handle) = try? storage.readIndexed("SysButton", 5),
+              storage.enabledButtons.contains(handle), storage.buttonLocks[handle, default: 0] == 0,
+              storage.buttonUserStrings[handle]?[0].map(asciiLower) == "load",
+              storage.buttonUserStrings[handle]?[1].map(asciiLower) == "@@!load" else { return nil }
+        return handle
+    }
+
+    package mutating func dispatchWindowLoadButton(_ handle: UInt64) throws {
+        guard windowLoadButton == handle, let source = playbackStatus.currentLocation else {
+            throw ResourceError.rejected("window_load_button_not_selectable")
+        }
+        // Native host entry for the audited SysButton[5] registration.
+        systemTaskRequest = SystemTaskRequest(entryLabel: "@@!Load", source: source)
+        returnsToDialogueAfterLoad = true
+        phase = .waitingForSystemTask
+    }
+
     public mutating func dispatchWindowViewButton(_ handle: UInt64) throws {
         guard windowViewButton == handle, storage.frames.count < maximumFrames,
               var repository else {
@@ -1128,7 +1241,153 @@ public struct ScriptMachine: Sendable {
     public private(set) var systemTaskRequest: SystemTaskRequest?
     public private(set) var systemTaskExitRequested = false
     private var systemLoadTaskID: UUID?
+    package var retainExperimentalSaveCandidate = false
+    private struct SavedExecutionCandidate: Sendable {
+        let program: ScriptProgram
+        let index: Int
+        let storage: ScriptStorage
+        let repository: ScriptRepository?
+        let wait: Int32?
+        let clickInitial: Int32?
+    }
+    private var savedExecutionCandidate: SavedExecutionCandidate?
+    private var savedAudioStarts: [UInt64] = []
+    private var phaseAfterSavedAudioStarts: ScriptMachinePhase?
+
+    private mutating func startNextSavedAudio() {
+        guard !savedAudioStarts.isEmpty else {
+            if let previous = phaseAfterSavedAudioStarts { phase = previous }
+            phaseAfterSavedAudioStarts = nil
+            return
+        }
+        let channel = savedAudioStarts.removeFirst()
+        storage.soundChannels[channel]?.playing = true
+        storage.soundChannels[channel]?.playbackStartStep = executedSteps
+        soundPlaybackChannel = channel
+        soundPlaybackRequest = storage.soundChannels[channel]?.resource
+        phase = .waitingForMedia
+    }
+
+    package struct ExperimentalSaveAudio: Encodable, Sendable {
+        package struct Gap: Encodable, Sendable {
+            let recordOffset: Int
+            let reason: String
+            let status: EvidenceStatus = .unsupported
+        }
+        package var stagedStreams = 0
+        package var scheduledStreams = 0
+        package var scheduledDirectSounds = 0
+        package var gaps: [Gap] = []
+    }
+
+    @discardableResult
+    package mutating func adoptExperimentalSaveCandidate(
+        from task: ScriptMachine, directBufferBytes: ((ScriptLocation) throws -> Int)? = nil
+    ) throws -> ExperimentalSaveAudio {
+        guard retainExperimentalSaveCandidate, phase == .waitingForSystemTask,
+              let rollback = systemLoadRollback, rollback.id == task.systemLoadTaskID,
+              task.phase == .stopped, task.stopReason == "save_restore_execution_state_unsupported",
+              let staged = task.savedExecutionCandidate else {
+            throw ResourceError.rejected("saved_execution_candidate_unavailable")
+        }
+        guard var restored = try Self.makeSavedExecutionMachine(
+            program: staged.program, index: staged.index, storage: staged.storage,
+            repository: staged.repository, wait: staged.wait, clickInitial: staged.clickInitial,
+            maximumSteps: maximumSteps, maximumFrames: maximumFrames, retainFullTrace: retainFullTrace,
+            imageLoader: imageLoader, imageMemberLookup: imageMemberLookup,
+            imageExtendedValues: imageExtendedValues, imageMotionNames: imageMotionNames
+        ) else { throw ResourceError.rejected("saved_execution_candidate_invalid") }
+        var audio = ExperimentalSaveAudio()
+        if let boundary = task.saveResumeBoundary, let prefix = boundary.statePrefix {
+            let streamRecords = Dictionary(uniqueKeysWithValues: prefix.ssndReferences.map {
+                ($0.record.decodedOffset, $0.streamChannel)
+            })
+            let seeks = Dictionary(uniqueKeysWithValues: boundary.stagedStreamSeeks.filter { seek in
+                if seek.status == .verified { return true }
+                // Accept the float representation produced by our integer-ms
+                // writer. This does not establish the original x87 rounding mode.
+                guard seek.status == .inferred, let record = streamRecords[seek.recordOffset],
+                      let stream = record else { return false }
+                return stream.matchesEncodedMilliseconds(seek.milliseconds)
+            }.map { ($0.recordOffset, $0) })
+            let directRequests = Dictionary(uniqueKeysWithValues: boundary.stagedSoundRequests.map { ($0.recordOffset, $0) })
+            var directProbes = 0
+            for record in prefix.dsndReferences where record.directReloadRequested == true {
+                let offset = record.record.decodedOffset
+                guard let request = directRequests[offset],
+                      request.startOffset == 0, request.slotIndex < 64 else {
+                    audio.gaps.append(.init(recordOffset: offset,
+                                            reason: "saved_direct_channel_restore_unsupported"))
+                    continue
+                }
+                if let minimum = request.minimumDecodedBytes {
+                    guard let directBufferBytes, directProbes < 4 else {
+                        audio.gaps.append(.init(recordOffset: offset, reason: "saved_direct_buffer_check_unavailable"))
+                        continue
+                    }
+                    directProbes += 1
+                    do {
+                        // A short buffer intentionally does not start in mode 2.
+                        guard try directBufferBytes(request.source) >= minimum else { continue }
+                    } catch is CancellationError {
+                        throw CancellationError()
+                    } catch {
+                        audio.gaps.append(.init(recordOffset: offset, reason: "saved_direct_buffer_check_failed"))
+                        continue
+                    }
+                }
+                // 0x5a100c dispatches direct buffers to a separate bank.
+                // Keep their host playback IDs outside the indexed stream range.
+                let handle = UInt64.max - 2048 - UInt64(request.slotIndex)
+                restored.storage.soundChannels[handle] = .init(loopRequest: request.looping ? -1 : 0, volume: request.volumeInput,
+                                                               resource: request.source)
+                restored.savedAudioStarts.append(handle)
+                audio.scheduledDirectSounds += 1
+            }
+            for (index, record) in prefix.ssndReferences.enumerated() where record.streamChannel?.rawMode != 0 {
+                guard let stream = record.streamChannel, let seek = seeks[record.record.decodedOffset],
+                      case .object(let handle) = try? restored.storage.readIndexed("snd", Int32(index)) else {
+                    audio.gaps.append(.init(recordOffset: record.record.decodedOffset,
+                                            reason: "saved_stream_source_position_or_channel_unresolved"))
+                    continue
+                }
+                // 0x5a053e and 0x5a0560 set volume and pan before the play gate.
+                restored.storage.soundChannels[handle] = .init(seekRequest: seek.milliseconds,
+                    panRequest: (stream.resumePan, 0, 0), volume: stream.resumeVolume, resource: seek.source)
+                audio.stagedStreams += 1
+                if let repeats = stream.resumeRepeatCount {
+                    if repeats >= -1 {
+                        restored.storage.soundChannels[handle]?.loopRequest = repeats
+                        // 0x5a0528–0x5a056a sets zero gain, requests a 2000 ms
+                        // transition to the stored gain, and restores pan immediately.
+                        restored.storage.soundChannels[handle]?.volumeDuration = 2000
+                        restored.storage.soundChannels[handle]?.volumeChangePending = true
+                        restored.savedAudioStarts.append(handle)
+                        audio.scheduledStreams += 1
+                    } else {
+                        audio.gaps.append(.init(recordOffset: record.record.decodedOffset,
+                                                reason: "saved_stream_repeat_counter_unresolved"))
+                    }
+                }
+            }
+        }
+        if !restored.savedAudioStarts.isEmpty {
+            restored.phaseAfterSavedAudioStarts = restored.phase
+            restored.startNextSavedAudio()
+        }
+        restored.replayEffectSurface = task.savedCapturedDisplay
+        restored.saveDirectory = saveDirectory
+        restored.saveSources = saveSources
+        restored.saveHeaderTemplate = saveHeaderTemplate
+        restored.inferSaveStateSeed = inferSaveStateSeed
+        restored.retainExperimentalSaveCandidate = retainExperimentalSaveCandidate
+        restored.savedMotionUpdateThreshold = savedMotionUpdateThreshold
+        self = restored
+        return audio
+    }
+
     private var failedSaveRestore = false
+    private var returnsToDialogueAfterLoad = false
     private var systemLoadRollback: (id: UUID, bindings: [Data: ScriptBinding], mask: Int32, mode: Int32)?
 
     public mutating func finishSystemLoadTask(_ task: ScriptMachine) throws {
@@ -1137,7 +1396,8 @@ public struct ScriptMachine: Sendable {
             throw ResourceError.rejected("system_task_exit_required")
         }
         systemLoadRollback = nil
-        phase = .ready
+        phase = returnsToDialogueAfterLoad ? .waitingForEvent : .ready
+        returnsToDialogueAfterLoad = false
     }
 
     /// Host recovery for a failed save restore. The failed guest task
@@ -1148,11 +1408,21 @@ public struct ScriptMachine: Sendable {
               let rollback = systemLoadRollback, task.systemLoadTaskID == rollback.id else {
             throw ResourceError.rejected("failed_save_load_task_required")
         }
-        storage.system = rollback.bindings
-        storage.systemInputMask = rollback.mask
-        storage.systemPlayMode = rollback.mode
+        _ = abortSystemLoad()
+    }
+
+    package mutating func abortSystemLoad() -> Bool {
+        guard phase == .waitingForSystemTask else { return false }
+        if let rollback = systemLoadRollback {
+            storage.system = rollback.bindings
+            storage.systemInputMask = rollback.mask
+            storage.systemPlayMode = rollback.mode
+        }
         systemLoadRollback = nil
-        phase = .ready
+        systemTaskRequest = nil
+        phase = returnsToDialogueAfterLoad ? .waitingForEvent : .ready
+        returnsToDialogueAfterLoad = false
+        return true
     }
 
     public struct ScreenCaptureRequest: Sendable {
@@ -1170,12 +1440,15 @@ public struct ScriptMachine: Sendable {
             throw ResourceError.rejected("invalid_game_thread_image_capture")
         }
         image.resource = source
+        image.isTheoraResource = false
         image.resourceLoadLocation = request.location
         image.width = width
         image.height = height
         image.memberCount = 1
         image.selectedMember = nil
         image.motionStartTick = nil
+        image.restoredMotionThreshold = nil
+        image.restoredMotionRemainder = 0
         image.boundImages.removeAll()
         image.extendedDefaultsPrepared = false
         image.extendedScalarValues.removeAll()
@@ -1206,7 +1479,10 @@ public struct ScriptMachine: Sendable {
         task.saveDirectory = saveDirectory
         task.inferSaveStateSeed = inferSaveStateSeed
         task.saveHeaderTemplate = saveHeaderTemplate
+        task.inspectSaveRestoreBoundary = inspectSaveRestoreBoundary
+        task.savedMotionUpdateThreshold = savedMotionUpdateThreshold
         task.saveSources = saveSources
+        task.retainExperimentalSaveCandidate = retainExperimentalSaveCandidate
         let taskID = UUID()
         task.systemLoadTaskID = taskID
         systemLoadRollback = (taskID, storage.system, storage.systemInputMask, storage.systemPlayMode)
@@ -1294,6 +1570,19 @@ public struct ScriptMachine: Sendable {
         return seeks
     }
 
+    package mutating func takePendingPlaybackSeek() -> Int32? {
+        guard let channel = soundPlaybackChannel,
+              let seek = storage.soundChannels[channel]?.seekRequest else { return nil }
+        storage.soundChannels[channel]?.seekRequest = nil
+        return seek
+    }
+
+    package var soundPlaybackInitialVolume: Int32? {
+        guard phaseAfterSavedAudioStarts != nil, let channel = soundPlaybackChannel,
+              storage.soundChannels[channel]?.volumeDuration == 2000 else { return nil }
+        return 0
+    }
+
     public var soundPlaybackRepeatCount: Int32 {
         // At EOF, 0x57594b stops at zero and 0x575966 decrements a positive count before restarting.
         soundPlaybackChannel.flatMap { storage.soundChannels[$0]?.loopRequest } ?? 0
@@ -1306,7 +1595,11 @@ public struct ScriptMachine: Sendable {
         soundPlaybackRequest = nil
         soundPlaybackChannel = nil
         soundPlaybackPreservesPosition = false
-        phase = .ready
+        if phaseAfterSavedAudioStarts != nil {
+            startNextSavedAudio()
+        } else {
+            phase = .ready
+        }
     }
 
     public mutating func acknowledgeSoundCompletion(channel: UInt64, playbackStartStep: Int) {
@@ -1424,6 +1717,7 @@ public struct ScriptMachine: Sendable {
             let movieClick: Bool
         }
         var consumedInput: InputCounts? = nil
+        var decodedSoundRequestCount: Int? = nil
         struct EventWait: Encodable, Sendable {
             let kind: String
             let callbackLocation: ScriptLocation?
@@ -1587,45 +1881,67 @@ public struct ScriptMachine: Sendable {
                                           integerParameters: integers, stringParameters: strings))
     }
 
+    private static func makeSavedExecutionMachine(
+        program: ScriptProgram, index: Int, storage: ScriptStorage,
+        repository: ScriptRepository?, wait: Int32?, clickInitial: Int32? = nil, maximumSteps: Int, maximumFrames: Int = 64, retainFullTrace: Bool,
+        imageLoader: (@Sendable (Data) throws -> (Int, Int, Int))?,
+        imageMemberLookup: (@Sendable (ScriptLocation, String) throws -> (offset: Int, length: Int, sha256: String)?)?,
+        imageExtendedValues: (@Sendable (ScriptLocation) -> [Int: Int32]?)?,
+        imageMotionNames: (@Sendable (ScriptLocation) -> [String]?)?
+    ) throws -> ScriptMachine? {
+        let records = program.document.records
+        guard records.indices.contains(index), let frame = storage.frames.last,
+              program.ancestors[index] == frame.controls,
+              [.command, .lineTag].contains(records[index].kind) || wait != nil else { return nil }
+        if let wait, wait < -1 { throw ResourceError.rejected("invalid_saved_wait") }
+        try storage.validate()
+        var machine = try ScriptMachine(program: program, allowExperimental: true, maximumSteps: maximumSteps,
+                                        maximumFrames: maximumFrames, repository: repository, imageLoader: imageLoader,
+                                        imageMemberLookup: imageMemberLookup, imageExtendedValues: imageExtendedValues,
+                                        imageMotionNames: imageMotionNames, retainFullTrace: retainFullTrace)
+        let prepared = machine.program
+        guard prepared.document.records.indices.contains(index),
+              prepared.document.records[index].location == records[index].location,
+              prepared.ancestors[index] == frame.controls else {
+            throw ResourceError.rejected("saved_resume_position_changed_during_preparation")
+        }
+        machine.storage = storage
+        machine.pc = index
+        if let wait {
+            machine.phase = .waiting
+            machine.clickWaitRemaining = wait
+            machine.clickWaitInitial = clickInitial
+        }
+        return machine
+    }
+
     static func probeSavedCalculations(program: ScriptProgram, index: Int,
                                        storage: ScriptStorage, repository: ScriptRepository? = nil,
                                        savedWait: Int32? = nil, drawPreview: (() throws -> SavedDisplayDraw)? = nil,
                                        drawScene: ((ScriptMachine, SavedScenePass) throws -> (SavedDisplayDraw, Data?))? = nil,
                                        eventSampleTicks: Int32? = nil,
                                        decodeMovie: ((MoviePlaybackRequest) throws -> Int32)? = nil,
-                                       decodeSound: ((ScriptLocation) throws -> Void)? = nil,
+                                       decodeSound: ((ScriptLocation, Int32?) throws -> Void)? = nil,
                                        clickAfterMovie: Bool = false, dialogueClicks: Int = 0, autoWaitClicks: Int = 0, limit: Int = 512, compact: Bool = false,
                                        imageLoader: (@Sendable (Data) throws -> (Int, Int, Int))? = nil,
                                        imageMemberLookup: (@Sendable (ScriptLocation, String) throws -> (offset: Int, length: Int, sha256: String)?)? = nil,
                                        imageExtendedValues: (@Sendable (ScriptLocation) -> [Int: Int32]?)? = nil,
                                        imageMotionNames: (@Sendable (ScriptLocation) -> [String]?)? = nil) throws -> SavedCalculationContinuation? {
-        let records = program.document.records
-        guard records.indices.contains(index), let frame = storage.frames.last,
-              program.ancestors[index] == frame.controls,
-              [.command, .lineTag].contains(records[index].kind) || savedWait != nil else { return nil }
         var autoWaitClicksRemaining = autoWaitClicks
         var dialogueClicksRemaining = dialogueClicks
         var clickPending = clickAfterMovie
         let maximumReplaySteps = compact ? maximumCompactSavedReplaySteps : maximumFullSavedReplaySteps
         guard (1...maximumReplaySteps).contains(limit) else { throw ResourceError.rejected("saved_replay_step_limit") }
-        var probe = try ScriptMachine(program: program, allowExperimental: true, maximumSteps: limit,
-                                      repository: repository, imageLoader: imageLoader, imageMemberLookup: imageMemberLookup,
-                                      imageExtendedValues: imageExtendedValues, imageMotionNames: imageMotionNames, retainFullTrace: !compact)
-        probe.storage = storage
-        probe.pc = index
-        if let savedWait {
-            guard savedWait >= 0 else { throw ResourceError.rejected("invalid_saved_timed_wait") }
-            probe.phase = .waiting
-            probe.clickWaitRemaining = savedWait
-            if savedWait > 0 {
-                try probe.advanceClickWait(ticks: savedWait - 1)
-                guard probe.step() == nil, probe.pc == index else {
-                    throw ResourceError.rejected("saved_wait_advanced_before_expiry")
-                }
-            }
-            try probe.advanceClickWait(ticks: min(savedWait, 1))
-            try probe.advancePlacementClock(ticks: savedWait)
-        }
+        guard var probe = try makeSavedExecutionMachine(
+            program: program, index: index, storage: storage, repository: repository,
+            wait: savedWait, maximumSteps: limit, retainFullTrace: !compact,
+            imageLoader: imageLoader, imageMemberLookup: imageMemberLookup,
+            imageExtendedValues: imageExtendedValues, imageMotionNames: imageMotionNames
+        ) else { return nil }
+        var restoringWait = savedWait != nil
+        var advancingMovieWait = false
+        var advancedSavedWait: Int32 = 0
+        var simulatedSavedWaitTicks: Int32? { savedWait.map { _ in advancedSavedWait } }
         var consumedInput: SavedCalculationContinuation.InputCounts? {
             guard dialogueClicks > 0 || autoWaitClicks > 0 || clickAfterMovie else { return nil }
             return .init(dialogueClicks: dialogueClicks - dialogueClicksRemaining,
@@ -1639,9 +1955,35 @@ public struct ScriptMachine: Sendable {
         var acknowledgedSceneDraws = 0
         var captureDraw: SavedDisplayDraw?
         var textDraw: SavedDisplayDraw?
+        var decodedSounds = 0
+        var decodedSoundRequestCount: Int? { decodeSound.map { _ in decodedSounds } }
         var movieDecoded = false
-        while steps.count + droppedSteps < limit, probe.phase == .ready,
-              probe.program.document.records.indices.contains(probe.pc) {
+        while steps.count + droppedSteps < limit {
+            if (restoringWait || advancingMovieWait), probe.timerReturn == nil,
+               try !probe.dispatchDueTimer() {
+                if probe.phase == .waiting, let remaining = probe.clickWaitRemaining, remaining >= 0 {
+                    let ticks = min(remaining, max(0, probe.ticksUntilTimer ?? remaining))
+                    try probe.advanceClickWait(ticks: ticks)
+                    try probe.advancePlacementClock(ticks: ticks)
+                    if restoringWait { advancedSavedWait += ticks }
+                    continue
+                }
+                restoringWait = false
+                advancingMovieWait = false
+            }
+            if movieDecoded, let remaining = probe.movieStopRemaining, probe.timerReturn == nil {
+                if try probe.dispatchDueTimer() {
+                    continue
+                }
+                if remaining > 0 {
+                    let ticks = min(remaining, probe.ticksUntilTimer ?? remaining)
+                    try probe.advancePlacementClock(ticks: ticks)
+                } else {
+                    try probe.dispatchStopCallback()
+                }
+                continue
+            }
+            guard probe.phase == .ready, probe.program.document.records.indices.contains(probe.pc) else { break }
             let program = probe.program
             let record = program.document.records[probe.pc]
             let supported: Bool
@@ -1688,7 +2030,7 @@ public struct ScriptMachine: Sendable {
                           (drawScene != nil && record.fields.count == 1) else {
                         return .init(steps: steps, nextLocation: record.location,
                                      stopReason: "saved_effect_capture_requires_restored_state",
-                                     simulatedSavedWaitTicks: savedWait, previewDraw: previewDraw, sceneDraw: sceneDraw, captureDraw: captureDraw, textDraw: textDraw, omittedStepCount: droppedSteps == 0 ? nil : droppedSteps, consumedInput: consumedInput)
+                                     simulatedSavedWaitTicks: simulatedSavedWaitTicks, previewDraw: previewDraw, sceneDraw: sceneDraw, captureDraw: captureDraw, textDraw: textDraw, omittedStepCount: droppedSteps == 0 ? nil : droppedSteps, consumedInput: consumedInput, decodedSoundRequestCount: decodedSoundRequestCount)
                     }
                     supported = true
                 case "stid": supported = record.fields.count == 2
@@ -1705,6 +2047,10 @@ public struct ScriptMachine: Sendable {
                     supported = probe.storage.effectCapturePriority != nil || probe.replayEffectSurface != nil
                 case "fexs": supported = probe.repository != nil
                 case "?v": supported = streamScope || (try? probe.storage.scopedTables()) != nil
+                case "g" where scope == [ScriptStorage.saveDataHandle],
+                     "?g" where scope == [ScriptStorage.saveDataHandle],
+                     "?gd" where scope == [ScriptStorage.saveDataHandle]:
+                    supported = record.fields.count == 1
                 case "?g":
                     supported = scope == [ScriptStorage.fileLogHandle] || scope == [ScriptStorage.lineLogHandle] ||
                         scope == [ScriptStorage.dialogueLogHandle]
@@ -1725,8 +2071,7 @@ public struct ScriptMachine: Sendable {
                     scope == [ScriptStorage.fileLogHandle] || scope == [ScriptStorage.lineLogHandle]:
                     supported = record.fields.count == 1
                 case "?lk", "?lkc", "lk", "lkc":
-                    supported = probe.storage.systemLockMask != nil && probe.storage.systemCustomLockMask != nil &&
-                        probe.storage.frames.last?.tableScope == [ScriptStorage.systemHandle]
+                    supported = scope == [ScriptStorage.systemHandle]
                 case "i" where movieDecoded && scope == [ScriptStorage.effectHandle]:
                     supported = true
                 case "stop":
@@ -1838,7 +2183,7 @@ public struct ScriptMachine: Sendable {
                     guard probe.storage.frames.count > 1 else {
                         return .init(steps: steps, nextLocation: record.location,
                                      stopReason: "saved_return_requires_caller_frame",
-                                     simulatedSavedWaitTicks: savedWait, previewDraw: previewDraw, sceneDraw: sceneDraw, captureDraw: captureDraw, textDraw: textDraw, omittedStepCount: droppedSteps == 0 ? nil : droppedSteps, consumedInput: consumedInput)
+                                     simulatedSavedWaitTicks: simulatedSavedWaitTicks, previewDraw: previewDraw, sceneDraw: sceneDraw, captureDraw: captureDraw, textDraw: textDraw, omittedStepCount: droppedSteps == 0 ? nil : droppedSteps, consumedInput: consumedInput, decodedSoundRequestCount: decodedSoundRequestCount)
                     }
                     supported = true
                 case "of", "ans":
@@ -1860,7 +2205,7 @@ public struct ScriptMachine: Sendable {
             }
             guard supported else {
                 guard !steps.isEmpty || savedWait != nil else { return nil }
-                return .init(steps: steps, nextLocation: record.location, stopReason: "next_record_outside_calculation_profile", simulatedSavedWaitTicks: savedWait, previewDraw: previewDraw, sceneDraw: sceneDraw, captureDraw: captureDraw, textDraw: textDraw, omittedStepCount: droppedSteps == 0 ? nil : droppedSteps, consumedInput: consumedInput)
+                return .init(steps: steps, nextLocation: record.location, stopReason: "next_record_outside_calculation_profile", simulatedSavedWaitTicks: simulatedSavedWaitTicks, previewDraw: previewDraw, sceneDraw: sceneDraw, captureDraw: captureDraw, textDraw: textDraw, omittedStepCount: droppedSteps == 0 ? nil : droppedSteps, consumedInput: consumedInput, decodedSoundRequestCount: decodedSoundRequestCount)
             }
             if let trace = probe.step() {
                 steps.append(trace)
@@ -1871,14 +2216,15 @@ public struct ScriptMachine: Sendable {
                 }
                 if let request = probe.soundPlaybackRequest, let decodeSound {
                     do {
-                        try decodeSound(request)
+                        try decodeSound(request, probe.takePendingPlaybackSeek())
                         try probe.acknowledgeSoundPlayback()
+                        decodedSounds += 1
                     } catch {
                         let records = probe.program.document.records
                         let next = records.indices.contains(probe.pc) ? records[probe.pc].location : nil
                         return .init(steps: steps, nextLocation: next, stopReason: "saved_sound_host: \(error)",
-                                     simulatedSavedWaitTicks: savedWait, previewDraw: previewDraw,
-                                     sceneDraw: sceneDraw, captureDraw: captureDraw, textDraw: textDraw, omittedStepCount: droppedSteps == 0 ? nil : droppedSteps, consumedInput: consumedInput)
+                                     simulatedSavedWaitTicks: simulatedSavedWaitTicks, previewDraw: previewDraw,
+                                     sceneDraw: sceneDraw, captureDraw: captureDraw, textDraw: textDraw, omittedStepCount: droppedSteps == 0 ? nil : droppedSteps, consumedInput: consumedInput, decodedSoundRequestCount: decodedSoundRequestCount)
                     }
                 }
                 if let request = probe.moviePlaybackRequest, let decodeMovie {
@@ -1889,17 +2235,12 @@ public struct ScriptMachine: Sendable {
                         let records = probe.program.document.records
                         let next = records.indices.contains(probe.pc) ? records[probe.pc].location : nil
                         return .init(steps: steps, nextLocation: next, stopReason: "saved_movie_host: \(error)",
-                                     simulatedSavedWaitTicks: savedWait, previewDraw: previewDraw, sceneDraw: sceneDraw, captureDraw: captureDraw, textDraw: textDraw, omittedStepCount: droppedSteps == 0 ? nil : droppedSteps, consumedInput: consumedInput)
+                                     simulatedSavedWaitTicks: simulatedSavedWaitTicks, previewDraw: previewDraw, sceneDraw: sceneDraw, captureDraw: captureDraw, textDraw: textDraw, omittedStepCount: droppedSteps == 0 ? nil : droppedSteps, consumedInput: consumedInput, decodedSoundRequestCount: decodedSoundRequestCount)
                     }
                 }
                 if movieDecoded, trace.command == "wait", probe.phase == .waiting,
                    let ticks = probe.clickWaitRemaining, (0...600_000).contains(ticks) {
-                    try probe.advanceClickWait(ticks: ticks)
-                    try probe.advancePlacementClock(ticks: ticks)
-                }
-                if movieDecoded, trace.command == "stop", let ticks = probe.movieStopRemaining {
-                    try probe.advancePlacementClock(ticks: ticks)
-                    try probe.dispatchStopCallback()
+                    advancingMovieWait = true
                 }
                 if trace.action == "stop_callback_wait_candidate",
                    record.fields.first?.raw == "@@!Imo_MesWaitTextOnStop", let drawScene {
@@ -1996,8 +2337,8 @@ public struct ScriptMachine: Sendable {
                     let records = probe.program.document.records
                     let next = records.indices.contains(probe.pc) ? records[probe.pc].location : nil
                     return .init(steps: steps, nextLocation: next, stopReason: "saved_effect_capture_requires_surface_binding",
-                                 simulatedSavedWaitTicks: savedWait, previewDraw: previewDraw,
-                                 sceneDraw: sceneDraw, captureDraw: captureDraw, textDraw: textDraw, omittedStepCount: droppedSteps == 0 ? nil : droppedSteps, consumedInput: consumedInput)
+                                 simulatedSavedWaitTicks: simulatedSavedWaitTicks, previewDraw: previewDraw,
+                                 sceneDraw: sceneDraw, captureDraw: captureDraw, textDraw: textDraw, omittedStepCount: droppedSteps == 0 ? nil : droppedSteps, consumedInput: consumedInput, decodedSoundRequestCount: decodedSoundRequestCount)
                 }
                 if trace.action == "draw_request_candidate" {
                     if probe.storage.drawRequestCount == 1, previewDraw == nil, let drawPreview {
@@ -2024,8 +2365,8 @@ public struct ScriptMachine: Sendable {
                     let nextRecords = probe.program.document.records
                     let next = nextRecords.indices.contains(probe.pc) ? nextRecords[probe.pc].location : nil
                     return .init(steps: steps, nextLocation: next, stopReason: "saved_draw_requires_restored_scene",
-                                 simulatedSavedWaitTicks: savedWait, pendingDrawCount: probe.storage.drawRequestCount,
-                                 previewDraw: previewDraw, sceneDraw: sceneDraw, captureDraw: captureDraw, textDraw: textDraw, omittedStepCount: droppedSteps == 0 ? nil : droppedSteps, consumedInput: consumedInput)
+                                 simulatedSavedWaitTicks: simulatedSavedWaitTicks, pendingDrawCount: probe.storage.drawRequestCount,
+                                 previewDraw: previewDraw, sceneDraw: sceneDraw, captureDraw: captureDraw, textDraw: textDraw, omittedStepCount: droppedSteps == 0 ? nil : droppedSteps, consumedInput: consumedInput, decodedSoundRequestCount: decodedSoundRequestCount)
                 }
             }
         }
@@ -2033,11 +2374,11 @@ public struct ScriptMachine: Sendable {
         let nextLocation = finalRecords.indices.contains(probe.pc) ? finalRecords[probe.pc].location : nil
         if probe.phase == .waitingForMedia, probe.soundPlaybackRequest != nil {
             return .init(steps: steps, nextLocation: nextLocation, stopReason: "saved_sound_requires_media_host",
-                         simulatedSavedWaitTicks: savedWait, previewDraw: previewDraw, sceneDraw: sceneDraw, captureDraw: captureDraw, textDraw: textDraw, omittedStepCount: droppedSteps == 0 ? nil : droppedSteps, consumedInput: consumedInput)
+                         simulatedSavedWaitTicks: simulatedSavedWaitTicks, previewDraw: previewDraw, sceneDraw: sceneDraw, captureDraw: captureDraw, textDraw: textDraw, omittedStepCount: droppedSteps == 0 ? nil : droppedSteps, consumedInput: consumedInput, decodedSoundRequestCount: decodedSoundRequestCount)
         }
         if probe.phase == .waitingForMedia, probe.moviePlaybackRequest != nil {
             return .init(steps: steps, nextLocation: nextLocation, stopReason: "saved_movie_requires_media_host",
-                         simulatedSavedWaitTicks: savedWait, previewDraw: previewDraw, sceneDraw: sceneDraw, captureDraw: captureDraw, textDraw: textDraw, omittedStepCount: droppedSteps == 0 ? nil : droppedSteps, consumedInput: consumedInput)
+                         simulatedSavedWaitTicks: simulatedSavedWaitTicks, previewDraw: previewDraw, sceneDraw: sceneDraw, captureDraw: captureDraw, textDraw: textDraw, omittedStepCount: droppedSteps == 0 ? nil : droppedSteps, consumedInput: consumedInput, decodedSoundRequestCount: decodedSoundRequestCount)
         }
         if probe.phase == .waitingForEvent {
             let callback = probe.stopCallback
@@ -2049,6 +2390,9 @@ public struct ScriptMachine: Sendable {
             } else if let callback, callback == (try? probe.program.label("@@!Imo_MesWaitAutoOnStop")) {
                 kind = "message_auto_wait"
                 remainingClicks = autoWaitClicksRemaining
+            } else if let callback, callback == (try? probe.program.label("@@!Imo_MesWaitTextOnStop")) {
+                kind = "message_output_wait"
+                remainingClicks = nil
             } else {
                 kind = "unclassified_callback"
                 remainingClicks = nil
@@ -2067,8 +2411,8 @@ public struct ScriptMachine: Sendable {
                 advancedEventFrame = sample(advanced)
             }
             return .init(steps: steps, nextLocation: nextLocation, stopReason: "waiting_for_script_event",
-                         waitRemaining: probe.timedStopRequest?.duration, simulatedSavedWaitTicks: savedWait,
-                         previewDraw: previewDraw, sceneDraw: sceneDraw, captureDraw: captureDraw, textDraw: textDraw, omittedStepCount: droppedSteps == 0 ? nil : droppedSteps, consumedInput: consumedInput,
+                         waitRemaining: probe.timedStopRequest?.duration, simulatedSavedWaitTicks: simulatedSavedWaitTicks,
+                         previewDraw: previewDraw, sceneDraw: sceneDraw, captureDraw: captureDraw, textDraw: textDraw, omittedStepCount: droppedSteps == 0 ? nil : droppedSteps, consumedInput: consumedInput, decodedSoundRequestCount: decodedSoundRequestCount,
                          eventWait: .init(kind: kind, callbackLocation: callbackLocation,
                                           remainingReplayClicks: remainingClicks),
                          eventFrame: eventFrame, advancedEventFrame: advancedEventFrame,
@@ -2076,16 +2420,17 @@ public struct ScriptMachine: Sendable {
         }
         if probe.phase == .waiting {
             return .init(steps: steps, nextLocation: nextLocation, stopReason: "waiting_for_input_or_timer",
-                         waitRemaining: probe.clickWaitRemaining, simulatedSavedWaitTicks: savedWait, previewDraw: previewDraw, sceneDraw: sceneDraw, captureDraw: captureDraw, textDraw: textDraw, omittedStepCount: droppedSteps == 0 ? nil : droppedSteps, consumedInput: consumedInput)
+                         waitRemaining: probe.clickWaitRemaining, simulatedSavedWaitTicks: simulatedSavedWaitTicks, previewDraw: previewDraw, sceneDraw: sceneDraw, captureDraw: captureDraw, textDraw: textDraw, omittedStepCount: droppedSteps == 0 ? nil : droppedSteps, consumedInput: consumedInput, decodedSoundRequestCount: decodedSoundRequestCount)
         }
         return .init(steps: steps, nextLocation: nextLocation,
                      stopReason: probe.stopReason ?? (steps.count + droppedSteps == limit ? "calculation_probe_step_limit" : "script_end"),
-                     simulatedSavedWaitTicks: savedWait, previewDraw: previewDraw, sceneDraw: sceneDraw, captureDraw: captureDraw, textDraw: textDraw, omittedStepCount: droppedSteps == 0 ? nil : droppedSteps, consumedInput: consumedInput)
+                     simulatedSavedWaitTicks: simulatedSavedWaitTicks, previewDraw: previewDraw, sceneDraw: sceneDraw, captureDraw: captureDraw, textDraw: textDraw, omittedStepCount: droppedSteps == 0 ? nil : droppedSteps, consumedInput: consumedInput, decodedSoundRequestCount: decodedSoundRequestCount)
     }
 
     public func value(named name: String) throws -> ScriptValue { try storage.read(name) }
     package mutating func setReadOnlySaveSlots(_ entries: [SaveSlotInventory.Entry], directory: SafeDirectory? = nil,
-                                               inferStateSeed: Bool = false, headerTemplate: Data? = nil) throws {
+                                               inferStateSeed: Bool = false, headerTemplate: Data? = nil,
+                                               verifyUntransformedHeaders: Bool = true) throws {
         guard executedSteps == 0, phase == .ready else {
             throw ResourceError.rejected("save_slots_require_fresh_session")
         }
@@ -2107,9 +2452,257 @@ public struct ScriptMachine: Sendable {
             let key = Data(asciiLower(entry.name).utf8)
             storage.sessionSaveMetadata[key] = (strings, slot.savedLocalTime)
             storage.sessionSaveThumbnails[key] = entry.thumbnail
-            if let digest = entry.sourceSHA256 { saveSources[key] = (entry.name, digest) }
+            if let digest = entry.sourceSHA256 {
+                saveSources[key] = (entry.name, digest, verifyUntransformedHeaders || slot.transformed)
+            }
         }
     }
+    private var liveSaveWait: (remaining: Int32, initial: Int32, mode: UInt8, command: String)? {
+        guard phase == .waiting, let remaining = clickWaitRemaining,
+              timerReturn == nil, stopCallback == nil, pc > 0,
+              program.document.records.indices.contains(pc - 1),
+              let command = program.document.records[pc - 1].command.map(asciiLower) else { return nil }
+        if command == "wait", remaining > 0 { return (remaining, 0, 3, command) }
+        if command == "clk", let initial = clickWaitInitial,
+           (remaining == -1 && initial == -1) || (remaining >= 0 && remaining <= initial) {
+            return (remaining, initial, 4, command)
+        }
+        return nil
+    }
+
+    /// Serialize the thread of a timed wait with resolved call sites. Other engine state
+    /// belongs to subsequent sections of the save stream.
+    package func encodeTimedWaitThread(scriptPath requestedPath: String? = nil, readerOpaqueFields: Data, allowsIndexedLocals: Bool = false) throws -> Data {
+        guard let wait = liveSaveWait else {
+            throw ResourceError.rejected("save_thread_live_wait_outside_profile")
+        }
+        let label: String
+        if let entryLabel = storage.frames.last?.entryLabel {
+            label = entryLabel
+        } else {
+            // A root launched without an explicit entry can still encode a
+            // relative cursor against a unique preceding label in its source.
+            let records = program.document.records
+            let waitSource = records[pc - 1].location
+            guard storage.frames.count == 1,
+                  let index = records.indices.prefix(pc - 1).last(where: {
+                      let record = records[$0]
+                      return record.kind == .label && record.location.sourceFile == waitSource.sourceFile &&
+                          record.location.sourceSHA256 == waitSource.sourceSHA256
+                  }), let name = records[index].identifier,
+                  try program.label("@@" + name) == index else {
+                throw ResourceError.rejected("save_thread_live_entry_label_unavailable")
+            }
+            label = "@@" + name
+        }
+        for (index, frame) in storage.frames.enumerated() {
+            guard frame.controls.isEmpty, frame.savedReturnScalars == nil,
+                  frame.tableScope.isEmpty || frame.tableScope == [ScriptStorage.effectHandle] else {
+                throw ResourceError.rejected(
+                    "save_thread_live_frame_outside_profile: frame=\(index) controls=\(frame.controls.count) scope=\(frame.tableScope.count) return_scalars=\(frame.savedReturnScalars != nil)")
+            }
+        }
+        guard storage.frames.allSatisfy({ frame in
+            (allowsIndexedLocals || (frame.locals.isEmpty && (frame.parameterCount ?? 0) == 0)) &&
+                frame.objectAliases.isEmpty && frame.objectParameterNames.isEmpty
+        }) else {
+            throw ResourceError.rejected("save_thread_live_bindings_outside_profile")
+        }
+        let anchor = program.document.records[try program.label(label)].location
+        let scriptPath: String
+        if let catalog = repository?.catalog {
+            guard let path = requestedPath ?? catalog.reference(forPhysical: anchor.sourceFile)?.logicalPath else {
+                throw ResourceError.rejected("save_thread_live_reader_source_mismatch")
+            }
+            scriptPath = path
+            let reference = try catalog.resolve(scriptPath)
+            guard reference.sourceFile.utf8.elementsEqual(anchor.sourceFile.utf8),
+                  reference.sourceSHA256 == anchor.sourceSHA256 else {
+                throw ResourceError.rejected("save_thread_live_reader_source_mismatch")
+            }
+        } else {
+            scriptPath = requestedPath ?? anchor.sourceFile
+            guard try ScriptModuleCatalog.key(scriptPath) == ScriptModuleCatalog.key(anchor.sourceFile) else {
+                throw ResourceError.rejected("save_thread_live_reader_source_mismatch")
+            }
+        }
+        let fields = try program.savedReaderFields(commandIndex: pc - 1, anchor: anchor, afterWaitCommand: wait.command)
+        let replacements = try storage.replacementOrder.map { key -> (String, String, Int32) in
+            guard let rule = storage.replacementRules[key], rule.key.hasPrefix("^") else {
+                throw ResourceError.rejected("saved_reader_replacement_outside_profile")
+            }
+            return (rule.key, rule.value, 0)
+        }
+        let reader = try SaveReaderCursor.encodeRecord(relativeLine: fields.line, utf16Position: fields.position,
+            replaceEnableByte: replacements.isEmpty ? 0 : 1, opaqueFields: readerOpaqueFields, lineBuffer: fields.text,
+            scriptPath: scriptPath, label: String(label.dropFirst(2)), textPrefix: storage.exceptTextPrefix ?? "",
+            emptyLineText: storage.noWordLineText ?? "", replacements: replacements)
+        let routines = try storage.frames.enumerated().map { index, frame in
+            let active = index == storage.frames.count - 1
+            var blocks: [Data] = []
+            if index > 0 {
+                guard let caller = frame.returnProgram, let destination = frame.returnIndex,
+                      destination > 0,
+                      caller.document.records.indices.contains(destination),
+                      let callerLabel = storage.frames[index - 1].entryLabel,
+                      caller.document.records[destination - 1].command.map(asciiLower) == "sub" else {
+                    throw ResourceError.rejected("save_thread_live_return_outside_profile")
+                }
+                let call = caller.document.records[destination - 1].location
+                let callerAnchor = caller.document.records[try caller.label(callerLabel)].location
+                guard let source = caller.sources[Data(call.sourceFile.utf8)] else {
+                    throw ResourceError.rejected("save_thread_live_return_outside_profile")
+                }
+                let path: String
+                if call.sourceFile == anchor.sourceFile, call.sourceSHA256 == anchor.sourceSHA256 {
+                    path = scriptPath
+                } else if let catalog = repository?.catalog,
+                          let entry = catalog.reference(forPhysical: call.sourceFile) {
+                    path = entry.logicalPath
+                    let reference = try catalog.resolve(path)
+                    guard reference.sourceFile == call.sourceFile, reference.sourceSHA256 == call.sourceSHA256 else {
+                        throw ResourceError.rejected("save_thread_live_return_source_mismatch")
+                    }
+                } else {
+                    throw ResourceError.rejected("save_thread_live_return_outside_profile")
+                }
+                let end = call.byteOffset + call.byteLength
+                let position = source.location(end..<end, line: call.lineNumber)
+                let fields = try SaveReaderCursor.sourceRecordFields(position: position, anchor: callerAnchor, source: source)
+                blocks = [try SaveReaderCursor.ControlBlock.encode(rawState: 1,
+                    rawValueAt38: fields.line, rawValueAt3C: fields.position,
+                    strings: [path, String(callerLabel.dropFirst(2))] + Array(repeating: "", count: 8))]
+            }
+            var scope = Array(repeating: "", count: 16)
+            if frame.tableScope == [ScriptStorage.effectHandle] { scope[0] = "eff" }
+            return try SaveReaderCursor.Routine.encode(scope: scope,
+                rawState: active ? wait.mode : 0, waitTime: active ? wait.remaining : 0,
+                skipTime: active ? wait.initial : 0, channel: 0,
+                jumpLabel: "", eventLabel: "", eventName: "", resultSnapshot: nil, controlBlocks: blocks)
+        }
+        return try SaveReaderCursor.encodeThread(routines: routines, reader: reader)
+    }
+
+    /// Encode the template's declared global bindings at the same suspension
+    /// boundary used for the experimental thread writer.
+    package func encodeTimedWaitGlobals(template: Data) throws -> Data {
+        guard liveSaveWait != nil else {
+            throw ResourceError.rejected("save_globals_live_wait_outside_profile")
+        }
+        let arrays = try SaveVariableArrays.readCalVal(state: template, at: 0)
+        let covered = Set(arrays.records.map { Data(asciiLower($0.textFields[0]).utf8) })
+        // Result registers are maintained by the interpreter and are separate
+        // from ordinary CalVal declarations in the saved routine format.
+        let resultKeys = Set(["resultint", "resultstr", "resultobj", "resultclkint", "resultsubint", "resultsubstr"]
+            .map { Data($0.utf8) })
+        let missing = Set(storage.global.keys).subtracting(covered).subtracting(resultKeys)
+        let newBindingKeys = missing.filter { SaveVariableArrays.generatedBindingType($0, in: storage) != nil }
+        let missingObjects = missing.subtracting(newBindingKeys)
+        guard missingObjects.isEmpty else {
+            var counts: [String: Int] = [:]
+            var visualElements: [String: Int] = [:]
+            for key in missingObjects {
+                let elements = storage.global[key]?.elements ?? []
+                let kinds = Set(elements.map { value -> String in
+                    guard case .object(let handle) = value else { return value.typeName }
+                    if let image = storage.images[handle] {
+                        visualElements[image.resource == nil ? "image_unbound" : "image_bound", default: 0] += 1
+                        return "image"
+                    }
+                    if storage.buttons.contains(handle) {
+                        visualElements[storage.buttonResources[handle] == nil ? "button_unbound" : "button_bound", default: 0] += 1
+                        return "button"
+                    }
+                    if storage.messages[handle] != nil { return "message" }
+                    if storage.tables[handle] != nil { return "table" }
+                    if storage.lists[handle] != nil { return "list" }
+                    if storage.timers[handle] != nil { return "timer" }
+                    return "object"
+                })
+                let kind = kinds.count > 1 ? "mixed" : (kinds.first ?? "empty")
+                counts[kind, default: 0] += 1
+            }
+            let detail = counts.merging(visualElements, uniquingKeysWith: +).sorted(by: { $0.key < $1.key }).map { "\($0.key)=\($0.value)" }.joined(separator: " ")
+            throw ResourceError.rejected("save_globals_template_missing_bindings: count=\(missingObjects.count) \(detail)")
+        }
+        return try SaveVariableArrays.encodeCalValValues(template: template, storage: storage, newBindingKeys: newBindingKeys)
+    }
+
+    package func encodeTimedWaitSystemFields(template: Data) throws -> Data {
+        guard liveSaveWait != nil else {
+            throw ResourceError.rejected("save_system_fields_live_wait_outside_profile")
+        }
+        return try SaveEngineState.replacingSystemFields(in: template, at: 0, names: storage.systemNameSlots,
+                                                         lockMask: storage.systemLockMask, customLockMask: storage.systemCustomLockMask)
+    }
+
+    package static func streamSaveChannelIndex(_ playbackHandle: UInt64) -> Int32? {
+        ScriptStorage.streamChannelIndex(playbackHandle)
+    }
+
+    package func encodeTimedWaitStreams(template: Data, positions: [Int32: Int32]) throws -> Data {
+        guard liveSaveWait != nil, let catalog = repository?.catalog else {
+            throw ResourceError.rejected("save_streams_live_wait_outside_profile")
+        }
+        let reader = try SaveReaderCursor(threadState: template)
+        let prefix = try SaveStatePrefix(state: template, after: reader)
+        return try prefix.replacingLiveStreams(in: template, storage: storage, catalog: catalog,
+                                               positions: positions)
+    }
+
+    /// Build an experimental slot in memory from a validated timed-wait snapshot.
+    package func encodeTimedWaitResearchSlot(template: Data, positions: [Int32: Int32],
+                                             displaySurfaces: [Int: Data] = [:],
+                                             metadata: [String], thumbnail: Data, savedDays: Double,
+                                             seed: UInt32? = nil, headerVerification: Data? = nil) throws -> Data {
+        let state = try assembleTimedWaitResearchState(template: template, positions: positions,
+                                                      displaySurfaces: displaySurfaces)
+        return try SaveEnvelope.encodeSlot(state: state, metadata: metadata, thumbnail: thumbnail,
+                                           savedDays: savedDays, seed: seed, headerVerification: headerVerification)
+    }
+
+    /// Research-only assembly against a parsed donor. Host captures can
+    /// replace embedded surfaces. Other image state remains template data.
+    package func assembleTimedWaitResearchState(template: Data, positions: [Int32: Int32],
+                                                displaySurfaces: [Int: Data] = [:]) throws -> Data {
+        guard template.count <= SaveEnvelope.maxFileBytes else {
+            throw ResourceError.rejected("save_research_template_size_limit")
+        }
+        let originalReader = try SaveReaderCursor(threadState: template)
+        let originalPrefix = try SaveStatePrefix(state: template, after: originalReader)
+        let audio = try encodeTimedWaitStreams(template: template, positions: positions)
+        var updated = originalPrefix.bypassingDonorDirectReloads(in: audio)
+        for (index, payload) in displaySurfaces.sorted(by: { $0.key < $1.key }) {
+            updated = try originalPrefix.replacingDisplaySurface(in: updated, index: index, payload: payload)
+        }
+        let calVal = try originalPrefix.locateCalVal(in: updated)
+        let globalEnd = try SaveVariableArrays.readCalVal(state: updated, at: calVal).nextDecodedOffset
+        let indexed = try SaveVariableArrays.encodeIndexedLocals(in: updated, at: globalEnd, frames: storage.frames)
+        func span(_ start: Int, _ end: Int) -> Data {
+            Data(updated[(updated.startIndex + start)..<(updated.startIndex + end)])
+        }
+        let opaqueStart = originalReader.decodedOffset + 13
+        let thread = try encodeTimedWaitThread(readerOpaqueFields: span(opaqueStart, opaqueStart + 64), allowsIndexedLocals: true)
+        let globals = try encodeTimedWaitGlobals(template: span(calVal, globalEnd)) + indexed.bytes
+        let tail = try encodeTimedWaitSystemFields(template: span(indexed.end, updated.count))
+        let middle = span(originalReader.nextDecodedOffset, calVal)
+        guard thread.count + middle.count + globals.count + tail.count <= SaveEnvelope.maxFileBytes else {
+            throw ResourceError.rejected("save_research_state_size_limit")
+        }
+        let state = thread + middle + globals + tail
+        let reader = try SaveReaderCursor(threadState: state)
+        let prefix = try SaveStatePrefix(state: state, after: reader)
+        let rebuiltCalVal = try prefix.locateCalVal(in: state)
+        let rebuiltArrays = try SaveVariableArrays.inspectCalVal(state: state, at: rebuiltCalVal)
+        let rebuiltEngine = rebuiltArrays.indexed.nextDecodedOffset ?? rebuiltArrays.nextDecodedOffset
+        guard reader.nextDecodedOffset == thread.count, rebuiltCalVal == thread.count + middle.count,
+              rebuiltEngine == rebuiltCalVal + globals.count,
+              try SaveEngineState(state: state, at: rebuiltEngine).status == .verified else {
+            throw ResourceError.rejected("save_research_state_section_boundary")
+        }
+        return state
+    }
+
     public var playbackStatus: (phase: ScriptMachinePhase, steps: Int, stopReason: String?, currentLocation: ScriptLocation?) {
         let records = program.document.records
         return (phase, executedSteps, stopReason, pc < records.count ? records[pc].location : nil)
@@ -2984,6 +3577,7 @@ public struct ScriptMachine: Sendable {
                     // The shipped sentence script selects mode 4 for mosaic.
                     candidate.fadeInMode = mode
                     candidate.fadeInDuration = duration
+                    candidate.fadeInStartTick = candidate.visualTicks
                     action = "effect_fade_in_request_candidate"
                 case "c":
                     guard record.fields.count <= 1,
@@ -3004,6 +3598,7 @@ public struct ScriptMachine: Sendable {
                     }
                     // The native capture helper preserves an existing capture.
                     if candidate.effectCapturePriority == nil || candidate.fadeInDuration != nil {
+                        replayEffectSurface = nil
                         candidate.effectCapturePriority = priority
                         candidate.fadeInMode = nil
                         candidate.fadeInDuration = nil
@@ -3089,6 +3684,7 @@ public struct ScriptMachine: Sendable {
                         action = "timed_wait_candidate"
                     } else {
                         clickWaitRemaining = countdown
+                        clickWaitInitial = countdown
                         phase = .waiting
                         action = "click_wait_enter_candidate"
                     }
@@ -3190,7 +3786,16 @@ public struct ScriptMachine: Sendable {
                         }
                         break
                     }
-                    if command == "s", candidate.frames.last!.tableScope == [ScriptStorage.temporaryDataHandle] {
+                    if candidate.frames.last!.tableScope == [ScriptStorage.temporaryDataHandle] {
+                        if command == "?g" {
+                            try arity(1)
+                            let name = Data(try callLabel().utf8)
+                            let exists = logJumpCheckpoints.contains { Data($0.name.utf8) == name }
+                            candidate.clearResultBindings()
+                            try candidate.resultInteger(exists ? 1 : 0)
+                            action = "temporary_checkpoint_query_candidate"
+                            break
+                        }
                         try arity(3)
                         let name = try callLabel()
                         let values = try (1...2).map { slot in
@@ -3548,7 +4153,7 @@ public struct ScriptMachine: Sendable {
                     let custom = command == "?lkc"
                     let mask = custom ? candidate.systemCustomLockMask : candidate.systemLockMask
                     candidate.clearResultBindings()
-                    try candidate.resultInteger(mask ?? 0)
+                    try candidate.resultInteger(mask)
                     action = custom ? "system_custom_lock_query_candidate" : "system_lock_query_candidate"
                 case "?mt":
                     try arity(0)
@@ -3793,6 +4398,14 @@ public struct ScriptMachine: Sendable {
                     if candidate.messages[handle] != nil { action = "message_position_query_candidate" }
 
                 case "d":
+                    if candidate.frames.last!.tableScope.count == 1,
+                       let handle = candidate.frames.last!.tableScope.first, candidate.timers[handle] != nil {
+                        try arity(0)
+                        // 0x6ac849 clears the enable byte; the next update clears elapsed time.
+                        candidate.timers[handle]?.enabled = false
+                        action = "timer_disable_candidate"
+                        break
+                    }
                     if candidate.frames.last!.tableScope == [ScriptStorage.memoryDataHandle] {
                         try arity(1)
                         memoryCheckpoints.removeValue(forKey: Data(try callLabel().utf8))
@@ -3838,9 +4451,11 @@ public struct ScriptMachine: Sendable {
                                     image.selectedMember = index
                                     image.motionStartTick = candidate.visualTicks
                                     image.motionElapsedBeforeSpeedChange = 0
+                                    image.restoredMotionRemainder = 0
                                 }
                             }
                             image.enabled = false
+                            image.savedDrawGate = nil
                             candidate.images[handle] = image
                             action = "image_disable_candidate"
                         } else {
@@ -3893,9 +4508,11 @@ public struct ScriptMachine: Sendable {
                             image.selectedMember = index
                             image.motionStartTick = candidate.visualTicks
                             image.motionElapsedBeforeSpeedChange = 0
+                            image.restoredMotionRemainder = 0
                         }
                     }
                     image.enabled = true
+                    image.savedDrawGate = nil
                     candidate.images[handle] = image
                     action = image.selectedMember == nil ? "image_enable_default_candidate" : "image_enable_candidate"
                 case "skp":
@@ -4150,6 +4767,17 @@ public struct ScriptMachine: Sendable {
                         candidate.movies[handle] = movie
                         action = "theora_placement_candidate"
                     }
+                case "?t":
+                    try arity(0)
+                    guard let handle = candidate.frames.last!.tableScope.first,
+                          candidate.frames.last!.tableScope.count == 1,
+                          let timer = candidate.timers[handle] else {
+                        throw ResourceError.rejected("timer_interval_query_requires_timer_scope")
+                    }
+                    // 0x6ac969 reads the interval set by 0x6ac954.
+                    candidate.clearResultBindings()
+                    try candidate.resultInteger(timer.interval)
+                    action = "timer_interval_query_candidate"
                 case "?tt":
                     try arity(0)
                     guard let handle = candidate.frames.last!.tableScope.first,
@@ -4421,9 +5049,11 @@ public struct ScriptMachine: Sendable {
                             // 0x6c7b30 forces a restart when the second operand is zero.
                             // The original evaluator returns zero for a missing operand (0x69bb17).
                             let restart = operands.count == 1 || operands[1] == 0
-                            if motionNames != nil, restart || image.selectedMember != operands[0] {
+                            if motionNames != nil || image.isTheoraResource,
+                               restart || image.selectedMember != operands[0] {
                                 image.motionStartTick = candidate.visualTicks
                                 image.motionElapsedBeforeSpeedChange = 0
+                                image.restoredMotionRemainder = 0
                             }
                             image.selectedMember = operands[0]
                             action = "image_member_selection_candidate"
@@ -5484,10 +6114,18 @@ public struct ScriptMachine: Sendable {
                     if imageBinding, asciiLower(path).hasPrefix(saveImagePrefix) {
                         let logical = asciiLower(path)
                         guard slot == 0, logical.hasSuffix(".bmp"),
-                              logical.count > saveImagePrefix.count + 4,
-                              let thumbnail = candidate.sessionSaveThumbnails[Data(
-                                logical.dropFirst(saveImagePrefix.count).dropLast(4).utf8)] else {
+                              logical.count > saveImagePrefix.count + 4 else {
                             throw ResourceError.rejected("save_thumbnail_binding_unavailable")
+                        }
+                        let key = Data(logical.dropFirst(saveImagePrefix.count).dropLast(4).utf8)
+                        guard let thumbnail = candidate.sessionSaveThumbnails[key] else {
+                            guard candidate.sessionSaveMetadata[key] != nil,
+                                  asciiLower(container.sourceFile).hasSuffix("/script/saveload/thumimage.b") else {
+                                throw ResourceError.rejected("save_thumbnail_binding_unavailable")
+                            }
+                            candidate.images[handle]?.boundImages.removeValue(forKey: slot)
+                            action = "session_save_thumbnail_embedded_placeholder"
+                            break
                         }
                         candidate.images[handle]?.boundImages[slot] = thumbnail
                         resourceLocation = thumbnail
@@ -5550,6 +6188,18 @@ public struct ScriptMachine: Sendable {
                     candidate.timers[handle]?.elapsed = 0
                     action = "timer_interval_candidate"
                 case "l", "?v":
+                    if command == "l", candidate.frames.last!.tableScope == [ScriptStorage.temporaryDataHandle] {
+                        try arity(1)
+                        let name = Data(try callLabel().utf8)
+                        guard !logJumpCheckpoints.contains(where: { Data($0.name.utf8) == name }) else {
+                            throw ResourceError.rejected("temporary_checkpoint_restore_unsupported")
+                        }
+                        // 0x6cc73e initializes the result to zero; only a successful restore sets it to one.
+                        candidate.clearResultBindings()
+                        try candidate.resultInteger(0)
+                        action = "temporary_checkpoint_restore_not_found"
+                        break
+                    }
                     if command == "l", candidate.frames.last!.tableScope == [ScriptStorage.saveDataHandle] {
                         savedDisplayPreview = nil
                         // This path is terminal until execution-state restore is
@@ -5569,9 +6219,30 @@ public struct ScriptMachine: Sendable {
                                 throw ResourceError.rejected("save_restore_slot_changed")
                             }
                             let inferred = inferSaveStateSeed ? try SaveEnvelope(bytes).slot?.transformed == true : false
-                            let seed = try saveHeaderTemplate.map { try SaveEnvelope.validatedSlotSeed(bytes, clearTemplate: $0) }
+                            let template = source.verifyHeader ? saveHeaderTemplate : nil
+                            let seed = try template.map { try SaveEnvelope.validatedSlotSeed(bytes, clearTemplate: $0) }
                             let state = try SaveEnvelope.decodeSlotState(bytes, seed: seed, inferSeed: inferred)
                             let cursor = try SaveReaderCursor(threadState: state)
+                            guard inspectSaveRestoreBoundary else {
+                                guard cursor.routines.count <= maximumFrames else {
+                                    throw ResourceError.rejected("saved_return_frame_limit")
+                                }
+                                _ = try cursor.validateRoutinePayloads(in: state)
+                                if var pinned = candidateRepository {
+                                    _ = try cursor.resolveResumeInstruction(in: state, repository: &pinned)
+                                    for routine in cursor.routines.dropFirst() {
+                                        guard let block = routine.controlBlocks.first, block.rawState == 1 else {
+                                            throw ResourceError.rejected("saved_return_block_unavailable")
+                                        }
+                                        let (_, instruction, _, _) = try SaveReaderCursor.routineReturnPosition(
+                                            block, in: state, repository: &pinned)
+                                        guard instruction != nil else {
+                                            throw ResourceError.rejected("saved_return_not_command_boundary")
+                                        }
+                                    }
+                                }
+                                throw ResourceError.rejected("save_restore_execution_state_unsupported")
+                            }
                             let snapshotCount = try cursor.validateRoutinePayloads(in: state)
                             saveResumeBoundary = SaveResumeBoundary(routineCount: cursor.routines.count,
                                 resultSnapshotCount: snapshotCount,
@@ -5579,8 +6250,11 @@ public struct ScriptMachine: Sendable {
                                 unresolvedResultObjectReferenceCount: cursor.routines.reduce(0) {
                                     $0 + $1.nonEmptyResultObjectReferenceCount
                                 }, variableArrays: nil)
+                            saveResumeBoundary?.unresolvedResultButtonReferenceCount = cursor.routines.count {
+                                ($0.resultButtonReference?.length ?? 0) > 0
+                            }
                             if inferred { saveResumeBoundary?.stateSeedInference = .inferred }
-                            if saveHeaderTemplate != nil { saveResumeBoundary?.slotHeaderVerification = .verified }
+                            if template != nil { saveResumeBoundary?.slotHeaderVerification = .verified }
                             var resumeInstruction: (program: ScriptProgram, index: Int, anchor: ScriptLocation)?
                             var savedReturns: [(program: ScriptProgram, index: Int, anchor: ScriptLocation)] = []
                             if var pinned = candidateRepository {
@@ -5617,9 +6291,8 @@ public struct ScriptMachine: Sendable {
                                     saveResumeBoundary?.routineReturnCandidates = returns
                                 }
                                 do {
-                                    let resolved = try cursor.resolveLabel(in: state, repository: &pinned)
-                                    let position = try resolved.program.sourcePosition(for: cursor, anchor: resolved.location)
-                                    let index = try resolved.program.savedResumeIndex(position, reader: cursor)
+                                    let resolved = try cursor.resolveResumeInstruction(in: state, repository: &pinned)
+                                    let index = resolved.index
                                     resumeInstruction = (resolved.program, index, resolved.location)
                                     saveResumeBoundary?.instructionIndex = index
                                     saveResumeBoundary?.location = resolved.program.document.records[index].location
@@ -5703,7 +6376,7 @@ public struct ScriptMachine: Sendable {
                                 if let rect = display.proceduralRect, display.postReplacementReloadRequested == false {
                                     savedDisplayPreview = .rectangle(rect)
                                 }
-                                if let reference = display.nestedImageLibrarySource, let repository = candidateRepository {
+                                if let reference = display.nestedImageLibrarySource, var repository = candidateRepository {
                                     do {
                                         let path = try reference.utf16Text(in: state)
                                         guard path.utf8.count <= 4096 else {
@@ -5713,11 +6386,7 @@ public struct ScriptMachine: Sendable {
                                             saveResumeBoundary?.nestedDisplayResourceCheck = .init(status: .unsupported,
                                                 issue: display.proceduralRectIssue ?? "saved_display_procedural_rect_unrestored")
                                         } else {
-                                            let source = try repository.catalog.resolve(path)
-                                            let data = try repository.directory.read(source.sourceFile, limit: 16 * 1024 * 1024)
-                                            guard data.sha256Hex == source.sourceSHA256 else {
-                                                throw ResourceError.rejected("module_source_identity")
-                                            }
+                                            let (source, data) = try repository.readResource(path, byteLimit: 16 * 1024 * 1024)
                                             let signature = InventoryScanner.signature(Data(data.prefix(16)))
                                             saveResumeBoundary?.nestedDisplayResourceCheck = .init(status: .inferred,
                                                 sourceSHA256: source.sourceSHA256, signature: signature)
@@ -5730,11 +6399,10 @@ public struct ScriptMachine: Sendable {
                                 if let reload = display.externalReload {
                                     var check = SaveResumeBoundary.DisplayResourceCheck(status: .notTested,
                                         issue: "saved_display_repository_unavailable")
-                                    if let repository = candidateRepository {
+                                    if var repository = candidateRepository {
                                         var sourceSHA256: String?
                                         do {
-                                            let (source, data) = try reload.readImage(in: state,
-                                                catalog: repository.catalog, directory: repository.directory)
+                                            let (source, data) = try reload.readImage(in: state, repository: &repository)
                                             sourceSHA256 = source.sourceSHA256
                                             if let loader = imageLoader {
                                                 let (width, height, _) = try loader(data)
@@ -5851,12 +6519,14 @@ public struct ScriptMachine: Sendable {
                                     saveResumeBoundary?.indexedScalarGroups = indexedGroups
                                 }
                                 saveResumeBoundary?.variableArrays = summary
-                                var savedVisualResources: [Int: ScriptLocation] = [:]
+                                var savedTextureData: [ScriptLocation: Data] = [:]
+                                var savedButtonSounds: [Int: [Int32: ScriptLocation]] = [:]
+                                var savedVisualResources: [Int: ScriptStorage.SavedImageResource] = [:]
                                 if !summary.buttonPayloads.isEmpty || !summary.imagePayloads.isEmpty {
                                     var remaining = 32 * 1024 * 1024
                                     func checkImage(offset: Int, source: SaveReaderCursor.Reference?) -> SaveResumeBoundary.SavedButtonImageCheck {
                                         var result: SaveResumeBoundary.NestedDisplayResourceCheck
-                                        if let reference = source, let repository = candidateRepository {
+                                        if let reference = source, var repository = candidateRepository {
                                             do {
                                                 guard remaining > 0 else {
                                                     throw ResourceError.rejected("saved_button_image_read_budget")
@@ -5865,22 +6535,29 @@ public struct ScriptMachine: Sendable {
                                                 guard path.utf8.count <= 4096 else {
                                                     throw ResourceError.rejected("saved_button_image_name_outside_profile")
                                                 }
-                                                let source = try repository.catalog.resolve(path)
-                                                let bytes = try repository.directory.read(source.sourceFile,
-                                                    limit: min(16 * 1024 * 1024, remaining))
+                                                let (source, bytes) = try repository.readResource(path,
+                                                    byteLimit: min(16 * 1024 * 1024, remaining))
                                                 remaining -= bytes.count
-                                                guard bytes.sha256Hex == source.sourceSHA256 else {
-                                                    throw ResourceError.rejected("saved_button_image_identity")
-                                                }
                                                 let signature = InventoryScanner.signature(Data(bytes.prefix(16)))
                                                 result = .init(status: .inferred, sourceSHA256: source.sourceSHA256,
                                                                signature: signature)
-                                                if let imageLoader, let (width, height, _) = try? imageLoader(bytes),
-                                                   (1...8192).contains(width), (1...8192).contains(height) {
-                                                    savedVisualResources[offset] = .init(
+                                                if let imageLoader, let (width, height, memberCount) = try? imageLoader(bytes) {
+                                                    let location = ScriptLocation(
                                                         sourceFile: source.sourceFile, sourceSHA256: source.sourceSHA256,
                                                         byteOffset: 0, byteLength: bytes.count,
                                                         rangeSHA256: source.sourceSHA256, lineNumber: 1)
+                                                    let motionCount = imageMotionNames?(location)?.count
+                                                    let motionOnly = width == 0 && height == 0 && memberCount == 0 &&
+                                                        (motionCount ?? 0) > 0
+                                                    if motionOnly || ((1...8192).contains(width) && (1...8192).contains(height)) {
+                                                        savedVisualResources[offset] = .init(location: location, width: width,
+                                                            height: height, memberCount: memberCount,
+                                                            hasExtendedContainerMetadata: bytes.starts(with: Data("abmp12".utf8)),
+                                                            motionCount: motionCount,
+                                                            motionUpdateThreshold: savedMotionUpdateThreshold?(location))
+                                                    } else {
+                                                        result.issue = "saved_button_image_decoder_or_dimensions"
+                                                    }
                                                 } else {
                                                     result.issue = "saved_button_image_decoder_or_dimensions"
                                                 }
@@ -5896,12 +6573,48 @@ public struct ScriptMachine: Sendable {
                                     if !summary.buttonPayloads.isEmpty {
                                         let checks = summary.buttonPayloads.map { checkImage(offset: $0.decodedOffset, source: $0.imageSource) }
                                         saveResumeBoundary?.savedButtonImageChecks = checks
+                                        func soundPath(_ path: String, catalog: ScriptModuleCatalog) throws -> String {
+                                            guard path.hasPrefix("..") else { return path }
+                                            guard let source = resumeInstruction?.program.document.source.relativePath else {
+                                                throw ResourceError.rejected("saved_button_sound_module_unresolved")
+                                            }
+                                            return try catalog.relativeResourcePath(path, currentSourceFile: source)
+                                        }
+                                        var soundChecks: [SaveResumeBoundary.SavedTextureBindingCheck] = []
+                                        for button in summary.buttonPayloads {
+                                            for (slot, name) in button.soundNames.prefix(2).enumerated() where name.length > 0 {
+                                                let offset = button.decodedOffset
+                                                guard name.length <= 8192, remaining > 0,
+                                                      let path = try? name.utf16Text(in: state),
+                                                      var repository = candidateRepository,
+                                                      let logical = try? soundPath(path, catalog: repository.catalog),
+                                                      let (reference, bytes) = try? repository.readResource(logical,
+                                                        byteLimit: min(remaining, 8 * 1024 * 1024)) else {
+                                                    soundChecks.append(.init(objectOffset: offset, slot: slot,
+                                                        status: .unsupported, issue: "saved_button_sound_source_unresolved"))
+                                                    continue
+                                                }
+                                                remaining -= bytes.count
+                                                guard bytes.count >= 12, bytes.prefix(4) == Data("RIFF".utf8),
+                                                      bytes.dropFirst(8).prefix(4) == Data("WAVE".utf8) else {
+                                                    soundChecks.append(.init(objectOffset: offset, slot: slot,
+                                                        status: .unsupported, issue: "saved_button_sound_requires_wave"))
+                                                    continue
+                                                }
+                                                savedButtonSounds[offset, default: [:]][Int32(slot)] =
+                                                    reference.wholeFileLocation(byteLength: bytes.count)
+                                                soundChecks.append(.init(objectOffset: offset, slot: slot, status: .inferred, issue: nil))
+                                            }
+                                        }
+                                        if !soundChecks.isEmpty { saveResumeBoundary?.savedButtonSoundBindings = soundChecks }
                                     }
                                     if !summary.imagePayloads.isEmpty {
                                         saveResumeBoundary?.savedImageFixedRecords = summary.imagePayloads.map(\.fixedRecord)
                                         saveResumeBoundary?.savedImageVisibility = summary.imagePayloads.map {
-                                            .init(objectDecodedOffset: $0.decodedOffset, drawGate: $0.drawGate,
-                                                  enableFlag: $0.enableFlag)
+                                            .init(objectDecodedOffset: $0.decodedOffset,
+                                                  drawGateDecodedOffset: $0.fixedRecord.decodedOffset + 0x9f9,
+                                                  enableFlagDecodedOffset: $0.fixedRecord.decodedOffset + 0x9fa,
+                                                  drawGate: $0.drawGate, enableFlag: $0.enableFlag)
                                         }
                                         saveResumeBoundary?.savedImageStaticPlacements = Dictionary(uniqueKeysWithValues:
                                             summary.imagePayloads.compactMap { image in
@@ -5909,6 +6622,64 @@ public struct ScriptMachine: Sendable {
                                             })
                                         let checks = summary.imagePayloads.map { checkImage(offset: $0.decodedOffset, source: $0.imageSource) }
                                         saveResumeBoundary?.savedImageResourceChecks = checks
+                                    }
+                                    if !summary.buttonPayloads.isEmpty || !summary.imagePayloads.isEmpty {
+                                        // The original reload pass calls 0x5ae808 for named slots 0–31.
+                                        // Only the player's existing ordinary raster binding is staged here.
+                                        let owners = summary.imagePayloads.map { ($0.decodedOffset, $0.textureSlots) } +
+                                            summary.buttonPayloads.map { ($0.decodedOffset, $0.textureSlots.filter { (0...1).contains($0.index) }) }
+                                        let bindings = owners.flatMap { offset, slots in
+                                            slots.map { slot -> SaveResumeBoundary.SavedTextureBindingCheck in
+                                                guard savedVisualResources[offset] != nil, (0..<32).contains(slot.index),
+                                                      let name = slot.name, name.length <= 8192, remaining > 0,
+                                                      let path = try? name.utf16Text(in: state) else {
+                                                    return .init(objectOffset: offset, slot: slot.index, status: .unsupported,
+                                                                 issue: "saved_texture_slot_or_source_unresolved")
+                                                }
+                                                let bytes: Data
+                                                let location: ScriptLocation
+                                                if slot.embeddedLength > 0 {
+                                                    let suffix = asciiLower((path as NSString).pathExtension)
+                                                    let expected = SaveStatePrefix.imageDecoder(for: path)
+                                                    guard let expected, slot.embeddedLength <= min(remaining, 16 * 1024 * 1024),
+                                                          slot.embeddedOffset >= 0, slot.embeddedOffset <= state.count,
+                                                          slot.embeddedLength <= state.count - slot.embeddedOffset else {
+                                                        return .init(objectOffset: offset, slot: slot.index, status: .unsupported,
+                                                                     issue: "saved_embedded_texture_bounds_or_decoder")
+                                                    }
+                                                    let start = state.startIndex + slot.embeddedOffset
+                                                    bytes = Data(state[start..<(start + slot.embeddedLength)])
+                                                    guard SaveStatePrefix.imageDecoder(expected, accepts: InventoryScanner.signature(Data(bytes.prefix(16)))) else {
+                                                        return .init(objectOffset: offset, slot: slot.index, status: .unsupported,
+                                                                     issue: "saved_embedded_texture_signature_mismatch")
+                                                    }
+                                                    let digest = bytes.sha256Hex
+                                                    location = ScriptModuleReference(logicalPath: "saved-texture/\(digest).\(suffix)",
+                                                        sourceFile: "saved-texture/\(digest).\(suffix)", sourceSHA256: digest)
+                                                        .wholeFileLocation(byteLength: bytes.count)
+                                                } else {
+                                                    guard var repository = candidateRepository,
+                                                          let (reference, resource) = try? repository.readResource(path,
+                                                            byteLimit: min(remaining, 16 * 1024 * 1024)) else {
+                                                        return .init(objectOffset: offset, slot: slot.index, status: .unsupported,
+                                                                     issue: "saved_texture_slot_or_source_unresolved")
+                                                    }
+                                                    bytes = resource
+                                                    location = reference.wholeFileLocation(byteLength: bytes.count)
+                                                }
+                                                remaining -= bytes.count
+                                                guard ["PNG", "JPEG", "BMP", "DPNG"].contains(InventoryScanner.signature(Data(bytes.prefix(16)))),
+                                                      let dimensions = try? imageLoader?(bytes),
+                                                      (1...8192).contains(dimensions.0), (1...8192).contains(dimensions.1) else {
+                                                    return .init(objectOffset: offset, slot: slot.index, status: .unsupported,
+                                                                 issue: "saved_texture_raster_unsupported")
+                                                }
+                                                savedVisualResources[offset]?.boundTextures[Int32(slot.index)] = location
+                                                if slot.embeddedLength > 0 { savedTextureData[location] = bytes }
+                                                return .init(objectOffset: offset, slot: slot.index, status: .inferred, issue: nil)
+                                            }
+                                        }
+                                        if !bindings.isEmpty { saveResumeBoundary?.savedTextureBindings = bindings }
                                     }
                                 }
                                 var staged: ScriptStorage?
@@ -5926,9 +6697,14 @@ public struct ScriptMachine: Sendable {
                                             }
                                         }
                                     }
+                                    scalars.savedTextureData = savedTextureData
                                     scalars.configuration = candidate.configuration
                                     scalars.fileLogValues = candidate.fileLogValues
                                     scalars.lineLogValues = candidate.lineLogValues
+                                    // Slot availability belongs to the host session, not the saved execution stack.
+                                    scalars.sessionSaveNames = candidate.sessionSaveNames
+                                    scalars.sessionSaveMetadata = candidate.sessionSaveMetadata
+                                    scalars.sessionSaveThumbnails = candidate.sessionSaveThumbnails
                                     scalars.effectCapturePriority = display.capturePriority
                                     staged = scalars
                                     saveResumeBoundary?.stagedGlobalScalarCount = scalars.global.count
@@ -5944,7 +6720,9 @@ public struct ScriptMachine: Sendable {
                                 }
                                 do {
                                     saveResumeBoundary?.stagedGlobalButtonIdentityArrayCount =
-                                        try staged?.stageSavedGlobalButtonIdentities(arrays, resources: savedVisualResources)
+                                        try staged?.stageSavedGlobalButtonIdentities(arrays, resources: savedVisualResources.mapValues(\.location),
+                                            textures: savedVisualResources.mapValues(\.boundTextures), sounds: savedButtonSounds,
+                                            savedState: state, program: resumeInstruction?.program)
                                 } catch {
                                     saveResumeBoundary?.globalButtonIdentityIssue = String(describing: error)
                                 }
@@ -5953,6 +6731,13 @@ public struct ScriptMachine: Sendable {
                                         try staged?.stageSavedGlobalImageIdentities(arrays, resources: savedVisualResources)
                                 } catch {
                                     saveResumeBoundary?.globalImageIdentityIssue = String(describing: error)
+                                }
+                                if saveResumeBoundary?.globalImageIdentityIssue == nil,
+                                   let image = summary.imagePayloads.first(where: {
+                                       $0.drawGate != 0 && savedVisualResources[$0.decodedOffset] == nil
+                                   }) {
+                                    saveResumeBoundary?.globalImageIdentityIssue =
+                                        "saved_drawable_image_resource_unrestored:\(image.decodedOffset)"
                                 }
                                 // A single root snapshot can share the isolated restored global storage.
                                 // Multiple routines require a verified mapping to live interpreter frames.
@@ -5972,11 +6757,18 @@ public struct ScriptMachine: Sendable {
                                         saveResumeBoundary?.rootResultObjectIssue = "save_result_object_identity_unresolved"
                                     }
                                 }
+                                do {
+                                    saveResumeBoundary?.stagedGlobalInactiveTimerArrayCount =
+                                        try staged?.stageSavedInactiveTimers(arrays)
+                                } catch {
+                                    saveResumeBoundary?.globalTimerIdentityIssue = String(describing: error)
+                                }
                                 let stagedObjectCount = (saveResumeBoundary?.stagedGlobalListCount ?? 0)
                                     + (saveResumeBoundary?.stagedGlobalTableCount ?? 0)
                                 let unstagedObjects = summary.objectArrayCount - stagedObjectCount
                                     - (saveResumeBoundary?.stagedGlobalButtonIdentityArrayCount ?? 0)
                                     - (saveResumeBoundary?.stagedGlobalImageIdentityArrayCount ?? 0)
+                                    - (saveResumeBoundary?.stagedGlobalInactiveTimerArrayCount ?? 0)
                                 saveResumeBoundary?.unstagedGlobalObjectArrayCount = unstagedObjects
                                 if summary.absentValueCount != 0 {
                                     saveResumeBoundary?.firstAbsentGlobalBindingOffset = arrays.records.first {
@@ -5985,8 +6777,15 @@ public struct ScriptMachine: Sendable {
                                     }?.decodedOffset
                                 }
                                 let storageIssue: String?
-                                if unstagedObjects != 0 {
+                                if let issue = saveResumeBoundary?.globalScalarIssue ??
+                                    saveResumeBoundary?.globalTextObjectIssue ??
+                                    saveResumeBoundary?.globalButtonIdentityIssue ??
+                                    saveResumeBoundary?.globalTimerIdentityIssue {
+                                    storageIssue = issue
+                                } else if unstagedObjects != 0 {
                                     storageIssue = "save_global_object_arrays_unrestored"
+                                } else if let issue = saveResumeBoundary?.globalImageIdentityIssue {
+                                    storageIssue = issue
                                 } else if summary.absentValueCount != 0 {
                                     storageIssue = "save_global_absent_bindings_unrestored"
                                 } else if !indexedFrameScalarsAvailable {
@@ -6017,33 +6816,21 @@ public struct ScriptMachine: Sendable {
                                         saveResumeBoundary?.stagedSystemNameSlotCount = staged?.systemNameSlots.count
                                     }
                                 }
-                                let textPrefix = try cursor.textPrefix.utf16Text(in: state)
-                                let emptyPrefix = try cursor.emptyLineText.utf16Text(in: state)
-                                let readerPrefixesSupported = [textPrefix, emptyPrefix].allSatisfy { prefix in
-                                    prefix.utf8.count <= 8192 &&
-                                        !prefix.unicodeScalars.contains { $0.value < 32 }
-                                }
-                                if readerPrefixesSupported {
-                                    staged?.exceptTextPrefix = textPrefix.isEmpty ? nil : textPrefix
-                                    staged?.noWordLineText = emptyPrefix.isEmpty ? nil : emptyPrefix
-                                } else if storageIssue == nil {
-                                    saveResumeBoundary?.isolatedStorageIssue = "saved_reader_prefix_outside_profile"
+                                var readerPrefixesSupported = true
+                                do {
+                                    var readerStorage = staged ?? ScriptStorage()
+                                    try readerStorage.restoreReaderPrefixes(cursor, in: state)
+                                    if staged != nil { staged = readerStorage }
+                                } catch ResourceError.rejected("saved_reader_prefix_outside_profile") {
+                                    readerPrefixesSupported = false
+                                    if storageIssue == nil {
+                                        saveResumeBoundary?.isolatedStorageIssue = "saved_reader_prefix_outside_profile"
+                                    }
                                 }
                                 var readerRulesSupported = true
                                 if cursor.replaceEnableByte != 0, var readerStorage = staged {
                                     do {
-                                        guard cursor.replacements.count <= 512 else {
-                                            throw ResourceError.rejected("saved_reader_replacement_limit")
-                                        }
-                                        for rule in cursor.replacements {
-                                            let key = try rule.firstText.utf16Text(in: state)
-                                            let value = try rule.secondText.utf16Text(in: state)
-                                            guard rule.rawField == 0, key.hasPrefix("^"),
-                                                  readerStorage.replacementRules[Data(asciiLower(key).utf8)] == nil else {
-                                                throw ResourceError.rejected("saved_reader_replacement_outside_profile")
-                                            }
-                                            try readerStorage.registerReplacement(key: key, value: value)
-                                        }
+                                        try readerStorage.restoreReaderReplacements(cursor, in: state)
                                         staged = readerStorage
                                     } catch {
                                         readerRulesSupported = false
@@ -6057,16 +6844,33 @@ public struct ScriptMachine: Sendable {
                                     drawPreview = { try handler(preview) }
                                 }
                                 let activeRoutine = cursor.routines.last
-                                let savedWait = activeRoutine.flatMap { $0.rawState == 3 ? $0.waitTime : nil }
-                                let activeRoutineCanResume = activeRoutine?.rawState == 0 || (savedWait ?? -1) >= 0
+                                let savedWait: Int32? = activeRoutine.flatMap { routine in
+                                    if routine.rawState == 3, routine.waitTime >= 0 { return routine.waitTime }
+                                    if routine.rawState == 4,
+                                       (routine.waitTime == -1 && routine.skipTime == -1) ||
+                                       (routine.waitTime >= 0 && routine.waitTime <= routine.skipTime) {
+                                        return routine.waitTime
+                                    }
+                                    return nil
+                                }
+                                let activeRoutineCanResume = activeRoutine?.rawState == 0 || savedWait != nil
+                                let restoredScopes = try? cursor.routines.map { routine -> [UInt64] in
+                                    if routine.scope.allSatisfy({ $0.length == 0 }) { return [] }
+                                    guard let first = routine.scope.first,
+                                          routine.scope.dropFirst().allSatisfy({ $0.length == 0 }),
+                                          asciiLower(try first.utf16Text(in: state)) == "eff" else {
+                                        throw ResourceError.rejected("saved_routine_scope_outside_profile")
+                                    }
+                                    return [ScriptStorage.effectHandle]
+                                }
                                 if var staged, let target = resumeInstruction,
                                    (2...maximumFrames).contains(cursor.routines.count),
                                    savedReturns.count == cursor.routines.count - 1,
                                    !cursor.routines[0].hasResultSnapshot,
                                    activeRoutineCanResume, cursor.routines.dropLast().allSatisfy({ $0.rawState == 0 }),
                                    cursor.routines.allSatisfy({
-                                       $0.nonEmptyResultObjectReferenceCount == 0 && ($0.resultButtonReference?.length ?? 0) == 0 &&
-                                       $0.scope.allSatisfy { $0.length == 0 } }),
+                                       $0.nonEmptyResultObjectReferenceCount == 0 && ($0.resultButtonReference?.length ?? 0) == 0 }),
+                                   let restoredScopes,
                                    cursor.routines[0].controlBlocks.isEmpty,
                                    cursor.routines.dropFirst().allSatisfy({ $0.controlBlocks.count == 1 }),
                                    storageIssue == nil, readerPrefixesSupported, readerRulesSupported,
@@ -6082,11 +6886,19 @@ public struct ScriptMachine: Sendable {
                                             let routine = cursor.routines[index + 1]
                                             staged.frames[index + 1].savedReturnScalars = try routine.savedResultScalars(in: state)
                                         }
+                                        for (index, scope) in restoredScopes.enumerated() {
+                                            staged.frames[index].tableScope = scope
+                                        }
                                         try staged.validate()
                                         saveResumeBoundary?.isolatedReturnScalarFrameCount = staged.frames.count {
                                             $0.savedReturnScalars != nil
                                         }
                                         saveResumeBoundary?.isolatedCallFrameStatus = .inferred
+                                        if retainExperimentalSaveCandidate {
+                                            savedExecutionCandidate = .init(program: target.program, index: target.index,
+                                                storage: staged, repository: candidateRepository, wait: savedWait,
+                                                clickInitial: activeRoutine?.rawState == 4 ? activeRoutine?.skipTime : nil)
+                                        }
                                         var continuation = try Self.probeSavedCalculations(
                                             program: target.program, index: target.index, storage: staged,
                                             repository: candidateRepository, savedWait: savedWait, drawPreview: drawPreview, drawScene: savedSceneDrawHandler, eventSampleTicks: savedEventSampleTicks,
@@ -6103,13 +6915,14 @@ public struct ScriptMachine: Sendable {
                                 }
                                 if cursor.routines.count == 1, var staged, let target = resumeInstruction, let root,
                                    activeRoutineCanResume,
-                                   root.scope.allSatisfy({ $0.length == 0 }),
+                                   let scope = restoredScopes?.first,
                                    root.nonEmptyResultObjectReferenceCount == 0,
                                    (root.resultButtonReference?.length ?? 0) == 0,
                                    storageIssue == nil, readerPrefixesSupported, readerRulesSupported,
                                    saveResumeBoundary?.globalTextObjectIssue == nil,
                                    saveResumeBoundary?.rootResultScalarIssue == nil {
                                     staged.frames[0].locals = frameLocals[0] ?? [:]
+                                    staged.frames[0].tableScope = scope
                                     try staged.validate()
                                     var canProbe = root.controlBlocks.isEmpty
                                     if !canProbe {
@@ -6140,6 +6953,11 @@ public struct ScriptMachine: Sendable {
                                         }
                                     }
                                     if canProbe {
+                                        if retainExperimentalSaveCandidate {
+                                            savedExecutionCandidate = .init(program: target.program, index: target.index,
+                                                storage: staged, repository: candidateRepository, wait: savedWait,
+                                                clickInitial: activeRoutine?.rawState == 4 ? activeRoutine?.skipTime : nil)
+                                        }
                                         var continuation = try Self.probeSavedCalculations(
                                             program: target.program, index: target.index, storage: staged,
                                             repository: candidateRepository, savedWait: savedWait, drawPreview: drawPreview, drawScene: savedSceneDrawHandler, eventSampleTicks: savedEventSampleTicks,
@@ -6256,6 +7074,7 @@ public struct ScriptMachine: Sendable {
                         if path.isEmpty, var image = candidate.images[handle] {
                             // The nil filename branch at 0x5ad775 releases the image payload.
                             image.resource = nil
+                            image.isTheoraResource = false
                             image.resourceLoadLocation = nil
                             image.boundImages.removeAll()
                             image.hasExtendedContainerMetadata = false
@@ -6265,6 +7084,8 @@ public struct ScriptMachine: Sendable {
                             image.height = nil
                             image.selectedMember = nil
                             image.motionStartTick = nil
+                            image.restoredMotionThreshold = nil
+                            image.restoredMotionRemainder = 0
                             image.memberCount = 0
                             candidate.images[handle] = image
                             action = "image_empty_path_release_candidate"
@@ -6310,6 +7131,8 @@ public struct ScriptMachine: Sendable {
                             image.extendedDefaultsPrepared = false
                             image.extendedScalarValues.removeAll()
                             image.resource = resourceLocation
+                            image.isTheoraResource = data.starts(with: Data("OggS".utf8)) &&
+                                (try? ScriptMovieHeader.theoraDimensions(data)) != nil
                             image.resourceLoadLocation = record.location
                             image.boundImages.removeAll()
                             // A decoded standalone image has no ABMP extended data table.
@@ -6319,6 +7142,8 @@ public struct ScriptMachine: Sendable {
                             image.memberCount = memberCount
                             image.selectedMember = nil
                             image.motionStartTick = nil
+                            image.restoredMotionThreshold = nil
+                            image.restoredMotionRemainder = 0
                             candidate.images[handle] = image
                             action = "image_load_candidate"
                         }
@@ -6551,6 +7376,8 @@ public struct ScriptMachine: Sendable {
                         throw ResourceError.rejected("restart_target_inside_control_block")
                     }
                     candidate.frames = [ScriptFrame(returnIndex: nil, entryLabel: "@@reset")]
+                    // 0x6d50be calls 0x5a0ff4, which resets both audio banks.
+                    candidate.soundChannels.removeAll()
                     candidate.timers.removeAll()
                     logJumpCheckpoints.removeAll()
                     memoryCheckpoints.removeAll()
@@ -6699,6 +7526,8 @@ public struct ScriptMachine: Sendable {
                     action = Data(nextProgram.document.source.relativePath.utf8) == Data(program.document.source.relativePath.utf8) ? "local_return" : "module_return"
                     if let suspended = timerReturn, suspended.depth == candidate.frames.count {
                         phase = suspended.phase
+                        clickWaitRemaining = suspended.clickWait
+                        clickWaitInitial = suspended.clickInitial
                         timerReturn = nil
                     }
                     if stopCallbackFrameDepth == candidate.frames.count {
