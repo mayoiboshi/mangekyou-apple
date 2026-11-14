@@ -590,13 +590,29 @@ struct LoadThumbnailPass: Encodable {
                               layer.fractionalScalePercent == nil else {
                             throw ResourceError.rejected("scene_video_frame_layer_outside_profile")
                         }
-                        let frame = try ResourceImage.decode(sceneVideoFrame(layer.resource, ticks))
+                        let frameData = try sceneVideoFrame(layer.resource, ticks)
+                        let frame = try ResourceImage.decode(frameData)
                         let width = CGFloat(frame.image.width), height = CGFloat(frame.image.height)
                         let bounds = CGRect(x: CGFloat(layer.x) - (width * CGFloat(layer.alignmentXPercent) / 100).rounded(),
                                             y: CGFloat(layer.y) - (height * CGFloat(layer.alignmentYPercent) / 100).rounded(),
                                             width: width, height: height)
-                        let covered = try frame.drawRasterPreview(bounds: bounds, opacity: layer.opacity,
-                            flipX: false, flipY: false, interpolation: .none, canvas: &canvas)
+                        let directOpaqueVideoFrame = sceneDepthOrderCandidate && layer.opacity == 255 &&
+                            bounds.origin == .zero && bounds.size.width == CGFloat(canvas.first?.count ?? 0) &&
+                            bounds.size.height == CGFloat(canvas.count) && frame.image.width == (canvas.first?.count ?? 0) &&
+                            frame.image.height == canvas.count
+                        let covered: Bool
+                        if directOpaqueVideoFrame,
+                           let rows = try? ResourceImage.opaquePNGCanvasPixels(frameData,
+                               width: canvas.first?.count ?? 0, height: canvas.count) {
+                            // The full-size FFmpeg PNG is already an opaque RGBA raster. Keep
+                            // its decoded channel values out of a DeviceRGB CGContext; the
+                            // prior drawRasterPreview path applied a measurable channel shift.
+                            for y in rows.indices { canvas[y] = rows[y] }
+                            covered = true
+                        } else {
+                            covered = try frame.drawRasterPreview(bounds: bounds, opacity: layer.opacity,
+                                flipX: false, flipY: false, interpolation: .none, canvas: &canvas)
+                        }
                         sceneVideoTicks.append(ticks)
                         if frozen { sceneVideoFrozenCount += 1 }
                         if explicitTicks != nil { explicitVideoSamples.append(ticks) }

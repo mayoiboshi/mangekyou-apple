@@ -1008,6 +1008,15 @@ final class ResourceTests: XCTestCase {
         XCTAssertEqual(boundCanvas, [[SIMD4(0, 0, 255, 255)]])
     }
 
+    func testOpaquePNGCanvasPixelsPreserveDecoderChannels() throws {
+        let opaque = try png([140, 77, 101, 255, 3, 211, 17, 255], width: 2, height: 1)
+        XCTAssertEqual(try ResourceImage.opaquePNGCanvasPixels(opaque, width: 2, height: 1),
+                       [[SIMD4(140, 77, 101, 255), SIMD4(3, 211, 17, 255)]])
+        XCTAssertThrowsError(try ResourceImage.opaquePNGCanvasPixels(
+            png([140, 77, 101, 128]), width: 1, height: 1))
+        XCTAssertThrowsError(try ResourceImage.opaquePNGCanvasPixels(opaque, width: 1, height: 1))
+    }
+
     func testABMPRecipeDrawsVerifiedDPNGMember() throws {
         let red = try png([255, 0, 0, 255])
         let payload = dpng([(1, 0, 1, 1, red, 0)], width: 3, height: 2)

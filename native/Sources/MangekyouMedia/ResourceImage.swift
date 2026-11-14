@@ -363,6 +363,19 @@ public struct ResourceImage: Sendable {
         }
     }
 
+    /// Return an opaque PNG as top-down RGBA bytes without drawing through a color-managed context.
+    package static func opaquePNGCanvasPixels(_ data: Data, width: Int, height: Int) throws -> [[SIMD4<UInt8>]] {
+        guard (1...4096).contains(width), (1...4096).contains(height), height <= 16_777_216 / width else {
+            throw ResourceError.rejected("opaque_png_canvas_dimensions")
+        }
+        let bgra = try straightPNGPixels(data)
+        guard bgra.count == height, bgra.allSatisfy({ $0.count == width }),
+              bgra.allSatisfy({ row in row.allSatisfy { $0.w == 255 } }) else {
+            throw ResourceError.rejected("opaque_png_canvas_requires_full_opaque_raster")
+        }
+        return bgra.map { row in row.map { SIMD4($0.z, $0.y, $0.x, 255) } }
+    }
+
     /// Build an opaque CPU destination from an already decoded background image.
     package func opaqueCanvas(over background: CGColor) throws -> [[SIMD4<UInt8>]] {
         let width = image.width
