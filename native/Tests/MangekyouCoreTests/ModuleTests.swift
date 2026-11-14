@@ -3,6 +3,36 @@ import Foundation
 @testable import MangekyouCore
 
 final class ModuleTests: XCTestCase {
+    func testParentRelativeIncludeStaysInCatalogAndUsesLookupOrder() throws {
+        try temporary { root in
+            let main = try write(root, "dir/deep/root.s", "\\gvar,int,#sum\n@@@..\\child.s\n\\cal,#sum=#sum+1")
+            let child = try write(root, "dir/child.s", "\\cal,#sum=7")
+            let fallback = try write(root, "common/target.s", "@@Work\n\\ret")
+            let catalog = try ScriptModuleCatalog(entries: [main, child, fallback],
+                indexedResourceNames: ["dir/child.s", "common/target.s", "dir/deep/common/target.s"])
+            XCTAssertEqual(try catalog.resourcePath("..\\child.s", currentSourceFile: main.sourceFile), "dir/child.s")
+            XCTAssertEqual(try catalog.resourcePath("unused/../common/target.s", currentSourceFile: main.sourceFile),
+                           "dir/deep/common/target.s")
+            let noNearIndex = try ScriptModuleCatalog(entries: [main, child, fallback])
+            XCTAssertEqual(try noNearIndex.resourcePath("unused/../common/target.s", currentSourceFile: main.sourceFile),
+                           "common/target.s")
+            XCTAssertThrowsError(try catalog.resourcePath("../../../outside.s", currentSourceFile: main.sourceFile))
+            XCTAssertThrowsError(try catalog.resourcePath("../child.s/", currentSourceFile: main.sourceFile))
+            let result = try machine(root, [main, child, fallback])
+            XCTAssertEqual(result.phase, .finished)
+            XCTAssertEqual(try result.value(named: "#sum"), .integer(8))
+        }
+    }
+    func testFileExistenceRejectsDirectoryTraversalAndTreatsSafeDirectoryAsAbsent() throws {
+        let ref = ScriptModuleReference(logicalPath: "root.s", sourceFile: "root.s",
+                                        sourceSHA256: Data("root".utf8).sha256Hex)
+        let indexed = try ScriptModuleCatalog(entries: [ref], indexedResourceNames: ["images/example.png"])
+        XCTAssertFalse(try indexed.resourceExists("images\\", currentSourceFile: "root.s"))
+        XCTAssertThrowsError(try indexed.resourceExists("images\\..\\", currentSourceFile: "root.s"))
+        XCTAssertThrowsError(try indexed.resourceExists("/", currentSourceFile: "root.s"))
+        let unindexed = try ScriptModuleCatalog(entries: [ref])
+        XCTAssertThrowsError(try unindexed.resourceExists("images/", currentSourceFile: "root.s"))
+    }
     func temporary(_ body: (URL) throws -> Void) throws {
         let base = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
         let url = base.appendingPathComponent(".build/owned-modules/" + UUID().uuidString)

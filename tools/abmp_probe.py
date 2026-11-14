@@ -196,6 +196,9 @@ def inspect_container(data, upstream, budget=None, chain=None, depth=0, include_
             version, width, height = struct.unpack_from('<iii', decoded, 8)
             if version == 1:
                 item['motion_canvas_inputs'] = dict(decoded_offset=12, width=width, height=height)
+                # 0x594dba–0x594dd5 reads duration and loop-start fields.
+                duration, loop_start = struct.unpack_from('<ii', decoded, 20)
+                item['motion_duration_inputs'] = dict(decoded_offset=20, duration=duration, loop_start=loop_start)
                 # 0x594dde reads the last header word into resource +0x38.
                 raw_threshold, = struct.unpack_from('<i', decoded, 28)
                 item['motion_update_threshold'] = dict(
@@ -226,7 +229,7 @@ def inspect_container(data, upstream, budget=None, chain=None, depth=0, include_
                         motions.append(match)
                         offset = match.end()
                         size = int.from_bytes(decoded[offset:offset+2], 'little')
-                        if not 0 < size <= 256 or offset+2+size >= len(decoded):
+                        if size > 256 or offset+2+size >= len(decoded):
                             break
                         try:
                             names.append(decoded[offset+2:offset+2+size].decode('cp932'))
@@ -318,6 +321,20 @@ def inspect_container(data, upstream, budget=None, chain=None, depth=0, include_
                                                 alpha = (struct.unpack_from('<i', decoded, key+0xc4)[0]
                                                          if version == 'ablayer21' else
                                                          struct.unpack_from('<h', decoded, key+0x35)[0])
+                                                # 0x58d85e/0x58d88e/0x58d8a4 copy these
+                                                # converted fields into the draw record; 0x58c358
+                                                # evaluates +0xc8 and 0x58c370 copies +0xcc.
+                                                # Preserve raw values on every key because the next
+                                                # key may supply an interpolation endpoint.
+                                                if version == 'ablayer21':
+                                                    dual = [struct.unpack_from('<i', decoded, key+offset)[0]
+                                                            for offset in (0x10, 0x14, 0x18, 0xc8, 0xcc)]
+                                                else:
+                                                    dual = [decoded[key+0x94], decoded[key+0x92], decoded[key+0x95],
+                                                            struct.unpack_from('<h', decoded, key+0x37)[0], decoded[key+0x3a]]
+                                                image_fields['dual_texture_raw_inputs'] = dict(layout=version,
+                                                    output_b1=dual[0], output_ac=dual[1], output_b2=dual[2],
+                                                    key_c8=dual[3], key_cc=dual[4])
                                                 if image_fields['type'] == 1:
                                                     # 0x58c258/0x58c29d feed the two color evaluators.
                                                     offsets = (0xbc, 0xc0) if version == 'ablayer21' else (0x24, 0x28)
@@ -343,6 +360,15 @@ def inspect_container(data, upstream, budget=None, chain=None, depth=0, include_
                                                 mode_offset = 0xb4 if version == 'ablayer21' else 0x33
                                                 alpha_enabled = version == 'ablayer18' or bool(decoded[key+0x180] & 1)
                                                 image_fields['opacity_mode_input'] = decoded[key+mode_offset] if alpha_enabled else 0
+                                                # 0x58ad83–0x58adba selects the first source rectangle's mode;
+                                                # 0x591eb5–0x591ec0 widens these legacy bytes.
+                                                image_fields['source_area_mode_input'] = decoded[
+                                                    key+(0x48 if version == 'ablayer21' else 0x2d)]
+                                                image_fields['source_area_interpolation_flag'] = (
+                                                    version == 'ablayer18' or bool(decoded[key+0x178] & 2))
+                                                image_fields['source_area_strength_input'] = (
+                                                    struct.unpack_from('<i', decoded, key+0x4c)[0]
+                                                    if version == 'ablayer21' else decoded[key+0x2e])
                                                 # 0x58b3af selects the shared XY position interpolation mode.
                                                 position_enabled = version == 'ablayer18' or bool(decoded[key+0x17c] & 2)
                                                 image_fields['position_mode_input'] = (

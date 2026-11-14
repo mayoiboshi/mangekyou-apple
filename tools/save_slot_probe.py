@@ -30,6 +30,14 @@ def load_slot_header_template(game_dir, exe):
     return Image(binary, budget=40).read(0x6908A4, 40)
 
 
+def load_system_header_template(game_dir, exe):
+    binary = read_bounded(game_dir / safe_member_name(exe), 64 * 1024 * 1024)
+    if hashlib.sha256(binary).hexdigest() != SAVE_TEMPLATE_EXE_SHA256:
+        raise ProbeError("save_header_template_exe_identity")
+    image = Image(binary, budget=44)
+    return image.read(0x6AED6C, 40) + image.read(0x4E7D87, 4)
+
+
 def signed_word(value):
     return value - 0x10000 if value & 0x8000 else value
 
@@ -641,6 +649,125 @@ def decode_state_transform(data, seed):
     return output
 
 
+def decode_system_transform(data, seed):
+    """Reverse the system-data write transform, whose feedback is the clear block."""
+    if not 0 <= seed <= MASK32:
+        raise ProbeError("invalid_state_seed")
+    output = bytearray(data)
+    state_low = state_high = 0xA73C5F9D
+    feedback_low = feedback_high = ((len(data) + seed) & MASK32) ^ 0xFEC9753E
+    for offset in range(0, len(data) & ~7, 8):
+        state_low = ((state_low + 0xCE24F523) & MASK32) ^ feedback_low
+        state_high = ((state_high + 0xCE24F523) & MASK32) ^ feedback_high
+        low, high = struct.unpack_from("<II", data, offset)
+        feedback_low, feedback_high = low ^ state_low, high ^ state_high
+        struct.pack_into("<II", output, offset, feedback_low, feedback_high)
+    return output
+
+
+def inspect_system_hash(data, seed):
+    """Inspect the bounded four-byte-value HashVer1.4 profile without exposing keys."""
+    if len(data) < 68 or bytes(data[:16]) != b"HashVer1.4" + bytes(6):
+        raise ProbeError("system_hash_header_unsupported")
+    buckets, count, payload_size, packed_size, mode, fixed_size = struct.unpack_from("<6I", data, 16)
+    if (buckets != 256 or count > 20000 or payload_size != count * 4 or
+            packed_size != len(data) - 68 or mode != 2 or fixed_size != 0):
+        raise ProbeError("system_hash_profile_unsupported")
+    decoded = decode_runlengthpack(decode_system_transform(data[68:], seed))
+    cursor = 0
+    names, offsets = set(), set()
+    def take(size):
+        nonlocal cursor
+        if not 0 <= size <= len(decoded) - cursor:
+            raise ProbeError("system_hash_record_bounds")
+        result = memoryview(decoded)[cursor:cursor + size]
+        cursor += size
+        return result
+    for bucket in range(buckets):
+        size, = struct.unpack("<I", take(4))
+        if size > count - len(names):
+            raise ProbeError("system_hash_entry_count")
+        for _ in range(size):
+            units, = struct.unpack("<h", take(2))
+            if not 1 <= units <= 4096:
+                raise ProbeError("system_hash_key_unsupported")
+            raw = bytes(take(units * 2))
+            try:
+                name = raw.decode("utf-16le")
+            except UnicodeDecodeError as exc:
+                raise ProbeError("system_hash_key_unsupported") from exc
+            if len(name.encode("utf-8")) > 8192 or any(65 <= unit <= 90 for unit in struct.unpack(f"<{units}H", raw)):
+                raise ProbeError("system_hash_key_unsupported")
+            offset, stored_hash = struct.unpack("<QI", take(12))
+            hash_value = 0
+            for i, unit in enumerate(struct.unpack(f"<{units}H", raw), 1):
+                hash_value = (hash_value + (unit << (i & 7))) & 0x3fffffff
+            bucket_index = ((hash_value >> 16) + (hash_value >> 8) + (hash_value & 0xffff)) & 255
+            if (stored_hash != hash_value or bucket_index != bucket or offset % 4 or
+                    offset + 4 > payload_size or raw in names or offset in offsets):
+                raise ProbeError("system_hash_entry_identity")
+            names.add(raw)
+            offsets.add(offset)
+    if len(names) != count or len(decoded) - cursor != payload_size:
+        raise ProbeError("system_hash_data_boundary")
+    return {"status": "verified", "entry_count": count, "bucket_count": buckets,
+            "decoded_length": len(decoded), "decoded_sha256": hashlib.sha256(decoded).hexdigest(),
+            "data_length": payload_size, "scope": "hash structure and four-byte value bounds only"}
+
+
+def inspect_system_data(payload, report, header_template):
+    """Inspect bounded system sections; no variable names or values are reported."""
+    if len(payload) < 124:
+        raise ProbeError("truncated_system_header")
+    mode, = struct.unpack_from("<i", payload, 56)
+    cursor = 124
+    sections = []
+    for _ in range(3):
+        if len(payload) - cursor < 4:
+            raise ProbeError("truncated_system_section_length")
+        size, = struct.unpack_from("<i", payload, cursor)
+        cursor += 4
+        if not 0 <= size <= len(payload) - cursor:
+            raise ProbeError("invalid_system_section_length")
+        sections.append({"offset": HEADER.size + cursor, "length": size})
+        cursor += size
+    report.update(scope="outer envelope, system header and three section bounds",
+                  system_mode=mode, sections=sections, trailing_bytes=len(payload) - cursor)
+    if header_template is None:
+        report["system_variables"] = {"status": "not_tested", "reason": "system_header_template_required"}
+        return
+    if len(header_template) != 44:
+        raise ProbeError("invalid_system_header_template")
+    stored = payload[16:56]
+    first, = struct.unpack_from("<I", stored)
+    clear, = struct.unpack_from("<I", header_template)
+    initial = first ^ clear ^ ((0xA73C5F9D + 0xCE24F523) & MASK32) ^ 0xFEC9753E
+    seed = (initial - 32) & MASK32
+    if decode_system_transform(stored[:32], seed) != header_template[:32] or stored[32:] != header_template[32:40]:
+        raise ProbeError("system_header_verification_mismatch")
+    report["system_header_verification"] = "verified"
+    if mode != 2:
+        report["system_variables"] = {"status": "unsupported", "reason": "system_codec_not_supported"}
+        return
+    section = sections[0]
+    start = section["offset"] - HEADER.size
+    encoded = decode_system_transform(payload[start:start + section["length"]], seed)
+    decoded = decode_runlengthpack(encoded)
+    variables = variable_array_records(decoded, 0)
+    variables["decoded_length"] = len(decoded)
+    variables["decoded_sha256"] = hashlib.sha256(decoded).hexdigest()
+    if variables.get("status") == "verified" and variables.get("next_decoded_offset") != len(decoded):
+        variables.update(status="unsupported", reason="system_variable_trailing_data")
+    report["system_variables"] = variables
+    log = sections[1]
+    start = log["offset"] - HEADER.size
+    hash_seed, = struct.unpack_from("<I", header_template, 40)
+    report["file_log"] = inspect_system_hash(payload[start:start + log["length"]], hash_seed)
+    log = sections[2]
+    start = log["offset"] - HEADER.size
+    report["label_log"] = inspect_system_hash(payload[start:start + log["length"]], hash_seed)
+
+
 def inspect_decoded_state(data, report):
     """Read known sections in order and retain the first unparsed boundary."""
     offset = 0
@@ -734,7 +861,7 @@ def inspect_decoded_state(data, report):
         }
 
 
-def probe(data, seed=None, header_template=None):
+def probe(data, seed=None, header_template=None, system_header_template=None):
     if len(data) < HEADER.size:
         raise ProbeError("truncated_envelope")
     magic, checksum, length = HEADER.unpack_from(data)
@@ -765,7 +892,9 @@ def probe(data, seed=None, header_template=None):
         "state_structure_status": "not_tested",
     }
 
-    if inner_kind == "slot":
+    if inner_kind == "system":
+        inspect_system_data(payload, result, system_header_template)
+    elif inner_kind == "slot":
         header_version, = struct.unpack_from("<i", payload, 56)
         if header_version > 10:
             raise ProbeError("unsupported_slot_header_version")
@@ -836,7 +965,8 @@ def main():
                 raise ProbeError("invalid_state_seed")
             seed = int(raw_seed, 16)
         template = load_slot_header_template(args.game_dir, args.exe) if args.game_dir else None
-        report.update(probe(data, seed=seed, header_template=template))
+        system_template = load_system_header_template(args.game_dir, args.exe) if args.game_dir else None
+        report.update(probe(data, seed=seed, header_template=template, system_header_template=system_template))
     except (ProbeError, OSError) as exc:
         report.update(status="unsupported", reason=str(exc))
     print(json.dumps(report))

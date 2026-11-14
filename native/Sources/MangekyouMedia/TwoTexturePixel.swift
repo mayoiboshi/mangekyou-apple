@@ -2,6 +2,35 @@
 /// Lane order follows the scan input. Later color operations and destination
 /// blending are the caller's responsibility.
 package enum TwoTexturePixel {
+    /// 0x5333ec prepares the command-3 direct-path threshold and gain.
+    /// This does not select a renderer, sampling branch, or input channel.
+    package static func command3Threshold(value: Int32, rawMode: UInt32) -> (threshold: Int16, gain: Int16, inverted: Bool)? {
+        guard (0...255).contains(value) else { return nil }
+        let shift = min(Int(rawMode & 0xf), 7)
+        let gain = 1 << shift
+        let divisor = 256 / gain
+        let threshold = ((255 - Int(value)) * (255 + divisor)) / 255 - divisor
+        return (Int16(threshold), Int16(gain), (rawMode & 0x80) != 0)
+    }
+
+    /// Lowest packed byte produced by 0x533438 / 0x5334a0 for one sampled lane.
+    package static func command3Mask(sample: UInt8, threshold: Int16, gain: Int16, inverted: Bool) -> UInt8 {
+        let input = inverted ? 255 - Int(sample) : Int(sample)
+        let difference = Int16(clamping: input - Int(threshold))
+        return UInt8(clamping: Int(difference &* gain))
+    }
+
+    /// Direct single-texture mode 4 callback at 0x532c14–0x532c70.
+    package static func screenOntoTarget(source: SIMD4<UInt8>, target: SIMD4<UInt8>) -> SIMD4<UInt8> {
+        let weight = Int(source.w) + (Int(source.w) >> 7)
+        var result = SIMD4<UInt8>.zero
+        for lane in 0..<4 {
+            let scaled = (Int(source[lane]) * weight) >> 8
+            let dest = Int(target[lane])
+            result[lane] = UInt8(clamping: scaled + dest - ((scaled * dest) >> 8))
+        }
+        return result
+    }
     /// Parameter conversion at 0x533394, before command 4 selects a scanner.
     package static func command4Weights(_ raw: UInt32) -> UInt32 {
         ((raw << 23) & 0xff000000) | 0x00808080
@@ -202,5 +231,49 @@ package struct TwoTextureScanQuad {
     package static func selector(target: Self, first: Self, second: Self) -> Int {
         guard target.isAxisAligned, first.isAxisAligned, second.isAxisAligned else { return 2 }
         return target.matchesSpan(of: first) && target.matchesSpan(of: second) ? 0 : 1
+    }
+}
+
+/// Axis-aligned scan bounds before pixel sampling; this is not a draw decision.
+package enum SingleTextureScanBounds {
+    package struct CoordinateSpan {
+        package let pixels: ClosedRange<Int>
+        package let firstFixed: Int32
+        package let stepFixed: Int32
+    }
+    // 0x532648 quantizes each vertex to 1/1024 after adding one half.
+    package static func quantized(_ value: Float) -> Float? {
+        guard value.isFinite, value >= 0, value <= 65536 else { return nil }
+        return Float((Double(value) * 1024 + 0.5).rounded(.down) / 1024)
+    }
+
+    // 0x53382e and 0x533f6f use truncation after adding 0.99999237
+    // at the leading edge and subtracting zero at the trailing edge.
+    package static func inclusiveRange(start: Float, end: Float, limit: Int) -> ClosedRange<Int>? {
+        guard (1...65536).contains(limit), let first = quantized(start), let last = quantized(end),
+              last > first,
+              let lower = Int(exactly: (Double(first) + Double(Float(bitPattern: 0x3f7fff80))).rounded(.towardZero)),
+              let upper = Int(exactly: Double(last).rounded(.towardZero)) else { return nil }
+        let clippedLower = max(0, lower), clippedUpper = min(limit - 1, upper)
+        return clippedLower <= clippedUpper ? clippedLower...clippedUpper : nil
+    }
+
+    /// Candidate axis-aligned scan interpolation from 0x533fba–0x534034.
+    /// The caller must establish the original vertices and texture coordinates.
+    package static func coordinateSpan(start: Float, end: Float, sourceStart: Float,
+                                       sourceEnd: Float, limit: Int) -> CoordinateSpan? {
+        guard sourceStart.isFinite, sourceEnd.isFinite,
+              let first = quantized(start), let last = quantized(end),
+              let pixels = inclusiveRange(start: start, end: end, limit: limit) else { return nil }
+        let extent = max(Float(1), last - first)
+        let step = Float((Double(sourceEnd) - Double(sourceStart)) / Double(extent))
+        let offset = max(Float(0), Float(pixels.lowerBound) - first)
+        let initial = Float(Double(step) * Double(offset) + Double(sourceStart))
+        func fixed(_ value: Float) -> Int32? {
+            guard value.isFinite else { return nil }
+            return Int32(exactly: (Double(value) * 65536 + 0.5).rounded(.down))
+        }
+        guard let startFixed = fixed(initial), let stepFixed = fixed(step), startFixed >= -65536 else { return nil }
+        return .init(pixels: pixels, firstFixed: startFixed, stepFixed: stepFixed)
     }
 }

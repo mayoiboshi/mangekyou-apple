@@ -17,6 +17,16 @@ from image_recipe import append_image_recipe
 def sha(data):return hashlib.sha256(data).hexdigest()
 
 
+def append_explicit_sources(requested, selected, cohort, index, lookup):
+    for raw in requested:
+        source = safe_member_name(raw)
+        if (len(selected) >= 128 or source in selected or not source.startswith(cohort + '.pack/')
+            or not source.lower().endswith(('.s', '.txt')) or source not in index):
+            raise ProbeError('cli_progress_selection_identity_or_budget')
+        lookup(source)
+        selected.append(source)
+
+
 def resource_index_preflight(archive_report):
     archives = {row['path']: row for row in archive_report['items']}
     names = []
@@ -63,6 +73,10 @@ def main():
     p.add_argument('--story-choice',type=int,choices=range(6),action='append',default=[])
     p.add_argument('--verify-route-return',action='store_true',
                    help='Open and cancel the title load menu, then require every supplied choice and a return to title')
+    p.add_argument('--research-label-read-status',action='store_true',
+                   help='Use the explicitly inferred label-read candidate in a fresh read-only replay')
+    p.add_argument('--title-menu-target',choices=('album','memory','sound'),
+                   help='After the verified route returns to title, try the named extra menu')
     p.add_argument('--load-task-capture',type=Path)
     p.add_argument('--save-dir',type=Path,help='Read-only save directory for the route load-menu replay')
     p.add_argument('--load-task-page',type=int,action='append',default=[])
@@ -81,19 +95,32 @@ def main():
     p.add_argument('--resource-index',type=Path)
     p.add_argument('--resource-cache',type=Path,help='Reuse local provider receipts with runtime digest checks')
     p.add_argument('--selection-seed',type=Path,help='Reuse pinned choices from a previous same-cohort report')
+    p.add_argument('--select-source',action='append',default=[],
+                   help='Explicitly pin a catalogued source in the selected cohort; may be repeated')
     report_mode=p.add_mutually_exclusive_group()
     report_mode.add_argument('--private-report',action='store_true',help='Keep the summary alongside the private trace (default)')
     report_mode.add_argument('--publish-summary',action='store_true',help='Write a reviewed milestone summary under reports/p1')
     p.add_argument('--full-trace',action='store_true',help='Retain and validate every execution record')
+    p.add_argument('--source-visits',action='store_true',help='Record bounded source-entry metadata in private output')
+    p.add_argument('--source-coverage',help='Record executed command and label locations for one pinned source in private output')
     p.add_argument('--stage',default='round29');a=p.parse_args()
     if a.scene_preview_background and a.publish_summary:
         p.error('--scene-preview-background requires private output')
+    if a.source_visits and a.publish_summary:
+        p.error('--source-visits requires private output')
+    if a.source_coverage and a.publish_summary:
+        p.error('--source-coverage requires private output')
+    coverage_source = safe_member_name(a.source_coverage) if a.source_coverage else None
     scene_background = safe_member_name(a.scene_preview_background) if a.scene_preview_background else None
     if a.verify_route_return:
         if not a.load_task_capture or not a.story_choice or a.publish_summary:
             p.error('--verify-route-return requires a local capture, story choices and private output')
     elif a.load_task_capture or a.load_task_page or a.replay_dir or a.save_dir:
         p.error('load-task options require --verify-route-return')
+    if a.title_menu_target and not a.verify_route_return:
+        p.error('--title-menu-target requires --verify-route-return')
+    if a.research_label_read_status and (not a.verify_route_return or a.save_dir or a.publish_summary):
+        p.error('--research-label-read-status requires a fresh private read-only route replay')
     if a.replay_dir and any((a.selection_seed, a.resource_index, a.image_source, a.image_audit,
                              a.plain_image_source, a.audio_source, a.wave_source, a.movie_source,
                              a.large_movie_source, a.resource_provider, a.resource_cache)):
@@ -210,6 +237,8 @@ def main():
                 else:
                     destination.append(name)
     cache={};total=0
+    if coverage_source and coverage_source not in index:
+        raise ProbeError('cli_source_coverage_not_in_catalog')
     def lookup(name):
         nonlocal total
         name=safe_member_name(name)
@@ -239,9 +268,13 @@ def main():
                 or source not in index or choice['sha256']!=index[source]['sha256']):
                 raise ProbeError('cli_progress_seed_identity_or_budget')
             lookup(source);selected.append(source)
+    append_explicit_sources(a.select_source,selected,a.source_cohort,index,lookup)
     for attempt in range(129-len(selected)):
         command=[str(binary),'--assets-dir',str(assets),'--script',script,'--experimental-run','--maximum-steps',str(a.maximum_steps),'--catalog',str(manifest)]
         if not (a.full_trace or a.publish_summary):command.append("--compact-trace")
+        if a.source_visits:command.append('--source-visits')
+        if a.research_label_read_status:command.append('--research-label-read-status')
+        if coverage_source:command += ['--source-coverage',coverage_source]
         if a.resource_cache:command += ["--resource-cache",str(absolute(a.resource_cache))]
         if a.resource_provider:command += ["--resource-provider",str(absolute(a.resource_provider))]
         if a.game_dir:command+=['--game-dir',str(absolute(a.game_dir))]
@@ -257,6 +290,8 @@ def main():
                 command += ['--load-task-page',str(page)]
             if save_directory:
                 command += ['--save-dir', str(save_directory)]
+            if a.title_menu_target:
+                command += ['--title-menu-target', a.title_menu_target]
         if a.button_index is not None:command+=['--button-index',str(a.button_index)]
         if a.pointer is not None:command+=['--pointer',a.pointer]
         if a.dispatch_stop_callback:command+=['--dispatch-stop-callback']
@@ -326,16 +361,25 @@ def main():
         source_byte_reference_status='verified',checked_sources=len(cache),checked_source_bytes=total,
         full_corpus_retested=False,original_engine_equivalence='not_tested',full_game_compatibility='not_tested',
         original_files_written=False,external_game_data_uploads=False,private_trace_directory=private.relative_to(ROOT).as_posix())
+    if a.research_label_read_status:
+        report['label_read_status_candidate']='inferred'
     report_path = ROOT/'reports/p1'/('cli-progress-'+a.stage+'-'+a.source_cohort+'.json') if a.publish_summary else private/'summary.json'
     if len(final['trace']) != final['steps']:
         report['trace_scope']='suffix'
         report['trace_first_step']=final['trace'][0]['sequence']
         report['trace_action_counts']=report.pop('action_counts')
     if a.verify_route_return:
-        report['route_return_status']='verified' if run.returncode == 0 else 'unsupported'
-        report['route_return_issue']=record.get('issue')
+        budget = record.get('replayBudget') or {}
+        returned = (budget.get('routeTitleReachedBeforeMenu') is True and
+                    budget.get('remainingStoryChoices') == 0) if a.title_menu_target else run.returncode == 0
+        report['route_return_status']='verified' if returned else 'unsupported'
+        report['route_return_issue']=None if returned else record.get('issue')
         report['route_return_replay_budget']=record.get('replayBudget')
         report['route_decoded_movies']=decoded_movies
+        if a.title_menu_target:
+            report['title_menu_target'] = a.title_menu_target
+            report['title_menu_status'] = 'inferred' if run.returncode == 0 and len(budget.get('titleMenuActions', [])) == 2 else 'unsupported'
+            report['title_menu_issue'] = record.get('issue')
     if scene_background:
         preview = record.get('scenePreview')
         report['scene_preview_status'] = (

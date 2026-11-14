@@ -1,7 +1,17 @@
 import Foundation
 
+package struct FileLogPatternSnapshot: Encodable, Sendable {
+    let status: EvidenceStatus = .inferred
+    let registeredPaths: Int
+    let scannedEntries: Int
+    let matchingEntries: Int
+    let matchingPatterns: Int
+    let truncated: Bool
+}
+
 struct ScriptBinding: Sendable {
     var elements: [ScriptValue]
+    var explicitArray = false
     var first: ScriptValue { elements[0] }
 }
 
@@ -22,13 +32,17 @@ struct ScriptFrame: Sendable {
     var entryLabel: String?
     var locals: [Data: ScriptBinding] = [:]
     var controls: [Int] = []
+    var ifConditions: [Int: Int32] = [:]
     var tableScope: [UInt64] = []
     var parameterCount: Int32?
     var integerParameters: [Int32]?
     var objectParameterNames: [Data: UInt64] = [:]
     var stringParameters: [String]?
     var objectAliases: Set<Data> = []
+    var objectAliasReferences: [Data: [String?]] = [:]
     var forPlans: [Int: ScriptForPlan] = [:]
+    // Set only for locally constructed text/sound/line-tag prefix calls.
+    var completedLineReturnCandidate = false
 }
 
 /// Explicit experimental storage profile; does not reproduce native object ownership/ABI.
@@ -119,22 +133,124 @@ struct ScriptStorage: Sendable {
     private static let inputName = Data("inp".utf8)
     static let soundHandle = UInt64.max-4
     private static let soundName = Data("snd".utf8)
+    private static let directSoundName = Data("dsnd".utf8)
+    // A bounded candidate for the observed game configuration, not a claim
+    // that every native configuration has sixteen channels.
+    private static let directSoundBase = UInt64.max - 2048
+    static func isDirectSoundHandle(_ handle: UInt64) -> Bool {
+        handle <= directSoundBase && handle >= directSoundBase - 15
+    }
+    struct DirectSoundChannel: Sendable {
+        var resource: ScriptLocation?
+        var volume: Int32 = 256
+        var volumeType: Int32 = 0
+        var lastStartTick: UInt32 = 0
+    }
+    var directSoundChannels: [UInt64: DirectSoundChannel] = [:]
+    var directSoundChannelCount: Int32 = 16
+    static func directSoundIndex(_ handle: UInt64) -> Int32? {
+        guard isDirectSoundHandle(handle) else { return nil }
+        return Int32(directSoundBase - handle)
+    }
     struct SoundChannel: Sendable {
         var playing = false
         var playbackStartStep: Int?
         var filterRequest: String?
+        var filterRequestKnown = true
+        var volumeFilterCandidate: StreamVolumeFilterCandidate?
+        var filterChainCandidateText: String?
         var loopRequest: Int32?
         var seekRequest: Int32?
         var volumeType: Int32?
+        // vtn only changes the selected type; the manager applies it on play or refresh.
+        var appliedVolumeType: Int32?
         var volumeDuration: Int32?
         var volumeDelay: Int32?
         var volumeChangePending = false
         var panChangePending = false
+        var volumeControlToken: UUID?
+        var panControlToken: UUID?
+        var volumeControlPlaybackStep: Int?
+        var panControlPlaybackStep: Int?
         var panRequest: (position: Int32, duration: Int32, delay: Int32)?
         var volume: Int32?
         var resource: ScriptLocation?
+        // Original evaluated load operand; a resolved catalog path alone does
+        // not preserve the spelling returned by the native ?l command.
+        var requestedSourceName: String?
+        var requestedSourceNameKnown = true
+        // Supplied by a bounded host probe for this loaded resource.
+        var probedDurationMilliseconds: Int32?
     }
     var soundChannels: [UInt64: SoundChannel] = [:]
+    // Keep transient changes visible even when a later instruction clears the
+    // filter before the host gets control back.
+    var activeStreamFilterApplicationUnverified = false
+    // Records outside the saved bank have no reconstructed string state.
+    var unknownStreamFieldsOnRestore = false
+
+    mutating func ensureStreamChannel(_ handle: UInt64) {
+        guard soundChannels[handle] == nil else { return }
+        soundChannels[handle] = unknownStreamFieldsOnRestore
+            ? .init(filterRequestKnown: false, requestedSourceNameKnown: false) : .init()
+    }
+
+    @discardableResult
+    mutating func stageSavedStreamNames(_ names: [Int32: String]) -> Int {
+        var restored = 0
+        for (index, name) in names {
+            guard case .object(let handle) = try? readIndexed("snd", index),
+                  Self.isStreamHandle(handle) else { continue }
+            if soundChannels[handle] == nil {
+                soundChannels[handle] = .init(filterRequestKnown: false, requestedSourceNameKnown: false)
+            }
+            soundChannels[handle]?.requestedSourceName = name
+            soundChannels[handle]?.requestedSourceNameKnown = true
+            restored += 1
+        }
+        return restored
+    }
+
+    @discardableResult
+    mutating func stageSavedStreamFilters(_ filters: [Int32: String]) -> Int {
+        var restored = 0
+        for (index, filter) in filters {
+            guard case .object(let handle) = try? readIndexed("snd", index),
+                  Self.isStreamHandle(handle) else { continue }
+            if soundChannels[handle] == nil {
+                soundChannels[handle] = .init(filterRequestKnown: false, requestedSourceNameKnown: false)
+            }
+            soundChannels[handle]?.filterRequest = filter
+            soundChannels[handle]?.filterRequestKnown = true
+            // The saved text alone does not reveal parameters retained by
+            // earlier same-type updates.
+            soundChannels[handle]?.volumeFilterCandidate = nil
+            soundChannels[handle]?.filterChainCandidateText = nil
+            restored += 1
+        }
+        return restored
+    }
+
+    mutating func acknowledgeSoundControl(channel: UInt64, token: UUID, volume: Bool) -> Bool {
+        guard var sound = soundChannels[channel], sound.playing else { return false }
+        if volume {
+            guard !sound.volumeChangePending, sound.volumeControlToken == token,
+                  sound.volumeControlPlaybackStep == sound.playbackStartStep else { return false }
+            sound.volumeDuration = 0
+            sound.volumeDelay = 0
+            sound.volumeControlToken = nil
+            sound.volumeControlPlaybackStep = nil
+        } else {
+            guard !sound.panChangePending, sound.panControlToken == token,
+                  sound.panControlPlaybackStep == sound.playbackStartStep,
+                  let pan = sound.panRequest else { return false }
+            sound.panRequest = (pan.position, 0, 0)
+            sound.panControlToken = nil
+            sound.panControlPlaybackStep = nil
+        }
+        soundChannels[channel] = sound
+        return true
+    }
     static let effectHandle = UInt64.max-3
     private static let effectName = Data("eff".utf8)
     // Requested solid-color transition for the headless scene.
@@ -168,12 +284,85 @@ struct ScriptStorage: Sendable {
     static let lineLogHandle = UInt64.max-41
     private static let lineLogName = Data("llog".utf8)
     var lineLogValues: [Data: Int32] = [:]
-    var lineLogLockTag: UInt8?
+    var importedLabelHistory = false
+    // TLabelLog's allocation path zero-initializes the instance; its
+    // constructor only assigns the backend pointer (0x405704, 0x5b15fc).
+    var lineLogLockTag: UInt8? = 0
     static let fileLogHandle = UInt64.max-40
     private static let fileLogName = Data("flog".utf8)
     var fileLogPaths: [String] = []
     var fileLogValues: [Data: Int32] = [:]
     var fileLogLocked: Bool?
+    mutating func addFileLogPath(_ path: String) throws {
+        let normalized = asciiLower(path), key = Data(normalized.utf8)
+        guard !fileLogPaths.contains(where: { Data($0.utf8) == key }) else { return }
+        guard fileLogPaths.count < 512 else { throw ResourceError.rejected("file_log_path_limit") }
+        fileLogPaths.append(normalized)
+    }
+    mutating func removeFileLogPath(_ path: String) {
+        let key = Data(asciiLower(path).utf8)
+        if let index = fileLogPaths.firstIndex(where: { Data($0.utf8) == key }) {
+            fileLogPaths.remove(at: index)
+        }
+    }
+    /// Research model of the path callback; the complete set of
+    /// path-resolver callers and the original resolved spelling are unverified.
+    enum ImageFileLogOutcome: String {
+        case matched, filtered, noPaths, locked, noMatch
+    }
+    func fileLogPatternSnapshot() -> FileLogPatternSnapshot {
+        let needles = fileLogPaths.map { Array($0.utf16) }
+        var matchedPatterns = Set<Int>(), matchedEntries = 0, scanned = 0, comparisons = 0
+        var truncated = false
+        let deadline = ContinuousClock.now.advanced(by: .seconds(1))
+        for key in fileLogValues.keys.sorted(by: { $0.lexicographicallyPrecedes($1) }) {
+            guard let name = String(data: key, encoding: .utf8) else { truncated = true; break }
+            let haystack = Array(("\\\\" + name).utf16)
+            var entryMatched = false
+            for (index, needle) in needles.enumerated() {
+                comparisons += 1
+                if comparisons > 100_000 || ContinuousClock.now >= deadline { truncated = true; break }
+                guard !needle.isEmpty, needle.count <= haystack.count else { continue }
+                if (0...(haystack.count - needle.count)).contains(where: { offset in
+                    haystack[offset..<(offset + needle.count)].elementsEqual(needle)
+                }) {
+                    entryMatched = true
+                    matchedPatterns.insert(index)
+                }
+            }
+            if truncated { break }
+            scanned += 1
+            if entryMatched { matchedEntries += 1 }
+        }
+        return FileLogPatternSnapshot(registeredPaths: needles.count, scannedEntries: scanned,
+            matchingEntries: matchedEntries, matchingPatterns: matchedPatterns.count, truncated: truncated)
+    }
+    @discardableResult mutating func recordImageFileLogCandidate(_ logicalPath: String) throws -> ImageFileLogOutcome {
+        let name = asciiLower(logicalPath.replacingOccurrences(of: "/", with: "\\"))
+        guard !name.isEmpty, !name.hasPrefix("$$$") else { return .filtered }
+        guard !fileLogPaths.isEmpty else { return .noPaths }
+        guard let locked = fileLogLocked else { throw ResourceError.rejected("file_log_lock_unknown") }
+        guard !locked else { return .locked }
+        // 0x5b1784 contains two UTF-16 backslashes before the path.
+        let haystack = Array(("\\\\" + name).utf16)
+        let matches = fileLogPaths.contains { path in
+            let needle = Array(path.utf16)
+            guard !needle.isEmpty, needle.count <= haystack.count else { return false }
+            return (0...(haystack.count - needle.count)).contains { offset in
+                haystack[offset..<(offset + needle.count)].elementsEqual(needle)
+            }
+        }
+        guard matches else { return .noMatch }
+        let key = Data(name.utf8)
+        guard key.count <= 8192, name.utf16.count <= 4096,
+              fileLogValues.count < 20_000 || fileLogValues[key] != nil else {
+            throw ResourceError.rejected("file_log_write_outside_profile")
+        }
+        let previous = max(fileLogValues[key] ?? -1, 0)
+        let incremented = previous &+ 1
+        fileLogValues[key] = incremented > 0x0fffffff ? 0x0fffffff : incremented
+        return .matched
+    }
     struct TimerObject: Sendable {
         var callback: (program: ScriptProgram, index: Int, label: String)?
         var enabled = false
@@ -184,9 +373,14 @@ struct ScriptStorage: Sendable {
     var timers: [UInt64: TimerObject] = [:]
     var systemReleaseArgument = ""
     var restoredSystemSkip: Bool?
+    // Opt-in, frame-sampled candidate; nil means no eligible frame was sampled.
+    var researchSystemSkip: Bool?
+    var researchSkipTime: Int32 = 0
     var systemPlayMode: Int32 = 0
     var systemInputMask: Int32 = 0xffffff
     var linkedPrimaryInputMask: Int32?
+    var systemOutputMask: Int32 = 0xffffff
+    var linkedPrimaryOutputMask: Int32?
     var selectsPrimaryScriptSource = false
     var linkedPrimaryPlayMode: Int32?
     var systemAutoPlayValue: Int32 = 0
@@ -198,6 +392,7 @@ struct ScriptStorage: Sendable {
     private static let saveLockName = Data("_lksave".utf8)
     private static let loadLockName = Data("_lkload".utf8)
     private static let skipLockName = Data("_lkskip".utf8)
+    private static let autoLockName = Data("_lkauto".utf8)
     private static let screenLockName = Data("_lkscreen".utf8)
     var systemNameSlots = Array(repeating: "", count: 7)
     var thumbnailPriorities: (Int32, Int32)?
@@ -207,6 +402,8 @@ struct ScriptStorage: Sendable {
     var systemCustomLockMask: Int32 = 0
     // The zero command writes this engine field; its downstream effect is unresolved.
     var engineField98: Int32?
+    // A host clock advanced after zero without modelling the native reset.
+    var researchZeroClockHistoryUncertain = false
     static let systemKeyHandle = UInt64.max-1
     private static let systemKeyName = Data("skey".utf8)
     var mouseGestureMode: Int32?
@@ -234,13 +431,54 @@ struct ScriptStorage: Sendable {
         return sessionSaveNames.contains(Data(asciiLower(name).utf8))
     }
     var globalObjectAliases: Set<Data> = []
+    // Preserve only reference text explicitly supplied at assignment. A nil
+    // entry means the object was assigned by handle and its spelling is unknown.
+    var globalAliasReferences: [Data: [String?]] = [:]
     var system: [Data: ScriptBinding] = [:]
+    // Local adapters for TScriptRoutineResult fields, not declarations from a system-data table.
+    var transientButtonResultNames: Set<Data> = []
     var configuration: ScriptTable?
     var fontOverrides: [String: ScriptValue] = [:]
+    var configMessageOverrides: [String: Int32] = [:]
+    var configDisplayOverrides: [String: Int32] = [:]
+    var configDisplayNeedsHostUpdate = false
+    var configDisplayRefreshRequested = false
+    var configMessageAlphaNeedsRendering = false
     var actorVolumeOverrides: [Int32: Int32] = [:]
     var actorMuteOverrides: [Int32: Int32] = [:]
+    var researchExpectedActorAliasSHA256: String?
     var configVoiceValues: [Int32: Int32] = [:]
     var configVoiceModes: [Int32: Int32] = [:]
+
+    func configAudioSlot(_ index: Int32, volume: Bool) throws -> Int32 {
+        guard (0..<32).contains(index) else { throw ResourceError.rejected("audio_volume_type_outside_profile") }
+        let override = volume ? configVoiceValues[index] : configVoiceModes[index]
+        if let override { return override }
+        let key = volume ? "Volume" : "Mute"
+        if let configured = try configuration?.value(for: "\(key)[\(index)]") {
+            guard let parsed = ScriptExpression.integerTextCache(configured) else {
+                throw ResourceError.rejected("config_volume_value_invalid")
+            }
+            return parsed
+        }
+        return volume ? 256 : 0
+    }
+
+    func soundCategoryGain(_ sound: SoundChannel) throws -> Int32 {
+        let index = sound.appliedVolumeType ?? sound.volumeType ?? 0
+        // 0x6d313c tests equality with one; movie audio tests nonzero.
+        if try configAudioSlot(index, volume: false) == 1 { return 0 }
+        return try configAudioSlot(index, volume: true)
+    }
+
+    func effectiveMovieVolume(_ movie: MovieObject) throws -> Int32 {
+        let index = movie.volumeTarget ?? 0
+        let mute = try configAudioSlot(index, volume: false)
+        guard mute == 0 else { return 0 }
+        let scale = try configAudioSlot(index, volume: true)
+        // 0x68429d uses the low 32 bits, then signed division rounds toward zero.
+        return (scale &* (movie.volume ?? 256)) / 256
+    }
     var global: [Data: ScriptBinding] = [:]
     var frames: [ScriptFrame] = [ScriptFrame(returnIndex: nil)]
     var tables: [UInt64: ScriptTable] = [:]
@@ -251,16 +489,27 @@ struct ScriptStorage: Sendable {
         var elapsed: Int32 = 0
         var destinationTransform: ImageTransform?
         var savedMode: UInt8?
+
+        func matchesUnchangedRequest(destination: [Int32], duration: Int32, transform: ImageTransform) -> Bool {
+            guard savedMode == nil, transform.loop == 0, self.duration == duration,
+                  self.destination == destination, let previous = destinationTransform else { return false }
+            return previous.loop == 0 && previous.depth == transform.depth && previous.scale == transform.scale &&
+                previous.rotation == transform.rotation
+        }
+
         var quantizedProgress: Double {
             let remaining = Int64(duration - elapsed)
             return Double(1024 - remaining * 1024 / Int64(duration)) / 1024
         }
 
         func sampleSavedLinearAxis(from origin: Int32, to target: Int32) -> Int32 {
+            Int32(sampleLinearScale(from: origin, to: target).rounded(.toNearestOrEven))
+        }
+
+        func sampleLinearScale(from origin: Int32, to target: Int32) -> Float {
             let progress = quantizedProgress
             // 0x50b9e4 stores the weighted sum as a single-precision value.
-            let value = Float(Double(origin) * (1 - progress) + Double(target) * progress)
-            return Int32(value.rounded(.toNearestOrEven))
+            return Float(Double(origin) * (1 - progress) + Double(target) * progress)
         }
     }
     var placementTransitions: [UInt64: PlacementTransition] = [:]
@@ -279,6 +528,8 @@ struct ScriptStorage: Sendable {
         var generatorRequests: [Int32: GeneratorRequest] = [:]
         var generatorFilterRequests: [String] = []
         var transform: ImageTransform?
+        // Nil for a newly constructed image; native initialization selects 1.
+        var savedPlacementMode: UInt8?
         var extendedDefaultsPrepared = false
         var hasExtendedContainerMetadata = false
         var boundImages: [Int32: ScriptLocation] = [:]
@@ -335,6 +586,14 @@ struct ScriptStorage: Sendable {
         var tabOrder: Int32?
         var memberCount = 0
         var selectedMember: Int32?
+        struct SavedLayerTimeSnapshot: Sendable {
+            let times: [Int32]
+            let auxiliary: [Int32]
+            let visualTick: Int64
+        }
+        // A read-only snapshot for an explicitly requested frozen preview.
+        // It is not an implementation of the subsequent layer clock updates.
+        var savedLayerTimeSnapshot: SavedLayerTimeSnapshot?
         var motionStartTick: Int64?
         var motionElapsedBeforeSpeedChange: Int64 = 0
         var restoredMotionThreshold: Int64?
@@ -379,6 +638,44 @@ struct ScriptStorage: Sendable {
         var enabled = false
     }
     var movies: [UInt64: MovieObject] = [:]
+    // Preserve script-declared subtype for future save serialization.
+    struct BarObject: Sendable {
+        var resources: [ScriptLocation?] = [nil, nil, nil]
+        var enabled = false
+        // Research preview state derived from the wrapper's enable dispatch.
+        // These are candidates until the native runtime's live child objects
+        // and rendered output are compared.
+        var trackEnableMotion: Int32?
+        var progressEnableMotion: Int32?
+        var maximum: Int32 = 100
+        var value: Int32 = 0
+        var transition: Int32 = 0
+        // Native +0x103 and +0xfb: previous target and remaining transition ticks.
+        var transitionStart: Int32 = 0
+        var transitionRemaining: Int32 = 0
+        var locked = false
+        // Research guard: lock changes can select a different child motion.
+        // Keep this sticky because unlocking does not restore the enable frame.
+        var lockStateChanged = false
+        mutating func setLock(_ value: Bool) {
+            if locked != value { lockStateChanged = true }
+            locked = value
+        }
+        var placement: [Int32] = [0, 0, 0]
+        // The research hit candidate requires an explicit immediate placement.
+        var placementSet = false
+        mutating func setImmediatePlacement(_ value: [Int32]) {
+            // 0x67eddc skips the child update when all target fields already match.
+            if placement != value { placementSet = true }
+            placement = value
+        }
+        var userIntegers: [Int: Int32] = [:]
+        var userStrings: [Int: String] = [:]
+        // Input-change marker; aging over native update cycles is not yet connected.
+        var changeCyclesRemaining: Int32 = 0
+    }
+    var bars: [UInt64: BarObject] = [:]
+    var visualObjectTypes: [UInt64: String] = [:]
     var buttons: Set<UInt64> = []
     struct MessageObject: Sendable {
         var usesTimedCenterText: Bool {
@@ -386,14 +683,115 @@ struct ScriptStorage: Sendable {
             return background?.sourceSHA256 == "97bb05fa8aaaff094f9ef12978d6fca0c7af6bd3081a01bbedd7ae5c02902a68"
         }
 
-        enum Output: Sendable {
+        enum Output: Sendable, Equatable {
             case directive(name: String, operands: [Int32])
             case text(String)
             case ruby(base: String, annotation: String)
         }
 
+        /// Shared bounded adapter for script output and saved primary text.
+        static func parseOutput(_ text: String) throws -> [Output] {
+            guard text.utf8.count <= 8192 else {
+                throw ResourceError.rejected("message_output_requires_bounded_directive_string")
+            }
+            var remaining = text[...]
+            var output: [Output] = []
+            let arities = ["n": 0, "i": 1, "f": 1, "rf": 1, "s": 2, "c": 1, "rc": 1, "pi": 2, "rs": 2, "rpi": 2, "rp": 2]
+            while !remaining.isEmpty {
+                guard output.count < 128 else { throw ResourceError.rejected("message_pending_output_limit") }
+                if remaining.first != "[" {
+                    let end = remaining.firstIndex(of: "[") ?? remaining.endIndex
+                    output.append(.text(String(remaining[..<end])))
+                    remaining = remaining[end...]
+                    continue
+                }
+                guard let end = remaining.firstIndex(of: "]") else {
+                    throw ResourceError.rejected("message_markup_outside_profile")
+                }
+                let fields = remaining[remaining.index(after: remaining.startIndex)..<end]
+                    .split(separator: ",", omittingEmptySubsequences: false)
+                if fields.first == "rb", fields.count == 3, !fields[1].isEmpty, !fields[2].isEmpty {
+                    output.append(.ruby(base: String(fields[1]), annotation: String(fields[2])))
+                    remaining = remaining[remaining.index(after: end)...]
+                    continue
+                }
+                if fields.first == "pc", fields.count == 2 {
+                    // 0x67a391 uses numeric conversion with U+005F fallback.
+                    let code = ScriptExpression.integerTextCache(String(fields[1])) ?? 0x5f
+                    guard let scalar = Unicode.Scalar(UInt16(truncatingIfNeeded: code)) else {
+                        throw ResourceError.rejected("message_code_unit_outside_profile")
+                    }
+                    output.append(.text(String(scalar)))
+                    remaining = remaining[remaining.index(after: end)...]
+                    continue
+                }
+                if fields.count == 2, fields.first == "n",
+                   let advance = Int32(fields[1]), advance > 0 {
+                    output.append(.directive(name: "n", operands: [advance]))
+                    remaining = remaining[remaining.index(after: end)...]
+                    continue
+                }
+                guard let name = fields.first, let arity = arities[String(name)], fields.count == arity + 1 else {
+                    throw ResourceError.rejected("message_directive_outside_profile")
+                }
+                let operands = try fields.dropFirst().map { operand -> Int32 in
+                    if name == "c" || name == "rc", operand.first == "$",
+                       let color = UInt32(operand.dropFirst(), radix: 16) {
+                        return Int32(bitPattern: color)
+                    }
+                    guard let integer = Int32(operand) else {
+                        throw ResourceError.rejected("message_directive_operand_outside_profile")
+                    }
+                    return integer
+                }
+                output.append(.directive(name: String(name), operands: operands))
+                remaining = remaining[remaining.index(after: end)...]
+            }
+            return output
+        }
+
         var pendingOutput: [Output] = []
         var committedOutput: [Output] = []
+        // Preserve exact script syntax when available. Oversized or externally
+        // reconstructed state remains usable for playback but not for writing.
+        var pendingRawOutput: String? = ""
+        var committedRawOutput: String? = ""
+
+        mutating func enqueueOutput(_ text: String, parsed: [Output]) {
+            pendingOutput.append(contentsOf: parsed)
+            if let old = pendingRawOutput, old.utf8.count + text.utf8.count <= 8192 {
+                pendingRawOutput = old + text
+            } else {
+                pendingRawOutput = nil
+            }
+        }
+
+        mutating func clearOutput() {
+            pendingOutput.removeAll()
+            committedOutput.removeAll()
+            pendingRawOutput = ""
+            committedRawOutput = ""
+        }
+
+        func primaryTextWriteCandidate() -> (displayed: String, pending: String)? {
+            func normalized(_ items: [Output]) -> [Output] {
+                var result: [Output] = []
+                for item in items {
+                    if case .text(let text) = item, case .text(let previous)? = result.last {
+                        result[result.count - 1] = .text(previous + text)
+                    } else { result.append(item) }
+                }
+                return result
+            }
+            guard let displayed = committedRawOutput, let pending = pendingRawOutput,
+                  displayed.utf8.count + pending.utf8.count <= 8192,
+                  !(displayed + pending).unicodeScalars.contains(where: { $0.value < 0x20 || $0.value == 0x7f }),
+                  let shown = try? Self.parseOutput(displayed), let queued = try? Self.parseOutput(pending),
+                  shown.count + queued.count <= 128,
+                  normalized(shown) == normalized(committedOutput),
+                  normalized(queued) == normalized(pendingOutput) else { return nil }
+            return (displayed, pending)
+        }
 
         mutating func commitOutput() throws {
             guard pendingOutput.count <= 1024 - committedOutput.count else {
@@ -401,12 +799,20 @@ struct ScriptStorage: Sendable {
             }
             committedOutput.append(contentsOf: pendingOutput)
             pendingOutput.removeAll()
+            if let shown = committedRawOutput, let queued = pendingRawOutput,
+               shown.utf8.count + queued.utf8.count <= 8192 {
+                committedRawOutput = shown + queued
+            } else {
+                committedRawOutput = nil
+            }
+            pendingRawOutput = ""
         }
 
         /// Headless estimate of the text pen. Glyph shaping is a host concern.
         var headlessTextPosition: [Int32] {
             var x: Int64 = 0, y: Int64 = 0
             var width: Int64 = 24, height: Int64 = 24
+            var horizontalPitch: Int64 = 0
             let limit = textBounds.map { max(1, Int64($0[2]) - Int64($0[0])) }
             func newLine() {
                 x = 0
@@ -417,12 +823,54 @@ struct ScriptStorage: Sendable {
                 case .directive("s", let size):
                     width = min(8192, max(1, Int64(size[0])))
                     height = min(8192, max(1, Int64(size[1])))
-                case .directive("n", _):
-                    newLine()
+                case .directive("pi", let pitch) where pitch.count == 2:
+                    horizontalPitch = Int64(pitch[0])
+                case .directive("n", let operands):
+                    if let advance = operands.first {
+                        // 0x67a53d resets the pen X and adds the positive argument to Y.
+                        x = 0
+                        y += Int64(advance)
+                    } else {
+                        newLine()
+                    }
                 case .directive("i", let offset):
                     // 0x679761 adds to the horizontal pen and clamps it at zero.
                     x = max(0, x + Int64(offset[0]))
-                case .text(let text), .ruby(let text, _):
+                case .text(let text):
+                    for character in text {
+                        if character.isNewline {
+                            newLine()
+                        } else {
+                            let advance = character.unicodeScalars.allSatisfy(\.isASCII) ? max(1, width / 2) : width
+                            if let limit, let reserve = kinsokuWordLength, width + horizontalPitch > 0 {
+                                // 0x67b134 uses the declared width and pitch to
+                                // classify the next token. The pen itself is still
+                                // only estimated here; font metrics and nsw are not
+                                // supplied by this headless path.
+                                let available = (limit - x) / (width + horizontalPitch)
+                                let token = Array(String(character).utf16)
+                                func containsToken(_ haystack: String) -> Bool {
+                                    let units = Array(haystack.utf16)
+                                    guard !token.isEmpty, token.count <= units.count else { return false }
+                                    return (0...(units.count - token.count)).contains { start in
+                                        units[start..<(start + token.count)].elementsEqual(token)
+                                    }
+                                }
+                                let atStart = reserve != 0 && containsToken(prohibitedLineStart)
+                                let atEnd = reserve != 0 && containsToken(prohibitedLineEnd)
+                                let remaining = available - Int64(reserve)
+                                if available < 1 || (!atStart && (atEnd ? remaining < 2 : remaining < 1)) {
+                                    newLine()
+                                }
+                            } else if let limit, x > 0, x + advance > limit {
+                                newLine()
+                            }
+                            x += advance + (kinsokuWordLength == nil ? 0 : horizontalPitch)
+                        }
+                    }
+                case .ruby(let text, _):
+                    // Ruby is handled as a separate native operation, so keep
+                    // the existing estimate until its complete placement is known.
                     for character in text {
                         if character.isNewline {
                             newLine()
@@ -445,6 +893,7 @@ struct ScriptStorage: Sendable {
         var alignment: (Int32, Int32)?
         var enabled = false
         var background: ScriptLocation?
+        var backgroundBoundImages: [Int32: ScriptLocation] = [:]
         var backgroundMemberCount = 0
         var backgroundSelectedMember: Int32?
         var backgroundMotionStartTick: Int64?
@@ -471,11 +920,36 @@ struct ScriptStorage: Sendable {
     var buttonInputMasks: [UInt64: Int32] = [:]
     var buttonOutputMasks: [UInt64: Int32] = [:]
     var buttonLocks: [UInt64: UInt8] = [:]
+    // Older saved button records have not been mapped to these state bytes.
+    var unknownSavedButtonLocks: Set<UInt64> = []
+    var unknownSavedButtonChecks: Set<UInt64> = []
+    func buttonIsKnownUnlocked(_ handle: UInt64) -> Bool {
+        !unknownSavedButtonLocks.contains(handle) && buttonLocks[handle, default: 0] == 0
+    }
+    func requireKnownSavedButtonStatesForAdoption() throws {
+        guard unknownSavedButtonLocks.isEmpty, unknownSavedButtonChecks.isEmpty else {
+            throw ResourceError.rejected("saved_button_state_unverified")
+        }
+    }
     func buttonArrayCount(_ raw: String) throws -> Int32 {
         let key = Data(asciiLower(raw).utf8)
         guard let binding = frames.last?.locals[key] ?? global[key],
               binding.elements.allSatisfy({ if case .object(let handle) = $0 { return buttons.contains(handle) }; return false })
         else { throw ResourceError.rejected("garr_requires_button_array") }
+        return Int32(binding.elements.count)
+    }
+    func scriptObjectArrayCount(_ raw: String) throws -> Int32 {
+        let key = Data(asciiLower(raw).utf8)
+        guard let binding = frames.last?.locals[key] ?? global[key] else {
+            throw ResourceError.rejected("garr_requires_supported_object_array")
+        }
+        let isButtonArray = binding.elements.allSatisfy {
+            if case .object(let handle) = $0 { return buttons.contains(handle) }; return false
+        }
+        let isMessageArray = binding.elements.allSatisfy {
+            if case .object(let handle) = $0 { return messages[handle] != nil }; return false
+        }
+        guard isButtonArray || isMessageArray else { throw ResourceError.rejected("garr_requires_supported_object_array") }
         return Int32(binding.elements.count)
     }
     var buttonUserIntegers: [UInt64: [Int: Int32]] = [:]
@@ -498,7 +972,9 @@ struct ScriptStorage: Sendable {
     private var nextObject: UInt64 = 1
 
     private static let indexedSoundBase = UInt64.max - 1024
-    private static let indexedSoundCount: Int32 = 25
+    // Bounded candidate for the 32-channel configuration used by the
+    // observed replay cleanup; other configurations remain unverified.
+    private static let indexedSoundCount: Int32 = 32
 
     static func isStreamHandle(_ handle: UInt64) -> Bool {
         streamChannelIndex(handle) != nil
@@ -544,6 +1020,7 @@ struct ScriptStorage: Sendable {
         if name == Self.saveLockName { return .integer(2) }
         if name == Self.loadLockName { return .integer(4) }
         if name == Self.skipLockName { return .integer(0x80) }
+        if name == Self.autoLockName { return .integer(0x40) }
         if name == Self.screenLockName { return .integer(1) }
         if name == Self.systemKeyName { return .object(Self.systemKeyHandle) }
         if name == Self.memoryDataName { return .object(Self.memoryDataHandle) }
@@ -555,6 +1032,10 @@ struct ScriptStorage: Sendable {
     }
     func readIndexed(_ raw: String, _ index: Int32) throws -> ScriptValue {
         let name = Data(asciiLower(raw).utf8)
+        if name == Self.directSoundName {
+            guard (0..<directSoundChannelCount).contains(index) else { throw ResourceError.rejected("direct_sound_channel_outside_profile") }
+            return .object(Self.directSoundBase - UInt64(index))
+        }
         if name == Self.soundName {
             guard (0..<Self.indexedSoundCount).contains(index) else { throw ResourceError.rejected("sound_channel_outside_profile") }
             return .object(index == 0 ? Self.soundHandle : Self.indexedSoundBase - UInt64(index))
@@ -571,7 +1052,7 @@ struct ScriptStorage: Sendable {
         guard let binding = frames.last?.locals[name] ?? global[name] ?? system[name]
         else { throw ResourceError.rejected("undefined_or_unbound_scalar") }
         if case .object(let handle) = binding.first, !globalObjectAliases.contains(name), !((frames.last?.objectAliases.contains(name)) ?? false), name != Data("resultobj".utf8), !buttons.contains(handle), messages[handle] == nil, tables[handle] == nil, images[handle] == nil,
-           lists[handle] == nil || binding.elements.count == 1 {
+           lists[handle] == nil || (binding.elements.count == 1 && !binding.explicitArray) {
             throw ResourceError.rejected("object_index_outside_profile")
         }
         guard index >= 0, Int(index) < binding.elements.count else {
@@ -625,6 +1106,78 @@ struct ScriptStorage: Sendable {
         _ = try readIndexed(raw,index)
         try writeElement(raw,index: Int(index),value: value)
     }
+    private func aliasReferenceBytes() -> Int {
+        let dictionaries = [globalAliasReferences] + frames.map(\.objectAliasReferences)
+        return dictionaries.reduce(0) { total, dictionary in
+            total + dictionary.values.reduce(0) { sum, entries in
+                sum + entries.reduce(0) { $0 + ($1?.utf8.count ?? 0) }
+            }
+        }
+    }
+
+    private func aliasReference(source: String, index: Int32, handle: UInt64) -> String? {
+        let key = Data(asciiLower(source).utf8)
+        guard index >= 0, let frame = frames.last else { return nil }
+        let binding: ScriptBinding?
+        let references: [String?]?
+        if frame.locals[key] != nil {
+            guard frame.objectAliases.contains(key) else { return nil }
+            binding = frame.locals[key]; references = frame.objectAliasReferences[key]
+        } else {
+            guard globalObjectAliases.contains(key) else { return nil }
+            binding = global[key]; references = globalAliasReferences[key]
+        }
+        guard let binding, binding.elements.indices.contains(Int(index)),
+              binding.elements[Int(index)] == .object(handle),
+              let references, references.indices.contains(Int(index)) else { return nil }
+        return references[Int(index)]
+    }
+
+    func savedSoundAliasTexts(_ key: Data) -> [String]? {
+        guard globalObjectAliases.contains(key), let binding = global[key],
+              let refs = globalAliasReferences[key], refs.count == binding.elements.count else { return nil }
+        var result: [String] = []
+        for (value, saved) in zip(binding.elements, refs) {
+            guard case .object(let handle) = value, let text = saved else { return nil }
+            if text.isEmpty {
+                guard handle == Self.nullHandle else { return nil }
+            } else {
+                guard text.hasPrefix("snd["), text.hasSuffix("]"),
+                      let index = Int32(text.dropFirst(4).dropLast()), text == "snd[\(index)]",
+                      (try? readIndexed("snd", index)) == .object(handle) else { return nil }
+            }
+            result.append(text)
+        }
+        return result
+    }
+
+    func recordedSoundAliasIndex(source: String, index: Int32, handle: UInt64) -> Int32? {
+        guard let reference = aliasReference(source: source, index: index, handle: handle),
+              reference.hasPrefix("snd["), reference.hasSuffix("]"),
+              let value = Int32(reference.dropFirst(4).dropLast()),
+              (try? readIndexed("snd", value)) == .object(handle) else { return nil }
+        return value
+    }
+
+    // The caller supplies an index observed during the same direct expression
+    // evaluation; do not re-evaluate the original index expression.
+    mutating func recordSoundAliasReference(target: String, index: Int32, soundIndex: Int32, handle: UInt64) throws {
+        let key = Data(asciiLower(target).utf8), frameIndex = frames.count - 1
+        guard index >= 0, try readIndexed("snd", soundIndex) == .object(handle) else { return }
+        let local = frames[frameIndex].locals[key] != nil
+        let binding = local ? frames[frameIndex].locals[key] : global[key]
+        let references = local ? frames[frameIndex].objectAliasReferences[key] : globalAliasReferences[key]
+        guard local ? frames[frameIndex].objectAliases.contains(key) : globalObjectAliases.contains(key),
+              let binding, binding.elements.indices.contains(Int(index)), binding.elements[Int(index)] == .object(handle),
+              let references, references.indices.contains(Int(index)) else { return }
+        let text = "snd[\(soundIndex)]"
+        guard aliasReferenceBytes() - (references[Int(index)]?.utf8.count ?? 0) + text.utf8.count <= 8 * 1024 * 1024 else {
+            throw ResourceError.rejected("object_alias_reference_storage_limit")
+        }
+        if local { frames[frameIndex].objectAliasReferences[key]?[Int(index)] = text }
+        else { globalAliasReferences[key]?[Int(index)] = text }
+    }
+
     mutating func resetIntegerBinding(_ raw: String) throws {
         let key = Data(asciiLower(raw).utf8)
         let frame = frames.count - 1
@@ -632,7 +1185,7 @@ struct ScriptStorage: Sendable {
               binding.first.integer != nil else {
             throw ResourceError.rejected("init_requires_integer_binding")
         }
-        let reset = ScriptBinding(elements: Array(repeating: .integer(0), count: binding.elements.count))
+        let reset = ScriptBinding(elements: Array(repeating: .integer(0), count: binding.elements.count), explicitArray: binding.explicitArray)
         if frames[frame].locals[key] != nil { frames[frame].locals[key] = reset }
         else if global[key] != nil { global[key] = reset }
         else { system[key] = reset }
@@ -670,8 +1223,23 @@ struct ScriptStorage: Sendable {
                   isAliasTarget(handle) else {
                 throw ResourceError.rejected("object_alias_target_outside_profile")
             }
-            if localAlias { frames[i].locals[name]!.elements[index] = .object(handle) }
-            else { global[name]!.elements[index] = .object(handle) }
+            let references = localAlias ? frames[i].objectAliasReferences[name] : globalAliasReferences[name]
+            guard let references, references.indices.contains(index) else {
+                throw ResourceError.rejected("object_alias_reference_shape")
+            }
+            let savedText: String?
+            if case .string(let text) = source, text.utf8.count <= 8192 { savedText = text }
+            else { savedText = nil }
+            guard aliasReferenceBytes() - (references[index]?.utf8.count ?? 0) + (savedText?.utf8.count ?? 0) <= 8 * 1024 * 1024 else {
+                throw ResourceError.rejected("object_alias_reference_storage_limit")
+            }
+            if localAlias {
+                frames[i].locals[name]!.elements[index] = .object(handle)
+                frames[i].objectAliasReferences[name]?[index] = savedText
+            } else {
+                global[name]!.elements[index] = .object(handle)
+                globalAliasReferences[name]?[index] = savedText
+            }
             return
         }
         // The original write path uses the target tag with the evaluated
@@ -704,12 +1272,12 @@ struct ScriptStorage: Sendable {
         category == "var" && type == "int" && !raw.isEmpty &&
             raw.utf8.allSatisfy { (48...57).contains($0) }
     }
-    @discardableResult mutating func declare(_ raw: String, category: String, type: String, count: Int = 1, validateAfter: Bool = true) throws -> Bool {
+    @discardableResult mutating func declare(_ raw: String, category: String, type: String, count: Int = 1, validateAfter: Bool = true, explicitArray: Bool = false) throws -> Bool {
         guard (1...4096).contains(count) else { throw ResourceError.rejected("array_element_count_limit") }
         guard !["theora","timer"].contains(type) || count == 1 else { throw ResourceError.rejected("object_array_outside_profile") }
         guard raw.utf8.count <= 4096, Self.isDecimalDeclarationName(raw,category: category,type: type) || raw.range(of: #"^#?[\p{L}_][\p{L}\p{N}_]*$"#, options: .regularExpression) != nil
         else { throw ResourceError.rejected("non_scalar_declaration_name") }
-        guard ["int","str","table","list","img","simg","theora","btn","sbtn","obj","msg","timer"].contains(type) else { throw ResourceError.rejected("declaration_type_outside_profile") }
+        guard ["int","str","table","list","img","simg","theora","btn","sbtn","bar","obj","msg","timer"].contains(type) else { throw ResourceError.rejected("declaration_type_outside_profile") }
         guard category != "svar" || ["int","str"].contains(type) else { throw ResourceError.rejected("system_object_declaration_outside_profile") }
         guard type != "obj" || category == "gvar" || (category == "var" && count == 1) else {
             throw ResourceError.rejected("object_alias_declaration_outside_profile")
@@ -740,7 +1308,15 @@ struct ScriptStorage: Sendable {
         }
         let name = Data(asciiLower(raw).utf8), i = frames.count-1
         let elements: [ScriptValue]
-        if type == "msg" {
+        if type == "bar" {
+            guard count == 1, category == "gvar", bars.count < 128 else {
+                throw ResourceError.rejected("bar_declaration_outside_profile")
+            }
+            let handle = nextObject
+            nextObject += 1
+            bars[handle] = BarObject()
+            elements = [.object(handle)]
+        } else if type == "msg" {
             // The startup script indexes and scopes each message object independently.
             // Message lifecycle semantics are still outside this profile.
             guard count <= 128-messages.count else { throw ResourceError.rejected("message_object_limit") }
@@ -758,6 +1334,7 @@ struct ScriptStorage: Sendable {
                 let handle = nextObject
                 nextObject += 1
                 buttons.insert(handle)
+                visualObjectTypes[handle] = type
                 return .object(handle)
             }
         } else if type == "table" || type == "list" || type == "img" || type == "simg" {
@@ -772,15 +1349,23 @@ struct ScriptStorage: Sendable {
                 nextObject += 1
                 if type == "table" { tables[handle] = ScriptTable(allowWideKeys: true) }
                 else if type == "list" { lists[handle] = ScriptStringList() }
-                else { images[handle] = ImageObject() }
+                else {
+                    images[handle] = ImageObject()
+                    visualObjectTypes[handle] = type
+                }
                 return .object(handle)
             }
         } else {
             let value: ScriptValue
             switch type {
             case "obj":
-                if category == "gvar" { globalObjectAliases.insert(name) }
-                else { frames[i].objectAliases.insert(name) }
+                if category == "gvar" {
+                    globalObjectAliases.insert(name)
+                    globalAliasReferences[name] = Array(repeating: "", count: count)
+                } else {
+                    frames[i].objectAliases.insert(name)
+                    frames[i].objectAliasReferences[name] = Array(repeating: "", count: count)
+                }
                 value = .object(Self.nullHandle)
             case "int": value = .integer(0)
             case "str": value = .string("")
@@ -799,7 +1384,7 @@ struct ScriptStorage: Sendable {
             }
             elements = Array(repeating: value,count: count)
         }
-        let binding = ScriptBinding(elements: elements)
+        let binding = ScriptBinding(elements: elements, explicitArray: explicitArray)
         if category == "var" { frames[i].locals[name] = binding }
         else if category == "gvar" { global[name] = binding }
         else { system[name] = binding }
@@ -818,7 +1403,7 @@ struct ScriptStorage: Sendable {
     }
     func lookupCategory(_ raw: String) -> Int32 {
         let key = Data(asciiLower(raw).utf8)
-        return frames.last?.locals[key] != nil ? 3 : global[key] != nil ? 2 : (system[key] != nil || key == Self.cameraName || key == Self.replacementName || key == Self.inputName || key == Self.configName || key == Self.temporaryDataName || key == Self.memoryDataName || key == Self.saveDataName || key == Self.miscName || key == Self.dialogueLogName || key == Self.lineLogName || key == Self.fileLogName || key == Self.systemKeyName || key == Self.systemName || key == Self.saveLockName || key == Self.loadLockName || key == Self.skipLockName || key == Self.screenLockName || key == Self.soundEffectTypeName || key == Self.outQuartName || key == Self.linearMotionName || key == Self.effectName || key == Self.soundName) ? 1 : 0
+        return frames.last?.locals[key] != nil ? 3 : global[key] != nil ? 2 : (system[key] != nil || key == Self.cameraName || key == Self.replacementName || key == Self.inputName || key == Self.configName || key == Self.temporaryDataName || key == Self.memoryDataName || key == Self.saveDataName || key == Self.miscName || key == Self.dialogueLogName || key == Self.lineLogName || key == Self.fileLogName || key == Self.systemKeyName || key == Self.systemName || key == Self.saveLockName || key == Self.loadLockName || key == Self.skipLockName || key == Self.autoLockName || key == Self.screenLockName || key == Self.soundEffectTypeName || key == Self.outQuartName || key == Self.linearMotionName || key == Self.effectName || key == Self.soundName || key == Self.directSoundName) ? 1 : 0
     }
     mutating func deleteGlobalBinding(_ name: String) throws {
         let key = Data(asciiLower(name).utf8)
@@ -828,6 +1413,7 @@ struct ScriptStorage: Sendable {
             throw ResourceError.rejected("delete_requires_global_binding")
         }
         if globalObjectAliases.remove(key) != nil {
+            globalAliasReferences.removeValue(forKey: key)
             global.removeValue(forKey: key)
             return
         }
@@ -836,13 +1422,15 @@ struct ScriptStorage: Sendable {
             return nil
         }
         guard handles.allSatisfy({ images[$0] != nil || movies[$0] != nil || buttons.contains($0)
-            || messages[$0] != nil || timers[$0] != nil || tables[$0] != nil || lists[$0] != nil }) else {
+            || messages[$0] != nil || timers[$0] != nil || tables[$0] != nil || lists[$0] != nil || bars[$0] != nil }) else {
             throw ResourceError.rejected("delete_object_type_outside_profile")
         }
         global.removeValue(forKey: key)
         for handle in handles {
             placementTransitions.removeValue(forKey: handle)
             images.removeValue(forKey: handle)
+            bars.removeValue(forKey: handle)
+            visualObjectTypes.removeValue(forKey: handle)
             movies.removeValue(forKey: handle)
             messages.removeValue(forKey: handle)
             timers.removeValue(forKey: handle)
@@ -868,6 +1456,8 @@ struct ScriptStorage: Sendable {
             buttonInputMasks.removeValue(forKey: handle)
             buttonOutputMasks.removeValue(forKey: handle)
             buttonLocks.removeValue(forKey: handle)
+            unknownSavedButtonLocks.remove(handle)
+            unknownSavedButtonChecks.remove(handle)
             buttonVolumeType.removeValue(forKey: handle)
             buttonUserStrings.removeValue(forKey: handle)
             buttonScriptTargets.removeValue(forKey: handle)
@@ -896,11 +1486,27 @@ struct ScriptStorage: Sendable {
         try resultInteger(0)
     }
 
+    /// Script-created bars use monotonic handles; their original manager appends
+    /// new objects and gsc scans that list from index zero.
+    mutating func setBarChangeResults() throws {
+        let match = bars.filter { $0.value.changeCyclesRemaining > 0 }.min { $0.key < $1.key }
+        guard let (handle, bar) = match else {
+            try setButtonResults(handle: Self.nullHandle, label: "")
+            return
+        }
+        clearResultBindings()
+        global[Data("resultobj".utf8)] = ScriptBinding(elements: [.object(handle)])
+        try setConfigResultArray((0..<4).map { .integer(bar.userIntegers[$0] ?? 0) }, string: false)
+        try setConfigResultArray((0..<4).map { .string(bar.userStrings[$0] ?? "") }, string: true)
+        bars[handle]?.changeCyclesRemaining = 0
+    }
+
     mutating func initializeButtonRegisters() throws {
         for (name,value) in [("resultbtnstr",ScriptValue.string("")),("resultbtnint",.integer(0))] {
             let key = Data(name.utf8)
             if system[key] == nil {
                 system[key] = ScriptBinding(elements: Array(repeating: value,count: 4))
+                transientButtonResultNames.insert(key)
             }
         }
         try validate()
@@ -1067,6 +1673,41 @@ struct ScriptStorage: Sendable {
         return staged
     }
 
+    /// Stage only empty and canonical snd[index] reference-only object arrays.
+    /// Their relation to native runtime references remains inferred.
+    mutating func stageSavedSoundAliases(_ arrays: SaveVariableArrays) throws -> Int {
+        var staged = self
+        var count = 0
+        for record in arrays.records {
+            guard asciiLower(record.textFields[1]) == "obj", record.header[record.header.startIndex + 13] == 1,
+                  case .objectText(let elements) = record.values, !elements.isEmpty else { continue }
+            let name = record.textFields[0], key = Data(asciiLower(name).utf8)
+            guard try staged.declare(name, category: "gvar", type: "obj", count: elements.count),
+                  staged.global[key] != nil else { throw ResourceError.rejected("saved_sound_alias_binding_identity") }
+            for (index, element) in elements.enumerated() {
+                let text = element.reference
+                let handle: UInt64
+                if text.isEmpty { handle = Self.nullHandle }
+                else {
+                    guard text.hasPrefix("snd["), text.hasSuffix("]"),
+                          let channel = Int32(text.dropFirst(4).dropLast()), text == "snd[\(channel)]",
+                          case .object(let resolved) = try staged.readIndexed("snd", channel) else {
+                        throw ResourceError.rejected("saved_sound_alias_reference_outside_profile")
+                    }
+                    handle = resolved
+                }
+                staged.global[key]!.elements[index] = .object(handle)
+                staged.globalAliasReferences[key]?[index] = text
+            }
+            guard staged.savedSoundAliasTexts(key) != nil else { throw ResourceError.rejected("saved_sound_alias_binding_identity") }
+            count += 1
+        }
+        guard staged.aliasReferenceBytes() <= 8 * 1024 * 1024 else { throw ResourceError.rejected("object_alias_reference_storage_limit") }
+        try staged.validate()
+        self = staged
+        return count
+    }
+
     /// Allocate identities for inline saved buttons in the isolated calculation probe.
     /// Reuse the script's single-label adapter when a saved target resolves in the resumed program.
     mutating func stageSavedGlobalButtonIdentities(_ arrays: SaveVariableArrays, resources: [Int: ScriptLocation] = [:],
@@ -1076,10 +1717,11 @@ struct ScriptStorage: Sendable {
         var staged = self
         var count = 0
         for record in arrays.records {
-            guard asciiLower(record.textFields[1]) == "sbtn",
+            let type = asciiLower(record.textFields[1])
+            guard ["btn", "sbtn"].contains(type),
                   case .objectText(let elements) = record.values, !elements.isEmpty,
                   elements.allSatisfy({ $0.reference.isEmpty && $0.buttonPayload != nil }) else { continue }
-            guard try staged.declare(record.textFields[0], category: "gvar", type: "sbtn", count: elements.count) else {
+            guard try staged.declare(record.textFields[0], category: "gvar", type: type, count: elements.count) else {
                 throw ResourceError.rejected("save_global_button_binding_identity")
             }
             let key = Data(asciiLower(record.textFields[0]).utf8)
@@ -1094,6 +1736,17 @@ struct ScriptStorage: Sendable {
                 staged.buttonResources[handle] = resources[payload.decodedOffset]
                 staged.buttonImages[handle] = textures[payload.decodedOffset]
                 staged.buttonSounds[handle] = sounds[payload.decodedOffset]
+                guard payload.userIntegerWords.count == 8 else {
+                    throw ResourceError.rejected("saved_button_user_integer_count")
+                }
+                // The script command exposes the first four of the eight saved words.
+                staged.buttonUserIntegers[handle] = Dictionary(uniqueKeysWithValues:
+                    payload.userIntegerWords.prefix(4).enumerated().map { ($0.offset, $0.element) })
+                // 0x67c698 reads the v10 button record at +0xf00; ck is +0xf08.
+                if let checked = payload.rawCheckByte { staged.buttonCheckVisual[handle] = checked }
+                else { staged.unknownSavedButtonChecks.insert(handle) }
+                if let locked = payload.rawLockByte { staged.buttonLocks[handle] = locked }
+                else { staged.unknownSavedButtonLocks.insert(handle) }
                 // The sbtn input paths at 0x67c57b and 0x67c940 test the
                 // inherited enable byte through 0x5ad0dc.
                 if payload.rawImageEnableFlag != 0, staged.buttonResources[handle] != nil {
@@ -1164,20 +1817,118 @@ struct ScriptStorage: Sendable {
         let height: Int
         let memberCount: Int
         let hasExtendedContainerMetadata: Bool
+        var isTheoraResource = false
         var motionCount: Int? = nil
         var motionUpdateThreshold: Int32? = nil
         var boundTextures: [Int32: ScriptLocation] = [:]
     }
 
-    mutating func stageSavedGlobalImageIdentities(_ arrays: SaveVariableArrays,
-                                                  resources: [Int: SavedImageResource] = [:]) throws -> Int {
+    /// Stage only a partial, disposable message preview. The caller must not
+    /// use this storage for a saved execution candidate.
+    mutating func stageSavedMessagePreviews(_ arrays: SaveVariableArrays, state: Data,
+                                            resources: [Int: SavedImageResource]) throws -> Int {
         var staged = self
         var count = 0
         for record in arrays.records {
-            guard asciiLower(record.textFields[1]) == "simg",
+            guard asciiLower(record.textFields[1]) == "msg",
+                  case .objectText(let elements) = record.values, !elements.isEmpty else { continue }
+            guard elements.allSatisfy({ $0.reference.isEmpty && $0.messagePayload != nil }),
+                  try staged.declare(record.textFields[0], category: "gvar", type: "msg", count: elements.count),
+                  let binding = staged.global[Data(asciiLower(record.textFields[0]).utf8)],
+                  binding.elements.count == elements.count else {
+                throw ResourceError.rejected("saved_message_preview_binding_outside_profile")
+            }
+            for (element, value) in zip(elements, binding.elements) {
+                guard case .object(let handle) = value, let payload = element.messagePayload,
+                      let placement = payload.staticPlacement, let scale = payload.staticScale,
+                      payload.drawableRectangle.count == 4, payload.rawTextMargins.count == 2,
+                      payload.drawableRectangle[2] >= payload.drawableRectangle[0],
+                      payload.drawableRectangle[3] >= payload.drawableRectangle[1],
+                      payload.textureSlots.allSatisfy({ (0...1).contains($0.index) }) else {
+                    throw ResourceError.rejected("saved_message_preview_layout_outside_profile")
+                }
+                let resource = resources[payload.decodedOffset]
+                if payload.rawImageDrawGate != 0, payload.imageSource != nil {
+                    guard let resource,
+                          Set(resource.boundTextures.keys) == Set(payload.textureSlots.map { Int32($0.index) }) else {
+                        throw ResourceError.rejected("saved_message_preview_background_outside_profile")
+                    }
+                    if resource.hasExtendedContainerMetadata {
+                        // Match normal message member selection when the recipe
+                        // has no separate motion-name table.
+                        let motionCount = resource.motionCount ?? resource.memberCount
+                        guard payload.rawActionIndex >= 0,
+                              Int(payload.rawActionIndex) < motionCount, payload.rawActionElapsed >= 0,
+                              payload.rawActionClockRemainder == 0, payload.rawActionSpeed == 100 else {
+                            throw ResourceError.rejected("saved_message_preview_motion_outside_profile")
+                        }
+                    } else if resource.memberCount > 1 || !resource.boundTextures.isEmpty {
+                        throw ResourceError.rejected("saved_message_preview_background_outside_profile")
+                    }
+                } else if !payload.textureSlots.isEmpty {
+                    throw ResourceError.rejected("saved_message_preview_background_outside_profile")
+                }
+                let text = try payload.primaryText(in: state)
+                guard payload.textStrings.count == 5 else {
+                    throw ResourceError.rejected("saved_message_layout_strings_outside_profile")
+                }
+                let layoutStrings = try payload.textStrings[2...4].map { reference in
+                    guard reference.length <= 16_384 else {
+                        throw ResourceError.rejected("saved_message_layout_strings_outside_profile")
+                    }
+                    let value = try reference.utf16Text(in: state)
+                    guard value.utf8.count <= 8192 else {
+                        throw ResourceError.rejected("saved_message_layout_strings_outside_profile")
+                    }
+                    return value
+                }
+                var message = MessageObject()
+                message.placement = [placement.x, placement.y, placement.z]
+                message.transform = .init(depth: 0, scale: [scale.x, scale.y, scale.z],
+                                          rotation: [0, 0, 0], loop: 0)
+                let rectangle = payload.drawableRectangle
+                message.textBounds = [rectangle[0], rectangle[1],
+                    Int32(min(Int64(rectangle[2]), Int64(rectangle[0]) + 4096)),
+                    Int32(min(Int64(rectangle[3]), Int64(rectangle[1]) + 4096))]
+                message.textMargins = payload.rawTextMargins
+                message.prohibitedLineStart = layoutStrings[0]
+                message.prohibitedLineEnd = layoutStrings[1]
+                message.ignoredReturnWords = layoutStrings[2]
+                message.kinsokuWordLength = payload.rawKinsokuWordLength
+                message.asEnabled = payload.rawAsEnabled != 0
+                message.apEnabled = payload.rawApEnabled != 0
+                message.enabled = payload.rawImageDrawGate != 0
+                message.background = resource?.location
+                message.backgroundBoundImages = resource?.boundTextures ?? [:]
+                message.backgroundMemberCount = resource?.memberCount ?? 0
+                if payload.rawImageDrawGate != 0, resource?.hasExtendedContainerMetadata == true {
+                    message.backgroundSelectedMember = payload.rawActionIndex
+                    message.backgroundMotionStartTick = staged.visualTicks - Int64(payload.rawActionElapsed)
+                }
+                message.committedOutput = text.displayedOutput
+                message.pendingOutput = text.pendingOutput
+                message.committedRawOutput = text.displayed
+                message.pendingRawOutput = text.pending
+                staged.messages[handle] = message
+            }
+            count += 1
+        }
+        try staged.validate()
+        self = staged
+        return count
+    }
+
+    mutating func stageSavedGlobalImageIdentities(_ arrays: SaveVariableArrays,
+                                                  resources: [Int: SavedImageResource] = [:],
+                                                  savedState: Data? = nil) throws -> Int {
+        var staged = self
+        var count = 0
+        for record in arrays.records {
+            let type = asciiLower(record.textFields[1])
+            guard ["img", "simg"].contains(type),
                   case .objectText(let elements) = record.values, !elements.isEmpty,
                   elements.allSatisfy({ $0.reference.isEmpty && $0.imagePayload != nil }) else { continue }
-            guard try staged.declare(record.textFields[0], category: "gvar", type: "simg", count: elements.count) else {
+            guard try staged.declare(record.textFields[0], category: "gvar", type: type, count: elements.count) else {
                 throw ResourceError.rejected("save_global_image_binding_identity")
             }
             let key = Data(asciiLower(record.textFields[0]).utf8)
@@ -1187,6 +1938,21 @@ struct ScriptStorage: Sendable {
             for (element, value) in zip(elements, binding.elements) {
                 guard case .object(let handle) = value, let payload = element.imagePayload else {
                     throw ResourceError.rejected("save_global_image_binding_identity")
+                }
+                guard payload.userIntegerWords.count == 8 else {
+                    throw ResourceError.rejected("saved_image_user_integer_count")
+                }
+                staged.buttonUserIntegers[handle] = Dictionary(uniqueKeysWithValues:
+                    payload.userIntegerWords.prefix(4).enumerated().map { ($0.offset, $0.element) })
+                guard payload.userStrings.count == 8 else {
+                    throw ResourceError.rejected("saved_image_user_string_count")
+                }
+                if let savedState {
+                    let strings = try payload.userStrings.prefix(4).map { try $0.utf16Text(in: savedState) }
+                    staged.buttonUserStrings[handle] = Dictionary(uniqueKeysWithValues:
+                        strings.enumerated().filter { !$0.element.isEmpty }.map { ($0.offset, $0.element) })
+                } else if payload.userStrings.prefix(4).contains(where: { $0.length != 0 }) {
+                    throw ResourceError.rejected("saved_image_user_string_state_required")
                 }
                 guard payload.drawGate == 0 || payload.staticOpacity != nil || payload.opacityTransition != nil else {
                     throw ResourceError.rejected("saved_drawable_image_opacity_unrestored:\(payload.decodedOffset)")
@@ -1198,15 +1964,28 @@ struct ScriptStorage: Sendable {
                     throw ResourceError.rejected("saved_drawable_image_scale_or_transform_unrestored:\(payload.decodedOffset)")
                 }
                 if let resource = resources[payload.decodedOffset] {
+                    if resource.isTheoraResource {
+                        guard payload.rawActionIndex == -1 ||
+                            (payload.rawActionIndex == 0 && payload.rawActionElapsed >= 0 &&
+                             payload.rawActionClockRemainder == 0 && payload.rawActionSpeed == 100) else {
+                            throw ResourceError.rejected("saved_video_image_clock_outside_profile:\(payload.decodedOffset)")
+                        }
+                    }
                     staged.images[handle]?.resource = resource.location
                     staged.images[handle]?.boundImages = resource.boundTextures
                     staged.images[handle]?.width = resource.width > 0 ? resource.width : nil
                     staged.images[handle]?.height = resource.height > 0 ? resource.height : nil
                     staged.images[handle]?.memberCount = resource.memberCount
                     staged.images[handle]?.hasExtendedContainerMetadata = resource.hasExtendedContainerMetadata
+                    staged.images[handle]?.isTheoraResource = resource.isTheoraResource
                     if let count = resource.motionCount, payload.rawActionIndex >= 0,
                        Int(payload.rawActionIndex) < count {
                         staged.images[handle]?.selectedMember = payload.rawActionIndex
+                        if !resource.isTheoraResource {
+                            staged.images[handle]?.savedLayerTimeSnapshot = .init(
+                                times: payload.layerTiming.timeWords, auxiliary: payload.layerTiming.auxiliaryWords,
+                                visualTick: staged.visualTicks)
+                        }
                         if payload.rawActionElapsed >= 0 {
                             staged.images[handle]?.motionStartTick = staged.visualTicks
                             staged.images[handle]?.motionElapsedBeforeSpeedChange = Int64(payload.rawActionElapsed) * 100
@@ -1242,6 +2021,7 @@ struct ScriptStorage: Sendable {
                     staged.images[handle]?.transform = .init(depth: 0, scale: [scale.x, scale.y, scale.z],
                                                               rotation: [0, 0, 0], loop: 0)
                 }
+                staged.images[handle]?.savedPlacementMode = payload.rawPlacementMode
             }
             count += 1
         }
@@ -1344,6 +2124,9 @@ struct ScriptStorage: Sendable {
             }
         }
         guard strings <= 8*1024*1024 else { throw ResourceError.rejected("string_storage_limit") }
+        guard aliasReferenceBytes() <= 8*1024*1024 else {
+            throw ResourceError.rejected("object_alias_reference_storage_limit")
+        }
         var tableSourceBytes = 0
         var tableSourceLines = 0
         var tableBytes = 0

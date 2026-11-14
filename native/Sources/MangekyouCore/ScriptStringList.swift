@@ -21,6 +21,7 @@ public struct ScriptStringListSummary: Encodable, Sendable {
 /// Distinct from the table component: no comment filter or empty-marker conversion.
 struct ScriptStringList: Sendable {
     private(set) var rawLines: [String] = []
+    private var lineLocations: [ScriptLocation] = []
     private var firstValues: [Data: String] = [:]
     private var entries: [(String,String,ScriptLocation)] = []
     private(set) var summary: ScriptStringListSummary?
@@ -37,7 +38,25 @@ struct ScriptStringList: Sendable {
             entries.append((String(text[..<equal]),String(text[text.index(after: equal)...]),location))
         }
         rawLines.append(text)
+        lineLocations.append(location)
         generatedBytes += bytes
+    }
+    mutating func setLine(_ text: String, at index: Int32, location: ScriptLocation) throws {
+        guard index >= 0, Int(index) < rawLines.count else {
+            throw ResourceError.rejected("list_line_index_out_of_range")
+        }
+        guard text.utf8.count <= 8192,
+              !text.unicodeScalars.contains(where: { $0 == "\r" || $0 == "\n" || $0.value == 0 }) else {
+            throw ResourceError.rejected("list_write_line_outside_profile")
+        }
+        let position = Int(index)
+        generatedBytes += max(0, text.utf8.count - rawLines[position].utf8.count)
+        rawLines[position] = text
+        lineLocations[position] = location
+        entries = zip(rawLines, lineLocations).compactMap { line, source in
+            guard let equal = line.firstIndex(of: "=") else { return nil }
+            return (String(line[..<equal]), String(line[line.index(after: equal)...]), source)
+        }
     }
     mutating func setValue(_ value: String, for name: String, at location: ScriptLocation) throws {
         guard !name.isEmpty, !name.contains("="), name.unicodeScalars.allSatisfy(\.isASCII) else {
@@ -54,6 +73,7 @@ struct ScriptStringList: Sendable {
         }), let entry = entries.firstIndex(where: { asciiLower($0.0) == key }) {
             generatedBytes += max(0, text.utf8.count - rawLines[index].utf8.count)
             rawLines[index] = text
+            lineLocations[index] = location
             entries[entry] = (name, value, location)
         } else {
             try append(text, at: location)
@@ -90,6 +110,7 @@ struct ScriptStringList: Sendable {
                 }
             }
             rawLines.append(text)
+            lineLocations.append(location)
             lines.append(ScriptStringListLine(location: location,textSHA256: Data(text.utf8).sha256Hex,nameSHA256: nameSHA,valueSHA256: valueSHA,comparisonStatus: comparison))
         }
         while cursor < source.scalars.count {
@@ -131,6 +152,7 @@ struct ScriptStringList: Sendable {
         var fields: [String] = []
         var depth = 0
         var field = ""
+        var lastWasSeparator = false
         let delimiter = separator.unicodeScalars.first
         for scalar in input.unicodeScalars {
             if stripSpacing, scalar == " " || scalar == "\t" || scalar.value == 0xa0 { continue }
@@ -142,11 +164,13 @@ struct ScriptStringList: Sendable {
             if depth == 0, scalar == delimiter {
                 fields.append(field)
                 field = ""
+                lastWasSeparator = true
             } else {
                 field.unicodeScalars.append(scalar)
+                lastWasSeparator = false
             }
         }
-        if !field.isEmpty { fields.append(field) }
+        if !field.isEmpty || lastWasSeparator { fields.append(field) }
         return fields
     }
 

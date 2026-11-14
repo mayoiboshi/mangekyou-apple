@@ -4,6 +4,176 @@ import MangekyouMedia
 @testable import MangekyouCore
 
 final class SaveEnvelopeTests: XCTestCase {
+    func testPlainStopWaitThreadAndCallbackRoundTrip() throws {
+        let source = Data("@@Start\n\\scp,sys\n\\stop,@@!Imo_MesWaitAutoOnStop\n\\lk,0\n\\scp,\n\\cal,7\n\\clk\n@@!Imo_MesWaitAutoOnStop\n\\play\n\\ret\n".utf8)
+        let program = try ScriptProgram(ScriptDocument(data: source, relativePath: "stop.s"))
+        var live = try ScriptMachine(program: program, allowExperimental: true, entryLabel: "@@Start")
+        try live.run()
+        XCTAssertEqual(live.phase, .waitingForEvent)
+        let thread = try live.encodeTimedWaitThread(readerOpaqueFields: Data(repeating: 0, count: 64))
+        let reader = try SaveReaderCursor(threadState: thread)
+        let routine = try XCTUnwrap(reader.routines.last)
+        XCTAssertEqual(routine.rawState, 2)
+        XCTAssertEqual(routine.waitTime, -1)
+        XCTAssertEqual(routine.skipTime, -1)
+        let label = try routine.eventLabel.utf16Text(in: thread)
+        XCTAssertEqual(label, "@@!Imo_MesWaitAutoOnStop")
+        XCTAssertEqual(try routine.eventName.utf16Text(in: thread), "")
+        XCTAssertEqual(try routine.scope[0].utf16Text(in: thread), "sys")
+        let anchor = program.document.records[0].location
+        let position = try program.sourcePosition(for: reader, anchor: anchor)
+        try program.validateSavedStop(position, label: label)
+        XCTAssertThrowsError(try program.validateSavedStop(position, label: "@@wrong"))
+        let successor = try program.savedResumeIndex(position, reader: reader)
+        XCTAssertEqual(program.document.records[successor].command, "lk")
+        var restoredStorage = ScriptStorage()
+        restoredStorage.frames[0].tableScope = [ScriptStorage.systemHandle]
+        let suspended = try XCTUnwrap(ScriptMachine.probeSavedCalculations(program: program, index: successor,
+            storage: restoredStorage, savedStopLabel: label))
+        XCTAssertEqual(suspended.stopReason, "waiting_for_script_event")
+        XCTAssertEqual(suspended.eventWait?.kind, "message_auto_wait")
+        XCTAssertTrue(suspended.steps.isEmpty)
+        let resumed = try XCTUnwrap(ScriptMachine.probeSavedCalculations(program: program, index: successor,
+            storage: restoredStorage, savedStopLabel: label, autoWaitClicks: 1))
+        XCTAssertEqual(resumed.consumedInput?.autoWaitClicks, 1)
+        XCTAssertTrue(resumed.steps.contains { $0.action == "stop_callback_play_candidate" })
+        XCTAssertTrue(resumed.steps.contains { $0.command == "cal" })
+        XCTAssertTrue(resumed.steps.contains { $0.command == "lk" })
+        XCTAssertEqual(resumed.stopReason, "waiting_for_input_or_timer")
+        let timed = try ScriptProgram(ScriptDocument(data: Data("@@Start\n\\stop,@@CB,10,10\n@@CB\n\\ret\n".utf8), relativePath: "timed-stop.s"))
+        var timedLive = try ScriptMachine(program: timed, allowExperimental: true, entryLabel: "@@Start")
+        try timedLive.run()
+        XCTAssertThrowsError(try timedLive.encodeTimedWaitThread(readerOpaqueFields: Data(repeating: 0, count: 64)))
+    }
+    func testNestedIfSaveRestoresBothFrameControls() throws {
+        let directory = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
+            .deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent(".build/owned-save-tests/" + UUID().uuidString)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let source = Data("@@Root\n\\if,0\n\\then\n\\cal,1/0\n\\else\n\\sub,@@Child\n\\end\n\\cal,7\n\\clk\n@@Child\n\\if,1\n\\then\n\\stop,@@!Imo_MesWaitAutoOnStop\n\\end\n\\ret\n@@!Imo_MesWaitAutoOnStop\n\\play\n\\ret\n".utf8)
+        try source.write(to: directory.appendingPathComponent("nested.s"))
+        let catalog = try ScriptModuleCatalog(entries: [.init(logicalPath: "nested.s", sourceFile: "nested.s", sourceSHA256: source.sha256Hex)])
+        var repository: ScriptRepository? = try ScriptRepository(directory: SafeDirectory(directory), catalog: catalog)
+        var loadingRepository = try XCTUnwrap(repository)
+        let program = try loadingRepository.load("nested.s")
+        repository = loadingRepository
+        var live = try ScriptMachine(program: program, allowExperimental: true, entryLabel: "@@Root", repository: repository)
+        try live.run()
+        let thread = try live.encodeTimedWaitThread(readerOpaqueFields: Data(repeating: 0, count: 64))
+        let reader = try SaveReaderCursor(threadState: thread)
+        XCTAssertEqual(reader.routines.map { $0.controlBlocks.map { $0.rawState } }, [[2], [1, 2]])
+        var pinned = try XCTUnwrap(repository)
+        let (returnPosition, returnIndex, caller, callerAnchor) = try SaveReaderCursor.routineReturnPosition(
+            reader.routines[1].controlBlocks[0], in: thread, repository: &pinned)
+        _ = returnPosition
+        repository = pinned
+        let target = try reader.resolveResumeInstruction(in: thread, repository: &pinned)
+        repository = pinned
+        let childAnchor = program.document.records[try program.label("@@Child")].location
+        var restored = ScriptStorage()
+        try ScriptMachine.stageSavedFrameControls(program: caller, index: try XCTUnwrap(returnIndex), anchor: callerAnchor,
+            blocks: reader.routines[0].controlBlocks, state: thread, repository: &repository, storage: &restored, frameIndex: 0)
+        try ScriptMachine.stageSavedCall(callee: target.program, anchor: childAnchor, caller: caller,
+            returnIndex: try XCTUnwrap(returnIndex), catalog: catalog, storage: &restored)
+        try ScriptMachine.stageSavedFrameControls(program: target.program, index: target.index, anchor: childAnchor,
+            blocks: Array(reader.routines[1].controlBlocks.dropFirst()), state: thread, repository: &repository, storage: &restored, frameIndex: 1)
+        let resumed = try XCTUnwrap(ScriptMachine.probeSavedCalculations(program: target.program, index: target.index,
+            storage: restored, repository: repository, savedStopLabel: "@@!Imo_MesWaitAutoOnStop", autoWaitClicks: 1))
+        XCTAssertEqual(resumed.stopReason, "waiting_for_input_or_timer")
+        XCTAssertTrue(resumed.steps.contains { $0.command == "cal" })
+    }
+    func testBlankPrefixReturnCursorRoundTrip() throws {
+        for (precedingLine, skipFirstBlank) in [("hello", false), ("\\cal,7", false), ("\\cal,7", true)] {
+            let directory = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
+                .deletingLastPathComponent().deletingLastPathComponent()
+                .appendingPathComponent(".build/owned-save-tests/" + UUID().uuidString)
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            defer { try? FileManager.default.removeItem(at: directory) }
+            let setup = skipFirstBlank ? "\\gvar,int,PrefixCalls\n" : ""
+            let skip = skipFirstBlank ? "\\cal,PrefixCalls=PrefixCalls+1\n\\if,PrefixCalls==1\\then\n\\ret\n\\end\n" : ""
+            let source = Data("@@@included.s\n@@Root\n\\gvar,int,Imo_SentenceFlag\n\(setup)\\cal,Imo_SentenceFlag=1\n\\scp,rep\n\\nt,\"\\subp,@@Blank\"\n\\et,\"\\subp,@@Text,,\"\n\\scp,\n\(precedingLine)\n\n\n\\cal,7\n\\clk\n@@AfterStop\n\\cal,Imo_SentenceFlag=0\n\\ret\n".utf8)
+            let included = Data("@@Text\n\\ret\n@@Blank\n\(skip)\\if,Imo_SentenceFlag==0\\then\n\\ret\n\\end\n\\stop,@@!Imo_MesWaitAutoOnStop\n\\sub,@@AfterStop\n\\ret\n@@!Imo_MesWaitAutoOnStop\n\\play\n\\ret\n".utf8)
+            try source.write(to: directory.appendingPathComponent("blank.s"))
+            try included.write(to: directory.appendingPathComponent("included.s"))
+            let catalog = try ScriptModuleCatalog(entries: [
+                .init(logicalPath: "blank.s", sourceFile: "blank.s", sourceSHA256: source.sha256Hex),
+                .init(logicalPath: "included.s", sourceFile: "included.s", sourceSHA256: included.sha256Hex)])
+            var repository = try ScriptRepository(directory: SafeDirectory(directory), catalog: catalog)
+            let program = try repository.load("blank.s")
+            var live = try ScriptMachine(program: program, allowExperimental: true, entryLabel: "@@Root", repository: repository)
+            try live.run()
+            XCTAssertEqual(live.phase, .waitingForEvent)
+            XCTAssertTrue(live.traces.contains { $0.action == "blank_line_prefix_call_candidate" })
+            let thread = try live.encodeTimedWaitThread(readerOpaqueFields: Data(repeating: 0, count: 64))
+            try live.validateTimedWaitReturnCursors(thread)
+            let reader = try SaveReaderCursor(threadState: thread)
+            let block = try XCTUnwrap(reader.routines.last?.controlBlocks.first)
+            XCTAssertEqual(Int(block.rawValueAt3C), "\\subp,@@Blank".utf16.count)
+            let (_, instruction, caller, _) = try SaveReaderCursor.routineReturnPosition(block, in: thread,
+                repository: &repository, emptyLineText: try reader.emptyLineText.utf16Text(in: thread))
+            let index = try XCTUnwrap(instruction)
+            XCTAssertEqual(caller.document.records[index - 1].kind, .empty)
+            if skipFirstBlank { XCTAssertEqual(caller.document.records[index - 2].kind, .empty) }
+            let target = try reader.resolveResumeInstruction(in: thread, repository: &repository)
+            let anchor = caller.document.records[try caller.label("@@Blank")].location
+            var restored = ScriptStorage()
+            try restored.restoreReaderPrefixes(reader, in: thread)
+            let savedLocal = Data("savedlocal".utf8)
+            try ScriptMachine.stageSavedCall(callee: target.program, anchor: anchor, caller: caller,
+                returnIndex: index, catalog: catalog,
+                locals: [savedLocal: ScriptBinding(elements: [.integer(17)])], storage: &restored)
+            XCTAssertEqual(restored.frames.count, 2)
+            XCTAssertEqual(restored.frames.last?.locals[savedLocal]?.first, .integer(17))
+            XCTAssertThrowsError(try ScriptMachine.stageSavedCall(callee: target.program, anchor: anchor, caller: caller,
+                returnIndex: index, catalog: catalog, storage: &restored))
+            restored.global[Data("imo_sentenceflag".utf8)] = ScriptBinding(elements: [.integer(1)])
+            let expandedTarget = try ScriptMachine.mapSavedPosition(
+                (target.program, target.index, anchor), to: caller)
+            if precedingLine == "\\cal,7", !skipFirstBlank {
+                var resumedProgress = try XCTUnwrap(ScriptMachine.makeSavedExecutionMachine(
+                    program: expandedTarget.program, index: expandedTarget.index, storage: restored,
+                    repository: repository, wait: nil, stopLabel: "@@!Imo_MesWaitAutoOnStop",
+                    maximumSteps: 1000, retainFullTrace: true, imageLoader: nil, imageMemberLookup: nil,
+                    imageExtendedValues: nil, imageMotionNames: nil))
+                resumedProgress.allowLabelProgressCandidate = true
+                try resumedProgress.dispatchStopCallback()
+                try resumedProgress.run()
+                XCTAssertGreaterThan(resumedProgress.labelProgressReturnOutcomes["advanced"] ?? 0, 0)
+            }
+            let resumed = try XCTUnwrap(ScriptMachine.probeSavedCalculations(program: expandedTarget.program,
+                index: expandedTarget.index, storage: restored, repository: repository,
+                savedStopLabel: "@@!Imo_MesWaitAutoOnStop", autoWaitClicks: 1))
+            XCTAssertEqual(resumed.stopReason, "waiting_for_input_or_timer")
+            XCTAssertTrue(resumed.steps.contains { $0.command == "sub" })
+            XCTAssertThrowsError(try SaveReaderCursor.routineReturnPosition(block, in: thread,
+                repository: &repository, emptyLineText: "\\subp,@@Blank,extra"))
+        }
+    }
+    func testSavedBlankPrefixRejectsInternalLabel() throws {
+        let source = Data("@@!Internal\n\n\\cal,7\n@@Blank\n\\ret\n".utf8)
+        let program = try ScriptProgram(ScriptDocument(data: source, relativePath: "internal.s"))
+        let blank = try XCTUnwrap(program.document.records.firstIndex { $0.kind == .empty })
+        let anchor = program.document.records[try program.label("@@Blank")].location
+        var storage = ScriptStorage()
+        storage.noWordLineText = "\\subp,@@Blank"
+        XCTAssertThrowsError(try ScriptMachine.stageSavedCall(callee: program, anchor: anchor, caller: program,
+            returnIndex: blank + 1, catalog: nil, storage: &storage))
+        XCTAssertEqual(storage.frames.count, 1)
+    }
+    func testSavedConsecutiveBlankPrefixCanRestore() throws {
+        let source = Data("@@Root\n\\cal,7\n\n\n\\cal,8\n@@Blank\n\\ret\n".utf8)
+        let program = try ScriptProgram(ScriptDocument(data: source, relativePath: "consecutive.s"))
+        let blanks = program.document.records.indices.filter { program.document.records[$0].kind == .empty }
+        XCTAssertEqual(blanks.count, 2)
+        let second = try XCTUnwrap(blanks.last)
+        let anchor = program.document.records[try program.label("@@Blank")].location
+        var storage = ScriptStorage()
+        storage.noWordLineText = "\\subp,@@Blank"
+        try ScriptMachine.stageSavedCall(callee: program, anchor: anchor, caller: program,
+            returnIndex: second + 1, catalog: nil, storage: &storage)
+        XCTAssertEqual(storage.frames.count, 2)
+    }
     func testPlainSlotEnvelopeRoundTrip() throws {
         let state = Data("thread\0\0".utf8) + Data([1, 2, 3])
         let metadata = ["A", "雪", "", "", "", "", "", ""]
@@ -115,7 +285,7 @@ final class SaveEnvelopeTests: XCTestCase {
                     sample.advanceVisualClock(ticks: Int32(elapsed))
                     sampledOpacity[elapsed] = sample.savedCaptureFade?.opacity ?? 0
                     return (.init(status: .inferred), nil)
-                case .scene:
+                case .scene, .frozenLayerScene:
                     return (.init(status: .inferred), nil)
                 }
             })
@@ -130,6 +300,12 @@ final class SaveEnvelopeTests: XCTestCase {
             milliseconds: 1250, repeats: -1, volume: 192, pan: -48)
         let stream = encodedStream.withUnsafeBytes { SaveStatePrefix.StreamChannel(bytes: $0, start: 0) }
         XCTAssertEqual(stream.rawLoadOption, 7)
+        XCTAssertEqual(stream.rawPlayerFlag508, 0)
+        XCTAssertEqual(stream.rawPlayerFlag509, 0)
+        var invalidFlags = streamTemplate
+        invalidFlags[0x25] = 2
+        XCTAssertThrowsError(try SaveStatePrefix.StreamChannel.replacingPlayback(in: invalidFlags,
+            milliseconds: 1250, repeats: -1, volume: 192, pan: -48))
         XCTAssertEqual(Float(bitPattern: stream.rawSeekBits), 1.25)
         XCTAssertEqual(stream.resumeRepeatCount, -1)
         XCTAssertEqual(stream.resumeVolume, 192)
@@ -151,20 +327,146 @@ final class SaveEnvelopeTests: XCTestCase {
         let sound = ScriptModuleReference(logicalPath: "a.ogg", sourceFile: "assets/a.ogg", sourceSHA256: Data([1]).sha256Hex)
         let catalog = try ScriptModuleCatalog(entries: [sound])
         let prefix = try SaveStatePrefix(state: streamState, after: reader)
+        XCTAssertEqual(prefix.savedStreamNameCandidates(in: streamState)[0], "a.ogg")
+        XCTAssertEqual(prefix.savedStreamFilterCandidates(in: streamState)[0], "")
+        var changedStreamName = streamState
+        let nameReference = try XCTUnwrap(prefix.ssndReferences.first?.strings.first)
+        changedStreamName[changedStreamName.startIndex + nameReference.decodedOffset] ^= 1
+        XCTAssertNil(prefix.savedStreamNameCandidates(in: changedStreamName)[0])
+        var resumedStorage = ScriptStorage()
+        resumedStorage.unknownStreamFieldsOnRestore = true
+        XCTAssertEqual(resumedStorage.stageSavedStreamNames(prefix.savedStreamNameCandidates(in: streamState)), 1)
+        guard case .object(let resumedChannel) = try resumedStorage.readIndexed("snd", 0),
+              case .object(let absentChannel) = try resumedStorage.readIndexed("snd", 1) else {
+            return XCTFail("Expected saved stream handles")
+        }
+        XCTAssertEqual(resumedStorage.soundChannels[resumedChannel]?.filterRequestKnown, false)
+        resumedStorage.ensureStreamChannel(absentChannel)
+        XCTAssertEqual(resumedStorage.soundChannels[absentChannel]?.requestedSourceNameKnown, false)
+        XCTAssertEqual(resumedStorage.soundChannels[absentChannel]?.filterRequestKnown, false)
+        XCTAssertEqual(resumedStorage.stageSavedStreamFilters([0: "saved-filter"]), 1)
+        let querySource = Data("\\gvar,str,Name,Filter\n\\scp,snd[0]\n\\?l\n\\cal,Name=ResultStr[0]\n\\?fo\n\\cal,Filter=ResultStr[0]\n\\wait,1\n".utf8)
+        let queryProgram = try ScriptProgram(ScriptDocument(data: querySource, relativePath: "saved-name-query.s"))
+        let queryIndex = try XCTUnwrap(queryProgram.document.records.firstIndex { $0.kind == .command })
+        var queryMachine = try XCTUnwrap(ScriptMachine.makeSavedExecutionMachine(program: queryProgram,
+            index: queryIndex, storage: resumedStorage, repository: nil, wait: nil, maximumSteps: 100,
+            retainFullTrace: false, imageLoader: nil, imageMemberLookup: nil,
+            imageExtendedValues: nil, imageMotionNames: nil))
+        try queryMachine.run()
+        XCTAssertEqual(queryMachine.phase, .waiting)
+        XCTAssertEqual(try queryMachine.value(named: "Name"), .string("a.ogg"))
+        XCTAssertEqual(try queryMachine.value(named: "Filter"), .string("saved-filter"))
         var liveAudio = ScriptStorage()
         guard case .object(let liveChannel) = try liveAudio.readIndexed("snd", 0) else {
             return XCTFail("Expected stream channel zero")
         }
         XCTAssertEqual(ScriptMachine.streamSaveChannelIndex(liveChannel), 0)
         liveAudio.soundChannels[liveChannel] = .init(playing: true, loopRequest: -1,
-            panRequest: (-48, 0, 0), volume: 192, resource: sound.wholeFileLocation(byteLength: 1))
+            panRequest: (-48, 0, 0), volume: 192, resource: sound.wholeFileLocation(byteLength: 1),
+            requestedSourceName: "a.ogg")
         let rewritten = try prefix.replacingStreamPlayback(in: streamState, channel: 0,
             source: sound.wholeFileLocation(byteLength: 1), catalog: catalog,
             milliseconds: 1250, repeats: -1, volume: 192, pan: -48)
         XCTAssertEqual(try prefix.replacingLiveStreamPlayback(in: streamState, channel: 0, storage: liveAudio,
             catalog: catalog, milliseconds: 1250), rewritten)
-        XCTAssertEqual(try prefix.replacingLiveStreams(in: streamState, storage: liveAudio,
-            catalog: catalog, positions: [0: 1250]), rewritten)
+        let normalized = try prefix.replacingLiveStreams(in: streamState, storage: liveAudio,
+            catalog: catalog, positions: [0: 1250])
+        let filterReference = try XCTUnwrap(prefix.ssndReferences.first?.strings.last)
+        var staleFilterDonor = streamState
+        let oldFilter = "old-filter"
+        var oldFilterField = Data([UInt8(oldFilter.utf16.count), 0])
+        oldFilterField.append(oldFilter.data(using: .utf16LittleEndian)!)
+        staleFilterDonor.replaceSubrange((filterReference.decodedOffset - 2)..<(filterReference.decodedOffset + filterReference.length), with: oldFilterField)
+        let staleFilterPrefix = try SaveStatePrefix(state: staleFilterDonor, after: reader)
+        XCTAssertEqual(staleFilterPrefix.savedStreamFilterCandidates(in: staleFilterDonor)[0], oldFilter)
+        let clearedFilter = try staleFilterPrefix.replacingLiveStreams(in: staleFilterDonor, storage: liveAudio,
+            catalog: catalog, positions: [0: 1250])
+        let clearedFilterPrefix = try SaveStatePrefix(state: clearedFilter, after: reader)
+        XCTAssertEqual(clearedFilterPrefix.savedStreamFilterCandidates(in: clearedFilter)[0], "")
+        XCTAssertEqual(clearedFilter.count, streamState.count)
+        var unhandledFilter = liveAudio
+        unhandledFilter.soundChannels[liveChannel]?.filterRequest = "active-filter"
+        XCTAssertThrowsError(try prefix.replacingLiveStreams(in: streamState, storage: unhandledFilter,
+            catalog: catalog, positions: [0: 1250])) { error in
+            XCTAssertTrue(String(describing: error).contains("saved_stream_filter_application_unverified"))
+        }
+        var differentlySpelled = liveAudio
+        differentlySpelled.soundChannels[liveChannel]?.requestedSourceName = "A.OGG"
+        let renamed = try prefix.replacingLiveStreams(in: streamState, storage: differentlySpelled,
+            catalog: catalog, positions: [0: 1250])
+        let renamedPrefix = try SaveStatePrefix(state: renamed, after: reader)
+        XCTAssertEqual(try renamedPrefix.ssndReferences[0].strings[0].utf16Text(in: renamed), "A.OGG")
+        var unknownName = liveAudio
+        unknownName.soundChannels[liveChannel]?.requestedSourceNameKnown = false
+        XCTAssertThrowsError(try prefix.replacingLiveStreams(in: streamState, storage: unknownName,
+            catalog: catalog, positions: [0: 1250]))
+        var unobservedRepeats = liveAudio
+        unobservedRepeats.soundChannels[liveChannel]?.loopRequest = 2
+        XCTAssertThrowsError(try prefix.replacingLiveStreams(in: streamState, storage: unobservedRepeats,
+            catalog: catalog, positions: [0: 1250])) { error in
+            XCTAssertTrue(String(describing: error).contains("saved_stream_repeat_count_unobserved"))
+        }
+        var immediateOutstanding = liveAudio
+        let immediateToken = UUID()
+        immediateOutstanding.soundChannels[liveChannel]?.volumeControlToken = immediateToken
+        XCTAssertThrowsError(try prefix.replacingLiveStreams(in: streamState, storage: immediateOutstanding,
+            catalog: catalog, positions: [0: 1250]))
+        XCTAssertTrue(immediateOutstanding.acknowledgeSoundControl(channel: liveChannel, token: immediateToken, volume: true))
+        XCTAssertNoThrow(try prefix.replacingLiveStreams(in: streamState, storage: immediateOutstanding,
+            catalog: catalog, positions: [0: 1250]))
+        var dispatchedFade = liveAudio
+        dispatchedFade.soundChannels[liveChannel]?.volumeDuration = 500
+        dispatchedFade.soundChannels[liveChannel]?.volumeChangePending = false
+        XCTAssertThrowsError(try prefix.replacingLiveStreams(in: streamState, storage: dispatchedFade,
+            catalog: catalog, positions: [0: 1250]))
+        let volumeToken = UUID()
+        dispatchedFade.soundChannels[liveChannel]?.volumeControlToken = volumeToken
+        let originalPlaybackStep = dispatchedFade.soundChannels[liveChannel]?.playbackStartStep
+        dispatchedFade.soundChannels[liveChannel]?.volumeControlPlaybackStep = originalPlaybackStep
+        XCTAssertFalse(dispatchedFade.acknowledgeSoundControl(channel: liveChannel, token: UUID(), volume: true))
+        XCTAssertTrue(dispatchedFade.acknowledgeSoundControl(channel: liveChannel, token: volumeToken, volume: true))
+        XCTAssertFalse(dispatchedFade.acknowledgeSoundControl(channel: liveChannel, token: volumeToken, volume: true))
+        XCTAssertNoThrow(try prefix.replacingLiveStreams(in: streamState, storage: dispatchedFade,
+            catalog: catalog, positions: [0: 1250]))
+        var dispatchedPan = liveAudio
+        dispatchedPan.soundChannels[liveChannel]?.panRequest = (0, 0, 500)
+        dispatchedPan.soundChannels[liveChannel]?.panChangePending = false
+        XCTAssertThrowsError(try prefix.replacingLiveStreams(in: streamState, storage: dispatchedPan,
+            catalog: catalog, positions: [0: 1250]))
+        let panToken = UUID()
+        dispatchedPan.soundChannels[liveChannel]?.panControlToken = panToken
+        dispatchedPan.soundChannels[liveChannel]?.panControlPlaybackStep = 1
+        dispatchedPan.soundChannels[liveChannel]?.playbackStartStep = 2
+        XCTAssertFalse(dispatchedPan.acknowledgeSoundControl(channel: liveChannel, token: panToken, volume: false))
+        dispatchedPan.soundChannels[liveChannel]?.panControlPlaybackStep = 2
+        XCTAssertTrue(dispatchedPan.acknowledgeSoundControl(channel: liveChannel, token: panToken, volume: false))
+        XCTAssertNoThrow(try prefix.replacingLiveStreams(in: streamState, storage: dispatchedPan,
+            catalog: catalog, positions: [0: 1250]))
+        var delayedDonor = streamState
+        let recordStart = try XCTUnwrap(prefix.ssndReferences.first).record.decodedOffset
+        delayedDonor[recordStart + 0x33] = 1
+        delayedDonor[recordStart + 0x3f] = 1
+        let delayedPrefix = try SaveStatePrefix(state: delayedDonor, after: reader)
+        let cleared = try delayedPrefix.replacingLiveStreams(in: delayedDonor, storage: liveAudio,
+            catalog: catalog, positions: [0: 1250])
+        XCTAssertEqual(Array(cleared[(recordStart + 0x33)..<(recordStart + 0x37)]), [0, 0, 0, 0])
+        XCTAssertEqual(Array(cleared[(recordStart + 0x3f)..<(recordStart + 0x43)]), [0, 0, 0, 0])
+        XCTAssertEqual(try SaveStatePrefix(state: normalized, after: reader).ssndReferences.first?.streamChannel?.rawMode, 3)
+        let disabledDonor = try prefix.replacingLiveStreams(in: streamState, storage: ScriptStorage(), catalog: catalog, positions: [:])
+        let disabledPrefix = try SaveStatePrefix(state: disabledDonor, after: reader)
+        XCTAssertEqual(try disabledPrefix.ssndReferences[0].strings[0].utf16Text(in: disabledDonor), "")
+        XCTAssertEqual(disabledPrefix.nextDecodedOffset, prefix.nextDecodedOffset - 10)
+        XCTAssertEqual(try SaveStatePrefix(state: disabledDonor, after: reader).ssndReferences.first?.streamChannel?.rawMode, 0)
+        var directPlaying = ScriptStorage()
+        directPlaying.soundChannels[UInt64.max - 2048] = .init(playing: true)
+        XCTAssertThrowsError(try prefix.replacingLiveStreams(in: streamState, storage: directPlaying, catalog: catalog, positions: [:])) {
+            XCTAssertEqual(String(describing: $0), "saved_direct_sound_live_state_unsupported: count=1")
+        }
+        var unknownMode = streamState
+        unknownMode[prefix.ssndReferences[0].record.decodedOffset + 0x10] = 4
+        let unknownPrefix = try SaveStatePrefix(state: unknownMode, after: reader)
+        XCTAssertThrowsError(try unknownPrefix.replacingLiveStreams(in: unknownMode,
+            storage: ScriptStorage(), catalog: catalog, positions: [:]))
         XCTAssertThrowsError(try prefix.replacingLiveStreams(in: streamState, storage: liveAudio,
             catalog: catalog, positions: [:])) {
             XCTAssertEqual(String(describing: $0),
@@ -176,6 +478,23 @@ final class SaveEnvelopeTests: XCTestCase {
         var idleDonor = rewritten
         idleDonor[saved.record.decodedOffset + 0x10] = 1
         let idlePrefix = try SaveStatePrefix(state: idleDonor, after: reader)
+        let activated = try idlePrefix.replacingLiveStreams(in: idleDonor, storage: liveAudio,
+            catalog: catalog, positions: [0: 1250])
+        let activatedChannel = try XCTUnwrap(SaveStatePrefix(state: activated, after: reader).ssndReferences.first?.streamChannel)
+        XCTAssertEqual(activatedChannel.rawMode, 3)
+        XCTAssertEqual(activatedChannel.rawLoadOption, 7)
+        XCTAssertTrue(activatedChannel.matchesEncodedMilliseconds(1250))
+        XCTAssertEqual(activatedChannel.resumeRepeatCount, -1)
+        var mismatchedAudio = liveAudio
+        mismatchedAudio.soundChannels[liveChannel]?.resource = ScriptModuleReference(logicalPath: "a.ogg",
+            sourceFile: "assets/a.ogg", sourceSHA256: Data([2]).sha256Hex).wholeFileLocation(byteLength: 1)
+        XCTAssertThrowsError(try idlePrefix.replacingLiveStreams(in: idleDonor, storage: mismatchedAudio,
+            catalog: catalog, positions: [0: 1250]))
+        liveAudio.soundChannels[liveChannel]?.loopRequest = 0
+        let finite = try idlePrefix.replacingLiveStreams(in: idleDonor, storage: liveAudio,
+            catalog: catalog, positions: [0: 1250])
+        XCTAssertEqual(try SaveStatePrefix(state: finite, after: reader).ssndReferences.first?.streamChannel?.rawMode, 2)
+        liveAudio.soundChannels[liveChannel]?.loopRequest = -1
         let withoutDonorStream = try idlePrefix.replacingLiveStreams(in: idleDonor,
             storage: ScriptStorage(), catalog: catalog, positions: [:])
         XCTAssertEqual(try SaveStatePrefix(state: withoutDonorStream, after: reader)
@@ -243,14 +562,17 @@ final class SaveEnvelopeTests: XCTestCase {
         try target.write(to: directory.appendingPathComponent("target.s"))
         let waitingCaller = Data("@@Start\n\\sub,@@Child,\"waiting-child.s\"\n\\cal,7\n\\clk\n".utf8)
         let waitingChild = Data("@@Child\n\\scp,rep\n\\et,\"prefix\"\n\\nt,\"empty\"\n\\a,\"^name\",\"value\"\n\\scp,sys\n\\lk,0\n\\lkc,0\n\\scp,\n\\wait,120\n\\ret\n".utf8)
+        let aliasSource = Data("@@Start\n\\var,obj,voice\n\\cal,voice=snd[3]\n\\wait,120\n\\cal,7\n".utf8)
         try waitingCaller.write(to: directory.appendingPathComponent("waiting-caller.s"))
         try waitingChild.write(to: directory.appendingPathComponent("waiting-child.s"))
+        try aliasSource.write(to: directory.appendingPathComponent("alias-wait.s"))
         let catalog = try ScriptModuleCatalog(entries: [
             ScriptModuleReference(logicalPath: "owned.s", sourceFile: "owned.s", sourceSHA256: source.sha256Hex),
             .init(logicalPath: "caller.s", sourceFile: "caller.s", sourceSHA256: caller.sha256Hex),
             .init(logicalPath: "target.s", sourceFile: "target.s", sourceSHA256: target.sha256Hex),
             .init(logicalPath: "waiting-caller.s", sourceFile: "waiting-caller.s", sourceSHA256: waitingCaller.sha256Hex),
-            .init(logicalPath: "waiting-child.s", sourceFile: "waiting-child.s", sourceSHA256: waitingChild.sha256Hex)
+            .init(logicalPath: "waiting-child.s", sourceFile: "waiting-child.s", sourceSHA256: waitingChild.sha256Hex),
+            .init(logicalPath: "alias-wait.s", sourceFile: "alias-wait.s", sourceSHA256: aliasSource.sha256Hex)
         ])
         var repository = try ScriptRepository(directory: SafeDirectory(directory), catalog: catalog)
 
@@ -351,6 +673,22 @@ final class SaveEnvelopeTests: XCTestCase {
         completeTemplate += Data(repeating: 0, count: 24 + 16)
         XCTAssertEqual(try crossWait.assembleTimedWaitResearchState(template: completeTemplate, positions: [:]),
                        completeTemplate)
+        let aliasProgram = try repository.load("alias-wait.s")
+        var aliasWait = try ScriptMachine(program: aliasProgram, allowExperimental: true,
+                                          entryLabel: "@@Start", repository: repository)
+        try aliasWait.run()
+        let aliasState = try aliasWait.assembleTimedWaitResearchState(template: completeTemplate, positions: [:])
+        let aliasReader = try SaveReaderCursor(threadState: aliasState)
+        let aliasPrefix = try SaveStatePrefix(state: aliasState, after: aliasReader)
+        let aliasArrays = try SaveVariableArrays.readCalVal(state: aliasState, at: aliasPrefix.locateCalVal(in: aliasState))
+        var savedFrame: SaveVariableArrays?
+        _ = try aliasArrays.summary(in: aliasState, at: try aliasPrefix.locateCalVal(in: aliasState)) { _, _, group in
+            savedFrame = group
+        }
+        let savedFrameGroup = try XCTUnwrap(savedFrame)
+        var restoredFrame = try ScriptStorage.stageSavedGlobalScalars(savedFrameGroup)
+        _ = try restoredFrame.stageSavedSoundAliases(savedFrameGroup)
+        XCTAssertEqual(try restoredFrame.read("voice"), try restoredFrame.readIndexed("snd", 3))
         var laterWait = crossWait
         try laterWait.advanceClickWait(ticks: 101)
         let assembled = try laterWait.assembleTimedWaitResearchState(template: completeTemplate, positions: [:])
@@ -756,6 +1094,10 @@ final class SaveEnvelopeTests: XCTestCase {
         input.append(contentsOf: "efgh".utf8)
         XCTAssertEqual(try SaveRunLength.decode(input), Data("ABCDABCDefghefgh!".utf8))
         XCTAssertThrowsError(try SaveRunLength.decode(Data(input.prefix(64)) + Data([0xc0])))
+        for size in [0, 1, 251, 252, 253, 507] {
+            let original = Data((0..<size).map { UInt8(truncatingIfNeeded: $0) })
+            XCTAssertEqual(try SaveRunLength.decode(SaveRunLength.encodeLiterals(original)), original)
+        }
     }
     func testSaveBPEDictionaryExpansionAndOutputBound() throws {
         let input = Data([0x31, 0x50, 0x43, 0xff, 1, 0, 0, 0, 2, 0, 0, 0,
@@ -961,6 +1303,14 @@ final class SaveEnvelopeTests: XCTestCase {
         let localValues = try ScriptStorage.stageSavedGlobalScalars(
             SaveVariableArrays(state: encodedLocals.bytes, decodedOffset: 16))
         XCTAssertEqual(try localValues.read("x"), .string("雪"))
+        let generatedLocals = try SaveVariableArrays.encodeIndexedLocals(in: Data("tail".utf8), at: 0, frames: [frame])
+        XCTAssertEqual(generatedLocals.end, 0)
+        let generatedValues = try ScriptStorage.stageSavedGlobalScalars(
+            SaveVariableArrays(state: generatedLocals.bytes, decodedOffset: 16))
+        XCTAssertEqual(try generatedValues.read("x"), .string("雪"))
+        var unsupportedFrame = ScriptFrame(returnIndex: nil)
+        unsupportedFrame.locals[Data("obj".utf8)] = ScriptBinding(elements: [.object(1)])
+        XCTAssertThrowsError(try SaveVariableArrays.encodeIndexedLocals(in: Data("tail".utf8), at: 0, frames: [unsupportedFrame]))
         XCTAssertThrowsError(try SaveVariableArrays.encodeIndexedLocals(in: localTemplate, at: 0,
                                                                         frames: [ScriptFrame(returnIndex: nil)]))
 
@@ -1086,8 +1436,321 @@ final class SaveEnvelopeTests: XCTestCase {
         XCTAssertEqual(button.drawableRectangle, [1, 2, 31, 42])
         XCTAssertEqual(button.stringOffsets, [189, 193, 195, 197, 199].map { fixedOffset + $0 })
         XCTAssertEqual(button.buttonRecordOffset, buttonOffset)
+        XCTAssertEqual(button.userIntegerWords, [Int32](repeating: 0, count: 8))
+        XCTAssertEqual(button.userIntegerReferences.count, 8)
+        let buttonJSON = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(button)) as? [String: Any])
+        XCTAssertNil(buttonJSON["userIntegerWords"])
+        XCTAssertNotNil(buttonJSON["userIntegerReferences"])
+        XCTAssertNil(button.rawCheckByte) // Version zero is outside the v10 candidate.
+        XCTAssertNil(button.rawLockByte)
         XCTAssertEqual(button.nextDecodedOffset, buttonObject.count)
         XCTAssertThrowsError(try SaveVariableArrays(state: Data(buttonObject.dropLast()), decodedOffset: 0))
+        var messageObject = Data(buttonObject.prefix(buttonOffset))
+        messageObject.replaceSubrange(24..<34, with: [3, 0, 109, 0, 115, 0, 103, 0])
+        messageObject.replaceSubrange(22..<24, with: [1, 0, 109, 0])
+        messageObject[fixedOffset + 0x44] = 1
+        let messageArrays = try SaveVariableArrays(state: messageObject, decodedOffset: 0)
+        let message = try XCTUnwrap(messageArrays.summary(in: messageObject, at: 0).messagePayloads.first)
+        XCTAssertEqual(message.drawableRectangle, [1, 2, 31, 42])
+        XCTAssertEqual(try message.imageSource?.utf16Text(in: messageObject), "A")
+        XCTAssertEqual(message.rawTextCursor, 1)
+        XCTAssertEqual(message.textStrings.count, 5)
+        XCTAssertEqual(try message.textStrings[0].utf16Text(in: messageObject), "A")
+        let plain = try message.primaryText(in: messageObject)
+        XCTAssertEqual(plain.displayed, "A")
+        XCTAssertEqual(plain.pending, "")
+        XCTAssertEqual(message.nextDecodedOffset, messageObject.count)
+        let rewrittenMessage = try SaveVariableArrays.replacingMessagePrimaryCandidate(in: messageObject,
+            decodedOffset: 0, recordIndex: 0, elementIndex: 0, displayed: "你好[s,24,24]字", pending: "[rb,花,はな]")
+        let rewrittenArrays = try SaveVariableArrays(state: rewrittenMessage, decodedOffset: 0)
+        let rewrittenPayload = try XCTUnwrap(rewrittenArrays.summary(in: rewrittenMessage, at: 0).messagePayloads.first)
+        let rewrittenText = try rewrittenPayload.primaryText(in: rewrittenMessage)
+        XCTAssertEqual(rewrittenText.displayed, "你好[s,24,24]字")
+        XCTAssertEqual(rewrittenText.pending, "[rb,花,はな]")
+        XCTAssertEqual(rewrittenPayload.drawableRectangle, message.drawableRectangle)
+        XCTAssertThrowsError(try SaveVariableArrays.replacingMessagePrimaryCandidate(in: messageObject,
+            decodedOffset: 0, recordIndex: 0, elementIndex: 0, displayed: "[s,24", pending: ",24]"))
+        var liveMessage = ScriptStorage.MessageObject()
+        for text in ["你", "好[s,24,24]字"] {
+            liveMessage.enqueueOutput(text, parsed: try ScriptStorage.MessageObject.parseOutput(text))
+        }
+        try liveMessage.commitOutput()
+        let pendingText = "[rb,花,はな]"
+        liveMessage.enqueueOutput(pendingText, parsed: try ScriptStorage.MessageObject.parseOutput(pendingText))
+        let liveWritten = try SaveVariableArrays.replacingMessagePrimaryCandidate(in: messageObject,
+            decodedOffset: 0, recordIndex: 0, elementIndex: 0, message: liveMessage)
+        let livePayload = try XCTUnwrap(SaveVariableArrays(state: liveWritten, decodedOffset: 0)
+            .summary(in: liveWritten, at: 0).messagePayloads.first)
+        XCTAssertEqual(try livePayload.primaryText(in: liveWritten).displayed, "你好[s,24,24]字")
+        XCTAssertEqual(try livePayload.primaryText(in: liveWritten).pending, pendingText)
+        liveMessage.kinsokuWordLength = 3
+        liveMessage.prohibitedLineStart = "、😀"
+        liveMessage.prohibitedLineEnd = "（"
+        liveMessage.ignoredReturnWords = "e\u{0301}"
+        liveMessage.asEnabled = true
+        liveMessage.textBounds = [-8, 3, 392, 203]
+        liveMessage.textMargins = [5, 7]
+        let layoutWritten = try SaveVariableArrays.replacingMessageLayoutCandidate(in: liveWritten,
+            decodedOffset: 0, recordIndex: 0, elementIndex: 0, message: liveMessage)
+        let layoutPayload = try XCTUnwrap(SaveVariableArrays(state: layoutWritten, decodedOffset: 0)
+            .summary(in: layoutWritten, at: 0).messagePayloads.first)
+        XCTAssertEqual(layoutPayload.rawKinsokuWordLength, 3)
+        XCTAssertEqual(layoutPayload.rawAsEnabled, 1)
+        XCTAssertEqual(layoutPayload.rawApEnabled, 0)
+        XCTAssertEqual(layoutPayload.drawableRectangle, [-8, 3, 392, 203])
+        XCTAssertEqual(layoutPayload.rawTextMargins, [5, 7])
+        XCTAssertEqual(try layoutPayload.textStrings[2].utf16Text(in: layoutWritten), "、😀")
+        XCTAssertEqual(try layoutPayload.textStrings[3].utf16Text(in: layoutWritten), "（")
+        XCTAssertTrue(try layoutPayload.textStrings[4].utf16Text(in: layoutWritten).utf16.elementsEqual("e\u{0301}".utf16))
+        XCTAssertEqual(try layoutPayload.primaryText(in: layoutWritten).pending, pendingText)
+        liveMessage.textBounds = [0, 0, 4097, 100]
+        XCTAssertThrowsError(try SaveVariableArrays.replacingMessageLayoutCandidate(in: messageObject,
+            decodedOffset: 0, recordIndex: 0, elementIndex: 0, message: liveMessage))
+        liveMessage.kinsokuWordLength = nil
+        XCTAssertThrowsError(try SaveVariableArrays.replacingMessageLayoutCandidate(in: messageObject,
+            decodedOffset: 0, recordIndex: 0, elementIndex: 0, message: liveMessage))
+        liveMessage.pendingOutput.removeAll()
+        XCTAssertThrowsError(try SaveVariableArrays.replacingMessagePrimaryCandidate(in: messageObject,
+            decodedOffset: 0, recordIndex: 0, elementIndex: 0, message: liveMessage))
+        XCTAssertThrowsError(try SaveVariableArrays(state: Data(messageObject.dropLast()), decodedOffset: 0))
+        var surrogateMessage = messageObject
+        surrogateMessage.replaceSubrange((fixedOffset + 189)..<(fixedOffset + 193),
+                                         with: [2, 0, 0x3d, 0xd8, 0x00, 0xde])
+        let surrogateArrays = try SaveVariableArrays(state: surrogateMessage, decodedOffset: 0)
+        let surrogatePayload = try XCTUnwrap(surrogateArrays.summary(in: surrogateMessage, at: 0).messagePayloads.first)
+        XCTAssertThrowsError(try surrogatePayload.primaryText(in: surrogateMessage))
+        surrogateMessage[fixedOffset + 0x44] = 2
+        let completeSurrogate = try SaveVariableArrays(state: surrogateMessage, decodedOffset: 0)
+        let completePayload = try XCTUnwrap(completeSurrogate.summary(in: surrogateMessage, at: 0).messagePayloads.first)
+        XCTAssertEqual(try completePayload.primaryText(in: surrogateMessage).displayed, "😀")
+        var markupMessage = messageObject
+        markupMessage[fixedOffset + 191] = UInt8(ascii: "[")
+        let markupArrays = try SaveVariableArrays(state: markupMessage, decodedOffset: 0)
+        let markupPayload = try XCTUnwrap(markupArrays.summary(in: markupMessage, at: 0).messagePayloads.first)
+        XCTAssertThrowsError(try markupPayload.primaryText(in: markupMessage))
+        var taggedMessage = messageObject
+        let taggedText = "[s,24,24]A[rb,字,じ]"
+        var taggedBytes = Data([UInt8(taggedText.utf16.count), 0])
+        taggedBytes.append(try XCTUnwrap(taggedText.data(using: .utf16LittleEndian)))
+        taggedMessage.replaceSubrange((fixedOffset + 189)..<(fixedOffset + 193), with: taggedBytes)
+        taggedMessage[fixedOffset + 0x44] = UInt8("[s,24,24]A".utf16.count)
+        let taggedArrays = try SaveVariableArrays(state: taggedMessage, decodedOffset: 0)
+        let taggedPayload = try XCTUnwrap(taggedArrays.summary(in: taggedMessage, at: 0).messagePayloads.first)
+        let tagged = try taggedPayload.primaryText(in: taggedMessage)
+        XCTAssertEqual(tagged.displayedOutput.count, 2)
+        guard case .ruby(let base, let reading) = try XCTUnwrap(tagged.pendingOutput.first) else {
+            return XCTFail("expected pending ruby")
+        }
+        XCTAssertEqual(base, "字")
+        XCTAssertEqual(reading, "じ")
+        taggedMessage[fixedOffset + 0x44] = 2
+        let splitArrays = try SaveVariableArrays(state: taggedMessage, decodedOffset: 0)
+        let splitPayload = try XCTUnwrap(splitArrays.summary(in: taggedMessage, at: 0).messagePayloads.first)
+        XCTAssertThrowsError(try splitPayload.primaryText(in: taggedMessage))
+        var previewMessage = taggedMessage
+        previewMessage[fixedOffset + 0x44] = UInt8("[s,24,24]A".utf16.count)
+        previewMessage[fixedOffset + 0x8c] = 3
+        previewMessage[fixedOffset + 0x9a] = 1
+        previewMessage[fixedOffset + 0x9b] = 1
+        for (reference, value) in zip(taggedPayload.textStrings[2...4], ["、", "（", "除"]).reversed() {
+            let bytes = try XCTUnwrap(value.data(using: .utf16LittleEndian))
+            var field = Data([UInt8(value.utf16.count), 0]); field.append(bytes)
+            previewMessage.replaceSubrange((reference.decodedOffset - 2)..<(reference.decodedOffset + reference.length), with: field)
+        }
+        previewMessage[libraryOffset + 0x9f9] = 1
+        for offset in [0x959, 0x965, 0x971] { previewMessage[libraryOffset + offset] = 100 }
+        let previewArrays = try SaveVariableArrays(state: previewMessage, decodedOffset: 0)
+        let previewPayload = try XCTUnwrap(previewArrays.summary(in: previewMessage, at: 0).messagePayloads.first)
+        let previewSource = ScriptLocation(sourceFile: "preview.png", sourceSHA256: String(repeating: "0", count: 64),
+            byteOffset: 0, byteLength: 1, rangeSHA256: String(repeating: "0", count: 64), lineNumber: 1)
+        let previewResource = ScriptStorage.SavedImageResource(location: previewSource, width: 1, height: 1,
+            memberCount: 1, hasExtendedContainerMetadata: false)
+        var previewStorage = ScriptStorage()
+        XCTAssertEqual(try previewStorage.stageSavedMessagePreviews(previewArrays, state: previewMessage,
+            resources: [previewPayload.decodedOffset: previewResource]), 1)
+        let preview = try XCTUnwrap(previewStorage.messages.values.first)
+        XCTAssertTrue(preview.enabled)
+        XCTAssertEqual(preview.textBounds, [1, 2, 31, 42])
+        XCTAssertEqual(preview.prohibitedLineStart, "、")
+        XCTAssertEqual(preview.prohibitedLineEnd, "（")
+        XCTAssertEqual(preview.ignoredReturnWords, "除")
+        XCTAssertEqual(preview.kinsokuWordLength, 3)
+        XCTAssertTrue(preview.asEnabled)
+        XCTAssertTrue(preview.apEnabled)
+        XCTAssertEqual(preview.committedOutput.count, 2)
+        XCTAssertEqual(preview.pendingOutput.count, 1)
+        XCTAssertEqual(preview.background, previewSource)
+        var rejectedPreview = ScriptStorage()
+        XCTAssertThrowsError(try rejectedPreview.stageSavedMessagePreviews(previewArrays, state: previewMessage, resources: [:]))
+        XCTAssertTrue(rejectedPreview.messages.isEmpty)
+        var movingMessage = previewMessage
+        movingMessage[libraryOffset + 0x804] = 1
+        movingMessage[libraryOffset + 0x80c] = 100
+        movingMessage[libraryOffset + 0x894] = 30
+        let movingArrays = try SaveVariableArrays(state: movingMessage, decodedOffset: 0)
+        let movingPayload = try XCTUnwrap(movingArrays.summary(in: movingMessage, at: 0).messagePayloads.first)
+        let movingResource = ScriptStorage.SavedImageResource(location: previewSource, width: 1, height: 1,
+            memberCount: 1, hasExtendedContainerMetadata: true, motionCount: 2)
+        var movingPreview = ScriptStorage()
+        XCTAssertEqual(try movingPreview.stageSavedMessagePreviews(movingArrays, state: movingMessage,
+            resources: [movingPayload.decodedOffset: movingResource]), 1)
+        let movingMessagePreview = try XCTUnwrap(movingPreview.messages.values.first)
+        XCTAssertEqual(movingMessagePreview.backgroundSelectedMember, 1)
+        XCTAssertEqual(movingMessagePreview.backgroundMotionStartTick, -30)
+        movingMessage[libraryOffset + 0x810] = 1
+        let unresolvedMotion = try SaveVariableArrays(state: movingMessage, decodedOffset: 0)
+        var rejectedMotion = ScriptStorage()
+        XCTAssertThrowsError(try rejectedMotion.stageSavedMessagePreviews(unresolvedMotion, state: movingMessage,
+            resources: [movingPayload.decodedOffset: movingResource]))
+        XCTAssertTrue(rejectedMotion.messages.isEmpty)
+        movingMessage[libraryOffset + 0x810] = 0
+        let textureOffset = libraryOffset + 0xa5e + 4
+        movingMessage.replaceSubrange(textureOffset..<(textureOffset + 6), with: [1, 0, 84, 0, 0, 0, 0, 0])
+        let texturedArrays = try SaveVariableArrays(state: movingMessage, decodedOffset: 0)
+        let texturedPayload = try XCTUnwrap(texturedArrays.summary(in: movingMessage, at: 0).messagePayloads.first)
+        var texturedResource = movingResource
+        texturedResource.boundTextures = [0: previewSource]
+        var texturedPreview = ScriptStorage()
+        XCTAssertEqual(try texturedPreview.stageSavedMessagePreviews(texturedArrays, state: movingMessage,
+            resources: [texturedPayload.decodedOffset: texturedResource]), 1)
+        XCTAssertEqual(texturedPreview.messages.values.first?.backgroundBoundImages[0], previewSource)
+        var baseButton = buttonObject
+        baseButton.replaceSubrange(24..<34, with: [3, 0, 98, 0, 116, 0, 110, 0])
+        baseButton.replaceSubrange(22..<24, with: [1, 0, 98, 0])
+        let baseButtonArrays = try SaveVariableArrays(state: baseButton, decodedOffset: 0)
+        XCTAssertEqual(try baseButtonArrays.summary(in: baseButton, at: 0).buttonPayloads.count, 1)
+        var baseButtonStorage = ScriptStorage()
+        XCTAssertEqual(try baseButtonStorage.stageSavedGlobalButtonIdentities(baseButtonArrays), 1)
+        guard case .object(let baseButtonHandle) = try baseButtonStorage.read("b") else { return XCTFail("expected button") }
+        XCTAssertEqual(baseButtonStorage.visualObjectTypes[baseButtonHandle], "btn")
+        XCTAssertFalse(baseButtonStorage.buttonIsKnownUnlocked(baseButtonHandle))
+        XCTAssertThrowsError(try baseButtonStorage.requireKnownSavedButtonStatesForAdoption()) {
+            XCTAssertEqual(String(describing: $0), "saved_button_state_unverified")
+        }
+        for (command, issue) in [("?lk", "saved_button_lock_unverified"), ("?ck", "saved_button_check_unverified")] {
+            let source = Data("\\scp,b[0]\n\\\(command)\n".utf8)
+            let program = try ScriptProgram(ScriptDocument(data: source, relativePath: "unknown-button-state.s"))
+            var machine = try XCTUnwrap(ScriptMachine.makeSavedExecutionMachine(program: program, index: 0,
+                storage: baseButtonStorage, repository: nil, wait: nil, maximumSteps: 100,
+                retainFullTrace: false, imageLoader: nil, imageMemberLookup: nil,
+                imageExtendedValues: nil, imageMotionNames: nil))
+            try machine.run()
+            XCTAssertEqual(machine.phase, .stopped)
+            XCTAssertEqual(machine.stopReason, issue)
+        }
+        let resetSource = Data("\\gvar,int,LockValue,CheckValue\n\\scp,b[0]\n\\lk,0\n\\?lk\n\\cal,LockValue=ResultInt[0]\n\\ck,0\n\\?ck\n\\cal,CheckValue=ResultInt[0]\n\\wait,1\n".utf8)
+        let resetProgram = try ScriptProgram(ScriptDocument(data: resetSource, relativePath: "reset-button-state.s"))
+        var resetMachine = try XCTUnwrap(ScriptMachine.makeSavedExecutionMachine(program: resetProgram, index: 0,
+            storage: baseButtonStorage, repository: nil, wait: nil, maximumSteps: 100,
+            retainFullTrace: false, imageLoader: nil, imageMemberLookup: nil,
+            imageExtendedValues: nil, imageMotionNames: nil))
+        try resetMachine.run()
+        XCTAssertEqual(resetMachine.phase, .waiting)
+        XCTAssertEqual(try resetMachine.value(named: "LockValue"), .integer(0))
+        XCTAssertEqual(try resetMachine.value(named: "CheckValue"), .integer(0))
+
+        var baseImage = Data(buttonObject.prefix(fixedOffset))
+        baseImage.replaceSubrange(24..<34, with: [3, 0, 105, 0, 109, 0, 103, 0])
+        baseImage.replaceSubrange(22..<24, with: [1, 0, 105, 0])
+        let baseImageArrays = try SaveVariableArrays(state: baseImage, decodedOffset: 0)
+        XCTAssertEqual(try baseImageArrays.summary(in: baseImage, at: 0).imagePayloads.count, 1)
+        let basePayload = try XCTUnwrap(baseImageArrays.summary(in: baseImage, at: 0).imagePayloads.first)
+        var timedImage = baseImage
+        let imageFixed = basePayload.fixedRecord.decodedOffset
+        timedImage.replaceSubrange((imageFixed + 4)..<(imageFixed + 0x804), with: Data(repeating: 0, count: 0x800))
+        timedImage[imageFixed + 4] = 7
+        timedImage[imageFixed + 0x400] = 1 // Last time word.
+        timedImage[imageFixed + 0x404] = 0xff
+        timedImage[imageFixed + 0x800] = 2 // Last auxiliary word.
+        let timing = try XCTUnwrap(SaveVariableArrays(state: timedImage, decodedOffset: 0)
+            .summary(in: timedImage, at: 0).imagePayloads.first?.layerTiming)
+        XCTAssertEqual(timing.savedTimeWords.decodedOffset, imageFixed + 4)
+        XCTAssertEqual(timing.savedAuxiliaryWords.decodedOffset, imageFixed + 0x404)
+        XCTAssertEqual(timing.savedTimeWords.length, 1024)
+        XCTAssertEqual(timing.savedAuxiliaryWords.length, 1024)
+        XCTAssertEqual(timing.nonzeroTimeCount, 2)
+        XCTAssertEqual(timing.nonzeroAuxiliaryCount, 2)
+        XCTAssertEqual(timing.restoreStatus, .unsupported)
+        XCTAssertEqual(timing.timeWords.count, 256)
+        XCTAssertEqual(timing.auxiliaryWords.count, 256)
+        XCTAssertEqual(timing.timeWords[0], 7)
+        XCTAssertEqual(timing.timeWords[255], 1)
+        XCTAssertEqual(timing.auxiliaryWords[0], 255)
+        XCTAssertEqual(timing.auxiliaryWords[255], 2)
+        let timingJSON = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(timing)) as? [String: Any])
+        XCTAssertNil(timingJSON["timeWords"])
+        XCTAssertNil(timingJSON["auxiliaryWords"])
+        XCTAssertEqual(timing.savedTimeWords.sha256, Data(timedImage[(imageFixed + 4)..<(imageFixed + 0x404)]).sha256Hex)
+        XCTAssertEqual(timing.savedAuxiliaryWords.sha256, Data(timedImage[(imageFixed + 0x404)..<(imageFixed + 0x804)]).sha256Hex)
+        let timingSource = Data("saved-layer-fixture".utf8)
+        let timingLocation = ScriptLocation(sourceFile: "saved-layer.b", sourceSHA256: timingSource.sha256Hex,
+            byteOffset: 0, byteLength: timingSource.count, rangeSHA256: timingSource.sha256Hex, lineNumber: 1)
+        let timingRecipeJSON = """
+        [{"container_sha256":"\(timingSource.sha256Hex)","offset":0,"length":\(timingSource.count),"sha256":"\(timingSource.sha256Hex)",
+          "motion_timelines":{"0":[
+            [{"time":0,"type":4,"offset":0},{"time":5,"type":4,"offset":1}],
+            [{"time":0,"type":4,"offset":2},{"time":5,"type":4,"offset":3}]]}}]
+        """
+        let timingRecipe = try JSONDecoder().decode(ScriptImageRecipe.self, from: Data(timingRecipeJSON.utf8))
+        let timingKeys = try XCTUnwrap(timingRecipe.motionKeysAtSavedLayerTimesCandidate(
+            timingLocation, selectedMember: 0, layerTimes: timing.timeWords))
+        XCTAssertEqual(timingKeys.map(\.offset), [1, 2])
+        let positionedImage = try SaveVariableArrays.replacingImagePlacementCandidate(in: baseImage,
+            decodedOffset: 0, recordIndex: 0, elementIndex: 0,
+            placement: SIMD3(210, 92, 110), scale: SIMD3(80, 120, 100))
+        let positionedPayload = try XCTUnwrap(SaveVariableArrays(state: positionedImage, decodedOffset: 0)
+            .summary(in: positionedImage, at: 0).imagePayloads.first)
+        XCTAssertEqual(positionedPayload.staticPlacement, SIMD3(210, 92, 110))
+        XCTAssertEqual(positionedPayload.staticScale, SIMD3(80, 120, 100))
+        XCTAssertThrowsError(try SaveVariableArrays.replacingImagePlacementCandidate(in: baseImage,
+            decodedOffset: 0, recordIndex: 0, elementIndex: 0,
+            placement: SIMD3(0, 0, 0), scale: SIMD3(100, 100, 99)))
+        var baseImageStorage = ScriptStorage()
+        XCTAssertEqual(try baseImageStorage.stageSavedGlobalImageIdentities(baseImageArrays), 1)
+        guard case .object(let baseImageHandle) = try baseImageStorage.read("i") else { return XCTFail("expected image") }
+        XCTAssertEqual(baseImageStorage.visualObjectTypes[baseImageHandle], "img")
+
+        var integerImage = baseImage
+        XCTAssertEqual(basePayload.userIntegerReferences.count, 8)
+        for (reference, value): (SaveReaderCursor.Reference, Int32) in zip(basePayload.userIntegerReferences, [37, -12, 3, 9, 41, -42, 43, -44]) {
+            integerImage.replaceSubrange(reference.decodedOffset..<(reference.decodedOffset + 4),
+                with: withUnsafeBytes(of: value.littleEndian) { Data($0) })
+        }
+        let imageUserString = try XCTUnwrap(basePayload.userStrings.first)
+        integerImage.replaceSubrange((imageUserString.decodedOffset - 2)..<(imageUserString.decodedOffset + imageUserString.length),
+            with: Data([5, 0]) + (try XCTUnwrap("hello".data(using: .utf16LittleEndian))))
+        let integerArrays = try SaveVariableArrays(state: integerImage, decodedOffset: 0)
+        let integerPayload = try XCTUnwrap(integerArrays.summary(in: integerImage, at: 0).imagePayloads.first)
+        XCTAssertEqual(Array(integerPayload.userIntegerWords.prefix(4)), [37, -12, 3, 9])
+        let integerJSON = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(integerPayload)) as? [String: Any])
+        XCTAssertNil(integerJSON["userIntegerWords"])
+        XCTAssertFalse(String(decoding: try JSONEncoder().encode(integerPayload), as: UTF8.self).contains("hello"))
+        let rewrittenIntegerImage = try SaveVariableArrays.replacingImageUserIntegersCandidate(in: integerImage,
+            decodedOffset: 0, recordIndex: 0, elementIndex: 0, values: [-2, 1024, 0, Int32.min])
+        let rewrittenIntegerPayload = try XCTUnwrap(SaveVariableArrays(state: rewrittenIntegerImage, decodedOffset: 0)
+            .summary(in: rewrittenIntegerImage, at: 0).imagePayloads.first)
+        XCTAssertEqual(rewrittenIntegerPayload.userIntegerWords, [-2, 1024, 0, Int32.min, 41, -42, 43, -44])
+        let writableOffsets = Set(integerPayload.userIntegerReferences.prefix(4).flatMap { $0.decodedOffset..<($0.decodedOffset + 4) })
+        XCTAssertTrue(integerImage.indices.allSatisfy { writableOffsets.contains($0) || integerImage[$0] == rewrittenIntegerImage[$0] })
+        XCTAssertThrowsError(try SaveVariableArrays.replacingImageUserIntegersCandidate(in: integerImage,
+            decodedOffset: 0, recordIndex: 0, elementIndex: 0, values: [1]))
+        var integerStorage = ScriptStorage()
+        XCTAssertThrowsError(try integerStorage.stageSavedGlobalImageIdentities(integerArrays))
+        XCTAssertEqual(try integerStorage.stageSavedGlobalImageIdentities(integerArrays, savedState: integerImage), 1)
+        let integerSource = Data("\\gvar,int,A,B,C,D\n\\gvar,str,Before,After\n\\scp,i\n\\?ui\n\\cal,A=ResultInt[0]\n\\cal,B=ResultInt[1]\n\\ui,,42\n\\?ui\n\\cal,C=ResultInt[1]\n\\cal,D=ResultInt[3]\n\\?us\n\\cal,Before=ResultStr[0]\n\\us,\"new\"\n\\?us\n\\cal,After=ResultStr[0]\n\\wait,1\n".utf8)
+        let integerProgram = try ScriptProgram(ScriptDocument(data: integerSource, relativePath: "saved-image-user-integers.s"))
+        let integerIndex = try XCTUnwrap(integerProgram.document.records.firstIndex { $0.kind == .command })
+        var integerMachine = try XCTUnwrap(ScriptMachine.makeSavedExecutionMachine(program: integerProgram,
+            index: integerIndex, storage: integerStorage, repository: nil, wait: nil, maximumSteps: 100,
+            retainFullTrace: false, imageLoader: nil, imageMemberLookup: nil,
+            imageExtendedValues: nil, imageMotionNames: nil))
+        try integerMachine.run()
+        XCTAssertEqual(integerMachine.phase, .waiting)
+        for (name, value): (String, Int32) in [("A", 37), ("B", -12), ("C", 42), ("D", 9)] {
+            XCTAssertEqual(try integerMachine.value(named: name), .integer(value))
+        }
+        XCTAssertEqual(try integerMachine.value(named: "Before"), .string("hello"))
+        XCTAssertEqual(try integerMachine.value(named: "After"), .string("new"))
 
         var fadingImage = Data(buttonObject.prefix(fixedOffset))
         fadingImage.replaceSubrange(24..<34, with: [4, 0, 115, 0, 105, 0, 109, 0, 103, 0])
@@ -1097,6 +1760,7 @@ final class SaveEnvelopeTests: XCTestCase {
             fadingImage[imageLibraryOffset + offset] = value
         }
         fadingImage[imageLibraryOffset + 0x804] = 1
+        fadingImage[imageLibraryOffset + 4] = 7
         fadingImage[imageLibraryOffset + 0x894] = 25
         fadingImage[imageLibraryOffset + 0x810] = 3
         fadingImage[imageLibraryOffset + 0x80c] = 50
@@ -1131,6 +1795,59 @@ final class SaveEnvelopeTests: XCTestCase {
         XCTAssertEqual(image.memberCount, 2)
         XCTAssertEqual(image.selectedMember, 1)
         XCTAssertEqual(image.motionElapsedHundredths(at: 0), 2500)
+        XCTAssertEqual(image.savedLayerTimeSnapshot?.times.first, 7)
+        let savedPreviewProgram = try ScriptProgram(ScriptDocument(data: Data("\\wait,1\n".utf8), relativePath: "saved-preview.s"))
+        let savedPreview = try XCTUnwrap(ScriptMachine.makeSavedExecutionMachine(program: savedPreviewProgram, index: 0,
+            storage: imageStorage, repository: nil, wait: nil, maximumSteps: 100, retainFullTrace: false,
+            imageLoader: nil, imageMemberLookup: nil, imageExtendedValues: nil, imageMotionNames: nil))
+        XCTAssertEqual(savedPreview.staticImageLayers.first?.savedLayerTimeCandidate?.first, 7)
+        var advancedPreview = savedPreview
+        advancedPreview.advanceVisualClock(ticks: 1)
+        XCTAssertNil(advancedPreview.staticImageLayers.first?.savedLayerTimeCandidate)
+        var resumedPreview = savedPreview
+        try resumedPreview.run()
+        XCTAssertNil(resumedPreview.staticImageLayers.first?.savedLayerTimeCandidate)
+        var frozenSample: Int32?
+        let frozenContinuation = try XCTUnwrap(ScriptMachine.probeSavedCalculations(
+            program: savedPreviewProgram, index: 0, storage: imageStorage,
+            drawScene: { machine, pass in
+                if case .frozenLayerScene = pass {
+                    XCTAssertEqual(machine.executedSteps, 0)
+                    frozenSample = machine.staticImageLayers.first?.savedLayerTimeCandidate?.first
+                    return (.init(status: .unsupported, issue: "frozen_candidate"), nil)
+                }
+                return (.init(status: .inferred), nil)
+            }, frozenLayerPreview: true, limit: 16))
+        XCTAssertEqual(frozenSample, 7)
+        XCTAssertEqual(frozenContinuation.frozenSceneDraw?.status, .unsupported)
+        XCTAssertEqual(frozenContinuation.frozenSceneDraw?.issue, "frozen_candidate")
+        var videoImage = fadingImage
+        videoImage[imageLibraryOffset + 0x804] = 0
+        videoImage[imageLibraryOffset + 0x810] = 0
+        videoImage[imageLibraryOffset + 0x80c] = 100
+        let videoArrays = try SaveVariableArrays(state: videoImage, decodedOffset: 0)
+        let videoPayload = try XCTUnwrap(videoArrays.summary(in: videoImage, at: 0).imagePayloads.first)
+        var videoStorage = ScriptStorage()
+        XCTAssertEqual(try videoStorage.stageSavedGlobalImageIdentities(videoArrays,
+            resources: [videoPayload.decodedOffset: .init(location: raster, width: 28, height: 25,
+                memberCount: 1, hasExtendedContainerMetadata: false, isTheoraResource: true, motionCount: 1)]), 1)
+        guard case .object(let videoHandle) = try videoStorage.readIndexed("i", 0) else {
+            return XCTFail("Expected a restored video identity")
+        }
+        let video = try XCTUnwrap(videoStorage.images[videoHandle])
+        XCTAssertTrue(video.isTheoraResource)
+        XCTAssertNil(video.savedLayerTimeSnapshot)
+        XCTAssertEqual(video.selectedMember, 0)
+        XCTAssertEqual(video.motionElapsedHundredths(at: 0), 2500)
+        XCTAssertEqual(video.motionElapsedHundredths(at: 10), 3500)
+        var invalidVideo = videoImage
+        invalidVideo[imageLibraryOffset + 0x810] = 1
+        let invalidVideoArrays = try SaveVariableArrays(state: invalidVideo, decodedOffset: 0)
+        var invalidVideoStorage = ScriptStorage()
+        XCTAssertThrowsError(try invalidVideoStorage.stageSavedGlobalImageIdentities(invalidVideoArrays,
+            resources: [videoPayload.decodedOffset: .init(location: raster, width: 28, height: 25,
+                memberCount: 1, hasExtendedContainerMetadata: false, isTheoraResource: true, motionCount: 1)]))
+        XCTAssertTrue(invalidVideoStorage.images.isEmpty)
         image.advanceRestoredMotion(ticks: 9)
         XCTAssertEqual(image.motionElapsedHundredths(at: 9), 2500)
         image.advanceRestoredMotion(ticks: 1)
@@ -1188,6 +1905,13 @@ final class SaveEnvelopeTests: XCTestCase {
         let linear = try SaveVariableArrays(state: movingImage, decodedOffset: 0)
         let sampled = try XCTUnwrap(linear.summary(in: movingImage, at: 0).imagePayloads.first?.activePlacement)
         XCTAssertEqual(sampled.mode, 1)
+        XCTAssertEqual(try linear.summary(in: movingImage, at: 0).imagePayloads.first?.rawPlacementMode, 1)
+        var restoredLinear = ScriptStorage()
+        XCTAssertEqual(try restoredLinear.stageSavedGlobalImageIdentities(linear), 1)
+        guard case .object(let linearHandle) = try restoredLinear.readIndexed("i", 0) else {
+            return XCTFail("Expected a restored image identity")
+        }
+        XCTAssertEqual(restoredLinear.images[linearHandle]?.savedPlacementMode, 1)
         XCTAssertEqual(sampled.remaining, 25)
         XCTAssertEqual(sampled.duration, 2148)
         XCTAssertEqual(sampled.destinationScale.x, 125)
@@ -1195,6 +1919,24 @@ final class SaveEnvelopeTests: XCTestCase {
             duration: sampled.duration, elapsed: sampled.duration / 2, savedMode: sampled.mode)
         XCTAssertEqual(midpoint.sampleSavedLinearAxis(from: 75, to: sampled.destinationScale.x), 100)
         XCTAssertEqual(midpoint.sampleSavedLinearAxis(from: 10, to: 11), 10)
+        XCTAssertEqual(midpoint.sampleLinearScale(from: 51, to: 100), 75.5)
+        movingImage[imageLibraryOffset + 0x9ed] = 100
+        movingImage[imageLibraryOffset + 0x9ee] = 0
+        movingImage[imageLibraryOffset + 0x9e9] = 50
+        movingImage[imageLibraryOffset + 0x955] = 51
+        movingImage[imageLibraryOffset + 0x959] = 100
+        let fractionalArrays = try SaveVariableArrays(state: movingImage, decodedOffset: 0)
+        var fractionalStorage = ScriptStorage()
+        XCTAssertEqual(try fractionalStorage.stageSavedGlobalImageIdentities(fractionalArrays,
+            resources: [parsedImage.decodedOffset: .init(location: raster, width: 28, height: 25,
+                memberCount: 1, hasExtendedContainerMetadata: false, motionCount: nil, motionUpdateThreshold: nil)]), 1)
+        let resumeProgram = try ScriptProgram(ScriptDocument(data: Data("\\wait,1\n".utf8), relativePath: "resume.s"))
+        let resumed = try XCTUnwrap(ScriptMachine.makeSavedExecutionMachine(program: resumeProgram, index: 0,
+            storage: fractionalStorage, repository: nil, wait: 1, maximumSteps: 10, retainFullTrace: false,
+            imageLoader: nil, imageMemberLookup: nil, imageExtendedValues: nil, imageMotionNames: nil))
+        let resumedLayer = try XCTUnwrap(resumed.staticImageLayers.first)
+        XCTAssertEqual(resumedLayer.fractionalScalePercent, SIMD2<Float>(75.5, 100))
+        XCTAssertTrue(resumedLayer.unappliedTransform)
         fadingImage[imageLibraryOffset + 0xa42] = 1
         let repeating = try SaveVariableArrays(state: fadingImage, decodedOffset: 0)
         var repeatingStorage = ScriptStorage()
@@ -1216,7 +1958,14 @@ final class SaveEnvelopeTests: XCTestCase {
         }
         let userSlot = try XCTUnwrap(buttonElements.first?.buttonPayload?.userStrings.first)
         let buttonPayload = try XCTUnwrap(buttonElements.first?.buttonPayload)
+        for (reference, value) in zip(buttonPayload.userIntegerReferences, [Int32(37), -12, 3, 9]) {
+            buttonObject.replaceSubrange(reference.decodedOffset..<(reference.decodedOffset + 4),
+                with: withUnsafeBytes(of: value.littleEndian) { Data($0) })
+        }
         buttonObject[buttonPayload.imageLibraryOffset + 0x9fa] = 1
+        buttonObject[buttonPayload.buttonRecordOffset] = 10
+        buttonObject[buttonPayload.buttonRecordOffset + 8] = 2
+        buttonObject[buttonPayload.buttonRecordOffset + 9] = 7
         let geometry: [(Int, Int32)] = [(0x915, 320), (0x919, 240), (0x91d, 8),
                                         (0x959, 80), (0x965, 90), (0x971, 100)]
         for (offset, value) in geometry {
@@ -1239,9 +1988,30 @@ final class SaveEnvelopeTests: XCTestCase {
             resources: [buttonPayload.decodedOffset: buttonResource],
             textures: [buttonPayload.decodedOffset: [1: hoverTexture]], savedState: buttonObject, program: clickProgram), 1)
         XCTAssertEqual(try buttonStorage.buttonArrayCount("b"), 1)
+        XCTAssertNoThrow(try buttonStorage.requireKnownSavedButtonStatesForAdoption())
         if case .object(let handle) = try buttonStorage.readIndexed("b", 0) {
             XCTAssertEqual(buttonStorage.drawableRectangles[handle], [1, 2, 31, 42])
             XCTAssertEqual(buttonStorage.buttonUserStrings[handle]?[0], label)
+            XCTAssertEqual(buttonStorage.buttonCheckVisual[handle], 2)
+            XCTAssertEqual(buttonStorage.buttonLocks[handle], 7)
+            XCTAssertEqual(buttonStorage.buttonUserIntegers[handle], [0: 37, 1: -12, 2: 3, 3: 9])
+            let checkSource = Data("\\gvar,int,CheckValue,LockValue,User0,User1,User2,User3\n\\scp,b[0]\n\\?ck\n\\cal,CheckValue=ResultInt[0]\n\\?lk\n\\cal,LockValue=ResultInt[0]\n\\?ui\n\\cal,User0=ResultInt[0]\n\\cal,User1=ResultInt[1]\n\\cal,User2=ResultInt[2]\n\\cal,User3=ResultInt[3]\n\\wait,1\n".utf8)
+            let checkProgram = try ScriptProgram(ScriptDocument(data: checkSource, relativePath: "saved-button-check.s"))
+            let checkIndex = try XCTUnwrap(checkProgram.document.records.firstIndex { $0.kind == .command })
+            var checkMachine = try XCTUnwrap(ScriptMachine.makeSavedExecutionMachine(program: checkProgram,
+                index: checkIndex, storage: buttonStorage, repository: nil, wait: nil, maximumSteps: 100,
+                retainFullTrace: false, imageLoader: nil, imageMemberLookup: nil,
+                imageExtendedValues: nil, imageMotionNames: nil))
+            try checkMachine.run()
+            XCTAssertEqual(checkMachine.phase, .waiting)
+            XCTAssertEqual(try checkMachine.value(named: "CheckValue"), .integer(1))
+            XCTAssertEqual(try checkMachine.value(named: "LockValue"), .integer(1))
+            XCTAssertEqual(try checkMachine.value(named: "User0"), .integer(37))
+            XCTAssertEqual(try checkMachine.value(named: "User1"), .integer(-12))
+            XCTAssertEqual(try checkMachine.value(named: "User2"), .integer(3))
+            XCTAssertEqual(try checkMachine.value(named: "User3"), .integer(9))
+            let lockedLayer = try XCTUnwrap(checkMachine.staticImageLayers.first { $0.id == handle })
+            XCTAssertNil(lockedLayer.hoverResource)
             XCTAssertEqual(buttonStorage.buttonScriptTargets[handle], label)
             XCTAssertTrue(buttonStorage.enabledButtons.contains(handle))
             XCTAssertEqual(buttonStorage.buttonPlacement[handle], [320, 240, 8])
@@ -1250,8 +2020,40 @@ final class SaveEnvelopeTests: XCTestCase {
                 "\\draw,1\n\\draw,1\n\\clk\n".utf8), relativePath: "button-draw.s"))
             let entry = try XCTUnwrap(drawProgram.document.records.firstIndex { $0.command == "draw" })
             var drewButton = false
+            var unlockedStorage = buttonStorage
+            unlockedStorage.buttonLocks[handle] = 0
+            let eventSource = Data("\\gvar,int,Event0,Event1,Event2,Event3\n\\gvar,str,EventName\n\\stop,@@OnStop\n\\wait,1\n@@OnStop\n\\scp,inp\n\\gbc\n\\cal,EventName=ResultStr[0]\n\\cal,Event0=ResultInt[0]\n\\cal,Event1=ResultInt[1]\n\\cal,Event2=ResultInt[2]\n\\cal,Event3=ResultInt[3]\n\\play\n\\ret\n@@Click\n\\ret\n".utf8)
+            let eventProgram = try ScriptProgram(ScriptDocument(data: eventSource, relativePath: "saved-button-event.s"))
+            let eventIndex = try XCTUnwrap(eventProgram.document.records.firstIndex { $0.kind == .command })
+            var lockedEventMachine = try XCTUnwrap(ScriptMachine.makeSavedExecutionMachine(program: eventProgram,
+                index: eventIndex, storage: buttonStorage, repository: nil, wait: nil, maximumSteps: 200,
+                retainFullTrace: false, imageLoader: nil, imageMemberLookup: nil,
+                imageExtendedValues: nil, imageMotionNames: nil))
+            try lockedEventMachine.run()
+            XCTAssertEqual(lockedEventMachine.phase, .waitingForEvent)
+            XCTAssertThrowsError(try lockedEventMachine.dispatchStopCallback(buttonIndex: 0, buttonArray: "b")) {
+                XCTAssertEqual(String(describing: $0), "stop_button_not_selectable")
+            }
+            var eventMachine = try XCTUnwrap(ScriptMachine.makeSavedExecutionMachine(program: eventProgram,
+                index: eventIndex, storage: unlockedStorage, repository: nil, wait: nil, maximumSteps: 200,
+                retainFullTrace: false, imageLoader: nil, imageMemberLookup: nil,
+                imageExtendedValues: nil, imageMotionNames: nil))
+            try eventMachine.run()
+            try eventMachine.dispatchStopCallback(buttonIndex: 0, buttonArray: "b")
+            try eventMachine.run()
+            XCTAssertEqual(eventMachine.phase, .waiting)
+            XCTAssertEqual(try eventMachine.value(named: "EventName"), .string(label))
+            for (name, value): (String, Int32) in [("Event0", 37), ("Event1", -12), ("Event2", 3), ("Event3", 9)] {
+                XCTAssertEqual(try eventMachine.value(named: name), .integer(value))
+            }
+            var unlockedCheck = try XCTUnwrap(ScriptMachine.makeSavedExecutionMachine(program: checkProgram,
+                index: checkIndex, storage: unlockedStorage, repository: nil, wait: nil, maximumSteps: 100,
+                retainFullTrace: false, imageLoader: nil, imageMemberLookup: nil,
+                imageExtendedValues: nil, imageMotionNames: nil))
+            try unlockedCheck.run()
+            XCTAssertEqual(try unlockedCheck.value(named: "LockValue"), .integer(0))
             let continuation = try ScriptMachine.probeSavedCalculations(program: drawProgram,
-                index: entry, storage: buttonStorage, drawPreview: { .init(status: .inferred) },
+                index: entry, storage: unlockedStorage, drawPreview: { .init(status: .inferred) },
                 drawScene: { machine, _ in
                     let layer = try XCTUnwrap(machine.staticImageLayers.first { $0.id == handle })
                     XCTAssertEqual(layer.x, 320)

@@ -2,10 +2,52 @@ import struct
 import unittest
 
 from tools.mangekyou_p0 import ProbeError
-from tools.save_slot_probe import decode_runlengthpack, payload_checksum, probe
+from tools.save_slot_probe import decode_runlengthpack, decode_state_transform, inspect_system_hash, payload_checksum, probe
 
 
 class SaveSlotProbeTests(unittest.TestCase):
+    def test_system_hash_checks_bucket_and_record_identity(self):
+        def sample(bucket, stored_hash):
+            records = bytearray()
+            for slot in range(256):
+                records += struct.pack("<I", int(slot == bucket))
+                if slot == bucket:
+                    records += struct.pack("<h", 3) + "abc".encode("utf-16le")
+                    records += struct.pack("<QI", 0, stored_hash)
+            records += struct.pack("<i", 73)
+            block = len(records) & ~3
+            packed = bytearray(64)
+            packed[:14] = b"runlengthpack\0"
+            struct.pack_into("<III", packed, 16, 1, block, len(records) - block)
+            packed[28:28 + len(records) - block] = records[block:]
+            for offset in range(0, block, 252):
+                chunk = records[offset:min(offset + 252, block)]
+                packed += struct.pack("<b", -(len(chunk) // 4)) + chunk
+            header = bytearray(68)
+            header[:10] = b"HashVer1.4"
+            struct.pack_into("<6I", header, 16, 256, 1, 4, len(packed), 2, 0)
+            return bytes(header) + decode_state_transform(packed, 7)
+        self.assertEqual(inspect_system_hash(sample(103, 1378), 7)["entry_count"], 1)
+        for bucket, hash_value in [(102, 1378), (103, 1379)]:
+            with self.assertRaisesRegex(ProbeError, "system_hash_entry_identity"):
+                inspect_system_hash(sample(bucket, hash_value), 7)
+
+    def test_system_sections_are_bounded_and_header_must_match(self):
+        header = bytearray(124)
+        header[:12] = b"IMOSYSDATA12"
+        struct.pack_into("<i", header, 56, 2)
+        payload = bytes(header) + struct.pack("<i", 4) + b"abcd" + bytes(8)
+        envelope = struct.pack("<III", 0xFD324D4E, payload_checksum(payload), len(payload)) + payload
+        result = probe(envelope)
+        self.assertEqual([section["length"] for section in result["sections"]], [4, 0, 0])
+        self.assertEqual(result["system_variables"]["status"], "not_tested")
+        with self.assertRaisesRegex(ProbeError, "system_header_verification_mismatch"):
+            probe(envelope, system_header_template=bytes(range(44)))
+        bad = bytes(header) + struct.pack("<i", 100) + bytes(8)
+        wrapped = struct.pack("<III", 0xFD324D4E, payload_checksum(bad), len(bad)) + bad
+        with self.assertRaisesRegex(ProbeError, "invalid_system_section_length"):
+            probe(wrapped)
+
     def test_outer_envelope(self):
         # For one zero block both rotated accumulators are 0x1abc9d3d.
         header = struct.pack("<III", 0xFD324D4E, 0x28E49A99, 9)

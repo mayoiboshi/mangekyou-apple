@@ -132,6 +132,25 @@ public struct ResourceImage: Sendable {
             throw ResourceError.rejected("unsupported_text_preview_surface")
         }
         let text = NSMutableAttributedString()
+        // Core Text metrics, ruby placement and line placement remain
+        // approximations; the caller retains the unresolved-layout issue.
+        let candidate = layer.runs.allSatisfy {
+            Int64($0.width) + Int64($0.estimatedTracking) > 0 &&
+            ($0.horizontalAdvance ?? 0) >= 0 &&
+            ($0.ruby == nil || $0.text.rangeOfCharacter(from: .newlines) == nil)
+        } && layer.runs.reduce(0, { $0 + $1.text.utf16.count }) <= 8192 ? layer.lineBreakCandidate : nil
+        let lineStart = candidate.map { Array($0.prohibitedLineStart.utf16) } ?? []
+        let lineEnd = candidate.map { Array($0.prohibitedLineEnd.utf16) } ?? []
+        var candidatePen = 0.0
+        var candidateBreaks = 0
+        var candidateRubyRuns = 0
+        var candidateIndentRuns = 0
+        func containsToken(_ token: [UInt16], in units: [UInt16]) -> Bool {
+            guard !token.isEmpty, token.count <= units.count else { return false }
+            return (0...(units.count - token.count)).contains { start in
+                units[start..<(start + token.count)].elementsEqual(token)
+            }
+        }
         for run in layer.runs {
             if let advance = run.horizontalAdvance {
                 var callbacks = CTRunDelegateCallbacks(version: kCTRunDelegateVersion1,
@@ -147,6 +166,10 @@ public struct ResourceImage: Sendable {
                 text.append(NSAttributedString(string: "\u{fffc}", attributes: [
                     .init(kCTRunDelegateAttributeName as String): delegate
                 ]))
+                if candidate != nil {
+                    candidatePen += Double(advance)
+                    candidateIndentRuns += 1
+                }
                 continue
             }
             let size = CGFloat(run.height)
@@ -160,6 +183,9 @@ public struct ResourceImage: Sendable {
                 .init(kCTFontAttributeName as String): font,
                 .init(kCTForegroundColorAttributeName as String): color(run.colorARGB)
             ]
+            if run.estimatedTracking != 0 {
+                attributes[.init(kCTKernAttributeName as String)] = CGFloat(run.estimatedTracking)
+            }
             if let ruby = run.ruby, !ruby.text.isEmpty {
                 let rubySize = ruby.height.map { CGFloat($0) } ?? size / 2
                 let ratio = ruby.width.flatMap { width in ruby.height.map { CGFloat(width) / CGFloat($0) } } ?? 1
@@ -171,7 +197,48 @@ public struct ResourceImage: Sendable {
                     [kCTFontAttributeName: rubyFont,
                      kCTForegroundColorAttributeName: color(ruby.colorARGB ?? run.colorARGB)] as CFDictionary)
             }
-            text.append(NSAttributedString(string: run.text, attributes: attributes))
+            if let candidate {
+                if run.ruby != nil {
+                    candidateRubyRuns += 1
+                    // The audited ruby entry passes the force class to the
+                    // native break check. Its width remains a Core Text estimate.
+                    let available = Int64((Double(width) - candidatePen) /
+                        Double(Int64(run.width) + Int64(run.estimatedTracking)))
+                    if available < 1 {
+                        text.append(NSAttributedString(string: "\n", attributes: attributes))
+                        candidatePen = 0
+                        candidateBreaks += 1
+                    }
+                    let token = NSAttributedString(string: run.text, attributes: attributes)
+                    candidatePen += CTLineGetTypographicBounds(CTLineCreateWithAttributedString(token), nil, nil, nil)
+                    text.append(token)
+                    continue
+                }
+                for character in run.text {
+                    let value = String(character)
+                    if character.isNewline {
+                        text.append(NSAttributedString(string: value, attributes: attributes))
+                        candidatePen = 0
+                        continue
+                    }
+                    let units = Array(value.utf16)
+                    let available = Int64((Double(width) - candidatePen) /
+                        Double(Int64(run.width) + Int64(run.estimatedTracking)))
+                    let atStart = candidate.reserve != 0 && containsToken(units, in: lineStart)
+                    let atEnd = candidate.reserve != 0 && containsToken(units, in: lineEnd)
+                    let remaining = available - Int64(candidate.reserve)
+                    if available < 1 || (!atStart && (atEnd ? remaining < 2 : remaining < 1)) {
+                        text.append(NSAttributedString(string: "\n", attributes: attributes))
+                        candidatePen = 0
+                        candidateBreaks += 1
+                    }
+                    let token = NSAttributedString(string: value, attributes: attributes)
+                    candidatePen += CTLineGetTypographicBounds(CTLineCreateWithAttributedString(token), nil, nil, nil)
+                    text.append(token)
+                }
+            } else {
+                text.append(NSAttributedString(string: run.text, attributes: attributes))
+            }
         }
         let path = CGPath(rect: CGRect(x: 0, y: 0, width: width, height: height), transform: nil)
         context.clear(CGRect(x: 0, y: 0, width: outputWidth, height: outputHeight))
@@ -181,22 +248,56 @@ public struct ResourceImage: Sendable {
         context.scaleBy(x: scaleX, y: scaleY)
         context.textMatrix = .identity
         let frame = CTFramesetterCreateFrame(CTFramesetterCreateWithAttributedString(text), CFRange(), path, nil)
+        var missingGlyphCount = 0
+        var textTruncated = false
+        func inspectGlyphs(_ line: CTLine) {
+            let runs = CTLineGetGlyphRuns(line) as NSArray
+            for index in 0..<runs.count {
+                let run = runs[index] as! CTRun
+                let attributes = CTRunGetAttributes(run) as NSDictionary
+                if attributes[kCTRunDelegateAttributeName] != nil { continue }
+                let count = CTRunGetGlyphCount(run)
+                guard count > 0 else { continue }
+                if let font = attributes[kCTFontAttributeName] as! CTFont?,
+                   (CTFontCopyPostScriptName(font) as String).lowercased().contains("lastresort") {
+                    missingGlyphCount += count
+                    continue
+                }
+                var glyphs = [CGGlyph](repeating: 0, count: count)
+                glyphs.withUnsafeMutableBufferPointer { buffer in
+                    CTRunGetGlyphs(run, CFRange(location: 0, length: 0), buffer.baseAddress!)
+                }
+                missingGlyphCount += glyphs.count { $0 == 0 }
+            }
+        }
         if CFArrayGetCount(CTFrameGetLines(frame)) == 0, text.length > 0,
            text.string.rangeOfCharacter(from: .newlines) == nil {
             // A short surface can fit the glyphs while rejecting the font's
             // full line metrics. Draw one line within the original clip.
             let line = CTLineCreateWithAttributedString(text)
+            inspectGlyphs(line)
             var ascent: CGFloat = 0
             var descent: CGFloat = 0
-            CTLineGetTypographicBounds(line, &ascent, &descent, nil)
+            let advance = CTLineGetTypographicBounds(line, &ascent, &descent, nil)
+            textTruncated = advance > Double(width)
             context.clip(to: CGRect(x: 0, y: 0, width: width, height: height))
             context.textPosition = CGPoint(x: 0, y: (CGFloat(height) - ascent + descent) / 2)
             CTLineDraw(line, context)
         } else {
+            let lines = CTFrameGetLines(frame) as NSArray
+            for index in 0..<lines.count { inspectGlyphs(lines[index] as! CTLine) }
+            let visible = CTFrameGetVisibleStringRange(frame)
+            textTruncated = visible.location < 0 || visible.length < 0 ||
+                visible.location > text.length || visible.length < text.length - visible.location
             CTFrameDraw(frame, context)
         }
         guard let image = context.makeImage() else { throw ResourceError.rejected("text_preview_image") }
-        return Self(image: image, format: "CoreText", notes: ["native_font_metrics"])
+        var notes = ["native_font_metrics", "missing_glyphs:\(missingGlyphCount)",
+                     textTruncated ? "text_truncated" : "text_complete"]
+        if candidate != nil { notes.append("line_break_candidate:\(candidateBreaks)") }
+        if candidateRubyRuns > 0 { notes.append("line_break_candidate_ruby:\(candidateRubyRuns)") }
+        if candidateIndentRuns > 0 { notes.append("line_break_candidate_indent:\(candidateIndentRuns)") }
+        return Self(image: image, format: "CoreText", notes: notes)
     }
 
     public static func decode(_ data: Data) throws -> Self {

@@ -295,7 +295,7 @@ public struct SaveEnvelope: Encodable {
         return result
     }
 
-    private static func wrapPayload(_ payload: Data) -> Data {
+    package static func wrapPayload(_ payload: Data) -> Data {
         let checksum = payload.withUnsafeBytes { payloadChecksum($0) }
         var result = Data()
         for field: UInt32 in [0xfd324d4e, checksum, UInt32(payload.count)] {

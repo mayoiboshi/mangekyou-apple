@@ -11,11 +11,11 @@ import subprocess
 
 if __package__:
     from .mangekyou_p0 import ROOT,ProbeError,absolute,read_bounded,safe_member_name,write_json
-    from .qlie_lex import lex,codec_for,decode_spans
+    from .qlie_lex import lex,codec_for,decode_spans,line_records
     from .control_state_analysis import processing_deadline
 else:
     from mangekyou_p0 import ROOT,ProbeError,absolute,read_bounded,safe_member_name,write_json
-    from qlie_lex import lex,codec_for,decode_spans
+    from qlie_lex import lex,codec_for,decode_spans,line_records
     from control_state_analysis import processing_deadline
 
 
@@ -59,8 +59,14 @@ def validate_trace(machine,data,relative,document,source_lookup=None, allow_trac
         'scalarInitialization','steps','currentLocation','stopReason','callDepth','variableCounts','trace',
         'moduleSnapshotCount','moduleSnapshotBytes','inputSnapshotPolicy','sourceSnapshotCount','tableObjectCount',
         'tableEntryCount','tableSnapshots','tableAuxiliaryResultFlags','objectLifetime',
-        'listObjectCount','listLineCount','listSnapshots'}
+        'listObjectCount','listLineCount','listSnapshots','sourceVisits','sourceVisitsTruncated','sourceCoverage',
+        'displayConfigurationHostStatus','displayRefreshRequested'}
     if set(machine)-allowed:raise ProbeError('native_machine_unapproved_public_fields')
+    display_fields={'displayConfigurationHostStatus','displayRefreshRequested'}
+    if set(machine)&display_fields and (not display_fields <= set(machine) or
+        machine['displayConfigurationHostStatus'] not in {'unsupported','not_tested'} or
+        type(machine['displayRefreshRequested']) is not bool):
+        raise ProbeError('native_display_configuration_fields')
     new_fields={'sourceSnapshotCount','tableObjectCount','tableEntryCount','tableSnapshots','tableAuxiliaryResultFlags','objectLifetime'}
     table_profiles={'experimental_static_contracts_v3','experimental_static_contracts_v4','experimental_static_contracts_v5','experimental_static_contracts_v6','experimental_static_contracts_v7','experimental_static_contracts_v8','experimental_static_contracts_v9','experimental_static_contracts_v10','experimental_static_contracts_v11','experimental_static_contracts_v12','experimental_static_contracts_v13','experimental_static_contracts_v14','experimental_static_contracts_v15','experimental_static_contracts_v16','experimental_static_contracts_v17','experimental_static_contracts_v18','experimental_static_contracts_v19','experimental_static_contracts_v20','experimental_static_contracts_v21','experimental_static_contracts_v22','experimental_static_contracts_v23','experimental_static_contracts_v24','experimental_static_contracts_v25','experimental_static_contracts_v26','experimental_static_contracts_v27','experimental_static_contracts_v28','experimental_static_contracts_v29','experimental_static_contracts_v30','experimental_static_contracts_v31','experimental_static_contracts_v32','experimental_static_contracts_v33','experimental_static_contracts_v34','experimental_static_contracts_v35','experimental_static_contracts_v36','experimental_static_contracts_v37','experimental_static_contracts_v38','experimental_static_contracts_v39','experimental_static_contracts_v40','experimental_static_contracts_v41'}
     if machine.get('profile') not in table_profiles and set(machine)&new_fields:
@@ -73,15 +79,83 @@ def validate_trace(machine,data,relative,document,source_lookup=None, allow_trac
     if type(steps) is not int or not 0<=len(trace)<=steps<=96_000_000 or (steps != len(trace) and (not allow_trace_suffix or not 1024<=len(trace)<2048)):
         raise ProbeError('native_trace_count')
     references=[machine['currentLocation']] if machine.get('currentLocation') else []
-    sources={relative:(data,document,{(r['byte_offset'],r['byte_length']):r for r in document['records']},sha(data))}
+    def record_index(content, name, doc):
+        originals={(r['byte_offset'],r['byte_length']):r for r in doc['records']}
+        # Execution expands grouped blank spans into individual physical lines.
+        # Keep the grouped lexical records too, and only add exact blank lines.
+        grouped=[r for r in doc['records'] if r['record_type']=='empty_span' and r.get('line_count',1)>1]
+        if grouped:
+            group_index=0
+            for line in line_records(content,name):
+                start=line['byte_offset']; length=line['byte_length']
+                while group_index<len(grouped) and start>=grouped[group_index]['byte_offset']+grouped[group_index]['byte_length']:
+                    group_index+=1
+                if group_index==len(grouped): break
+                group=grouped[group_index]
+                if not line['text'].strip() and group['byte_offset']<=start and start+length<=group['byte_offset']+group['byte_length']:
+                    originals[(start,length)]={'record_type':'empty_span','token':None,
+                                               'line_number':line['line_number']}
+        return originals
+    sources={relative:(data,document,record_index(data,relative,document),sha(data))}
     def context(name):
         if name not in sources:
             if source_lookup is None:raise ProbeError('native_cross_file_trace_without_pinned_lookup')
             if len(sources)>=512:raise ProbeError('native_trace_source_count_limit')
             content,doc=source_lookup(name)
             if len(content)+sum(len(v[0]) for v in sources.values())>source_byte_limit:raise ProbeError('native_trace_source_byte_limit')
-            sources[name]=(content,doc,{(r['byte_offset'],r['byte_length']):r for r in doc['records']},sha(content))
+            sources[name]=(content,doc,record_index(content,name,doc),sha(content))
         return sources[name]
+    visits = machine.get('sourceVisits')
+    truncated = machine.get('sourceVisitsTruncated')
+    if visits is not None or truncated is not None:
+        if not isinstance(visits,list) or len(visits)>512 or type(truncated) is not bool:
+            raise ProbeError('native_source_visit_limit')
+        seen = set()
+        previous_step = 0
+        for visit in visits:
+            if set(visit) != {'firstStep','lastStep','firstLocation','lastLocation','entries','status'} or visit['status'] != 'inferred':
+                raise ProbeError('native_source_visit_fields')
+            first, last, entries = visit['firstStep'], visit['lastStep'], visit['entries']
+            if (type(first) is not int or type(last) is not int or type(entries) is not int or
+                not previous_step < first <= last <= steps or not 1 <= entries <= last-first+1):
+                raise ProbeError('native_source_visit_steps')
+            first_ref, last_ref = visit['firstLocation'], visit['lastLocation']
+            name = first_ref['sourceFile']
+            if name in seen or last_ref['sourceFile'] != name or last_ref['sourceSHA256'] != first_ref['sourceSHA256']:
+                raise ProbeError('native_source_visit_identity')
+            seen.add(name)
+            previous_step = first
+            for ref in (first_ref, last_ref):
+                _, _, originals, _ = context(name)
+                if (ref['byteOffset'], ref['byteLength']) not in originals:
+                    raise ProbeError('native_source_visit_record')
+                references.append(ref)
+    coverage = machine.get('sourceCoverage')
+    if coverage is not None:
+        if (not isinstance(coverage,dict) or set(coverage) != {'sourceFile','entries','truncated'} or
+            not isinstance(coverage['entries'],list) or len(coverage['entries']) > 4096 or
+            type(coverage['truncated']) is not bool):
+            raise ProbeError('native_source_coverage_limit')
+        name = safe_member_name(coverage['sourceFile'])
+        _, _, originals, _ = context(name)
+        seen = set()
+        previous_step = 0
+        for entry in coverage['entries']:
+            if (set(entry) != {'location','recordType','firstStep','lastStep','executions','status'} or
+                entry['status'] != 'inferred' or entry['recordType'] not in {'command','label'}):
+                raise ProbeError('native_source_coverage_fields')
+            first, last, count = entry['firstStep'], entry['lastStep'], entry['executions']
+            if (type(first) is not int or type(last) is not int or type(count) is not int or
+                not previous_step < first <= last <= steps or not 1 <= count <= last-first+1):
+                raise ProbeError('native_source_coverage_steps')
+            ref = entry['location']
+            key = (ref['byteOffset'],ref['byteLength'])
+            if (ref['sourceFile'] != name or key in seen or key not in originals or
+                originals[key]['record_type'] != entry['recordType']):
+                raise ProbeError('native_source_coverage_record')
+            seen.add(key)
+            previous_step = first
+            references.append(ref)
     skipped_locations=set()
     for i,row in enumerate(trace, start=steps-len(trace)):
         if set(row)-{'sequence','location','recordType','command','commandSHA256','status','action','reason','target','callDepth','skipped','resultType','resource'}:
@@ -105,14 +179,21 @@ def validate_trace(machine,data,relative,document,source_lookup=None, allow_trac
         if skipped:
             if set(skipped)-{'status','reason','location','recordCount','recordTypes'}:raise ProbeError('native_skipped_unapproved_fields')
             ref=skipped['location'];a=ref['byteOffset'];b=a+ref['byteLength']
-            _,skipped_document,_,_=context(ref['sourceFile'])
-            records=[r for r in skipped_document['records'] if a<=r['byte_offset'] and r['byte_offset']+r['byte_length']<=b]
-            if len(records)!=skipped['recordCount'] or dict(Counter(r['record_type'] for r in records))!=skipped['recordTypes']:
+            _,_,originals,_=context(ref['sourceFile'])
+            # Execution splits grouped blank spans into physical lines. Count
+            # those lines instead of their overlapping lexical group, including
+            # when the skipped range begins or ends inside that group.
+            records=sorted((offset,length,r) for (offset,length),r in originals.items()
+                if a<=offset and offset+length<=b and not
+                (r['record_type']=='empty_span' and r.get('line_count',1)>1))
+            if (len(records)!=skipped['recordCount'] or
+                dict(Counter(r['record_type'] for _,_,r in records))!=skipped['recordTypes']):
                 raise ProbeError('native_skipped_span_accounting')
             # Layout records inherit the following semantic record's line in Swift.
-            anchor=next((r for r in skipped_document['records']
-                         if r['byte_offset']>=a and 'line_number' in r),None)
-            if not records or records[0]['byte_offset']!=a or not anchor or anchor['line_number']!=ref['lineNumber']:
+            anchor=next((r for _,_,r in records if 'line_number' in r),None)
+            if (not records or records[0][0]!=a or records[-1][0]+records[-1][1]!=b or
+                any(left[0]+left[1]!=right[0] for left,right in zip(records,records[1:])) or
+                not anchor or anchor['line_number']!=ref['lineNumber']):
                 raise ProbeError('native_skipped_span_start')
             skipped_locations.add((ref['sourceFile'],a,ref['byteLength'],ref['lineNumber']))
     snapshots=machine.get('tableSnapshots',[])

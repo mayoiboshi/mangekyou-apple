@@ -83,6 +83,19 @@ public struct ScriptModuleCatalog: Sendable {
     }
 
     func resourceExists(_ raw: String, currentSourceFile: String) throws -> Bool {
+        let normalized = raw.replacingOccurrences(of: "\\", with: "/")
+        if normalized.hasSuffix("/") {
+            // A file query for a directory spelling cannot match this catalog's
+            // file-only index. Validate the prefix without opening the path.
+            _ = try Self.key(String(normalized.dropLast()))
+            guard reference(forPhysical: currentSourceFile) != nil else {
+                throw ResourceError.rejected("resource_current_module_not_in_catalog")
+            }
+            guard indexedResourceKeys != nil else {
+                throw ResourceError.rejected("resource_existence_index_required")
+            }
+            return false
+        }
         let logical = try resourcePath(raw,currentSourceFile: currentSourceFile)
         if !(try variants(for: logical)).isEmpty { return true }
         guard let indexedResourceKeys else { throw ResourceError.rejected("resource_existence_index_required") }
@@ -106,6 +119,14 @@ public struct ScriptModuleCatalog: Sendable {
     /// Reviewed self-directory candidate, then the literal logical name. Configured
     /// native search prefixes and Windows filesystem expansion remain unsupported.
     public func resourcePath(_ raw: String, currentSourceFile: String) throws -> String {
+        let path = raw.replacingOccurrences(of: "\\", with: "/")
+        if path.split(separator: "/", omittingEmptySubsequences: false).contains("..") {
+            // Normalize within the catalog before any filesystem access.
+            let relative = try relativeResourcePath(raw, currentSourceFile: currentSourceFile)
+            let key = try Self.key(relative)
+            if indexedResourceKeys?.contains(key) == true || groups[key] != nil { return relative }
+            return try Self.normalizedRelativePath(raw, startingAt: [])
+        }
         _ = try Self.key(raw)
         guard let source = reference(forPhysical: currentSourceFile) else { throw ResourceError.rejected("resource_current_module_not_in_catalog") }
         let parts = source.logicalPath.replacingOccurrences(of: "\\",with: "/").split(separator: "/")
@@ -121,11 +142,17 @@ public struct ScriptModuleCatalog: Sendable {
         guard let source = reference(forPhysical: currentSourceFile) else {
             throw ResourceError.rejected("resource_current_module_not_in_catalog")
         }
+        let base = source.logicalPath.replacingOccurrences(of: "\\", with: "/")
+            .split(separator: "/").dropLast().map(String.init)
+        return try Self.normalizedRelativePath(raw, startingAt: base)
+    }
+
+    private static func normalizedRelativePath(_ raw: String, startingAt base: [String]) throws -> String {
         let path = raw.replacingOccurrences(of: "\\",with: "/")
         guard !path.hasPrefix("/"), !path.contains(":"), path.utf8.count <= 4096 else {
             throw ResourceError.rejected("invalid_relative_resource")
         }
-        var parts = source.logicalPath.replacingOccurrences(of: "\\",with: "/").split(separator: "/").dropLast().map(String.init)
+        var parts = base
         for part in path.split(separator: "/",omittingEmptySubsequences: false) {
             if part == ".." {
                 guard !parts.isEmpty else { throw ResourceError.rejected("resource_path_escapes_catalog") }

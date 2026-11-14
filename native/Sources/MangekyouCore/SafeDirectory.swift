@@ -144,4 +144,70 @@ public struct SafeDirectory: Sendable {
             return try Self.read(fd: fd, offset: 0, count: Int(size))
         }
     }
+
+    /// Create a new bounded research output without replacing an existing entry.
+    package func writeNew(_ name: String, data: Data, limit: Int = 16 * 1024 * 1024) throws {
+        guard try Self.components(name).count == 1, data.count <= limit, limit <= 16 * 1024 * 1024 else {
+            throw ResourceError.rejected("research_output_bounds")
+        }
+        let directory = try openPath([], directory: true)
+        defer { close(directory) }
+        let fd = name.withCString { openat(directory, $0, O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, 0o600) }
+        guard fd >= 0 else { throw ResourceError.system("create_research_output", errno) }
+        var complete = false
+        defer {
+            close(fd)
+            if !complete { _ = name.withCString { unlinkat(directory, $0, 0) } }
+        }
+        try data.withUnsafeBytes { bytes in
+            var written = 0
+            while written < bytes.count {
+                let count = write(fd, bytes.baseAddress!.advanced(by: written), bytes.count - written)
+                if count < 0 && errno == EINTR { continue }
+                guard count > 0 else { throw ResourceError.system("write_research_output", errno) }
+                written += count
+            }
+        }
+        guard fsync(fd) == 0 else { throw ResourceError.system("sync_research_output", errno) }
+        complete = true
+    }
+
+    /// Publish one verified file without exposing its partially written contents.
+    /// This does not guarantee directory durability after a system crash.
+    package func writeNewAtomically(_ name: String, data: Data, limit: Int = 16 * 1024 * 1024) throws {
+        guard try Self.components(name).count == 1, limit >= 0, data.count <= limit,
+              limit <= 16 * 1024 * 1024 else { throw ResourceError.rejected("research_output_bounds") }
+        let directory = try openPath([], directory: true)
+        defer { close(directory) }
+        let temporary = ".mangekyou-stage-" + UUID().uuidString
+        guard temporary != name else { throw ResourceError.rejected("research_output_temporary_collision") }
+        let fd = temporary.withCString { openat(directory, $0, O_RDWR | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, 0o600) }
+        guard fd >= 0 else { throw ResourceError.system("create_research_staging", errno) }
+        defer {
+            close(fd)
+            _ = temporary.withCString { unlinkat(directory, $0, 0) }
+        }
+        try data.withUnsafeBytes { bytes in
+            var written = 0
+            while written < bytes.count {
+                let count = write(fd, bytes.baseAddress!.advanced(by: written), bytes.count - written)
+                if count < 0 && errno == EINTR { continue }
+                guard count > 0 else { throw ResourceError.system("write_research_staging", errno) }
+                written += count
+            }
+        }
+        guard fsync(fd) == 0 else { throw ResourceError.system("sync_research_staging", errno) }
+        var descriptorInfo = stat(), pathInfo = stat()
+        guard fstat(fd, &descriptorInfo) == 0,
+              temporary.withCString({ fstatat(directory, $0, &pathInfo, AT_SYMLINK_NOFOLLOW) }) == 0,
+              descriptorInfo.st_dev == pathInfo.st_dev, descriptorInfo.st_ino == pathInfo.st_ino,
+              (pathInfo.st_mode & S_IFMT) == S_IFREG, descriptorInfo.st_size == Int64(data.count),
+              try Self.read(fd: fd, offset: 0, count: data.count).sha256Hex == data.sha256Hex else {
+            throw ResourceError.rejected("research_staging_verification_failed")
+        }
+        let linked = temporary.withCString { source in
+            name.withCString { destination in linkat(directory, source, directory, destination, 0) }
+        }
+        guard linked == 0 else { throw ResourceError.system("publish_research_output", errno) }
+    }
 }

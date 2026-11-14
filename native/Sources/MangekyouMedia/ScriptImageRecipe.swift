@@ -64,10 +64,40 @@ public struct ScriptImageRecipe: Decodable, Sendable {
         return (name, member.image_anchor_words == [0, 0, 0], size, location)
     }
 
+    package func hasTinyAnchorOffsetCandidate(_ container: ScriptLocation, slot: Int32) -> Bool {
+        guard container.byteOffset == 0, container.sourceSHA256 == container.rangeSHA256,
+              let words = texturesByContainer[container.sourceSHA256]?[Int(slot)]?.image_anchor_words else { return false }
+        return Self.isTinyAnchorOffsetCandidate(words)
+    }
+
+    private static func isTinyAnchorOffsetCandidate(_ words: [UInt32]) -> Bool {
+        words.count == 3 && words.contains(where: { $0 != 0 }) && words.allSatisfy {
+            let value = Float(bitPattern: $0)
+            return value.isFinite && abs(value) <= 1e-30
+        }
+    }
+
+    package func hasNamedMessageSurface(_ container: ScriptLocation) -> Bool {
+        guard container.byteOffset == 0, container.sourceSHA256 == container.rangeSHA256 else { return false }
+        return entriesByContainer[container.sourceSHA256]?.contains {
+            $0.name?.lowercased().hasPrefix("*messurface") == true
+        } == true
+    }
+
     public struct MotionKey: Decodable, Sendable {
+        public struct DualTextureRawInputs: Decodable, Sendable {
+            public let layout: String
+            public let output_b1: Int32
+            public let output_ac: Int32
+            public let output_b2: Int32
+            public let key_c8: Int32
+            public let key_cc: Int32
+        }
         public let time: Int32
         public let type: Int32
         public let offset: Int
+        public let dual_texture_raw_inputs: DualTextureRawInputs?
+        public fileprivate(set) var sampledDualTransferValue: Int32?
         fileprivate let blend: Int32?
         fileprivate let sampling: UInt8?
         fileprivate let type1_color_inputs: [UInt32]?
@@ -83,16 +113,23 @@ public struct ScriptImageRecipe: Decodable, Sendable {
         }
         public let literal_opacity_input: UInt8?
         let opacity_mode_input: UInt8?
+        let source_area_mode_input: UInt8?
+        let source_area_interpolation_flag: Bool?
+        let source_area_strength_input: Int32?
         let position_mode_input: UInt8?
         let position_strength_input: Int32?
         let time_control_inputs: [Int32]?
         fileprivate var sampledTranslation: (x: Double, y: Double)?
         fileprivate var translationUnsupported = false
         fileprivate var sampledOpacity: UInt8?
+        /// The first source rectangle after supported literal sampling; nil means unresolved.
+        public fileprivate(set) var sampledFirstSourceArea: [Float]?
 
         enum CodingKeys: String, CodingKey {
-            case time, type, offset, texture_numbers, source_areas, transform_fields, blend, sampling, type1_color_inputs, type11_color_inputs
-            case literal_opacity_input, opacity_mode_input, anchor_ratio_inputs, position_mode_input, position_strength_input
+            case time, type, offset, texture_numbers, source_areas, transform_fields, blend, sampling, type1_color_inputs, type11_color_inputs, dual_texture_raw_inputs
+            case literal_opacity_input, opacity_mode_input, source_area_mode_input, source_area_interpolation_flag
+            case source_area_strength_input
+            case anchor_ratio_inputs, position_mode_input, position_strength_input
             case time_control_inputs
         }
     }
@@ -106,7 +143,99 @@ public struct ScriptImageRecipe: Decodable, Sendable {
     public func motionKeys(_ container: ScriptLocation, selectedMember: Int32, time: Int32) -> [MotionKey]? {
         guard container.byteOffset == 0, container.sourceSHA256 == container.rangeSHA256,
               let layers = validTimelines[container.sourceSHA256]?[Int(selectedMember)] else { return nil }
-        return sampleMotion(layers, container: container, selectedMember: selectedMember, time: time)
+        return sampleMotion(layers, container: container, selectedMember: selectedMember, time: Double(time))
+    }
+
+    /// Sample a frozen candidate snapshot using the saved per-layer times.
+    /// This does not advance the saved auxiliary state or establish original playback equivalence.
+    public func motionKeysAtSavedLayerTimesCandidate(_ container: ScriptLocation, selectedMember: Int32,
+                                                      layerTimes: [Int32]) -> [MotionKey]? {
+        guard layerTimes.count == 256, layerTimes.allSatisfy({ $0 >= 0 }),
+              container.byteOffset == 0, container.sourceSHA256 == container.rangeSHA256,
+              let layers = validTimelines[container.sourceSHA256]?[Int(selectedMember)],
+              layers.count <= layerTimes.count else { return nil }
+        return sampleMotion(layers, container: container, selectedMember: selectedMember, time: 0,
+                            savedLayerTimes: layerTimes)
+    }
+
+    /// Restricted research candidate for one integer clock increment. Only a single
+    /// literal backward loop is modeled; terminal, scheduler, and original equivalence remain unsupported.
+    public func advanceSavedLayerTimesCandidate(_ container: ScriptLocation, selectedMember: Int32,
+                                                 layerTimes: [Int32], auxiliary: [Int32], delta: Int32)
+        -> (times: [Int32], auxiliary: [Int32], keys: [MotionKey])? {
+        let exactLimit: Int32 = 16_777_216
+        guard (1...100_000).contains(delta), layerTimes.count == 256, auxiliary.count == 256,
+              layerTimes.allSatisfy({ (0...exactLimit).contains($0) }),
+              auxiliary.allSatisfy({ (0...exactLimit).contains($0) }),
+              container.byteOffset == 0, container.sourceSHA256 == container.rangeSHA256,
+              let layers = validTimelines[container.sourceSHA256]?[Int(selectedMember)] else { return nil }
+        var times = layerTimes, remaining = auxiliary
+        for (index, layer) in layers.enumerated() {
+            let current = times[index]
+            guard let active = layer.lastIndex(where: { $0.time <= current }),
+                  active + 1 < layer.count,
+                  layer[active].time_control_inputs == [0, 0, 0, 0] else { return nil }
+            let amount = max(0, delta - remaining[index])
+            let next = Int64(current) + Int64(amount)
+            guard next <= Int64(exactLimit), let last = layer.last,
+                  next < Int64(last.time) else { return nil }
+            let crossed = Array(layer[(active + 1)...].prefix(while: { Int64($0.time) <= next }))
+            var destination = next
+            if let control = crossed.last, control.time_control_inputs != [0, 0, 0, 0] {
+                // Native control 1 with zero condition and alternate-variable inputs
+                // uses the literal target index and carries excess time once.
+                guard crossed.dropLast().allSatisfy({ $0.time_control_inputs == [0, 0, 0, 0] }),
+                      let inputs = control.time_control_inputs, inputs.count == 4,
+                      inputs[0] == 1, inputs[2] == 0, inputs[3] == 0,
+                      layer.indices.contains(Int(inputs[1])) else { return nil }
+                let target = layer[Int(inputs[1])]
+                guard target.time < control.time, target.time_control_inputs == [0, 0, 0, 0] else { return nil }
+                destination = Int64(target.time) + next - Int64(control.time)
+                // Do not fold repeated loops or skip controls reached after the jump.
+                guard destination < Int64(control.time),
+                      layer.filter({ $0.time > target.time && Int64($0.time) <= destination })
+                        .allSatisfy({ $0.time_control_inputs == [0, 0, 0, 0] }) else { return nil }
+            } else {
+                guard crossed.allSatisfy({ $0.time_control_inputs == [0, 0, 0, 0] }) else { return nil }
+            }
+            remaining[index] = max(0, remaining[index] - delta)
+            times[index] = Int32(destination)
+        }
+        guard let keys = sampleMotion(layers, container: container, selectedMember: selectedMember,
+                                      time: 0, savedLayerTimes: times) else { return nil }
+        return (times, remaining, keys)
+    }
+
+    /// Time-zero type-6 region with identity host transform and no perspective
+    /// or visibility suppression. This does not establish the active region.
+    public func identityHostType6RegionCandidate(_ key: MotionKey, origin: SIMD2<Int32>) -> (x: [Float], y: [Float])? {
+        guard key.type == 6, key.time == 0, !key.translationUnsupported,
+              key.position_mode_input == 0, key.time_control_inputs == [0, 0, 0, 0],
+              // 0x58d8a4 copies this key field to output +0xb2. The
+              // 0x55b654 projection gate leaves mode zero unsuppressed;
+              // an absent or different mode cannot establish that condition.
+              key.dual_texture_raw_inputs?.output_b2 == 0,
+              let anchor = key.literalAnchorRatio, anchor.x == 0, anchor.y == 0,
+              let f = key.transform_fields, f["0x8c"] == 0, f["0x98"] == 100,
+              f["0x9c"] == 0, f["0xa0"] == 0, f["0xa4"] == 0, f["0xa8"] == 0,
+              let dx = f["0x84"], let dy = f["0x88"], let w = f["0x90"], let h = f["0x94"],
+              (-8192...8192).contains(dx), (-8192...8192).contains(dy),
+              (1...8192).contains(w), (1...8192).contains(h),
+              (-32768...32767).contains(origin.x), (-32768...32767).contains(origin.y) else { return nil }
+        // 0x58b512/0x58b55a store the scaled inputs as float; 0x584e08–0x584e24
+        // multiplies by 100 before constructing the type-6 quad.
+        let width = (Float(w) * Float(0.01)) * Float(100)
+        let height = (Float(h) * Float(0.01)) * Float(100)
+        let x0 = Float(origin.x) + Float(dx), y0 = Float(origin.y) + Float(dy)
+        let x1 = x0 + width, y1 = y0 + height
+        return (x: [x0, x1, x1, x0], y: [y0, y0, y1, y1])
+    }
+
+    /// Preserve the original layer clock's fractional part for geometry sampling.
+    public func motionKeysAtFractionalTime(_ container: ScriptLocation, selectedMember: Int32, time: Float) -> [MotionKey]? {
+        guard time.isFinite, container.byteOffset == 0, container.sourceSHA256 == container.rangeSHA256,
+              let layers = validTimelines[container.sourceSHA256]?[Int(selectedMember)] else { return nil }
+        return sampleMotion(layers, container: container, selectedMember: selectedMember, time: Double(time))
     }
 
     package func samplePartialMotion(_ container: ScriptLocation, selectedMember: Int32, time: Int32) -> [MotionKey]? {
@@ -118,15 +247,22 @@ public struct ScriptImageRecipe: Decodable, Sendable {
                   (1...255).contains(layer.count) && (layer.first?.time ?? -1) >= 0 &&
                         zip(layer, layer.dropFirst()).allSatisfy { $0.time < $1.time }
               }) else { return nil }
-        return sampleMotion(layers, container: container, selectedMember: selectedMember, time: time)
+        return sampleMotion(layers, container: container, selectedMember: selectedMember, time: Double(time))
     }
 
     private func sampleMotion(_ layers: [[MotionKey]], container: ScriptLocation,
-                              selectedMember: Int32, time: Int32) -> [MotionKey]? {
+                              selectedMember: Int32, time: Double,
+                              savedLayerTimes: [Int32]? = nil) -> [MotionKey]? {
         guard time >= 0 else { return nil }
-        return layers.compactMap { layer -> MotionKey? in
-            let sampleTime: Int32
-            if layer.allSatisfy({ $0.time_control_inputs?.count == 4 }),
+        return layers.enumerated().compactMap { entry -> MotionKey? in
+            let (layerIndex, layer) = entry
+            let time = savedLayerTimes.map { Double($0[layerIndex]) } ?? time
+            let sampleTime: Double
+            if savedLayerTimes != nil {
+                // Saved values already represent each layer's selected time;
+                // applying the global-clock loop candidate again would change them.
+                sampleTime = time
+            } else if layer.allSatisfy({ $0.time_control_inputs?.count == 4 }),
                let control = layer.first(where: { ($0.time_control_inputs?.first ?? 0) != 0 }),
                let inputs = control.time_control_inputs,
                inputs[0] == 1, inputs[2] == 0, inputs[3] == 0,
@@ -134,13 +270,13 @@ public struct ScriptImageRecipe: Decodable, Sendable {
                case let start = layer[Int(inputs[1])].time, start < control.time {
                 // Zero disables both variable lookups. The literal target is
                 // +0xd4, and the jump carries excess time (0x57f7c7–0x57f8cf).
-                let period = Int64(control.time) - Int64(start)
-                sampleTime = time < control.time ? time : Int32(Int64(start) + (Int64(time) - Int64(control.time)) % period)
+                let period = Double(control.time) - Double(start)
+                sampleTime = time < Double(control.time) ? time : Double(start) + (time - Double(control.time)).truncatingRemainder(dividingBy: period)
             } else if container.sourceSHA256 == "5b0f2bc31cc6b14311642df53590c1efd3edec3b6a032e13b90424ce70e99b03",
                selectedMember == 0, layer.first?.offset == 2133,
                layer.count == 4, layer[1].offset == 2573, layer[1].time == 1000 {
                 // Older recipes omit the audited default action's control.
-                sampleTime = time % 1000
+                sampleTime = time.truncatingRemainder(dividingBy: 1000)
             } else {
                 sampleTime = time
             }
@@ -149,7 +285,7 @@ public struct ScriptImageRecipe: Decodable, Sendable {
             var high = layer.count
             while low < high {
                 let middle = (low + high) / 2
-                if layer[middle].time <= sampleTime {
+                if Double(layer[middle].time) <= sampleTime {
                     low = middle + 1
                 } else {
                     high = middle
@@ -158,19 +294,32 @@ public struct ScriptImageRecipe: Decodable, Sendable {
             guard low > 0 else { return nil }
             let index = low - 1
             var key = layer[index]
-            if sampleTime == key.time || key.opacity_mode_input == 0 || index == layer.count - 1 {
+            if let input = key.dual_texture_raw_inputs, input.layout == "ablayer18",
+               (0...255).contains(input.key_c8) {
+                if sampleTime == Double(key.time) || key.opacity_mode_input == 0 || index == layer.count - 1 {
+                    key.sampledDualTransferValue = input.key_c8
+                } else if key.opacity_mode_input == 1,
+                          let next = layer[index + 1].dual_texture_raw_inputs,
+                          next.layout == input.layout, (0...255).contains(next.key_c8) {
+                    let duration = Int64(layer[index + 1].time) - Int64(key.time)
+                    let fraction = Float(sampleTime - Double(key.time)) / Float(duration)
+                    let sampled = Float(input.key_c8) * (1 - fraction) + Float(next.key_c8) * fraction
+                    key.sampledDualTransferValue = Int32(sampled.rounded(.toNearestOrEven))
+                }
+            }
+            if sampleTime == Double(key.time) || key.opacity_mode_input == 0 || index == layer.count - 1 {
                 key.sampledOpacity = key.literal_opacity_input
             } else if key.opacity_mode_input == 1, let start = key.literal_opacity_input,
                       let end = layer[index + 1].literal_opacity_input {
                 let duration = Int64(layer[index + 1].time) - Int64(key.time)
-                let fraction = Float(Int64(sampleTime) - Int64(key.time)) / Float(duration)
+                let fraction = Float(sampleTime - Double(key.time)) / Float(duration)
                 // 0x50b9e4 followed by 0x50a840 with the default rounding mode.
                 let opacity = Float(start) * (1 - fraction) + Float(end) * fraction
                 key.sampledOpacity = UInt8(clamping: Int(opacity.rounded(.toNearestOrEven)))
             }
-            if sampleTime > key.time, index < layer.count - 1, let mode = key.position_mode_input, mode != 0 {
+            if sampleTime > Double(key.time), index < layer.count - 1, let mode = key.position_mode_input, mode != 0 {
                 let next = layer[index + 1]
-                let fraction = Float(Int64(sampleTime) - Int64(key.time)) / Float(Int64(next.time) - Int64(key.time))
+                let fraction = Float(sampleTime - Double(key.time)) / Float(Int64(next.time) - Int64(key.time))
                 let progress: Float?
                 switch mode {
                 case 1: progress = fraction
@@ -190,6 +339,24 @@ public struct ScriptImageRecipe: Decodable, Sendable {
                                               Double(Float(y0) * (1 - progress) + Float(y1) * progress))
                 } else {
                     key.translationUnsupported = true
+                }
+            }
+            if let mode = key.source_area_mode_input, let flag = key.source_area_interpolation_flag,
+               let source = key.source_areas?.first, source.count == 4,
+               source.allSatisfy({ (-32768...32767).contains($0) }) {
+                // The special modes take a separate branch before the flag test (0x58ad97).
+                if mode == 0 || (!flag && ![2, 5, 9, 10, 11].contains(mode)) {
+                    key.sampledFirstSourceArea = source.map(Float.init)
+                } else if mode == 1, flag {
+                    let next = index + 1 < layer.count ? layer[index + 1] : key
+                    if let target = next.source_areas?.first, target.count == 4,
+                       target.allSatisfy({ (-32768...32767).contains($0) }) {
+                        let fraction: Float = next.time == key.time ? 0 :
+                            Float(sampleTime - Double(key.time)) / Float(Int64(next.time) - Int64(key.time))
+                        key.sampledFirstSourceArea = zip(source, target).map {
+                            Float($0) * (1 - fraction) + Float($1) * fraction
+                        }
+                    }
                 }
             }
             return key
@@ -291,7 +458,10 @@ public struct ScriptImageRecipe: Decodable, Sendable {
 
     private func fullTextureRectangle(_ key: MotionKey, size: CGSize, host: CGAffineTransform,
                                       anchorOverride: SIMD2<Double>?) -> CGRect? {
-        guard key.type == 4, key.source_areas?.first == [0, 0, 0, 0],
+        let areaIsFull = key.source_area_mode_input == nil
+            ? key.source_areas?.first == [0, 0, 0, 0]
+            : key.sampledFirstSourceArea == [0, 0, 0, 0]
+        guard key.type == 4, areaIsFull,
               let anchor = key.literalAnchorRatio, let local = axisAlignedState([key]),
               local.scaleX > 0, local.scaleY > 0 else { return nil }
         // 0x584b75–0x584bc5 applies anchor translation, scale, then position.
@@ -354,7 +524,9 @@ public struct ScriptImageRecipe: Decodable, Sendable {
     package func drawScopedTexturePreview(_ entries: [(texture: MotionKey, states: [MotionKey])],
                                           container: Data, boundTextures: [Int32: Data], origin: SIMD2<Int>,
                                           hostScale: SIMD2<Double>, anchorOverride: SIMD2<Double>?,
-                                          layerOpacity: UInt8, canvas: inout [[SIMD4<UInt8>]]) throws -> Bool {
+                                          layerOpacity: UInt8, sampling2CandidateSlot: Int32? = nil,
+                                          allowTinyAnchorCandidate: Bool = false,
+                                          canvas: inout [[SIMD4<UInt8>]]) throws -> Bool {
         guard (1...64).contains(entries.count) else {
             throw ResourceError.rejected("texture_preview_draw_limit")
         }
@@ -371,7 +543,8 @@ public struct ScriptImageRecipe: Decodable, Sendable {
         for entry in ordered {
             let drew = try drawFullTexturePreview(entry.texture, container: container,
                 boundTextures: boundTextures, origin: origin, hostScale: hostScale,
-                anchorOverride: anchorOverride, layerOpacity: layerOpacity, states: entry.states, canvas: &staged)
+                anchorOverride: anchorOverride, layerOpacity: layerOpacity, states: entry.states,
+                sampling2CandidateSlot: sampling2CandidateSlot, allowTinyAnchorCandidate: allowTinyAnchorCandidate, canvas: &staged)
             covered = covered || drew
         }
         if covered { canvas = staged }
@@ -384,6 +557,8 @@ public struct ScriptImageRecipe: Decodable, Sendable {
                                         anchorOverride: SIMD2<Double>? = nil,
                                         layerOpacity: UInt8 = 255,
                                         states: [MotionKey] = [],
+                                        sampling2CandidateSlot: Int32? = nil,
+                                        allowTinyAnchorCandidate: Bool = false,
                                         canvas: inout [[SIMD4<UInt8>]]) throws -> Bool {
         guard key.type == 4 else { throw ResourceError.rejected("unsupported_texture_preview_key") }
         guard key.blend != nil, key.sampling != nil,
@@ -391,11 +566,20 @@ public struct ScriptImageRecipe: Decodable, Sendable {
             throw ResourceError.rejected("texture_preview_recipe_missing_raster_modes")
         }
         guard let modes = composedRasterModes(texture: key, states: states),
-              modes.blend == 1, modes.sampling == 0 else {
+              (modes.blend == 1 || modes.blend == 4) else {
+            throw ResourceError.rejected("unsupported_texture_preview_raster_modes")
+        }
+        let sampling2Candidate = modes.sampling == 2 && modes.blend == 1 &&
+            sampling2CandidateSlot != nil && key.texture_numbers?.first == sampling2CandidateSlot &&
+            sampling2CandidateSlot.flatMap { boundTextures[$0] } != nil
+        guard modes.sampling == 0 || sampling2Candidate else {
             throw ResourceError.rejected("unsupported_texture_preview_raster_modes")
         }
         guard let keyOpacity = composedOpacity(texture: key, states: states) else {
             throw ResourceError.rejected("unsupported_texture_preview_opacity")
+        }
+        guard modes.blend != 4 || (keyOpacity == 255 && layerOpacity == 255) else {
+            throw ResourceError.rejected("screen_texture_preview_opacity_unsupported")
         }
         let payload: Data
         var decodedRaster: ResourceImage?
@@ -405,7 +589,8 @@ public struct ScriptImageRecipe: Decodable, Sendable {
         } else {
             guard let slot = key.texture_numbers?.first,
                   let member = texturesByContainer[ImageMemberRecipe.digest(data)]?[Int(slot)],
-                  member.image_anchor_words == [0, 0, 0] else {
+                  member.image_anchor_words == [0, 0, 0] || (allowTinyAnchorCandidate &&
+                    member.image_anchor_words.map(Self.isTinyAnchorOffsetCandidate) == true) else {
                 throw ResourceError.rejected("unsupported_texture_preview_member_or_anchor")
             }
             payload = try member.payload(data)
@@ -441,9 +626,85 @@ public struct ScriptImageRecipe: Decodable, Sendable {
                 size = CGSize(width: raster.image.width, height: raster.image.height)
             }
         }
+        let area: [Float]?
+        if key.source_area_mode_input == nil {
+            // Older recipes did not preserve the rectangle mode. Only retain
+            // their established all-zero full-texture profile.
+            area = key.source_areas?.first == [0, 0, 0, 0] ? [0, 0, 0, 0] : nil
+        } else {
+            area = key.sampledFirstSourceArea
+        }
+        guard let area, area.count == 4, area.allSatisfy(\.isFinite) else {
+            throw ResourceError.rejected("unsupported_texture_source_area")
+        }
+        let fullArea = area == [0, 0, 0, 0]
+        guard !sampling2Candidate || (fullArea && decodedRaster != nil) else {
+            throw ResourceError.rejected("sampling2_preview_requires_full_bound_texture")
+        }
+        if !fullArea, area.contains(where: { Int(exactly: $0) == nil }) {
+            // The selected 0x5342c8 branch uses a direct scan when the
+            // quantized source and target spans match. Keep this candidate
+            // limited to unscaled, zero-origin source rectangles.
+            guard modes.blend == 4, states.isEmpty, decodedRaster == nil,
+                  area[0] == 0, area[1] == 0, area[2] > 0, area[3] > 0,
+                  area[2] <= Float(size.width), area[3] <= Float(size.height),
+                  hostScale == SIMD2(1, 1), anchorOverride == nil,
+                  let anchor = key.literalAnchorRatio, anchor.x == 0, anchor.y == 0,
+                  let local = axisAlignedState([key]), local.scaleX == 1, local.scaleY == 1,
+                  let left = Int(exactly: local.x), let top = Int(exactly: local.y),
+                  (-65536...65536).contains(origin.x), (-65536...65536).contains(origin.y),
+                  (-65536...65536).contains(left), (-65536...65536).contains(top),
+                  let canvasWidth = canvas.first?.count, !canvas.isEmpty,
+                  canvas.allSatisfy({ $0.count == canvasWidth }),
+                  let x = Int32(exactly: origin.x + left), let y = Int32(exactly: origin.y + top),
+                  x >= 0, y >= 0,
+                  let targetWidth = SingleTextureScanBounds.quantized(area[2]),
+                  let targetHeight = SingleTextureScanBounds.quantized(area[3]),
+                  let sourceWidth = SingleTextureScanBounds.quantized(Float(area[2] / Float(size.width)) * Float(size.width)),
+                  let sourceHeight = SingleTextureScanBounds.quantized(Float(area[3] / Float(size.height)) * Float(size.height)),
+                  targetWidth == sourceWidth, targetHeight == sourceHeight,
+                  let horizontal = SingleTextureScanBounds.inclusiveRange(start: Float(x), end: Float(x) + area[2], limit: canvasWidth),
+                  let vertical = SingleTextureScanBounds.inclusiveRange(start: Float(y), end: Float(y) + area[3], limit: canvas.count),
+                  horizontal.lowerBound >= Int(x), vertical.lowerBound >= Int(y),
+                  horizontal.upperBound - Int(x) < Int(size.width),
+                  vertical.upperBound - Int(y) < Int(size.height) else {
+                throw ResourceError.rejected("unsupported_fractional_texture_geometry")
+            }
+            var covered = false
+            for row in vertical {
+                for column in horizontal {
+                    let source = pixels[row - Int(y)][column - Int(x)]
+                    guard source.w != 0 else { continue }
+                    covered = true
+                    canvas[row][column] = TwoTexturePixel.screenOntoTarget(source: source, target: canvas[row][column])
+                }
+            }
+            return covered
+        }
+        let sourceArea = fullArea ? [0, 0, Int(size.width), Int(size.height)] : area.compactMap { Int(exactly: $0) }
+        guard sourceArea.count == 4, sourceArea.allSatisfy({ $0 >= 0 }),
+              sourceArea[0] <= Int(size.width), sourceArea[1] <= Int(size.height),
+              sourceArea[2] <= Int(size.width) - sourceArea[0],
+              sourceArea[3] <= Int(size.height) - sourceArea[1] else {
+            throw ResourceError.rejected("unsupported_texture_source_area")
+        }
+        guard sourceArea[2] > 0, sourceArea[3] > 0 else { return false }
+        guard (fullArea && modes.blend == 1) || decodedRaster == nil else {
+            throw ResourceError.rejected("unsupported_texture_preview_pixel_format")
+        }
         let host = CGAffineTransform(translationX: CGFloat(origin.x), y: CGFloat(origin.y))
             .scaledBy(x: hostScale.x, y: hostScale.y)
-        guard let localRect = fullTextureRectangle(key, size: size, host: host, anchorOverride: anchorOverride),
+        let localRect: CGRect?
+        if fullArea {
+            localRect = fullTextureRectangle(key, size: size, host: host, anchorOverride: anchorOverride)
+        } else if let anchor = key.literalAnchorRatio, let local = axisAlignedState([key]),
+                  local.scaleX > 0, local.scaleY > 0 {
+            let w = Double(sourceArea[2]) * local.scaleX, h = Double(sourceArea[3]) * local.scaleY
+            localRect = CGRect(x: local.x - (anchorOverride?.x ?? anchor.x) * w,
+                               y: local.y - (anchorOverride?.y ?? anchor.y) * h,
+                               width: w, height: h).applying(host)
+        } else { localRect = nil }
+        guard let localRect,
               let rect = applyingAxisAlignedState(states, to: localRect,
                                                   target: CGSize(width: width, height: canvas.count)),
               hostScale.x != 0, hostScale.y != 0,
@@ -453,6 +714,11 @@ public struct ScriptImageRecipe: Decodable, Sendable {
               let rasterHeight = Int(exactly: rect.height.rounded()), (1...65536).contains(rasterHeight),
               (-65536...65536).contains(left), (-65536...65536).contains(top) else {
             throw ResourceError.rejected("unsupported_texture_preview_geometry")
+        }
+        guard (fullArea && modes.blend == 1) ||
+                          (hostScale.x == 1 && hostScale.y == 1 && state.scaleX == 1 && state.scaleY == 1 &&
+                           rasterWidth == sourceArea[2] && rasterHeight == sourceArea[3]) else {
+            throw ResourceError.rejected("scaled_texture_source_area_unsupported")
         }
         let xStart = max(0, -left)
         let yStart = max(0, -top)
@@ -465,24 +731,98 @@ public struct ScriptImageRecipe: Decodable, Sendable {
         if let decodedRaster {
             return try decodedRaster.drawRasterPreview(origin: SIMD2(left, top), opacity: UInt8(opacity),
                 size: SIMD2(rasterWidth, rasterHeight), flipX: hostScale.x < 0, flipY: hostScale.y < 0,
+                interpolation: sampling2Candidate ? .low : .none,
                 canvas: &canvas)
         }
         var coveredPixels = false
         for y in yStart..<yEnd {
             let sampleY = hostScale.y < 0 ? rasterHeight - 1 - y : y
-            let row = pixels[sampleY * pixels.count / rasterHeight]
+            let row = pixels[sourceArea[1] + sampleY * sourceArea[3] / rasterHeight]
             for x in xStart..<xEnd {
                 let sampleX = hostScale.x < 0 ? rasterWidth - 1 - x : x
-                let source = row[sampleX * row.count / rasterWidth]
+                let source = row[sourceArea[0] + sampleX * sourceArea[2] / rasterWidth]
                 let alpha = (Int(source.w) * opacity + 127) / 255
                 guard alpha != 0 else { continue }
                 coveredPixels = true
-                canvas[top + y][left + x] = TwoTexturePixel.blendOntoTarget(
-                    source: SIMD4(Int16(source.x), Int16(source.y), Int16(source.z), Int16(alpha)),
-                    target: canvas[top + y][left + x])
+                if modes.blend == 4 {
+                    canvas[top + y][left + x] = TwoTexturePixel.screenOntoTarget(
+                        source: source, target: canvas[top + y][left + x])
+                } else {
+                    canvas[top + y][left + x] = TwoTexturePixel.blendOntoTarget(
+                        source: SIMD4(Int16(source.x), Int16(source.y), Int16(source.z), Int16(alpha)),
+                        target: canvas[top + y][left + x])
+                }
             }
         }
         return coveredPixels
+    }
+
+    /// Explicit preview candidate for the audited center-text type-10 path.
+    /// The direct command-3 mask is known; branch selection, filtering and
+    /// final destination blending remain unverified against the original.
+    package func drawCenterTextTransitionCandidate(_ key: MotionKey, container data: Data,
+                                                    messageSurface: Data, origin: SIMD2<Int>,
+                                                    canvas: inout [[SIMD4<UInt8>]]) throws -> Bool {
+        let digest = ImageMemberRecipe.digest(data)
+        guard digest == "97bb05fa8aaaff094f9ef12978d6fca0c7af6bd3081a01bbedd7ae5c02902a68",
+              key.type == 10, key.blend == 0, key.sampling == 2,
+              key.texture_numbers == [0, 1], key.source_areas == [[0, 0, 0, 0], [0, 0, 0, 0]],
+              let anchor = key.literalAnchorRatio, anchor.x == 0.5, anchor.y == 0.5,
+              let transform = axisAlignedState([key]), transform.x == 0, transform.y == 0,
+              transform.scaleX == 1, transform.scaleY == 1, key.sampledOpacity == 255,
+              let input = key.dual_texture_raw_inputs, input.layout == "ablayer18",
+              input.output_b1 == 0, input.output_ac == 0, input.output_b2 == 0,
+              (input.key_cc == 4 || input.key_cc == 132), let value = key.sampledDualTransferValue,
+              let prepared = TwoTexturePixel.command3Threshold(value: value, rawMode: UInt32(input.key_cc)),
+              let textures = texturesByContainer[digest], let surfaceMember = textures[0],
+              surfaceMember.name?.lowercased().hasPrefix("*messurface") == true,
+              let fadeMember = textures[1], fadeMember.name?.lowercased() == "fade.png",
+              let canvasWidth = canvas.first?.count, (1...4096).contains(canvasWidth),
+              (1...4096).contains(canvas.count), canvas.count <= 4_194_304 / canvasWidth,
+              canvas.allSatisfy({ $0.count == canvasWidth }) else {
+            throw ResourceError.rejected("center_transition_inputs_unsupported")
+        }
+        let source = try ResourceImage.straightPNGPixels(messageSurface)
+        let fade = try ResourceImage.decode(fadeMember.payload(data)).opaqueCanvas(over: CGColor(gray: 0, alpha: 1))
+        guard let sourceWidth = source.first?.count, (1...4096).contains(sourceWidth),
+              (1...4096).contains(source.count), source.count <= 4_194_304 / sourceWidth,
+              source.allSatisfy({ $0.count == sourceWidth }),
+              let fadeWidth = fade.first?.count, fadeWidth > 0, !fade.isEmpty,
+              fade.allSatisfy({ $0.count == fadeWidth }) else {
+            throw ResourceError.rejected("center_transition_texture_bounds")
+        }
+        let left = Int((Double(origin.x) - Double(sourceWidth) * 0.5).rounded())
+        let top = Int((Double(origin.y) - Double(source.count) * 0.5).rounded())
+        let x0 = max(0, left), y0 = max(0, top)
+        let x1 = min(canvasWidth, left + sourceWidth), y1 = min(canvas.count, top + source.count)
+        guard x0 < x1, y0 < y1 else { return false }
+        func sampleFade(_ x: Int, _ y: Int) -> UInt8 {
+            // A bilinear local approximation; the original sampling branch is unknown.
+            let fx = max(0, min(Double(fadeWidth - 1), (Double(x) + 0.5) * Double(fadeWidth) / Double(sourceWidth) - 0.5))
+            let fy = max(0, min(Double(fade.count - 1), (Double(y) + 0.5) * Double(fade.count) / Double(source.count) - 0.5))
+            let ax = Int(fx), ay = Int(fy), bx = min(ax + 1, fadeWidth - 1), by = min(ay + 1, fade.count - 1)
+            let dx = fx - Double(ax), dy = fy - Double(ay)
+            let upper = Double(fade[ay][ax].x) * (1 - dx) + Double(fade[ay][bx].x) * dx
+            let lower = Double(fade[by][ax].x) * (1 - dx) + Double(fade[by][bx].x) * dx
+            return UInt8(clamping: Int((upper * (1 - dy) + lower * dy).rounded()))
+        }
+        var covered = false
+        for y in y0..<y1 {
+            for x in x0..<x1 {
+                let localX = x - left, localY = y - top
+                let pixel = source[localY][localX]
+                guard pixel.w > 0 else { continue }
+                let mask = TwoTexturePixel.command3Mask(sample: sampleFade(localX, localY),
+                    threshold: prepared.threshold, gain: prepared.gain, inverted: prepared.inverted)
+                let weight = (Int(mask) >> 1) + (Int(mask) >> 7)
+                let alpha = (Int(pixel.w) * weight) >> 7
+                guard alpha > 0 else { continue }
+                covered = true
+                canvas[y][x] = TwoTexturePixel.blendOntoTarget(
+                    source: SIMD4(Int16(pixel.x), Int16(pixel.y), Int16(pixel.z), Int16(alpha)), target: canvas[y][x])
+            }
+        }
+        return covered
     }
 
     /// Draw a full type-11 PNG pair over the existing pixels of a clipped canvas.
@@ -794,6 +1134,21 @@ public struct ScriptImageRecipe: Decodable, Sendable {
         entriesByContainer[container.sourceSHA256]?.compactMap(\.motion_update_threshold).first?.effective_value
     }
 
+    public func motionDurationInputs(_ container: ScriptLocation) -> (duration: Int32, loopStart: Int32)? {
+        guard container.byteOffset == 0, container.sourceSHA256 == container.rangeSHA256,
+              let input = entriesByContainer[container.sourceSHA256]?.compactMap(\.motion_duration_inputs).first else {
+            return nil
+        }
+        return (input.duration, input.loop_start)
+    }
+
+    public func motionCanvasInputs(_ container: ScriptLocation) -> (width: Int32, height: Int32)? {
+        guard container.byteOffset == 0, container.sourceSHA256 == container.rangeSHA256,
+              let input = entriesByContainer[container.sourceSHA256]?.compactMap(\.motion_canvas_inputs).first,
+              let width = Int32(exactly: input.width), let height = Int32(exactly: input.height) else { return nil }
+        return (width, height)
+    }
+
     public func motionNames(_ container: ScriptLocation) -> [String]? {
         entriesByContainer[container.sourceSHA256]?.first { $0.motion_name_candidates != nil }?.motion_name_candidates
     }
@@ -811,6 +1166,8 @@ private struct ImageMemberRecipe: Decodable, Sendable {
     }
     let imoavi_frame_references: [FrameReference]?
     let motion_canvas_inputs: MotionCanvasInputs?
+    struct MotionDurationInputs: Decodable, Sendable { let duration: Int32; let loop_start: Int32 }
+    let motion_duration_inputs: MotionDurationInputs?
     struct MotionUpdateThreshold: Decodable, Sendable { let effective_value: Int32 }
     let motion_update_threshold: MotionUpdateThreshold?
     let name: String?

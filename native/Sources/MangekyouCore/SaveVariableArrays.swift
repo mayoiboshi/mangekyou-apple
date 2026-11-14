@@ -12,6 +12,7 @@ package struct SaveVariableArrays {
         let absentValueCount: Int
         let buttonPayloads: [ButtonPayload]
         let imagePayloads: [ImagePayload]
+        let messagePayloads: [MessagePayload]
         let timerPayloads: [TimerPayload]
         package let nextDecodedOffset: Int
         package let indexed: IndexedSummary
@@ -73,6 +74,46 @@ package struct SaveVariableArrays {
         -> (bytes: Data, end: Int) {
         let indexed = try inspectValIdx(state: state, at: offset, visit: nil)
         let needsGroups = frames.contains { !$0.locals.isEmpty || ($0.parameterCount ?? 0) != 0 }
+        if indexed.issue == "validx_tag_absent", needsGroups {
+            guard frames.count <= 64 else { throw ResourceError.rejected("save_indexed_locals_frame_count") }
+            var output = Data("ValIdx\0\0".utf8) + Data(repeating: 0, count: 4)
+            let count = UInt32(frames.count)
+            withUnsafeBytes(of: count.littleEndian) { output.append(contentsOf: $0) }
+            let emptyCalVal = Data("CalVal\0\0".utf8) + Data([1, 0, 0, 0]) + Data(repeating: 0, count: 8)
+            for frame in frames {
+                var values = ScriptStorage()
+                values.global = frame.locals
+                values.globalObjectAliases = frame.objectAliases
+                values.globalAliasReferences = frame.objectAliasReferences
+                let parameterKeys = ["paramcount", "paramint", "paramstr"].map { Data($0.utf8) }
+                if (frame.parameterCount ?? 0) != 0 {
+                    guard frame.returnIndex != nil, let count = frame.parameterCount, (0...16).contains(count),
+                          let integers = frame.integerParameters, integers.count == 16,
+                          let strings = frame.stringParameters, strings.count == 16,
+                          parameterKeys.allSatisfy({ values.global[$0] == nil }) else {
+                        throw ResourceError.rejected("save_indexed_call_parameter_shape")
+                    }
+                    values.global[parameterKeys[0]] = .init(elements: [.integer(count)])
+                    values.global[parameterKeys[1]] = .init(elements: integers.map(ScriptValue.integer))
+                    values.global[parameterKeys[2]] = .init(elements: strings.map(ScriptValue.string))
+                }
+                guard values.global.keys.allSatisfy({ generatedBindingType($0, in: values) != nil }) else {
+                    throw ResourceError.rejected("save_indexed_new_binding_type_outside_profile")
+                }
+                let generated = try encodeCalValValues(template: emptyCalVal, storage: values,
+                                                       newBindingKeys: Set(values.global.keys))
+                guard generated.count - 16 <= SaveEnvelope.maxFileBytes - output.count else {
+                    throw ResourceError.rejected("save_indexed_locals_size_limit")
+                }
+                output.append(contentsOf: generated.dropFirst(16))
+            }
+            let checked = try inspectValIdx(state: output, at: 0, visit: nil)
+            guard checked.status == .verified, checked.groupCount == frames.count,
+                  checked.nextDecodedOffset == output.count else {
+                throw ResourceError.rejected("save_indexed_generated_boundary")
+            }
+            return (output, offset)
+        }
         guard let groups = indexed.groupSpans, let end = indexed.nextDecodedOffset else {
             guard indexed.issue == "validx_tag_absent", !needsGroups else {
                 throw ResourceError.rejected("save_indexed_locals_template_required")
@@ -85,9 +126,12 @@ package struct SaveVariableArrays {
         var output = Data(state.dropFirst(offset).prefix(16))
         for (span, frame) in zip(groups, frames) {
             let group = try Self(state: state, decodedOffset: span.decodedOffset)
-            let template = try ScriptStorage.stageSavedGlobalScalars(group)
+            var template = try ScriptStorage.stageSavedGlobalScalars(group)
+            _ = try template.stageSavedSoundAliases(group)
             var values = ScriptStorage()
             values.global = frame.locals
+            values.globalObjectAliases = frame.objectAliases
+            values.globalAliasReferences = frame.objectAliasReferences
             let parameterKeys = ["paramcount", "paramint", "paramstr"].map { Data($0.utf8) }
             if (frame.parameterCount ?? 0) != 0 || parameterKeys.contains(where: { template.global[$0] != nil }) {
                 guard frame.returnIndex != nil, let count = frame.parameterCount, (0...16).contains(count),
@@ -141,6 +185,7 @@ package struct SaveVariableArrays {
         var absentCount = 0
         var buttonPayloads: [ButtonPayload] = []
         var imagePayloads: [ImagePayload] = []
+        var messagePayloads: [MessagePayload] = []
         var timerPayloads: [TimerPayload] = []
         for record in records {
             switch record.values {
@@ -150,12 +195,13 @@ package struct SaveVariableArrays {
                 objectCount += 1
                 buttonPayloads += elements.compactMap(\.buttonPayload)
                 imagePayloads += elements.compactMap(\.imagePayload)
+                messagePayloads += elements.compactMap(\.messagePayload)
                 timerPayloads += elements.compactMap(\.timerPayload)
             case .absent: absentCount += 1
             }
         }
         return Summary(decodedOffset: offset, integerArrayCount: integerCount,
-                       stringArrayCount: stringCount, objectArrayCount: objectCount, absentValueCount: absentCount, buttonPayloads: buttonPayloads, imagePayloads: imagePayloads, timerPayloads: timerPayloads,
+                       stringArrayCount: stringCount, objectArrayCount: objectCount, absentValueCount: absentCount, buttonPayloads: buttonPayloads, imagePayloads: imagePayloads, messagePayloads: messagePayloads, timerPayloads: timerPayloads,
                        nextDecodedOffset: nextDecodedOffset,
                        indexed: try Self.inspectValIdx(state: state, at: nextDecodedOffset, visit: visitIndexedGroup))
     }
@@ -173,6 +219,7 @@ package struct SaveVariableArrays {
         let buttonPayload: ButtonPayload?
         let imagePayload: ImagePayload?
         var timerPayload: TimerPayload? = nil
+        var messagePayload: MessagePayload? = nil
     }
 
     struct TimerPayload: Encodable, Sendable {
@@ -194,6 +241,32 @@ package struct SaveVariableArrays {
 
     struct ImagePayload: Encodable, Sendable {
         let fixedRecord: SaveReaderCursor.Reference
+        let userIntegerReferences: [SaveReaderCursor.Reference]
+        let userIntegerWords: [Int32]
+        let userStrings: [SaveReaderCursor.Reference]
+        enum CodingKeys: String, CodingKey {
+            case fixedRecord, userIntegerReferences, userStrings, layerTiming, staticPlacement, staticScale, activePlacement
+            case opacityTransition, staticOpacity, textureSlots, rawActionIndex, rawActionElapsed
+            case rawActionClockRemainder, rawActionSpeed, drawGate, enableFlag, decodedOffset
+            case byteLength, imageSource, rawPlacementMode, rawPlacementStrength
+        }
+        struct LayerTiming: Encodable, Sendable {
+            let savedTimeWords: SaveReaderCursor.Reference
+            let savedAuxiliaryWords: SaveReaderCursor.Reference
+            let nonzeroTimeCount: Int
+            let nonzeroAuxiliaryCount: Int
+            let restoreStatus: EvidenceStatus = .unsupported
+            // Keep values in memory for the bounded sampling candidate; reports
+            // expose only ranges, hashes and counts.
+            let timeWords: [Int32]
+            let auxiliaryWords: [Int32]
+            enum CodingKeys: String, CodingKey {
+                case savedTimeWords, savedAuxiliaryWords, nonzeroTimeCount, nonzeroAuxiliaryCount, restoreStatus
+            }
+        }
+        // The reader restores these two 256-word ranges into per-layer
+        // floating-point state. The current motion candidate does not yet use them.
+        let layerTiming: LayerTiming
         let staticPlacement: SIMD3<Int32>?
         let staticScale: SIMD3<Int32>?
         struct ActivePlacement: Encodable, Sendable {
@@ -230,6 +303,8 @@ package struct SaveVariableArrays {
         let decodedOffset: Int
         let byteLength: Int
         let imageSource: SaveReaderCursor.Reference?
+        let rawPlacementMode: UInt8
+        let rawPlacementStrength: Int32
     }
 
     struct ButtonPayload: Encodable, Sendable {
@@ -240,15 +315,82 @@ package struct SaveVariableArrays {
         let drawableRectangle: [Int32]
         let stringOffsets: [Int]
         let userStrings: [SaveReaderCursor.Reference]
+        let userIntegerReferences: [SaveReaderCursor.Reference]
+        let userIntegerWords: [Int32]
         let soundNames: [SaveReaderCursor.Reference]
         let textureSlots: [ImagePayload.TextureSlot]
         let rawImageDrawGate: UInt8
         let rawImageEnableFlag: UInt8
         let rawButtonState: UInt8
+        // Version 10's 42-byte button record maps byte 8 to object +0xf08.
+        let rawCheckByte: UInt8?
+        let rawLockByte: UInt8?
         let staticPlacement: SIMD3<Int32>?
         let staticScale: SIMD3<Int32>?
         let buttonRecordOffset: Int
         let nextDecodedOffset: Int
+        // Keep raw user values in memory; reports expose only offsets and hashes.
+        enum CodingKeys: String, CodingKey {
+            case decodedOffset, imageLibraryOffset, imageSource, fixedRecordOffset, drawableRectangle
+            case stringOffsets, userStrings, userIntegerReferences, soundNames, textureSlots
+            case rawImageDrawGate, rawImageEnableFlag, rawButtonState, rawCheckByte, rawLockByte
+            case staticPlacement, staticScale, buttonRecordOffset, nextDecodedOffset
+        }
+    }
+
+    struct MessagePayload: Encodable, Sendable {
+        let decodedOffset: Int
+        let imageLibraryOffset: Int
+        let imageSource: SaveReaderCursor.Reference?
+        let fixedRecordOffset: Int
+        let drawableRectangle: [Int32]
+        let stringOffsets: [Int]
+        // The first two serialized strings are object +0xecc and +0xed0.
+        // 0x678edd passes fixed +0x44 with the first to the text replay path.
+        let textStrings: [SaveReaderCursor.Reference]
+        let rawTextCursor: Int32
+        let rawTextMargins: [Int32]
+        let rawKinsokuWordLength: Int32
+        let rawAsEnabled: UInt8
+        let rawApEnabled: UInt8
+        let staticPlacement: SIMD3<Int32>?
+        let staticScale: SIMD3<Int32>?
+        let rawActionIndex: Int32
+        let rawActionElapsed: Int32
+        let rawActionClockRemainder: Int32
+        let rawActionSpeed: Int32
+        let textureSlots: [ImagePayload.TextureSlot]
+        let rawImageDrawGate: UInt8
+        let rawImageEnableFlag: UInt8
+        let nextDecodedOffset: Int
+
+        /// Candidate for the primary-buffer path only. Additional native
+        /// queues and the original renderer are not reconstructed here.
+        func primaryText(in state: Data) throws -> (displayed: String, pending: String,
+                                                      displayedOutput: [ScriptStorage.MessageObject.Output],
+                                                      pendingOutput: [ScriptStorage.MessageObject.Output]) {
+            guard let primary = textStrings.first, primary.length <= 16_384,
+                  rawTextCursor >= 0, Int(rawTextCursor) <= primary.length / 2 else {
+                throw ResourceError.rejected("saved_message_text_cursor_outside_profile")
+            }
+            let text = try primary.utf16Text(in: state)
+            guard !text.unicodeScalars.contains(where: { $0.value < 0x20 || $0.value == 0x7f }) else {
+                throw ResourceError.rejected("saved_message_text_control_outside_profile")
+            }
+            let start = state.startIndex + primary.decodedOffset
+            let split = start + Int(rawTextCursor) * 2
+            let end = start + primary.length
+            guard let displayed = String(data: Data(state[start..<split]), encoding: .utf16LittleEndian),
+                  let pending = String(data: Data(state[split..<end]), encoding: .utf16LittleEndian) else {
+                throw ResourceError.rejected("saved_message_text_cursor_not_unicode_boundary")
+            }
+            let displayedOutput = try ScriptStorage.MessageObject.parseOutput(displayed)
+            let pendingOutput = try ScriptStorage.MessageObject.parseOutput(pending)
+            guard displayedOutput.count + pendingOutput.count <= 128 else {
+                throw ResourceError.rejected("saved_message_text_operation_limit")
+            }
+            return (displayed, pending, displayedOutput, pendingOutput)
+        }
     }
 
     struct TextObjectPayload {
@@ -270,13 +412,249 @@ package struct SaveVariableArrays {
     let records: [Record]
     let nextDecodedOffset: Int
 
+    /// Replace only a message's primary buffer and its UTF-16 cursor. This is
+    /// a bounded building block; it does not serialize the other message state.
+    static func replacingMessagePrimaryCandidate(in state: Data, decodedOffset: Int,
+                                                 recordIndex: Int, elementIndex: Int,
+                                                 displayed: String, pending: String) throws -> Data {
+        let original = try Self(state: state, decodedOffset: decodedOffset)
+        guard original.records.indices.contains(recordIndex),
+              asciiLower(original.records[recordIndex].textFields[1]) == "msg",
+              case .objectText(let elements) = original.records[recordIndex].values,
+              elements.indices.contains(elementIndex), let payload = elements[elementIndex].messagePayload,
+              let primary = payload.textStrings.first, payload.stringOffsets.first == primary.decodedOffset - 2,
+              primary.decodedOffset >= 2, primary.length >= 0,
+              primary.decodedOffset <= state.count, primary.length <= state.count - primary.decodedOffset,
+              payload.fixedRecordOffset >= 0, payload.fixedRecordOffset + 0x48 <= primary.decodedOffset - 2 else {
+            throw ResourceError.rejected("saved_message_write_template_outside_profile")
+        }
+        let raw = Data(state[(state.startIndex + primary.decodedOffset)..<(state.startIndex + primary.decodedOffset + primary.length)])
+        guard raw.sha256Hex == primary.sha256 else { throw ResourceError.rejected("saved_message_write_template_identity") }
+        let text = displayed + pending
+        guard text.utf8.count <= 8192, !text.unicodeScalars.contains(where: { $0.value < 0x20 || $0.value == 0x7f }),
+              let count = Int16(exactly: text.utf16.count),
+              let cursor = Int32(exactly: displayed.utf16.count),
+              let bytes = text.data(using: .utf16LittleEndian) else {
+            throw ResourceError.rejected("saved_message_write_text_outside_profile")
+        }
+        let displayedOutput = try ScriptStorage.MessageObject.parseOutput(displayed)
+        let pendingOutput = try ScriptStorage.MessageObject.parseOutput(pending)
+        guard displayedOutput.count + pendingOutput.count <= 128,
+              state.count - primary.length + bytes.count <= SaveEnvelope.maxFileBytes else {
+            throw ResourceError.rejected("saved_message_write_limit")
+        }
+        var replacement = Data()
+        withUnsafeBytes(of: count.littleEndian) { replacement.append(contentsOf: $0) }
+        replacement.append(bytes)
+        var result = state
+        withUnsafeBytes(of: cursor.littleEndian) {
+            result.replaceSubrange((result.startIndex + payload.fixedRecordOffset + 0x44)..<(result.startIndex + payload.fixedRecordOffset + 0x48), with: $0)
+        }
+        result.replaceSubrange((result.startIndex + primary.decodedOffset - 2)..<(result.startIndex + primary.decodedOffset + primary.length), with: replacement)
+        let checked = try Self(state: result, decodedOffset: decodedOffset)
+        guard checked.records.indices.contains(recordIndex),
+              case .objectText(let checkedElements) = checked.records[recordIndex].values,
+              checkedElements.indices.contains(elementIndex), let written = checkedElements[elementIndex].messagePayload else {
+            throw ResourceError.rejected("saved_message_write_roundtrip_shape")
+        }
+        let parsed = try written.primaryText(in: result)
+        guard parsed.displayed == displayed, parsed.pending == pending,
+              checked.nextDecodedOffset == original.nextDecodedOffset + bytes.count - primary.length else {
+            throw ResourceError.rejected("saved_message_write_roundtrip_mismatch")
+        }
+        return result
+    }
+
+    static func replacingMessagePrimaryCandidate(in state: Data, decodedOffset: Int,
+                                                 recordIndex: Int, elementIndex: Int,
+                                                 message: ScriptStorage.MessageObject) throws -> Data {
+        guard let text = message.primaryTextWriteCandidate() else {
+            throw ResourceError.rejected("saved_message_write_source_unavailable")
+        }
+        return try replacingMessagePrimaryCandidate(in: state, decodedOffset: decodedOffset,
+            recordIndex: recordIndex, elementIndex: elementIndex, displayed: text.displayed, pending: text.pending)
+    }
+
+    /// Replace the audited message layout fields in an
+    /// existing template. The rest of the message object remains unverified.
+    static func replacingMessageLayoutCandidate(in state: Data, decodedOffset: Int,
+                                                recordIndex: Int, elementIndex: Int,
+                                                message: ScriptStorage.MessageObject) throws -> Data {
+        let original = try Self(state: state, decodedOffset: decodedOffset)
+        guard original.records.indices.contains(recordIndex),
+              asciiLower(original.records[recordIndex].textFields[1]) == "msg",
+              case .objectText(let elements) = original.records[recordIndex].values,
+              elements.indices.contains(elementIndex), let payload = elements[elementIndex].messagePayload,
+              payload.textStrings.count == 5, payload.stringOffsets.count == 5,
+              payload.fixedRecordOffset >= 0, payload.fixedRecordOffset <= state.count - 189,
+              let reserve = message.kinsokuWordLength else {
+            throw ResourceError.rejected("saved_message_layout_write_template_outside_profile")
+        }
+        if let bounds = message.textBounds {
+            guard bounds.count == 4, bounds[2] >= bounds[0], bounds[3] >= bounds[1],
+                  Int64(bounds[2]) - Int64(bounds[0]) <= 4096,
+                  Int64(bounds[3]) - Int64(bounds[1]) <= 4096 else {
+                throw ResourceError.rejected("saved_message_layout_write_bounds_outside_profile")
+            }
+        }
+        if let margins = message.textMargins, margins.count != 2 {
+            throw ResourceError.rejected("saved_message_layout_write_margins_outside_profile")
+        }
+        let values = [message.prohibitedLineStart, message.prohibitedLineEnd, message.ignoredReturnWords]
+        var replacements: [(range: Range<Int>, bytes: Data)] = []
+        for (index, value) in values.enumerated() {
+            let reference = payload.textStrings[index + 2]
+            guard reference.decodedOffset >= 2, reference.length >= 0,
+                  reference.decodedOffset <= state.count, reference.length <= state.count - reference.decodedOffset,
+                  payload.stringOffsets[index + 2] == reference.decodedOffset - 2,
+                  value.utf8.count <= 8192, let length = Int16(exactly: value.utf16.count),
+                  let encoded = value.data(using: .utf16LittleEndian),
+                  Data(state[(state.startIndex + reference.decodedOffset)..<(state.startIndex + reference.decodedOffset + reference.length)]).sha256Hex == reference.sha256 else {
+                throw ResourceError.rejected("saved_message_layout_write_string_outside_profile")
+            }
+            var bytes = Data()
+            withUnsafeBytes(of: length.littleEndian) { bytes.append(contentsOf: $0) }
+            bytes.append(encoded)
+            replacements.append(((reference.decodedOffset - 2)..<(reference.decodedOffset + reference.length), bytes))
+        }
+        let delta = replacements.reduce(0) { $0 + $1.bytes.count - $1.range.count }
+        guard delta <= SaveEnvelope.maxFileBytes - state.count else {
+            throw ResourceError.rejected("saved_message_layout_write_limit")
+        }
+        var result = state
+        func store(_ value: Int32, at offset: Int) {
+            withUnsafeBytes(of: value.littleEndian) {
+                result.replaceSubrange((result.startIndex + payload.fixedRecordOffset + offset)..<(result.startIndex + payload.fixedRecordOffset + offset + 4), with: $0)
+            }
+        }
+        if let bounds = message.textBounds {
+            for (index, value) in bounds.enumerated() { store(value, at: 0x0c + index * 4) }
+        }
+        if let margins = message.textMargins {
+            for (index, value) in margins.enumerated() { store(value, at: 0x90 + index * 4) }
+        }
+        store(reserve, at: 0x8c)
+        result[result.startIndex + payload.fixedRecordOffset + 0x9a] = message.asEnabled ? 1 : 0
+        result[result.startIndex + payload.fixedRecordOffset + 0x9b] = message.apEnabled ? 1 : 0
+        for replacement in replacements.reversed() {
+            result.replaceSubrange((result.startIndex + replacement.range.lowerBound)..<(result.startIndex + replacement.range.upperBound), with: replacement.bytes)
+        }
+        let checked = try Self(state: result, decodedOffset: decodedOffset)
+        guard checked.records.indices.contains(recordIndex),
+              case .objectText(let checkedElements) = checked.records[recordIndex].values,
+              checkedElements.indices.contains(elementIndex), let written = checkedElements[elementIndex].messagePayload,
+              written.textStrings.count == 5, written.rawKinsokuWordLength == reserve,
+              written.rawAsEnabled == (message.asEnabled ? 1 : 0), written.rawApEnabled == (message.apEnabled ? 1 : 0),
+              (message.textBounds == nil || written.drawableRectangle == message.textBounds),
+              (message.textMargins == nil || written.rawTextMargins == message.textMargins),
+              checked.nextDecodedOffset == original.nextDecodedOffset + delta else {
+            throw ResourceError.rejected("saved_message_layout_write_roundtrip_shape")
+        }
+        for (reference, value) in zip(written.textStrings[2...4], values) {
+            guard try reference.utf16Text(in: result).utf16.elementsEqual(value.utf16) else {
+                throw ResourceError.rejected("saved_message_layout_write_roundtrip_mismatch")
+            }
+        }
+        return result
+    }
+
+    /// Update only the first four user integers in an existing image template.
+    /// All other image state remains opaque and must not be treated as current.
+    static func replacingImageUserIntegersCandidate(in state: Data, decodedOffset: Int,
+                                                    recordIndex: Int, elementIndex: Int,
+                                                    values: [Int32]) throws -> Data {
+        let original = try Self(state: state, decodedOffset: decodedOffset)
+        guard values.count == 4, original.records.indices.contains(recordIndex),
+              ["img", "simg"].contains(asciiLower(original.records[recordIndex].textFields[1])),
+              case .objectText(let elements) = original.records[recordIndex].values,
+              elements.indices.contains(elementIndex), let payload = elements[elementIndex].imagePayload,
+              payload.userIntegerReferences.count == 8, payload.userIntegerWords.count == 8 else {
+            throw ResourceError.rejected("saved_image_user_integer_write_outside_profile")
+        }
+        var result = state
+        for (reference, value) in zip(payload.userIntegerReferences.prefix(4), values) {
+            let start = reference.decodedOffset
+            guard start >= 0, reference.length == 4, start <= state.count - 4,
+                  Data(state[(state.startIndex + start)..<(state.startIndex + start + 4)]).sha256Hex == reference.sha256 else {
+                throw ResourceError.rejected("saved_image_user_integer_template_identity")
+            }
+            withUnsafeBytes(of: value.littleEndian) {
+                result.replaceSubrange((result.startIndex + start)..<(result.startIndex + start + 4), with: $0)
+            }
+        }
+        let checked = try Self(state: result, decodedOffset: decodedOffset)
+        guard checked.records.indices.contains(recordIndex),
+              case .objectText(let writtenElements) = checked.records[recordIndex].values,
+              writtenElements.indices.contains(elementIndex), let written = writtenElements[elementIndex].imagePayload,
+              Array(written.userIntegerWords.prefix(4)) == values,
+              written.userIntegerWords.dropFirst(4).elementsEqual(payload.userIntegerWords.dropFirst(4)),
+              checked.nextDecodedOffset == original.nextDecodedOffset else {
+            throw ResourceError.rejected("saved_image_user_integer_write_roundtrip_mismatch")
+        }
+        return result
+    }
+
+    /// Candidate for an immediate, axis-aligned image placement on an existing
+    /// template. Resource identity and the rest of the object remain unverified.
+    static func replacingImagePlacementCandidate(in state: Data, decodedOffset: Int,
+                                                  recordIndex: Int, elementIndex: Int,
+                                                  placement: SIMD3<Int32>, scale: SIMD3<Int32>) throws -> Data {
+        let original = try Self(state: state, decodedOffset: decodedOffset)
+        guard original.records.indices.contains(recordIndex),
+              ["img", "simg"].contains(asciiLower(original.records[recordIndex].textFields[1])),
+              case .objectText(let elements) = original.records[recordIndex].values,
+              elements.indices.contains(elementIndex), let payload = elements[elementIndex].imagePayload,
+              payload.fixedRecord.length == 0xa5e, payload.fixedRecord.decodedOffset >= 0,
+              payload.fixedRecord.decodedOffset <= state.count,
+              payload.fixedRecord.length <= state.count - payload.fixedRecord.decodedOffset,
+              scale.z == 100,
+              (0..<3).allSatisfy({ (-16_777_216...16_777_216).contains(placement[$0]) &&
+                  (-16_777_216...16_777_216).contains(scale[$0]) }) else {
+            throw ResourceError.rejected("saved_image_placement_write_outside_profile")
+        }
+        let start = payload.fixedRecord.decodedOffset
+        let fixed = Data(state[(state.startIndex + start)..<(state.startIndex + start + payload.fixedRecord.length)])
+        guard fixed.sha256Hex == payload.fixedRecord.sha256 else {
+            throw ResourceError.rejected("saved_image_placement_template_identity")
+        }
+        var result = state
+        func store(_ value: Int32, at offsets: [Int]) {
+            for offset in offsets {
+                withUnsafeBytes(of: value.littleEndian) {
+                    result.replaceSubrange((result.startIndex + start + offset)..<(result.startIndex + start + offset + 4), with: $0)
+                }
+            }
+        }
+        // Immediate path 0x5ac85c–0x5ac9aa copies each target into both
+        // current and origin fields. Four rotation/depth-angle values are zero.
+        for (value, offsets) in [
+            (placement.x, [0x8fd, 0x909, 0x915]), (placement.y, [0x901, 0x90d, 0x919]),
+            (placement.z, [0x905, 0x911, 0x91d]),
+            (Int32(0), [0x921, 0x925, 0x929, 0x92d, 0x931, 0x935, 0x939, 0x93d, 0x941, 0x945, 0x949, 0x94d]),
+            (scale.x, [0x951, 0x955, 0x959]), (scale.y, [0x95d, 0x961, 0x965]),
+            (scale.z, [0x969, 0x96d, 0x971]), (Int32(0), [0x9e9, 0x9ed, 0xa3e])
+        ] { store(value, at: offsets) }
+        let checked = try Self(state: result, decodedOffset: decodedOffset)
+        guard checked.records.indices.contains(recordIndex),
+              case .objectText(let checkedElements) = checked.records[recordIndex].values,
+              checkedElements.indices.contains(elementIndex), let written = checkedElements[elementIndex].imagePayload,
+              written.staticPlacement == placement, written.staticScale == scale,
+              written.drawGate == payload.drawGate, written.enableFlag == payload.enableFlag,
+              checked.nextDecodedOffset == original.nextDecodedOffset else {
+            throw ResourceError.rejected("saved_image_placement_write_roundtrip_mismatch")
+        }
+        return result
+    }
+
     /// Rebuild a standalone CalVal section with live scalars and inline text objects.
     /// Keep opaque fields from the supplied template. Refuse unsupported live objects.
     static func generatedBindingType(_ key: Data, in storage: ScriptStorage) -> (kind: UInt8, objectType: String)? {
         guard let elements = storage.global[key]?.elements, !elements.isEmpty else { return nil }
         if elements.allSatisfy({ $0.integer != nil }) { return (0, "") }
         if elements.allSatisfy({ $0.typeName == "string" }) { return (1, "") }
-        guard !storage.globalObjectAliases.contains(key) else { return nil }
+        if storage.globalObjectAliases.contains(key) {
+            return storage.savedSoundAliasTexts(key) == nil ? nil : (2, "obj")
+        }
         let handles = elements.compactMap { value -> UInt64? in
             guard case .object(let handle) = value else { return nil }
             return handle
@@ -314,6 +692,17 @@ package struct SaveVariableArrays {
         var names: Set<Data> = []
         for record in arrays.records {
             let objectType = asciiLower(record.textFields[1])
+            if objectType == "obj", record.header[record.header.startIndex + 13] == 1,
+               case .objectText(let elements) = record.values, !elements.isEmpty {
+                let key = Data(asciiLower(record.textFields[0]).utf8)
+                guard names.insert(key).inserted, let valueOffset = record.valueOffset,
+                      let references = storage.savedSoundAliasTexts(key), references.count == elements.count else {
+                    throw ResourceError.rejected("save_sound_alias_reference_outside_profile")
+                }
+                try append(span(record.decodedOffset, valueOffset))
+                for reference in references { try appendText(reference) }
+                continue
+            }
             if objectType == "timer", case .objectText(let elements) = record.values,
                elements.count == 1, let element = elements.first, element.reference.isEmpty,
                let payload = element.timerPayload, payload.isInactiveWithoutCallback {
@@ -426,12 +815,19 @@ package struct SaveVariableArrays {
             try appendWord(0)
             try appendWord(0xff)
             try appendWord(hash)
-            try append(Data([kind, 0]))
+            try append(Data([kind, objectType == "obj" ? 1 : 0]))
             try appendWord(0)
             try appendText(name)
             try appendText(objectType)
             let count = UInt32(binding.elements.count)
             for word in [count, 1, 1, 1, count] { try appendWord(word) }
+            if objectType == "obj" {
+                guard let references = storage.savedSoundAliasTexts(key), references.count == binding.elements.count else {
+                    throw ResourceError.rejected("save_sound_alias_reference_outside_profile")
+                }
+                for reference in references { try appendText(reference) }
+                continue
+            }
             for element in binding.elements {
                 switch element {
                 case .integer(let value): try appendWord(UInt32(bitPattern: value))
@@ -561,7 +957,12 @@ package struct SaveVariableArrays {
             default:
                 let hasObjectPayload = header[header.startIndex + 13] == 0
                 let objectType = asciiLower(textFields[1])
-                guard length == 0 || !hasObjectPayload || objectType == "list" || objectType == "table" || objectType == "sbtn" || objectType == "simg" || objectType == "timer" else {
+                // Fixed EXE VMTs: img/simg use 0x68c250/0x68c1e0;
+                // btn/sbtn use 0x68c7b4/0x68c744 for save/load.
+                let isButton = objectType == "btn" || objectType == "sbtn"
+                let isImage = objectType == "img" || objectType == "simg"
+                let isMessage = objectType == "msg"
+                guard length == 0 || !hasObjectPayload || objectType == "list" || objectType == "table" || isButton || isImage || isMessage || objectType == "timer" else {
                     throw ResourceError.rejected("object_callback_payload_unparsed")
                 }
                 values = .objectText(try (0..<length).map { _ in
@@ -598,7 +999,7 @@ package struct SaveVariableArrays {
                                     updateMask: UInt32(bitPattern: timerWord(13)), rawUpdateMode: timerWord(21),
                                     callbackStrings: callbackStrings, nextDecodedOffset: offset))
                         }
-                        if objectType == "sbtn" || objectType == "simg" {
+                        if isButton || isImage || isMessage {
                             guard try take(4).elementsEqual("objd".utf8), try integer() == 1 else {
                                 throw ResourceError.rejected("unsupported_saved_visual_object_header")
                             }
@@ -610,7 +1011,10 @@ package struct SaveVariableArrays {
                             var rawActionElapsed: Int32 = 0
                             var rawActionClockRemainder: Int32 = 0
                             var rawActionSpeed: Int32 = 100
+                            var rawPlacementMode: UInt8 = 0
+                            var rawPlacementStrength: Int32 = 0
                             var imageFixedRecord: SaveReaderCursor.Reference?
+                            var imageLayerTiming: ImagePayload.LayerTiming?
                             var imageStaticPlacement: SIMD3<Int32>?
                             var imageStaticScale: SIMD3<Int32>?
                             var activePlacement: ImagePayload.ActivePlacement?
@@ -619,6 +1023,8 @@ package struct SaveVariableArrays {
                             var imageDrawGate: UInt8 = 0
                             var imageEnableFlag: UInt8 = 0
                             var buttonUserStrings: [SaveReaderCursor.Reference] = []
+                            var buttonUserIntegerReferences: [SaveReaderCursor.Reference] = []
+                            var buttonUserIntegerWords: [Int32] = []
                             var buttonSoundNames: [SaveReaderCursor.Reference] = []
                             try state.withUnsafeBytes { bytes in
                                 try SaveStatePrefix.walkImageLibrary(bytes, take: { count in
@@ -637,13 +1043,19 @@ package struct SaveVariableArrays {
                                         length: name.count, sha256: Data(bytes[name]).sha256Hex),
                                         embeddedOffset: offset, embeddedLength: length, embeddedSignature: nil,
                                         nativeReloadRequested: requested, nativeDecoder: nil)
+                                }, visitUserInteger: { range in
+                                    if isButton || isImage {
+                                        buttonUserIntegerReferences.append(.init(decodedOffset: range.lowerBound,
+                                            length: range.count, sha256: Data(bytes[range]).sha256Hex))
+                                        buttonUserIntegerWords.append(Int32(littleEndian: bytes.loadUnaligned(fromByteOffset: range.lowerBound, as: Int32.self)))
+                                    }
                                 }, visitUserString: { range in
-                                    if objectType == "sbtn" {
+                                    if isButton || isImage || isMessage {
                                         buttonUserStrings.append(.init(decodedOffset: range.lowerBound,
                                             length: range.count, sha256: Data(bytes[range]).sha256Hex))
                                     }
                                 }, visitSoundName: { range in
-                                    if objectType == "sbtn" {
+                                    if isButton || isMessage {
                                         buttonSoundNames.append(.init(decodedOffset: range.lowerBound,
                                             length: range.count, sha256: Data(bytes[range]).sha256Hex))
                                     }
@@ -655,10 +1067,26 @@ package struct SaveVariableArrays {
                                     // 0x5ab666 checks the draw gate; 0x5ad0dc reads the separate enable flag.
                                     imageDrawGate = bytes[start + 0x9f9]
                                     imageEnableFlag = bytes[start + 0x9fa]
+                                    rawPlacementMode = bytes[start + 0x9fd]
                                     func field(_ offset: Int) -> Int32 {
                                         Int32(littleEndian: bytes.loadUnaligned(fromByteOffset: start + offset, as: Int32.self))
                                     }
-                                    if objectType == "simg" {
+                                    if isImage {
+                                        let timeRange = (start + 4)..<(start + 0x404)
+                                        let auxiliaryRange = (start + 0x404)..<(start + 0x804)
+                                        let times = (0..<256).map { field(4 + $0 * 4) }
+                                        let auxiliaries = (0..<256).map { field(0x404 + $0 * 4) }
+                                        imageLayerTiming = .init(
+                                            savedTimeWords: .init(decodedOffset: timeRange.lowerBound,
+                                                length: timeRange.count, sha256: Data(bytes[timeRange]).sha256Hex),
+                                            savedAuxiliaryWords: .init(decodedOffset: auxiliaryRange.lowerBound,
+                                                length: auxiliaryRange.count, sha256: Data(bytes[auxiliaryRange]).sha256Hex),
+                                            nonzeroTimeCount: times.filter { $0 != 0 }.count,
+                                            nonzeroAuxiliaryCount: auxiliaries.filter { $0 != 0 }.count,
+                                            timeWords: times, auxiliaryWords: auxiliaries)
+                                    }
+                                    rawPlacementStrength = field(0x9f1)
+                                    if isImage || isMessage {
                                         // 0x5abda9 passes fixed record +0x804 to 0x57e840.
                                         rawActionIndex = field(0x804)
                                         // 0x5abe27 writes the accumulated action clock.
@@ -667,6 +1095,8 @@ package struct SaveVariableArrays {
                                         rawActionClockRemainder = field(0x810)
                                         // 0x5abea4–0x5abeb4 restores the speed through 0x5ae608.
                                         rawActionSpeed = field(0x80c)
+                                    }
+                                    if isImage {
                                         // 0x5ab74e multiplies the stored alpha into the draw command.
                                         let remaining = field(0x9c9)
                                         let duration = field(0x9cd)
@@ -730,11 +1160,12 @@ package struct SaveVariableArrays {
                                     }
                                 })
                             }
-                            if objectType == "simg" {
-                                guard let imageFixedRecord else { throw ResourceError.rejected("missing_saved_image_fixed_record") }
+                            if isImage {
+                                guard let imageFixedRecord, let imageLayerTiming else { throw ResourceError.rejected("missing_saved_image_fixed_record") }
                                 return ObjectElement(reference: reference, payload: nil, buttonPayload: nil,
-                                    imagePayload: .init(fixedRecord: imageFixedRecord, staticPlacement: imageStaticPlacement, staticScale: imageStaticScale, activePlacement: activePlacement, opacityTransition: imageOpacityTransition, staticOpacity: imageStaticOpacity, textureSlots: imageTextureSlots, rawActionIndex: rawActionIndex, rawActionElapsed: rawActionElapsed, rawActionClockRemainder: rawActionClockRemainder, rawActionSpeed: rawActionSpeed, drawGate: imageDrawGate, enableFlag: imageEnableFlag, decodedOffset: objectOffset, byteLength: offset - objectOffset,
-                                                        imageSource: imageSource))
+                                    imagePayload: .init(fixedRecord: imageFixedRecord, userIntegerReferences: buttonUserIntegerReferences, userIntegerWords: buttonUserIntegerWords, userStrings: buttonUserStrings, layerTiming: imageLayerTiming, staticPlacement: imageStaticPlacement, staticScale: imageStaticScale, activePlacement: activePlacement, opacityTransition: imageOpacityTransition, staticOpacity: imageStaticOpacity, textureSlots: imageTextureSlots, rawActionIndex: rawActionIndex, rawActionElapsed: rawActionElapsed, rawActionClockRemainder: rawActionClockRemainder, rawActionSpeed: rawActionSpeed, drawGate: imageDrawGate, enableFlag: imageEnableFlag, decodedOffset: objectOffset, byteLength: offset - objectOffset,
+                                                        imageSource: imageSource, rawPlacementMode: rawPlacementMode,
+                                                        rawPlacementStrength: rawPlacementStrength))
                             }
                             let fixedOffset = offset
                             let fixed = try take(189)
@@ -743,19 +1174,53 @@ package struct SaveVariableArrays {
                                 (0..<4).map { Int32(littleEndian: bytes.loadUnaligned(
                                     fromByteOffset: 12 + $0 * 4, as: Int32.self)) }
                             }
+                            var textReferences: [SaveReaderCursor.Reference] = []
                             let strings = try (0..<5).map { _ in
                                 let start = offset
                                 _ = try string()
+                                if isMessage {
+                                    let payload = Data(state[(state.startIndex + start + 2)..<(state.startIndex + offset)])
+                                    textReferences.append(.init(decodedOffset: start + 2, length: payload.count,
+                                                                sha256: payload.sha256Hex))
+                                }
                                 return start
                             }
+                            if isMessage {
+                                // 0x68cc34 and 0x68cca4 use the common button
+                                // loader/writer without the derived 42-byte tail.
+                                return ObjectElement(reference: reference, payload: nil, buttonPayload: nil, imagePayload: nil,
+                                    messagePayload: .init(decodedOffset: objectOffset, imageLibraryOffset: libraryOffset,
+                                        imageSource: imageSource, fixedRecordOffset: fixedOffset, drawableRectangle: rectangle,
+                                        stringOffsets: strings, textStrings: textReferences,
+                                        rawTextCursor: fixed.withUnsafeBytes { Int32(littleEndian: $0.loadUnaligned(fromByteOffset: 0x44, as: Int32.self)) },
+                                        rawTextMargins: fixed.withUnsafeBytes { bytes in
+                                            [0x90, 0x94].map { Int32(littleEndian: bytes.loadUnaligned(fromByteOffset: $0, as: Int32.self)) }
+                                        }, rawKinsokuWordLength: fixed.withUnsafeBytes {
+                                            Int32(littleEndian: $0.loadUnaligned(fromByteOffset: 0x8c, as: Int32.self))
+                                        }, rawAsEnabled: fixed[fixed.startIndex + 0x9a],
+                                        rawApEnabled: fixed[fixed.startIndex + 0x9b],
+                                        staticPlacement: imageStaticPlacement, staticScale: imageStaticScale,
+                                        rawActionIndex: rawActionIndex, rawActionElapsed: rawActionElapsed,
+                                        rawActionClockRemainder: rawActionClockRemainder, rawActionSpeed: rawActionSpeed,
+                                        textureSlots: imageTextureSlots,
+                                        rawImageDrawGate: imageDrawGate, rawImageEnableFlag: imageEnableFlag,
+                                        nextDecodedOffset: offset))
+                            }
                             let buttonOffset = offset
-                            _ = try take(42)
+                            let buttonRecord = try take(42)
+                            let buttonVersion = buttonRecord.withUnsafeBytes {
+                                Int32(littleEndian: $0.loadUnaligned(as: Int32.self))
+                            }
+                            let checkByte = buttonVersion == 10 ? buttonRecord[buttonRecord.startIndex + 8] : nil
+                            let lockByte = buttonVersion == 10 ? buttonRecord[buttonRecord.startIndex + 9] : nil
                             return ObjectElement(reference: reference, payload: nil,
                                 buttonPayload: .init(decodedOffset: objectOffset, imageLibraryOffset: libraryOffset, imageSource: imageSource,
-                                    fixedRecordOffset: fixedOffset, drawableRectangle: rectangle, stringOffsets: strings, userStrings: buttonUserStrings, soundNames: buttonSoundNames,
+                                    fixedRecordOffset: fixedOffset, drawableRectangle: rectangle, stringOffsets: strings, userStrings: buttonUserStrings,
+                                    userIntegerReferences: buttonUserIntegerReferences, userIntegerWords: buttonUserIntegerWords, soundNames: buttonSoundNames,
                                     textureSlots: imageTextureSlots,
                                     rawImageDrawGate: imageDrawGate, rawImageEnableFlag: imageEnableFlag,
-                                    rawButtonState: fixed[fixed.startIndex + 0x98], staticPlacement: imageStaticPlacement,
+                                    rawButtonState: fixed[fixed.startIndex + 0x98], rawCheckByte: checkByte, rawLockByte: lockByte,
+                                    staticPlacement: imageStaticPlacement,
                                     staticScale: activePlacement == nil ? imageStaticScale : nil,
                                     buttonRecordOffset: buttonOffset, nextDecodedOffset: offset), imagePayload: nil)
                         }

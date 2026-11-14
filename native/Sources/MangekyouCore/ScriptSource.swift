@@ -2,8 +2,20 @@ import Foundation
 import CoreFoundation
 import CryptoKit
 
+private enum LowercaseHex {
+    static let digits = Array("0123456789abcdef".utf8)
+}
+
 public extension Data {
-    var sha256Hex: String { SHA256.hash(data: self).map { String(format: "%02x", $0) }.joined() }
+    var sha256Hex: String {
+        var output = [UInt8]()
+        output.reserveCapacity(64)
+        for byte in SHA256.hash(data: self) {
+            output.append(LowercaseHex.digits[Int(byte >> 4)])
+            output.append(LowercaseHex.digits[Int(byte & 15)])
+        }
+        return String(decoding: output, as: UTF8.self)
+    }
 }
 
 public struct ScriptLocation: Encodable, Sendable, Hashable {

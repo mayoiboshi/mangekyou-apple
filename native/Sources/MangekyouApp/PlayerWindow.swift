@@ -666,7 +666,7 @@ private actor PlayerSession {
                 try machine.advancePlacementClock(ticks: ticks)
                 continue
             }
-            if machine.phase == .waitingForEvent, let request = machine.timedStopRequest {
+            if machine.phase == .waitingForEvent, let request = machine.timedStopRequest, request.duration >= 0 {
                 let committedCenterText = try machine.commitTimedCenterText()
                 let sample = samplesAcceleratedVisualWait
                 if committedCenterText || !accelerated || sample || sampledPreviousWait {

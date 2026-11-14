@@ -121,7 +121,9 @@ def merge(base, donors, output, refresh_digests=(), *, recipe_only=False):
         raise ProbeError("refresh_recipe_missing_from_donors")
     recipes.update(refreshed)
     recipe = list(chain.from_iterable(recipes.values()))
-    recipe_indent = None if recipe_only else 2
+    # The runtime caps recipe bytes, not member count. Compact JSON leaves
+    # space for verified timelines without changing the parsed recipe.
+    recipe_indent = None
     if len(json.dumps(recipe, indent=recipe_indent, ensure_ascii=False).encode("utf-8")) + 1 > RECIPE_LIMIT:
         raise ProbeError("replay_image_recipe_size_limit")
     added["image_recipe_containers"] = len(recipes) - len(base_digests)

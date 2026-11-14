@@ -6,6 +6,18 @@ from tools.mangekyou_p0 import ProbeError
 
 
 class NativeScriptEvidenceTests(unittest.TestCase):
+    def test_display_configuration_fields_remain_bounded(self):
+        machine,data,doc,lookup=self.table_fixture()
+        machine.update(displayConfigurationHostStatus='not_tested',displayRefreshRequested=False)
+        self.assertGreater(validate_trace(machine,data,'root.s',doc,source_lookup=lookup),0)
+        for change in ({'displayConfigurationHostStatus':'verified'}, {'displayRefreshRequested':1}):
+            forged=copy.deepcopy(machine);forged.update(change)
+            with self.assertRaisesRegex(ProbeError,'native_display_configuration_fields'):
+                validate_trace(forged,data,'root.s',doc,source_lookup=lookup)
+        del machine['displayRefreshRequested']
+        with self.assertRaisesRegex(ProbeError,'native_display_configuration_fields'):
+            validate_trace(machine,data,'root.s',doc,source_lookup=lookup)
+
     def test_v4_preserves_strict_source_and_equivalence_boundary(self):
         machine,data,doc,lookup=self.table_fixture()
         machine['profile']='experimental_static_contracts_v4'
@@ -61,6 +73,37 @@ class NativeScriptEvidenceTests(unittest.TestCase):
             else:forged['currentLocation']={**ref,'byteOffset':1}
             with self.assertRaises(ProbeError):validate_trace(forged,data,'owned.s',doc)
 
+    def test_source_coverage_rejects_forged_record_identity(self):
+        data=b'\\cal,1'; _,doc=fingerprints(data,'owned.s')
+        ref=dict(sourceFile='owned.s',sourceSHA256=sha(data),byteOffset=0,byteLength=len(data),rangeSHA256=sha(data),lineNumber=1)
+        row=dict(sequence=1,location=ref,status='inferred',action='calculate',recordType='command',command='cal',commandSHA256=sha(b'cal'))
+        entry=dict(location=dict(ref),recordType='command',firstStep=1,lastStep=1,executions=1,status='inferred')
+        machine=dict(profile='experimental_static_contracts_v1',originalEngineEquivalence='not_tested',trace=[row],steps=1,
+                     phase='finished',sourceCoverage=dict(sourceFile='owned.s',entries=[entry],truncated=False))
+        self.assertEqual(validate_trace(machine,data,'owned.s',doc),2)
+        for field,value in [('recordType','label'),('rangeSHA256','0'*64)]:
+            forged=copy.deepcopy(machine)
+            target=forged['sourceCoverage']['entries'][0]
+            if field=='recordType': target[field]=value
+            else: target['location'][field]=value
+            with self.subTest(field=field),self.assertRaises(ProbeError):validate_trace(forged,data,'owned.s',doc)
+
+    def test_trace_accepts_only_complete_physical_blank_lines_in_group(self):
+        data=b'\n  \n\n\\cal,1'; _,doc=fingerprints(data,'owned.s')
+        def reference(start,end,line):
+            return dict(sourceFile='owned.s',sourceSHA256=sha(data),byteOffset=start,byteLength=end-start,
+                        rangeSHA256=sha(data[start:end]),lineNumber=line)
+        line=reference(1,4,2)
+        row=dict(sequence=1,location=line,status='inferred',action='advance',recordType='empty_span',
+                 command=None,commandSHA256=None)
+        machine=dict(profile='experimental_static_contracts_v1',originalEngineEquivalence='not_tested',
+                     trace=[row],steps=1,phase='ready')
+        self.assertEqual(validate_trace(machine,data,'owned.s',doc),1)
+        for invalid in (reference(1,3,2),reference(2,4,2),reference(1,5,2),reference(1,4,1)):
+            forged=copy.deepcopy(machine);forged['trace'][0]['location']=invalid
+            with self.subTest(invalid=invalid),self.assertRaises(ProbeError):
+                validate_trace(forged,data,'owned.s',doc)
+
     def test_skipped_source_cannot_be_silently_under_counted(self):
         data=b'\\cal,1\n\\unknown,private';_,doc=fingerprints(data,'owned.s')
         ref=dict(sourceFile='owned.s',sourceSHA256=sha(data),byteOffset=0,byteLength=len(data),rangeSHA256=sha(data),lineNumber=1)
@@ -69,6 +112,23 @@ class NativeScriptEvidenceTests(unittest.TestCase):
             trace=[dict(sequence=1,location=first,status='inferred',action='branch',recordType='command',command='cal',commandSHA256=sha(b'cal'),
                 skipped=dict(location=ref,recordCount=1,recordTypes={'command':1}))])
         with self.assertRaisesRegex(ProbeError,'skipped_span_accounting'):validate_trace(machine,data,'owned.s',doc)
+
+    def test_skipped_span_counts_physical_lines_in_grouped_blanks(self):
+        data=b'\\cal,1\n\n \n\\end';_,doc=fingerprints(data,'owned.s')
+        def ref(start,end,line):
+            return dict(sourceFile='owned.s',sourceSHA256=sha(data),byteOffset=start,byteLength=end-start,
+                        rangeSHA256=sha(data[start:end]),lineNumber=line)
+        machine=dict(profile='experimental_static_contracts_v1',originalEngineEquivalence='not_tested',
+            steps=1,phase='ready',trace=[dict(sequence=1,location=ref(0,6,1),status='inferred',
+                action='branch',recordType='command',command='cal',commandSHA256=sha(b'cal'),
+                skipped=dict(location=ref(7,10,2),recordCount=2,recordTypes={'empty_span':2}))])
+        self.assertEqual(validate_trace(machine,data,'owned.s',doc),2)
+        forged=copy.deepcopy(machine);forged['trace'][0]['skipped']['recordCount']=1
+        forged['trace'][0]['skipped']['recordTypes']={'empty_span':1}
+        with self.assertRaisesRegex(ProbeError,'skipped_span_accounting'):
+            validate_trace(forged,data,'owned.s',doc)
+        forged=copy.deepcopy(machine);forged['trace'][0]['skipped']['location']=ref(7,9,2)
+        with self.assertRaises(ProbeError):validate_trace(forged,data,'owned.s',doc)
 
     def test_public_boundary_rejects_added_operand_or_variable_content(self):
         data=b'\\cal,1';_,doc=fingerprints(data,'owned.s')

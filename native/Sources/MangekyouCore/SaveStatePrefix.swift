@@ -26,6 +26,11 @@ package struct SaveStatePrefix: Encodable, Sendable {
         let rawMode: UInt8
         let rawLoadOption: UInt8
         let rawSeekBits: UInt32
+        // Copied from player +0x508/+0x509 by 0x5a071a–0x5a0734 and
+        // restored before the stream reload at 0x5a04d0–0x5a04de.
+        let rawPlayerFlag508: UInt8
+        let rawPlayerFlag509: UInt8
+        let playerFlagsMatchLiveState: EvidenceStatus = .notTested
         let resumeRepeatCount: Int32?
         let resumeVolume: Int32
         let resumePan: Int32
@@ -37,12 +42,14 @@ package struct SaveStatePrefix: Encodable, Sendable {
         /// Update playback fields of an existing streaming record. The caller
         /// verifies the resource identity and supplies the measured host cursor.
         static func replacingPlayback(in template: Data, milliseconds: Int32, repeats: Int32?,
-                                      volume: Int32, pan: Int32) throws -> Data {
+                                      volume: Int32, pan: Int32, clearDelayedControls: Bool = false) throws -> Data {
             guard template.count == 131, milliseconds >= 0 else {
                 throw ResourceError.rejected("saved_stream_write_outside_profile")
             }
             let mode = template[template.startIndex + 0x10]
-            guard repeats.map({ mode >= 2 && $0 >= -1 }) ?? (mode == 1) else {
+            guard template[template.startIndex + 0x25] <= 1,
+                  template[template.startIndex + 0x26] <= 1,
+                  repeats.map({ mode >= 2 && $0 >= -1 }) ?? (mode == 1) else {
                 throw ResourceError.rejected("saved_stream_write_outside_profile")
             }
             let seconds = Float(Double(milliseconds) / 1000)
@@ -57,6 +64,13 @@ package struct SaveStatePrefix: Encodable, Sendable {
             replace(0x15, with: seconds.bitPattern)
             replace(0x1d, with: UInt32(bitPattern: pan))
             if let repeats { replace(0x27, with: UInt32(bitPattern: repeats)) }
+            if clearDelayedControls {
+                // 0x5a0584 and 0x5a05b6 restore delayed controls from these
+                // counters. The live writer uses this only after checking that
+                // neither local control has a timed or delayed request.
+                replace(0x33, with: 0)
+                replace(0x3f, with: 0)
+            }
             return record
         }
 
@@ -66,6 +80,8 @@ package struct SaveStatePrefix: Encodable, Sendable {
             rawMode = bytes[start + 0x10]
             rawLoadOption = bytes[start + 0x11]
             rawSeekBits = UInt32(littleEndian: bytes.loadUnaligned(fromByteOffset: start + 0x15, as: UInt32.self))
+            rawPlayerFlag508 = bytes[start + 0x25]
+            rawPlayerFlag509 = bytes[start + 0x26]
             // 0x5a053e and 0x5a0560 pass these values to the volume and pan setters.
             resumeVolume = Int32(littleEndian: bytes.loadUnaligned(fromByteOffset: start + 4, as: Int32.self))
             resumePan = Int32(littleEndian: bytes.loadUnaligned(fromByteOffset: start + 0x1d, as: Int32.self))
@@ -205,26 +221,58 @@ extension SaveStatePrefix {
         return result
     }
 
+    /// The writer has no direct-buffer snapshot; never silently discard one.
+    static func validateNoLiveDirectSounds(_ storage: ScriptStorage) throws {
+        let activeDirectCount = storage.soundChannels.filter {
+            !ScriptStorage.isStreamHandle($0.key) && $0.value.playing
+        }.count
+        guard activeDirectCount == 0 else {
+            throw ResourceError.rejected("saved_direct_sound_live_state_unsupported: count=\(activeDirectCount)")
+        }
+    }
+
+    /// Only names present in the saved bank are candidates. Missing or invalid
+    /// entries remain unknown rather than being synthesized as empty strings.
+    func savedStreamNameCandidates(in state: Data) -> [Int32: String] {
+        savedStreamStringCandidates(in: state, fieldIndex: 0)
+    }
+
+    func savedStreamFilterCandidates(in state: Data) -> [Int32: String] {
+        savedStreamStringCandidates(in: state, fieldIndex: 1)
+    }
+
+    private func savedStreamStringCandidates(in state: Data, fieldIndex: Int) -> [Int32: String] {
+        var result: [Int32: String] = [:]
+        for (index, entry) in ssndReferences.prefix(32).enumerated() {
+            guard let stream = entry.streamChannel, stream.rawMode <= 3,
+                  entry.strings.indices.contains(fieldIndex), entry.strings[fieldIndex].length <= 16_384,
+                  let text = try? entry.strings[fieldIndex].utf16Text(in: state), text.utf8.count <= 8192 else { continue }
+            result[Int32(index)] = text
+        }
+        return result
+    }
+
     /// Apply host positions for every playing template channel as one update.
     func replacingLiveStreams(in state: Data, storage: ScriptStorage, catalog: ScriptModuleCatalog,
                               positions: [Int32: Int32]) throws -> Data {
+        try Self.validateNoLiveDirectSounds(storage)
+        guard ssndReferences.allSatisfy({ ($0.streamChannel?.rawMode ?? UInt8.max) <= 3 }) else {
+            throw ResourceError.rejected("saved_stream_write_mode_outside_profile")
+        }
         let playing = Set(ssndReferences.indices.compactMap { index -> Int32? in
             guard ssndReferences[index].streamChannel?.resumeRepeatCount != nil else { return nil }
             return Int32(index)
         })
-        let handles = try playing.map { channel -> UInt64 in
-            guard case .object(let handle) = try storage.readIndexed("snd", channel) else {
-                throw ResourceError.rejected("saved_stream_write_channel_unavailable")
-            }
-            return handle
-        }
         let liveHandles = Set(storage.soundChannels.keys.filter {
             ScriptStorage.isStreamHandle($0) && storage.soundChannels[$0]?.playing == true
         })
-        guard Set(positions.keys) == playing, Set(handles) == liveHandles else {
-            let live = liveHandles.compactMap(ScriptStorage.streamChannelIndex).sorted()
+        let live = Set(liveHandles.compactMap(ScriptStorage.streamChannelIndex))
+        guard Set(positions.keys) == live, live.allSatisfy({ channel in
+            ssndReferences.indices.contains(Int(channel)) &&
+                (1...3).contains(ssndReferences[Int(channel)].streamChannel?.rawMode ?? 0)
+        }) else {
             throw ResourceError.rejected(
-                "saved_stream_write_position_coverage: live=\(live) template=\(playing.sorted()) supplied=\(positions.keys.sorted())")
+                "saved_stream_write_position_coverage: live=\(live.sorted()) template=\(playing.sorted()) supplied=\(positions.keys.sorted())")
         }
         var result = state
         let liveIdle = Set(storage.soundChannels.compactMap { handle, channel -> Int32? in
@@ -234,6 +282,7 @@ extension SaveStatePrefix {
         var matchedIdle = Set<Int32>()
         for (index, entry) in ssndReferences.enumerated() where entry.streamChannel?.rawMode == 1 {
             let channel = Int32(index)
+            if live.contains(channel) { continue }
             if !liveIdle.contains(channel) {
                 // Mode zero bypasses the saved stream reload.
                 result[result.startIndex + entry.record.decodedOffset + 0x10] = 0
@@ -244,8 +293,13 @@ extension SaveStatePrefix {
                   let name = entry.strings.first, name.length > 0 else {
                 throw ResourceError.rejected("saved_idle_stream_write_source_mismatch")
             }
+            guard live.filterRequestKnown, (live.filterRequest ?? "").isEmpty else {
+                throw ResourceError.rejected("saved_stream_filter_application_unverified")
+            }
             let reference = try catalog.resolve(name.utf16Text(in: state))
             guard reference.sourceFile == source.sourceFile, reference.sourceSHA256 == source.sourceSHA256,
+                  !live.volumeChangePending, !live.panChangePending,
+                  live.volumeControlToken == nil, live.panControlToken == nil,
                   (live.volumeDuration ?? 0) == 0, (live.volumeDelay ?? 0) == 0,
                   (live.panRequest?.duration ?? 0) == 0, (live.panRequest?.delay ?? 0) == 0 else {
                 throw ResourceError.rejected("saved_idle_stream_write_state_mismatch")
@@ -254,40 +308,119 @@ extension SaveStatePrefix {
             let range = start..<(start + 131)
             let encoded = try StreamChannel.replacingPlayback(in: Data(result[range]),
                 milliseconds: live.seekRequest ?? 0, repeats: nil,
-                volume: live.volume ?? 256, pan: live.panRequest?.position ?? 0)
+                volume: live.volume ?? 256, pan: live.panRequest?.position ?? 0, clearDelayedControls: true)
             result.replaceSubrange(range, with: encoded)
             matchedIdle.insert(channel)
         }
         guard matchedIdle == liveIdle else {
             throw ResourceError.rejected("saved_idle_stream_write_coverage")
         }
-        for channel in playing.sorted() {
+        for channel in playing.subtracting(live) {
+            let entry = ssndReferences[Int(channel)]
+            // A donor-only stream must not resume in the new state.
+            result[result.startIndex + entry.record.decodedOffset + 0x10] = 0
+        }
+        for channel in live.sorted() {
             guard let milliseconds = positions[channel] else {
                 throw ResourceError.rejected("saved_stream_write_position_coverage")
             }
             result = try replacingLiveStreamPlayback(in: result, channel: channel, storage: storage,
-                                                       catalog: catalog, milliseconds: milliseconds)
+                                                       catalog: catalog, milliseconds: milliseconds, normalizeMode: true)
+        }
+        // The script can compare ?l verbatim. The donor's spelling is not a
+        // substitute for the current channel name, even when both resolve to
+        // the same resource. Apply string edits from the end so all audited
+        // offsets remain valid until the bank is reparsed.
+        var replacements: [(index: Int, fieldIndex: Int, range: Range<Int>, data: Data, value: String)] = []
+        for (index, entry) in ssndReferences.enumerated() {
+            guard let channelIndex = Int32(exactly: index), index < 32,
+                  case .object(let handle) = try storage.readIndexed("snd", channelIndex),
+                  entry.strings.count == 2 else {
+                throw ResourceError.rejected("saved_stream_write_name_outside_profile")
+            }
+            let channel = storage.soundChannels[handle]
+            guard channel != nil || !storage.unknownStreamFieldsOnRestore,
+                  channel?.requestedSourceNameKnown != false, channel?.filterRequestKnown != false else {
+                throw ResourceError.rejected("saved_stream_write_name_unobserved")
+            }
+            let name = channel?.requestedSourceName ?? ""
+            if let source = channel?.resource {
+                guard !name.isEmpty else { throw ResourceError.rejected("saved_stream_write_name_unobserved") }
+                let resolved = try catalog.resolve(name)
+                guard resolved.sourceFile.utf8.elementsEqual(source.sourceFile.utf8),
+                      resolved.sourceSHA256 == source.sourceSHA256 else {
+                    throw ResourceError.rejected("saved_stream_write_name_source_mismatch")
+                }
+            }
+            for (fieldIndex, value) in [name, channel?.filterRequest ?? ""].enumerated() {
+                let reference = entry.strings[fieldIndex]
+                guard reference.decodedOffset >= 2, reference.decodedOffset <= state.count,
+                      reference.length >= 0, reference.length <= state.count - reference.decodedOffset,
+                      value.utf8.count <= 8192, let units = Int16(exactly: value.utf16.count),
+                      let encoded = value.data(using: .utf16LittleEndian),
+                      let existing = try? reference.utf16Text(in: state) else {
+                    throw ResourceError.rejected("saved_stream_write_string_outside_profile")
+                }
+                if existing.utf16.elementsEqual(value.utf16) { continue }
+                var field = Data()
+                withUnsafeBytes(of: units.littleEndian) { field.append(contentsOf: $0) }
+                field.append(encoded)
+                replacements.append((index, fieldIndex, (reference.decodedOffset - 2)..<(reference.decodedOffset + reference.length), field, value))
+            }
+        }
+        let delta = replacements.reduce(0) { $0 + $1.data.count - $1.range.count }
+        guard delta <= SaveEnvelope.maxFileBytes - result.count else {
+            throw ResourceError.rejected("saved_stream_write_name_limit")
+        }
+        for replacement in replacements.reversed() {
+            result.replaceSubrange((result.startIndex + replacement.range.lowerBound)..<(result.startIndex + replacement.range.upperBound), with: replacement.data)
+        }
+        if !replacements.isEmpty {
+            let reader = try SaveReaderCursor(threadState: result)
+            let checked = try SaveStatePrefix(state: result, after: reader)
+            guard checked.ssndCount == ssndCount, checked.nextDecodedOffset == nextDecodedOffset + delta else {
+                throw ResourceError.rejected("saved_stream_write_name_roundtrip_shape")
+            }
+            for replacement in replacements {
+                guard checked.ssndReferences.indices.contains(replacement.index),
+                      checked.ssndReferences[replacement.index].strings.indices.contains(replacement.fieldIndex),
+                      try checked.ssndReferences[replacement.index].strings[replacement.fieldIndex].utf16Text(in: result).utf16.elementsEqual(replacement.value.utf16) else {
+                    throw ResourceError.rejected("saved_stream_write_name_roundtrip_mismatch")
+                }
+            }
         }
         return result
     }
 
     func replacingLiveStreamPlayback(in state: Data, channel: Int32, storage: ScriptStorage,
-                                     catalog: ScriptModuleCatalog, milliseconds: Int32) throws -> Data {
+                                     catalog: ScriptModuleCatalog, milliseconds: Int32, normalizeMode: Bool = false) throws -> Data {
         guard channel >= 0, case .object(let handle) = try storage.readIndexed("snd", channel),
               let live = storage.soundChannels[handle], live.playing,
               let source = live.resource, let repeats = live.loopRequest,
-              !live.volumeChangePending || ((live.volumeDuration ?? 0) == 0 && (live.volumeDelay ?? 0) == 0),
-              !live.panChangePending || ((live.panRequest?.duration ?? 0) == 0 && (live.panRequest?.delay ?? 0) == 0) else {
+              !live.volumeChangePending, !live.panChangePending,
+              live.volumeControlToken == nil, live.panControlToken == nil,
+              (live.volumeDuration ?? 0) == 0, (live.volumeDelay ?? 0) == 0,
+              (live.panRequest?.duration ?? 0) == 0, (live.panRequest?.delay ?? 0) == 0 else {
             throw ResourceError.rejected("saved_stream_live_channel_outside_profile")
+        }
+        guard live.filterRequestKnown, (live.filterRequest ?? "").isEmpty else {
+            throw ResourceError.rejected("saved_stream_filter_application_unverified")
+        }
+        // The original decrements the remaining finite repeat count at
+        // 0x575966. A position sample does not reveal how many loops elapsed.
+        guard repeats == -1 || repeats == 0 else {
+            throw ResourceError.rejected("saved_stream_repeat_count_unobserved")
         }
         return try replacingStreamPlayback(in: state, channel: Int(channel), source: source,
             catalog: catalog, milliseconds: milliseconds, repeats: repeats,
-            volume: live.volume ?? 256, pan: live.panRequest?.position ?? 0)
+            volume: live.volume ?? 256, pan: live.panRequest?.position ?? 0,
+            normalizedMode: normalizeMode ? (repeats == -1 ? 3 : 2) : nil, clearDelayedControls: true)
     }
 
     func replacingStreamPlayback(in state: Data, channel: Int, source: ScriptLocation,
                                  catalog: ScriptModuleCatalog, milliseconds: Int32, repeats: Int32,
-                                 volume: Int32, pan: Int32) throws -> Data {
+                                 volume: Int32, pan: Int32, normalizedMode: UInt8? = nil,
+                                 clearDelayedControls: Bool = false) throws -> Data {
         guard ssndReferences.indices.contains(channel) else {
             throw ResourceError.rejected("saved_stream_write_channel_unavailable")
         }
@@ -308,8 +441,15 @@ extension SaveStatePrefix {
             throw ResourceError.rejected("saved_stream_write_source_mismatch")
         }
         let range = start..<(start + 131)
-        let encoded = try StreamChannel.replacingPlayback(in: Data(state[range]), milliseconds: milliseconds,
-                                                           repeats: repeats, volume: volume, pan: pan)
+        var record = Data(state[range])
+        if let normalizedMode {
+            guard (2...3).contains(normalizedMode), (1...3).contains(record[record.startIndex + 0x10]) else {
+                throw ResourceError.rejected("saved_stream_write_mode_outside_profile")
+            }
+            record[record.startIndex + 0x10] = normalizedMode
+        }
+        let encoded = try StreamChannel.replacingPlayback(in: record, milliseconds: milliseconds,
+            repeats: repeats, volume: volume, pan: pan, clearDelayedControls: clearDelayedControls)
         var result = state
         result.replaceSubrange(range, with: encoded)
         return result
@@ -584,6 +724,7 @@ extension SaveStatePrefix {
     static func walkImageLibrary(_ bytes: UnsafeRawBufferPointer, take: (Int) throws -> Int,
                                  integer: () throws -> Int, stringRange: () throws -> Range<Int>,
                                  imageSlot: ((Int, Range<Int>, Int, Int, Bool) -> ImageLibrarySummary.Slot)? = nil,
+                                 visitUserInteger: ((Range<Int>) -> Void)? = nil,
                                  visitUserString: ((Range<Int>) -> Void)? = nil,
                                  visitSoundName: ((Range<Int>) -> Void)? = nil,
                                  visit: ((Int, Int, Range<Int>, [ImageLibrarySummary.Slot], [SaveImageGenerators.Record]) -> Void)? = nil) throws -> Bool {
@@ -610,7 +751,8 @@ extension SaveStatePrefix {
         for _ in 0..<4 { try SaveImageGenerators.skip(bytes, take: take, visit: visitGenerator) }
         try SaveImageGenerators.skipGroup(bytes, take: take, visit: visitGenerator)
         for _ in 0..<8 {
-            _ = try take(4)
+            let integerOffset = try take(4)
+            visitUserInteger?(integerOffset..<(integerOffset + 4))
             let text = try stringRange()
             visitUserString?(text)
         }

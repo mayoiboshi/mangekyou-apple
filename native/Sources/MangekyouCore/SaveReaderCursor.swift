@@ -503,16 +503,32 @@ extension SaveReaderCursor {
     }
 
     static func routineReturnPosition(_ block: ControlBlock, in state: Data,
-                                      repository: inout ScriptRepository) throws -> (ScriptLocation, Int?, ScriptProgram, ScriptLocation) {
+                                      repository: inout ScriptRepository,
+                                      emptyLineText: String? = nil) throws -> (ScriptLocation, Int?, ScriptProgram, ScriptLocation) {
         let path = try block.stringReferences[0].utf16Text(in: state)
         let label = try block.stringReferences[1].utf16Text(in: state)
         let resolved = try resolveLabel(path: path, name: label, repository: &repository)
         guard let source = resolved.program.sources[Data(resolved.location.sourceFile.utf8)] else {
             throw ResourceError.rejected("saved_return_source_unavailable")
         }
+        let records = resolved.program.document.records
+        if let prefix = emptyLineText, prefix.hasPrefix("\\subp,@@"),
+           prefix.split(separator: ",", omittingEmptySubsequences: false).count == 2,
+           Int(block.rawValueAt3C) == prefix.utf16.count,
+           let start = try? resolvePosition(anchor: resolved.location, source: source,
+               relativeLine: block.rawValueAt38, utf16Position: 0, lineBuffer: nil) {
+            let matches = records.indices.filter { index in
+                let record = records[index]
+                return record.kind == .empty && record.location.sourceFile == start.sourceFile &&
+                    record.location.sourceSHA256 == start.sourceSHA256 &&
+                    record.location.byteOffset == start.byteOffset && record.location.lineNumber == start.lineNumber
+            }
+            if matches.count == 1, matches[0] + 1 < records.count {
+                return (start, matches[0] + 1, resolved.program, resolved.location)
+            }
+        }
         let position = try resolvePosition(anchor: resolved.location, source: source,
             relativeLine: block.rawValueAt38, utf16Position: block.rawValueAt3C, lineBuffer: nil)
-        let records = resolved.program.document.records
         let calls = records.indices.dropLast().filter { index in
             let record = records[index]
             let location = record.location
@@ -616,6 +632,9 @@ extension ScriptProgram {
     }
 
     package func savedResumeIndex(_ position: ScriptLocation, reader: SaveReaderCursor) throws -> Int {
+        if reader.routines.last?.rawState == 2 {
+            return try savedWaitSuccessor(position, command: "stop")
+        }
         if reader.routines.last?.rawState == 3 {
             return try savedTimedWaitSuccessor(position)
         }
@@ -623,6 +642,26 @@ extension ScriptProgram {
             return try savedWaitSuccessor(position, command: "clk")
         }
         return try saveCommandIndex(position)
+    }
+
+    /// Accept only a saved one-operand literal callback that matches its source command.
+    func validateSavedStop(_ position: ScriptLocation, label: String) throws {
+        let matches = document.records.filter { record in
+            record.kind == .command && record.command.map(asciiLower) == "stop" &&
+            record.location.sourceFile == position.sourceFile &&
+            record.location.sourceSHA256 == position.sourceSHA256 &&
+            record.location.lineNumber == position.lineNumber &&
+            record.location.byteOffset + record.location.byteLength == position.byteOffset
+        }
+        guard position.byteLength == 0, label.hasPrefix("@@"), matches.count == 1,
+              matches[0].fields.count == 1, matches[0].fields[0].key == nil,
+              matches[0].fields[0].raw == label else {
+            throw ResourceError.rejected("saved_stop_callback_source_mismatch")
+        }
+        let callback = try self.label(label)
+        guard ancestors[callback].isEmpty else {
+            throw ResourceError.rejected("saved_stop_callback_inside_control")
+        }
     }
 
     /// Native timed waits leave the reader after the dispatched command.

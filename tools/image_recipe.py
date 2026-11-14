@@ -69,6 +69,8 @@ def append_image_recipe(recipes, content, audit):
             recipes[before]['motion_name_candidates']=metadata[0]['motion_name_candidates']
             if 'motion_canvas_inputs' in metadata[0]:
                 recipes[before]['motion_canvas_inputs'] = metadata[0]['motion_canvas_inputs']
+            if 'motion_duration_inputs' in metadata[0]:
+                recipes[before]['motion_duration_inputs'] = metadata[0]['motion_duration_inputs']
             if 'motion_update_threshold' in metadata[0]:
                 recipes[before]['motion_update_threshold'] = metadata[0]['motion_update_threshold']
             motion_types = {
@@ -114,10 +116,14 @@ def append_image_recipe(recipes, content, audit):
                           blend=key.get('blend'), sampling=key.get('sampling'),
                           type11_color_inputs=key.get('type11_color_inputs'),
                           type1_color_inputs=key.get('type1_color_inputs'),
+                          dual_texture_raw_inputs=key.get('dual_texture_raw_inputs'),
                           transform_fields=key.get('converted_transform_fields'),
                           anchor_ratio_inputs=key.get('anchor_ratio_inputs'),
                           literal_opacity_input=key.get('literal_opacity_input'),
                           opacity_mode_input=key.get('opacity_mode_input'),
+                          source_area_mode_input=key.get('source_area_mode_input'),
+                          source_area_interpolation_flag=key.get('source_area_interpolation_flag'),
+                          source_area_strength_input=key.get('source_area_strength_input'),
                           position_mode_input=key.get('position_mode_input'),
                           time_control_inputs=key.get('time_control_inputs'),
                           position_strength_input=key.get('position_strength_input'))

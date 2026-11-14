@@ -6,6 +6,194 @@ import ImageIO
 import MangekyouMedia
 
 final class ResourceTests: XCTestCase {
+    func testPitchShiftCandidateKeepsSpectralStateAcrossBlocks() throws {
+        var input: [Int32] = []
+        for i in 0..<6000 {
+            let sample = Int32((10000 * sin(2 * Double.pi * 440 * Double(i) / 44100)).rounded(.towardZero))
+            input.append(sample); input.append(sample)
+        }
+        var whole = input, filter = StreamPitchShiftCandidate(pitch: 150)
+        try filter.apply(to: &whole)
+        XCTAssertTrue(whole.prefix(512 * 2).allSatisfy { $0 == 0 })
+        XCTAssertTrue(whole.dropFirst(4096 * 2).contains { $0 != 0 })
+        var splitFilter = StreamPitchShiftCandidate(pitch: 150)
+        var first = Array(input[..<4000]), second = Array(input[4000...])
+        try splitFilter.apply(to: &first); try splitFilter.apply(to: &second)
+        XCTAssertEqual(first + second, whole)
+        var other = input, otherFilter = StreamPitchShiftCandidate(pitch: 200)
+        try otherFilter.apply(to: &other)
+        XCTAssertNotEqual(other, whole)
+    }
+    func testTimeScaleCandidateInterpolatesStereoAndClampsLastFrame() throws {
+        XCTAssertEqual(try StreamTimeScaleCandidate.pitch(researchFilterText: "timescale,pitch:150"), 150)
+        XCTAssertEqual(try StreamTimeScaleCandidate.pitch(researchFilterText: "timescale,pitch:999"), 300)
+        XCTAssertThrowsError(try StreamTimeScaleCandidate.pitch(researchFilterText: "timescale,pitch:150\\volume"))
+        let input: [Int16] = [0, 0, 10_000, -10_000]
+        XCTAssertEqual(try StreamTimeScaleCandidate.interpolate(input, outputFrames: 4),
+                       [0, 0, 5000, -5000, 10000, -10000, 10000, -10000])
+        XCTAssertEqual(try StreamTimeScaleCandidate.interpolate(input, outputFrames: 2), input)
+        XCTAssertThrowsError(try StreamTimeScaleCandidate.interpolate([1], outputFrames: 1))
+        XCTAssertThrowsError(try StreamTimeScaleCandidate.interpolate(input, outputFrames: 4097))
+        let bytes = Data(repeating: 0, count: 769 * 4)
+        let result = try StreamTimeScaleCandidate.interpolateStream(bytes, pitch: 75)
+        XCTAssertEqual(result.blocks, 2)
+        XCTAssertEqual(result.shortReadBlocks, 1)
+        XCTAssertEqual(result.outputFrames, 1025)
+        XCTAssertThrowsError(try StreamTimeScaleCandidate.interpolateStream(bytes, pitch: 75, maximumOutputBytes: 4000))
+    }
+    func testChorusCandidateKeepsStateAcrossBlocks() throws {
+        var input = [Int32](repeating: 0, count: 6000)
+        input[0] = 20_000
+        var whole = input, filter = StreamChorusFilterCandidate(wet: 75, dry: 75, depth: 40, stereo: true)
+        try filter.apply(to: &whole)
+        XCTAssertEqual(whole[0], 15_000)
+        XCTAssertTrue(whole.dropFirst(2).contains { $0 != 0 })
+        var splitFilter = StreamChorusFilterCandidate(wet: 75, dry: 75, depth: 40, stereo: true)
+        var first = Array(input[..<2000]), second = Array(input[2000...])
+        try splitFilter.apply(to: &first); try splitFilter.apply(to: &second)
+        XCTAssertEqual(first + second, whole)
+    }
+    func testReverbCandidatePreservesDelayAndChannelStateAcrossBlocks() throws {
+        var input = [Int32](repeating: 0, count: 520)
+        input[0] = 20_000
+        var whole = input, filter = StreamReverbFilterCandidate(wet: 70, dry: 50, delay: 5, decay: 60)
+        try filter.apply(to: &whole)
+        XCTAssertEqual(whole[0], 10_000)
+        XCTAssertTrue(stride(from: 2, to: 442, by: 2).allSatisfy { whole[$0] == 0 })
+        XCTAssertNotEqual(whole[442], 0)
+        XCTAssertTrue(stride(from: 1, to: whole.count, by: 2).allSatisfy { whole[$0] == 0 })
+        var splitFilter = StreamReverbFilterCandidate(wet: 70, dry: 50, delay: 5, decay: 60)
+        var before = Array(input[..<300]), after = Array(input[300...])
+        try splitFilter.apply(to: &before); try splitFilter.apply(to: &after)
+        XCTAssertEqual(before + after, whole)
+    }
+    func testNoiseCandidateUsesSharedStereoSeedAcrossBlocks() throws {
+        let input: [Int32] = [10_000, -10_000, 20_000, -20_000, 0, 0]
+        var whole = input, filter = StreamNoiseFilterCandidate()
+        try filter.apply(to: &whole)
+        XCTAssertEqual(whole, [8811, -8811, 16140, -16140, 0, 0])
+        var splitFilter = StreamNoiseFilterCandidate(), first = Array(input[..<2]), rest = Array(input[2...])
+        try splitFilter.apply(to: &first)
+        try splitFilter.apply(to: &rest)
+        XCTAssertEqual(first + rest, whole)
+    }
+    func testDistortionCandidateClipsAndFoldsBothChannels() throws {
+        var clipped: [Int32] = [10_000, -10_000, 1_000, -1_000]
+        try StreamDistortionFilterCandidate(volume: 100, range: 20).apply(to: &clipped)
+        XCTAssertEqual(clipped, [6553, -6553, 1000, -1000])
+        var folded: [Int32] = [10_000, -10_000, 20_000, -20_000]
+        try StreamDistortionFilterCandidate(volume: 100, range: 20, foldback: 1).apply(to: &folded)
+        XCTAssertEqual(folded, [4830, -4830, 0, 0])
+        XCTAssertThrowsError(try StreamFilterChainCandidate(researchFilterText: "distortion,range:20\\unknown"))
+    }
+    func testStreamFilterChainPreservesOrderAndBlockState() throws {
+        let input: [Int32] = [20_000, -12_000] + Array(repeating: 0, count: 126)
+        var separate = input
+        var equalizer = StreamThreeBandFilterCandidate(low: 0, mid: 0, high: 100)
+        try equalizer.apply(to: &separate)
+        try StreamVolumeFilterCandidate(volume: 200).apply(to: &separate)
+        let text = "3bandeq,low:0,mid:0,high:100\\volume,vol:200"
+        var chain = try StreamFilterChainCandidate(researchFilterText: text)
+        var first = Array(input[..<26]), second = Array(input[26...])
+        try chain.apply(to: &first)
+        try chain.apply(to: &second)
+        XCTAssertEqual(first + second, separate)
+        var reverse = try StreamFilterChainCandidate(researchFilterText: "volume,vol:200\\3bandeq,low:0,mid:0,high:100")
+        var reversed = input
+        try reverse.apply(to: &reversed)
+        XCTAssertNotEqual(reversed, separate)
+        var pcm = Data()
+        for sample in input {
+            var value = Int16(clamping: sample).littleEndian
+            withUnsafeBytes(of: &value) { pcm.append(contentsOf: $0) }
+        }
+        var pcmChain = try StreamFilterChainCandidate(researchFilterText: text)
+        try pcmChain.applyPCM16LittleEndian(to: &pcm)
+        let expected = separate.flatMap { sample -> [UInt8] in
+            let value = UInt16(bitPattern: Int16(clamping: sample))
+            return [UInt8(truncatingIfNeeded: value), UInt8(truncatingIfNeeded: value >> 8)]
+        }
+        XCTAssertEqual(pcm, Data(expected))
+        XCTAssertThrowsError(try StreamFilterChainCandidate(researchFilterText: text + "\\unknown"))
+        XCTAssertThrowsError(try StreamFilterChainCandidate(researchFilterText: "3bandeq,low:1,low:2"))
+    }
+
+    func testThreeBandCandidateKeepsIndependentChannelStateAcrossBlocks() throws {
+        var input = [Int32](repeating: 0, count: 128)
+        input[0] = 20_000
+        var whole = input
+        var filter = StreamThreeBandFilterCandidate(low: 0, mid: 0, high: 100)
+        try filter.apply(to: &whole)
+        XCTAssertTrue(stride(from: 0, to: whole.count, by: 2).contains { whole[$0] != 0 })
+        XCTAssertTrue(stride(from: 1, to: whole.count, by: 2).allSatisfy { whole[$0] == 0 })
+        var splitFilter = StreamThreeBandFilterCandidate(low: 0, mid: 0, high: 100)
+        var first = Array(input[..<26]), second = Array(input[26...])
+        try splitFilter.apply(to: &first)
+        try splitFilter.apply(to: &second)
+        XCTAssertEqual(first + second, whole)
+        var odd: [Int32] = [1]
+        XCTAssertThrowsError(try splitFilter.apply(to: &odd))
+        XCTAssertEqual(odd, [1])
+    }
+
+    func testStreamVolumeFilterCandidateStereoClippingAndTruncation() throws {
+        var samples: [Int32] = [-101, 101, 30_000, -30_000]
+        try StreamVolumeFilterCandidate(volume: 150, pan: 25, range: 100).apply(to: &samples)
+        XCTAssertEqual(samples, [-151, 75, 32_768, -22_500])
+        var center: [Int32] = [-32_768, 32_767]
+        try StreamVolumeFilterCandidate().apply(to: &center)
+        XCTAssertEqual(center, [-32_768, 32_767])
+        var odd: [Int32] = [1]
+        XCTAssertThrowsError(try StreamVolumeFilterCandidate().apply(to: &odd))
+        XCTAssertEqual(odd, [1])
+        let parsed = try StreamVolumeFilterCandidate(researchFilterText: "volume,vol:150,pan:25,range:100")
+        var parsedSamples: [Int32] = [-101, 101, 30_000, -30_000]
+        try parsed.apply(to: &parsedSamples)
+        XCTAssertEqual(parsedSamples, samples)
+        let updated = try parsed.updating(researchFilterText: "volume,pan:75")
+        XCTAssertEqual(updated, .init(volume: 150, pan: 75, range: 100))
+        var pcm = Data([0x9b, 0xff, 0x65, 0x00, 0x30, 0x75, 0xd0, 0x8a])
+        try parsed.applyPCM16LittleEndian(to: &pcm)
+        XCTAssertEqual(pcm, Data([0x69, 0xff, 0x4b, 0x00, 0xff, 0x7f, 0x1c, 0xa8]))
+        XCTAssertThrowsError(try StreamVolumeFilterCandidate(researchFilterText: "volume,vol:200\\reverb"))
+        XCTAssertThrowsError(try StreamVolumeFilterCandidate(researchFilterText: "volume,vol:10,vol:20"))
+    }
+
+    func testTextPreviewAppliesBoundedLineBreakCandidate() throws {
+        let run = ScriptMachine.MessageTextLayer.Run(text: "甲乙丙（", width: 20, height: 20,
+            ruby: nil, colorARGB: 0xffff_ffff, fontName: nil)
+        var layer = ScriptMachine.MessageTextLayer(id: 1, runs: [run],
+            canvasBounds: [0, 0, 100, 80], surfaceMargins: [0, 0], x: 0, y: 0,
+            scaleXPercent: 100, scaleYPercent: 100, isVisible: true, priority: 0)
+        layer.lineBreakCandidate = .init(reserve: 1, prohibitedLineStart: "、", prohibitedLineEnd: "（")
+        let constrained = try ResourceImage.textPreview(layer, width: 100, height: 80)
+        XCTAssertTrue(constrained.notes.contains("line_break_candidate:1"))
+        layer.lineBreakCandidate = .init(reserve: 1, prohibitedLineStart: "、", prohibitedLineEnd: "")
+        let plain = try ResourceImage.textPreview(layer, width: 100, height: 80)
+        XCTAssertTrue(plain.notes.contains("line_break_candidate:0"))
+        let black = SIMD4<UInt8>(0, 0, 0, 255)
+        var constrainedCanvas = Array(repeating: Array(repeating: black, count: 100), count: 80)
+        var plainCanvas = constrainedCanvas
+        try constrained.drawRasterPreview(origin: .zero, opacity: 255, canvas: &constrainedCanvas)
+        try plain.drawRasterPreview(origin: .zero, opacity: 255, canvas: &plainCanvas)
+        XCTAssertNotEqual(constrainedCanvas, plainCanvas)
+
+        let prefix = ScriptMachine.MessageTextLayer.Run(text: "甲乙", width: 20, height: 20,
+            ruby: nil, colorARGB: 0xffff_ffff, fontName: nil)
+        let indent = ScriptMachine.MessageTextLayer.Run(text: "", width: 20, height: 20,
+            ruby: nil, colorARGB: 0xffff_ffff, fontName: nil, horizontalAdvance: 20)
+        let annotation = ScriptMachine.MessageTextLayer.Ruby(text: "かな", fontName: nil,
+                                                             width: nil, height: nil, colorARGB: nil)
+        let ruby = ScriptMachine.MessageTextLayer.Run(text: "丙丁", width: 20, height: 20,
+            ruby: annotation, colorARGB: 0xffff_ffff, fontName: nil)
+        layer = ScriptMachine.MessageTextLayer(id: 1, runs: [prefix, indent, ruby],
+            lineBreakCandidate: .init(reserve: 1, prohibitedLineStart: "", prohibitedLineEnd: ""),
+            canvasBounds: [0, 0, 65, 80], surfaceMargins: [0, 0], x: 0, y: 0,
+            scaleXPercent: 100, scaleYPercent: 100, isVisible: true, priority: 0)
+        let rubyRaster = try ResourceImage.textPreview(layer, width: 65, height: 80)
+        XCTAssertTrue(rubyRaster.notes.contains("line_break_candidate:1"))
+    }
+
     func testTextPreviewRendersFractionallyScaledAndMirroredSurface() throws {
         let run = ScriptMachine.MessageTextLayer.Run(text: "試", width: 24, height: 24,
             ruby: nil, colorARGB: 0xffff_ffff, fontName: nil)
@@ -20,6 +208,20 @@ final class ResourceTests: XCTestCase {
         try image.drawRasterPreview(origin: .zero, opacity: 255, canvas: &canvas)
         XCTAssertTrue(canvas.contains { $0.suffix(60).contains { $0 != black } })
         XCTAssertFalse(canvas.contains { $0.prefix(60).contains { $0 != black } })
+        let missing = ScriptMachine.MessageTextLayer.Run(text: "\u{10ffff}", width: 24, height: 24,
+            ruby: nil, colorARGB: 0xffff_ffff, fontName: nil)
+        let missingLayer = ScriptMachine.MessageTextLayer(id: 2, runs: [missing],
+            canvasBounds: [0, 0, 81, 41], surfaceMargins: [0, 0], x: 0, y: 0,
+            scaleXPercent: 100, scaleYPercent: 100, isVisible: true, priority: 0)
+        let missingRaster = try ResourceImage.textPreview(missingLayer, width: 81, height: 41)
+        XCTAssertTrue(missingRaster.notes.contains("missing_glyphs:1"))
+        let longRun = ScriptMachine.MessageTextLayer.Run(text: String(repeating: "A", count: 80), width: 24, height: 24,
+            ruby: nil, colorARGB: 0xffff_ffff, fontName: nil)
+        let clipped = ScriptMachine.MessageTextLayer(id: 3, runs: [longRun],
+            canvasBounds: [0, 0, 40, 24], surfaceMargins: [0, 0], x: 0, y: 0,
+            scaleXPercent: 100, scaleYPercent: 100, isVisible: true, priority: 0)
+        XCTAssertTrue(try ResourceImage.textPreview(clipped, width: 40, height: 24).notes.contains("text_truncated"))
+        XCTAssertTrue(image.notes.contains("text_complete"))
     }
 
     func testTheoraHeaderAcceptsNonzeroDataSliceIndex() throws {
@@ -85,6 +287,75 @@ final class ResourceTests: XCTestCase {
         XCTAssertTrue(try raster.drawRasterPreview(origin: .zero, opacity: 255, canvas: &canvas))
     }
 
+    func testTextLayerReportsUnappliedLayoutDirectives() throws {
+        let text = #"""
+        \gvar,msg,sample
+        \scp,sample
+        \ts,0,0,240,80
+        \p,0,0,1
+        \e
+        \o,"A[pi,1,2]B[rpi,3,4]C[rp,5,6]D[i,-2]E[pi,7,8]F"
+        \if,1\then
+        \stop,@@!Resume
+        \end
+        @@!Resume
+        \ret
+        """#
+        let bytes = Data([0xff, 0xfe]) + Data(text.utf16.flatMap {
+            [UInt8(truncatingIfNeeded: $0), UInt8($0 >> 8)]
+        })
+        let document = try ScriptDocument(data: bytes, relativePath: "synthetic.s")
+        var machine = try ScriptMachine(program: ScriptProgram(document), allowExperimental: true)
+        try machine.run(stepQuota: 100)
+        XCTAssertTrue(try machine.commitHeadlessMessageOutput())
+        let layer = try XCTUnwrap(machine.messageTextLayers.first)
+        XCTAssertEqual(layer.text, "ABCDEF")
+        XCTAssertEqual(layer.runs.map(\.estimatedTracking), [0, 1, 1, 1, 1, 7])
+        XCTAssertEqual(layer.unhandledDirectives, ["i", "pi", "rp", "rpi"])
+        let tracked = try ResourceImage.textPreview(layer, width: 240, height: 80)
+        let untracked = ScriptMachine.MessageTextLayer(id: layer.id, runs: layer.runs.map { run in
+            var copy = run
+            copy.estimatedTracking = 0
+            return copy
+        }, unhandledDirectives: layer.unhandledDirectives, canvasBounds: layer.canvasBounds,
+           surfaceMargins: layer.surfaceMargins, x: layer.x, y: layer.y,
+           scaleXPercent: layer.scaleXPercent, scaleYPercent: layer.scaleYPercent,
+           isVisible: layer.isVisible, priority: layer.priority)
+        let plain = try ResourceImage.textPreview(untracked, width: 240, height: 80)
+        let black = SIMD4<UInt8>(0, 0, 0, 255)
+        var trackedCanvas = Array(repeating: Array(repeating: black, count: 240), count: 80)
+        var plainCanvas = trackedCanvas
+        try tracked.drawRasterPreview(origin: .zero, opacity: 255, canvas: &trackedCanvas)
+        try plain.drawRasterPreview(origin: .zero, opacity: 255, canvas: &plainCanvas)
+        XCTAssertNotEqual(trackedCanvas, plainCanvas)
+    }
+
+    func testPositiveLineAdvanceReportsPreviewIncomplete() throws {
+        let text = #"""
+        \gvar,msg,sample
+        \scp,sample
+        \ts,0,0,240,80
+        \p,0,0,1
+        \e
+        \o,"A[n,6]B"
+        \if,1\then
+        \stop,@@!Resume
+        \end
+        @@!Resume
+        \ret
+        """#
+        let bytes = Data([0xff, 0xfe]) + Data(text.utf16.flatMap {
+            [UInt8(truncatingIfNeeded: $0), UInt8($0 >> 8)]
+        })
+        let document = try ScriptDocument(data: bytes, relativePath: "synthetic.s")
+        var machine = try ScriptMachine(program: ScriptProgram(document), allowExperimental: true)
+        try machine.run(stepQuota: 100)
+        XCTAssertTrue(try machine.commitHeadlessMessageOutput())
+        let layer = try XCTUnwrap(machine.messageTextLayers.first)
+        XCTAssertEqual(layer.text, "A\nB")
+        XCTAssertEqual(layer.unhandledDirectives, ["n"])
+    }
+
     func testSimplifiedChineseChoiceLabelsFitTheButton() throws {
         let style = ScriptMachine.ChoiceTextStyle(fontName: "SimHei", height: 24, colorARGB: 0xffff_ffff)
         let black = SIMD4<UInt8>(0, 0, 0, 255)
@@ -123,6 +394,38 @@ final class ResourceTests: XCTestCase {
             secondaryLowByte: 128, packedWeights: TwoTexturePixel.command4Weights(256)), SIMD4<Int16>(31, 63, 127, 127))
         XCTAssertEqual(TwoTexturePixel.command4Weights(255), 0x7f808080)
         XCTAssertEqual(TwoTexturePixel.command4Weights(512), 0x00808080)
+    }
+
+    func testCommand3ThresholdAndPackedMaskCandidate() throws {
+        let start = try XCTUnwrap(TwoTexturePixel.command3Threshold(value: 0, rawMode: 0))
+        let end = try XCTUnwrap(TwoTexturePixel.command3Threshold(value: 255, rawMode: 0))
+        XCTAssertEqual(start.threshold, 255)
+        XCTAssertEqual(end.threshold, -256)
+        XCTAssertEqual(TwoTexturePixel.command3Mask(sample: 128, threshold: start.threshold, gain: start.gain, inverted: false), 0)
+        XCTAssertEqual(TwoTexturePixel.command3Mask(sample: 128, threshold: end.threshold, gain: end.gain, inverted: false), 255)
+        let middle = try XCTUnwrap(TwoTexturePixel.command3Threshold(value: 128, rawMode: 0x87))
+        XCTAssertEqual(middle.threshold, 125)
+        XCTAssertEqual(middle.gain, 128)
+        XCTAssertTrue(middle.inverted)
+        XCTAssertEqual(TwoTexturePixel.command3Mask(sample: 130, threshold: middle.threshold, gain: middle.gain, inverted: true), 0)
+        XCTAssertNil(TwoTexturePixel.command3Threshold(value: 256, rawMode: 0))
+        let json = #"{"time":0,"type":10,"offset":12,"dual_texture_raw_inputs":{"layout":"ablayer18","output_b1":2,"output_ac":3,"output_b2":4,"key_c8":-5,"key_cc":6}}"#
+        let key = try JSONDecoder().decode(ScriptImageRecipe.MotionKey.self, from: Data(json.utf8))
+        XCTAssertEqual(key.dual_texture_raw_inputs?.key_c8, -5)
+        XCTAssertEqual(key.dual_texture_raw_inputs?.output_b2, 4)
+        let container = Data("fixture".utf8)
+        let recipeData = """
+        [{"container_sha256":"\(container.sha256Hex)","offset":0,"length":7,"sha256":"\(container.sha256Hex)",
+          "motion_timelines":{"0":[[
+            {"time":0,"type":10,"offset":0,"opacity_mode_input":1,"dual_texture_raw_inputs":{"layout":"ablayer18","output_b1":0,"output_ac":0,"output_b2":0,"key_c8":0,"key_cc":4}},
+            {"time":1000,"type":4,"offset":1,"opacity_mode_input":0,"dual_texture_raw_inputs":{"layout":"ablayer18","output_b1":0,"output_ac":0,"output_b2":0,"key_c8":255,"key_cc":0}}
+          ]]}}]
+        """
+        let recipe = try JSONDecoder().decode(ScriptImageRecipe.self, from: Data(recipeData.utf8))
+        let location = ScriptModuleReference(logicalPath: "fixture.b", sourceFile: "fixture.b", sourceSHA256: container.sha256Hex)
+            .wholeFileLocation(byteLength: container.count)
+        let sampled = try XCTUnwrap(recipe.motionKeys(location, selectedMember: 0, time: 500)?.first)
+        XCTAssertEqual(sampled.sampledDualTransferValue, 128)
     }
 
     func testTwoTextureRowSamplesIndependentFixedPointPositions() {
@@ -314,6 +617,20 @@ final class ResourceTests: XCTestCase {
             XCTAssertEqual(try dir.read("owned.bin"), Data([1,2]))
         }
     }
+    func testAtomicResearchOutputDoesNotReplaceFilesOrLinks() throws {
+        try temporary { root in
+            let directory = try SafeDirectory(root)
+            let contents = Data(repeating: 0x5a, count: 2 * 1024 * 1024)
+            try directory.writeNewAtomically("state.json", data: contents)
+            XCTAssertEqual(try directory.read("state.json"), contents)
+            XCTAssertThrowsError(try directory.writeNewAtomically("state.json", data: Data([1])))
+            let link = root.appendingPathComponent("alias")
+            try FileManager.default.createSymbolicLink(at: link, withDestinationURL: root.appendingPathComponent("state.json"))
+            XCTAssertThrowsError(try directory.writeNewAtomically("alias", data: Data([2])))
+            XCTAssertEqual(try directory.read("state.json"), contents)
+            XCTAssertFalse(try directory.entries().contains { $0.name.hasPrefix(".mangekyou-stage-") })
+        }
+    }
     func testInvalidPackIsReportedAndDoesNotDisappear() throws {
         try temporary { root in
             try Data([1,2,3]).write(to: root.appendingPathComponent("owned.pack"))
@@ -368,6 +685,168 @@ final class ResourceTests: XCTestCase {
             let draw = try XCTUnwrap(draws.first)
             XCTAssertEqual(recipe.composedOpacity(texture: draw.texture, states: draw.states), expected)
         }
+        var savedTimes = [Int32](repeating: 0, count: 256)
+        savedTimes[0] = 125
+        savedTimes[3] = 250
+        let savedKeys = try XCTUnwrap(recipe.motionKeysAtSavedLayerTimesCandidate(location, selectedMember: 0,
+                                                                                 layerTimes: savedTimes))
+        XCTAssertEqual(savedKeys.map(\.type), [16, 4, 17, 0])
+        let savedDraw = try XCTUnwrap(recipe.scopedTextureKeys(savedKeys)?.first)
+        XCTAssertEqual(recipe.composedOpacity(texture: savedDraw.texture, states: savedDraw.states), 128)
+        XCTAssertNil(recipe.motionKeysAtSavedLayerTimesCandidate(location, selectedMember: 0,
+                                                                 layerTimes: Array(savedTimes.dropLast())))
+        savedTimes[255] = -1
+        XCTAssertNil(recipe.motionKeysAtSavedLayerTimesCandidate(location, selectedMember: 0, layerTimes: savedTimes))
+    }
+
+    func testSavedLayerAdvanceCandidateStopsAtUnknownBoundaries() throws {
+        let data = Data("saved layer advance fixture".utf8)
+        let hash = data.sha256Hex
+        let location = ScriptLocation(sourceFile: "fixture.b", sourceSHA256: hash,
+            byteOffset: 0, byteLength: data.count, rangeSHA256: hash, lineNumber: 1)
+        let receipt = """
+        [{"container_sha256":"\(hash)","offset":0,"length":\(data.count),"sha256":"\(hash)",
+          "motion_timelines":{"0":[
+            [{"time":0,"type":4,"offset":10,"time_control_inputs":[0,0,0,0]},
+             {"time":200,"type":4,"offset":11,"time_control_inputs":[0,0,0,0]}],
+            [{"time":0,"type":4,"offset":20,"time_control_inputs":[0,0,0,0]},
+             {"time":100,"type":4,"offset":21,"time_control_inputs":[0,0,0,0]},
+             {"time":150,"type":4,"offset":22,"time_control_inputs":[1,0,0,0]},
+             {"time":200,"type":4,"offset":23,"time_control_inputs":[0,0,0,0]}]]}}]
+        """
+        let recipe = try JSONDecoder().decode(ScriptImageRecipe.self, from: Data(receipt.utf8))
+        var times = [Int32](repeating: 0, count: 256)
+        var aux = times
+        times[0] = 10; times[1] = 20; aux[0] = 80; aux[1] = 20
+        let result = try XCTUnwrap(recipe.advanceSavedLayerTimesCandidate(location, selectedMember: 0,
+            layerTimes: times, auxiliary: aux, delta: 50))
+        XCTAssertEqual(Array(result.times.prefix(2)), [10, 50])
+        XCTAssertEqual(Array(result.auxiliary.prefix(2)), [30, 0])
+        XCTAssertEqual(result.keys.map(\.offset), [10, 20])
+        let crossed = try XCTUnwrap(recipe.advanceSavedLayerTimesCandidate(location, selectedMember: 0,
+            layerTimes: times, auxiliary: aux, delta: 100))
+        XCTAssertEqual(Array(crossed.times.prefix(2)), [30, 100])
+        XCTAssertEqual(crossed.keys.map(\.offset), [10, 21])
+        let looped = try XCTUnwrap(recipe.advanceSavedLayerTimesCandidate(location, selectedMember: 0,
+            layerTimes: times, auxiliary: aux, delta: 150))
+        XCTAssertEqual(Array(looped.times.prefix(2)), [80, 0])
+        XCTAssertEqual(looped.keys.map(\.offset), [10, 20])
+        let excess = try XCTUnwrap(recipe.advanceSavedLayerTimesCandidate(location, selectedMember: 0,
+            layerTimes: times, auxiliary: aux, delta: 160))
+        XCTAssertEqual(Array(excess.times.prefix(2)), [90, 10])
+        let variableReceipt = receipt.replacingOccurrences(of: "[1,0,0,0]", with: "[1,0,1,0]")
+        let variableRecipe = try JSONDecoder().decode(ScriptImageRecipe.self, from: Data(variableReceipt.utf8))
+        XCTAssertNil(variableRecipe.advanceSavedLayerTimesCandidate(location, selectedMember: 0,
+            layerTimes: times, auxiliary: aux, delta: 150))
+        XCTAssertNil(recipe.advanceSavedLayerTimesCandidate(location, selectedMember: 0,
+            layerTimes: times, auxiliary: aux, delta: 250))
+        aux[255] = -1
+        XCTAssertNil(recipe.advanceSavedLayerTimesCandidate(location, selectedMember: 0,
+            layerTimes: times, auxiliary: aux, delta: 50))
+    }
+
+    func testSourceRectangleSamplesFractionalTimeAndRejectsUnknownMode() throws {
+        let digest = Data("synthetic source rectangle".utf8).sha256Hex
+        let location = ScriptLocation(sourceFile: "fixture.b", sourceSHA256: digest,
+                                      byteOffset: 0, byteLength: 5, rangeSHA256: digest, lineNumber: 1)
+        let receipt = """
+        [{"container_sha256":"\(digest)","offset":0,"length":5,"sha256":"\(digest)",
+          "motion_timelines":{"0":[[
+            {"time":0,"type":4,"offset":0,"source_areas":[[0,0,0,15]],
+             "source_area_mode_input":1,"source_area_interpolation_flag":true},
+            {"time":1000,"type":4,"offset":1,"source_areas":[[0,0,400,16]],
+             "source_area_mode_input":5,"source_area_interpolation_flag":false}]]}}]
+        """
+        let recipe = try JSONDecoder().decode(ScriptImageRecipe.self, from: Data(receipt.utf8))
+        let sampled = try XCTUnwrap(recipe.motionKeysAtFractionalTime(location, selectedMember: 0, time: 500.5)?.first)
+        let area = try XCTUnwrap(sampled.sampledFirstSourceArea)
+        XCTAssertEqual(area[2], 200.2, accuracy: 0.001)
+        XCTAssertEqual(area[3], 15.5005, accuracy: 0.001)
+        XCTAssertNil(recipe.motionKeysAtFractionalTime(location, selectedMember: 0, time: 1000)?.first?.sampledFirstSourceArea)
+        XCTAssertNil(recipe.motionKeysAtFractionalTime(location, selectedMember: 0, time: .infinity))
+    }
+
+    func testScreenTexturePreviewSamplesUnscaledSourceArea() throws {
+        let payload = try png([255, 0, 0, 128, 0, 255, 0, 255], width: 2, height: 1)
+        let container = Data("abmp12".utf8) + payload, digest = container.sha256Hex
+        let receipt = """
+        [{"container_sha256":"\(digest)","offset":6,"length":\(payload.count),"sha256":"\(payload.sha256Hex)",
+          "format":"PNG","image_slot":0,"image_anchor_words":[0,0,0],"motion_timelines":{"0":[[
+          {"time":0,"type":4,"offset":0,"texture_numbers":[0],"source_areas":[[0,0,0,1]],
+           "source_area_mode_input":1,"source_area_interpolation_flag":true,"blend":2,"sampling":0,
+           "literal_opacity_input":255,"opacity_mode_input":0,"anchor_ratio_inputs":[0,0],
+           "transform_fields":{"0x84":0,"0x88":0,"0x8c":0,"0x90":100,"0x94":100,"0x98":100,
+                               "0x9c":0,"0xa0":0,"0xa4":0,"0xa8":0}},
+          {"time":1000,"type":4,"offset":1,"source_areas":[[0,0,2,1]]}]]}}]
+        """
+        let recipe = try JSONDecoder().decode(ScriptImageRecipe.self, from: Data(receipt.utf8))
+        let location = ScriptLocation(sourceFile: "fixture.b", sourceSHA256: digest,
+            byteOffset: 0, byteLength: container.count, rangeSHA256: digest, lineNumber: 1)
+        let background = SIMD4<UInt8>(30, 40, 50, 255)
+        var canvas = [[background, background]]
+        let key = try XCTUnwrap(recipe.motionKeys(location, selectedMember: 0, time: 500)?.first)
+        XCTAssertTrue(try recipe.drawFullTexturePreview(key, container: container, origin: .zero, canvas: &canvas))
+        XCTAssertEqual(canvas[0][0], SIMD4<UInt8>(30, 40, 153, 255))
+        XCTAssertEqual(canvas[0][1], background)
+        let fractional = try XCTUnwrap(recipe.motionKeys(location, selectedMember: 0, time: 250)?.first)
+        canvas = [[background, background]]
+        XCTAssertTrue(try recipe.drawFullTexturePreview(fractional, container: container, origin: .zero, canvas: &canvas))
+        XCTAssertEqual(canvas[0][0], SIMD4<UInt8>(30, 40, 153, 255))
+        XCTAssertEqual(canvas[0][1], background)
+    }
+
+    func testFractionalScanBoundsQuantizeBeforeClipping() throws {
+        XCTAssertEqual(SingleTextureScanBounds.quantized(15.5005), 15.5009765625)
+        XCTAssertEqual(SingleTextureScanBounds.inclusiveRange(start: 2, end: 17.5005, limit: 128), 2...17)
+        XCTAssertEqual(SingleTextureScanBounds.inclusiveRange(start: 0.25, end: 200.25, limit: 128), 1...127)
+        XCTAssertNil(SingleTextureScanBounds.inclusiveRange(start: 0, end: 0, limit: 128))
+        XCTAssertNil(SingleTextureScanBounds.inclusiveRange(start: -.infinity, end: 1, limit: 128))
+        let span = try XCTUnwrap(SingleTextureScanBounds.coordinateSpan(start: 0.25, end: 2.25,
+            sourceStart: 0, sourceEnd: 2, limit: 8))
+        XCTAssertEqual(span.pixels, 1...2)
+        XCTAssertEqual(span.firstFixed, 49152)
+        XCTAssertEqual(span.stepFixed, 65536)
+        let subpixel = try XCTUnwrap(SingleTextureScanBounds.coordinateSpan(start: 0.75, end: 1.25,
+            sourceStart: 2, sourceEnd: 4, limit: 8))
+        XCTAssertEqual(subpixel.pixels, 1...1)
+        XCTAssertEqual(subpixel.firstFixed, 163840)
+        XCTAssertEqual(subpixel.stepFixed, 131072)
+        XCTAssertNil(SingleTextureScanBounds.coordinateSpan(start: 0, end: 2,
+            sourceStart: .infinity, sourceEnd: 2, limit: 8))
+    }
+
+    func testFractionalScreenTextureDrawsOnlyBoundedDirectSpan() throws {
+        let rgba = Array(repeating: [UInt8](arrayLiteral: 255, 0, 0, 128), count: 8).flatMap { $0 }
+        let payload = try png(rgba, width: 4, height: 2)
+        let container = Data("abmp12".utf8) + payload, digest = container.sha256Hex
+        let receipt = """
+        [{"container_sha256":"\(digest)","offset":6,"length":\(payload.count),"sha256":"\(payload.sha256Hex)",
+          "format":"PNG","image_slot":0,"image_anchor_words":[0,0,0],"motion_timelines":{"0":[[
+          {"time":0,"type":4,"offset":0,"texture_numbers":[0],"source_areas":[[0,0,0,1]],
+           "source_area_mode_input":1,"source_area_interpolation_flag":true,"blend":2,"sampling":0,
+           "literal_opacity_input":255,"opacity_mode_input":0,"anchor_ratio_inputs":[0,0],
+           "transform_fields":{"0x84":0,"0x88":0,"0x8c":0,"0x90":100,"0x94":100,"0x98":100,
+                               "0x9c":0,"0xa0":0,"0xa4":0,"0xa8":0}},
+          {"time":1000,"type":4,"offset":1,"source_areas":[[0,0,3,2]]}]]}}]
+        """
+        let recipe = try JSONDecoder().decode(ScriptImageRecipe.self, from: Data(receipt.utf8))
+        let location = ScriptLocation(sourceFile: "fixture.b", sourceSHA256: digest,
+            byteOffset: 0, byteLength: container.count, rangeSHA256: digest, lineNumber: 1)
+        let key = try XCTUnwrap(recipe.motionKeys(location, selectedMember: 0, time: 500)?.first)
+        let background = SIMD4<UInt8>(30, 40, 50, 255)
+        var canvas = Array(repeating: Array(repeating: background, count: 4), count: 3)
+        XCTAssertTrue(try recipe.drawFullTexturePreview(key, container: container, origin: .zero, canvas: &canvas))
+        for y in 0..<3 {
+            for x in 0..<4 {
+                XCTAssertEqual(canvas[y][x], x < 2 && y < 2 ? SIMD4<UInt8>(30, 40, 153, 255) : background)
+            }
+        }
+        let outOfBounds = try JSONDecoder().decode(ScriptImageRecipe.self,
+            from: Data(receipt.replacingOccurrences(of: "[0,0,3,2]", with: "[0,0,3,3]").utf8))
+        let rejected = try XCTUnwrap(outOfBounds.motionKeys(location, selectedMember: 0, time: 500)?.first)
+        let before = canvas
+        XCTAssertThrowsError(try outOfBounds.drawFullTexturePreview(rejected, container: container, origin: .zero, canvas: &canvas))
+        XCTAssertEqual(canvas, before)
     }
 
     func testLiteralMotionLoopRetainsIntroAndCarriesOvershoot() throws {
@@ -467,6 +946,14 @@ final class ResourceTests: XCTestCase {
             255, 0, 0, 255, 0, 255, 0, 255, 0, 0, 255, 255,
             255, 255, 0, 255, 255, 0, 255, 255, 0, 255, 255, 255
         ], width: 3, height: 2)
+        let sampling2Recipe = try JSONDecoder().decode(ScriptImageRecipe.self,
+            from: Data(receipt.replacingOccurrences(of: "\"sampling\":0", with: "\"sampling\":2").utf8))
+        let sampling2Key = try XCTUnwrap(sampling2Recipe.motionKeys(location, selectedMember: 0, time: 0)?.first)
+        var samplingCanvas = Array(repeating: Array(repeating: black, count: 4), count: 3)
+        XCTAssertThrowsError(try sampling2Recipe.drawFullTexturePreview(sampling2Key, container: container,
+            boundTextures: [0: asymmetric], origin: .zero, canvas: &samplingCanvas))
+        XCTAssertTrue(try sampling2Recipe.drawFullTexturePreview(sampling2Key, container: container,
+            boundTextures: [0: asymmetric], origin: .zero, sampling2CandidateSlot: 0, canvas: &samplingCanvas))
         var upright = Array(repeating: Array(repeating: black, count: 3), count: 2)
         try recipe.drawFullTexturePreview(key, container: container, boundTextures: [0: asymmetric],
                                           origin: .zero, canvas: &upright)
