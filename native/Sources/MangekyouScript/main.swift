@@ -281,6 +281,11 @@ struct HeadlessReplayBudget: Encodable {
     var explicitButtonIndex: Int32? = nil
     var subsequentButtonEvents: [String]? = nil
     var consumedSubsequentButtonEvents: Int? = nil
+    var researchStopAfterSubsequentButtonEvents: Int? = nil
+    var researchStopAfterSubsequentButtonReached: Bool? = nil
+    var researchStopAfterSubsequentButtonPhase: String? = nil
+    var researchStopAfterSubsequentButtonLocation: ScriptLocation? = nil
+    var researchStopAfterSubsequentButtonScope: String? = nil
     var syntheticBarEvent: String? = nil
     var syntheticBarEventConsumed: Bool? = nil
     var researchBarBeforeSubsequentButtons: Bool? = nil
@@ -644,6 +649,7 @@ struct HeadlessResourceReceipts: Decodable {
             var scenePreviewCutinTicks: Int32?
             var scenePreviewVideoFrames = false
             var scenePreviewFrozenVideoFirstFrame = false
+            var researchSceneDepthOrderCandidate = false
             var researchSceneVideoSampleTicks: Int32?
             var researchSceneOutputMask = false
             var scenePreviewSavedLayerTimes = false
@@ -723,6 +729,7 @@ struct HeadlessResourceReceipts: Decodable {
             var buttonIndex: Int32?
             var buttonArray: String?
             var subsequentButtons: [(array: String, index: Int32)] = []
+            var researchStopAfterSubsequentButtonEvents: Int?
             var researchBarBeforeSubsequentButtons = false
             var syntheticBarEvent: (name: String, value: Int32)?
             var syntheticBarAxis: (name: String, position: Int32, rounding: BarPointerGeometry.Rounding)?
@@ -799,6 +806,7 @@ struct HeadlessResourceReceipts: Decodable {
                 if args[i] == "--scene-preview-png" { exportScenePreviewPNG = true; i += 1; continue }
                 if args[i] == "--scene-preview-video-frames" { scenePreviewVideoFrames = true; i += 1; continue }
                 if args[i] == "--scene-preview-frozen-video-first-frame" { scenePreviewFrozenVideoFirstFrame = true; i += 1; continue }
+                if args[i] == "--research-scene-depth-order-candidate" { researchSceneDepthOrderCandidate = true; i += 1; continue }
                 if args[i] == "--research-scene-output-mask" { researchSceneOutputMask = true; i += 1; continue }
                 if args[i] == "--scene-preview-saved-layer-times" { scenePreviewSavedLayerTimes = true; i += 1; continue }
                 if args[i] == "--research-stop-at-center-text" { researchStopAtCenterText = true; i += 1; continue }
@@ -908,6 +916,12 @@ struct HeadlessResourceReceipts: Decodable {
                         throw ResourceError.rejected("invalid_subsequent_button")
                     }
                     subsequentButtons.append((String(parts[0]), index))
+                case "--research-stop-after-subsequent-button-events":
+                    guard researchStopAfterSubsequentButtonEvents == nil,
+                          let value = Int(args[i+1]), (1...16).contains(value) else {
+                        throw ResourceError.rejected("invalid_research_stop_after_subsequent_button_events")
+                    }
+                    researchStopAfterSubsequentButtonEvents = value
                 case "--button-array":
                     let name = args[i+1]
                     guard buttonArray == nil, !name.isEmpty, name.utf8.count <= 64,
@@ -1249,6 +1263,12 @@ struct HeadlessResourceReceipts: Decodable {
             guard subsequentButtons.isEmpty || (execute && dispatchStop && (buttonIndex != nil || titleMenuTarget != nil)) else {
                 throw ResourceError.rejected("subsequent_button_requires_initial_button")
             }
+            guard researchStopAfterSubsequentButtonEvents == nil ||
+                  (execute && dispatchStop && titleMenuTarget != nil && scenePreviewBackground != nil &&
+                   subsequentButtons.count >= (researchStopAfterSubsequentButtonEvents ?? 0) &&
+                   researchSlotDonor == nil && researchSystemOutput == nil) else {
+                throw ResourceError.rejected("research_stop_after_button_requires_read_only_title_scene_replay")
+            }
             guard (syntheticBarEvent == nil && syntheticBarAxis == nil) || (inspectUnrenderedBars && observeLiveAudio && dispatchStop &&
                 (buttonIndex != nil || (restoredSoundInspection && !subsequentButtons.isEmpty))) else {
                 throw ResourceError.rejected("synthetic_bar_event_requires_live_research_mode")
@@ -1318,6 +1338,12 @@ struct HeadlessResourceReceipts: Decodable {
             guard !scenePreviewFrozenVideoFirstFrame || (scenePreviewVideoFrames && scenePreviewTicks == 0 &&
                 !inspectLoadTask && !saveSceneThumbnail) else {
                 throw ResourceError.rejected("frozen_video_first_frame_requires_zero_tick_preview")
+            }
+            guard !researchSceneDepthOrderCandidate ||
+                  (scenePreviewBackground != nil && scenePreviewVideoFrames && titleMenuTarget == "album" &&
+                   researchStopAfterSubsequentButtonEvents != nil && !inspectLoadTask && !saveSceneThumbnail &&
+                   !adoptSaveCandidate && researchSlotDonor == nil && researchSystemOutput == nil) else {
+                throw ResourceError.rejected("scene_depth_order_candidate_requires_stopped_album_video_preview")
             }
             guard researchSceneVideoSampleTicks == nil || (scenePreviewVideoFrames && scenePreviewTicks == 0 &&
                 !scenePreviewFrozenVideoFirstFrame && !inspectLoadTask && !adoptSaveCandidate &&
@@ -1832,6 +1858,7 @@ struct HeadlessResourceReceipts: Decodable {
                         var budget = clickTicks
                         var pendingDispatch = dispatchStop
                         var subsequentButtonCursor = 0
+                        var researchStopAfterSubsequentButtonReached = false
                         var syntheticBarEventConsumed = false
                         var researchBarEventSite: ScriptLocation?
                         var syntheticBarAxisValue: Int32?
@@ -2077,6 +2104,11 @@ struct HeadlessResourceReceipts: Decodable {
                         }
                         func runHost() throws {
                             while hostIterations < 50_000 {
+                                if let limit = researchStopAfterSubsequentButtonEvents,
+                                   subsequentButtonCursor >= limit, machine.phase == .waitingForEvent {
+                                    researchStopAfterSubsequentButtonReached = true
+                                    break
+                                }
                                 hostIterations += 1
                                 var resumedSoundPlayback = false
                                 if let request = machine.soundFilterRequest {
@@ -5297,6 +5329,12 @@ struct HeadlessResourceReceipts: Decodable {
                             explicitButtonIndex: buttonIndex,
                             subsequentButtonEvents: subsequentButtons.isEmpty ? nil : subsequentButtons.map { "\($0.array):\($0.index)" },
                             consumedSubsequentButtonEvents: subsequentButtons.isEmpty ? nil : subsequentButtonCursor,
+                            researchStopAfterSubsequentButtonEvents: researchStopAfterSubsequentButtonEvents,
+                            researchStopAfterSubsequentButtonReached: researchStopAfterSubsequentButtonEvents == nil ? nil : researchStopAfterSubsequentButtonReached,
+                            researchStopAfterSubsequentButtonPhase: researchStopAfterSubsequentButtonReached ? machine.phase.rawValue : nil,
+                            researchStopAfterSubsequentButtonLocation: researchStopAfterSubsequentButtonReached ? machine.playbackStatus.currentLocation : nil,
+                            researchStopAfterSubsequentButtonScope: researchStopAfterSubsequentButtonEvents == nil ? nil :
+                                "explicit_button_event_count_then_waiting_for_event_before_automatic_host_callback_original_input_and_scheduling_not_tested",
                             syntheticBarEvent: syntheticBarEvent.map { "\($0.name):\($0.value)" },
                             syntheticBarEventConsumed: syntheticBarEvent == nil && syntheticBarAxis == nil ? nil : syntheticBarEventConsumed,
                             researchBarBeforeSubsequentButtons: researchBarBeforeSubsequentButtons ? true : nil,
@@ -5772,6 +5810,7 @@ struct HeadlessResourceReceipts: Decodable {
                                     frozenVideoFirstFrame: scenePreviewFrozenVideoFirstFrame,
                                     unclockedVideoSampleTicks: researchSceneVideoSampleTicks,
                                     filterOutputMaskCandidate: researchSceneOutputMask,
+                                    sceneDepthOrderCandidate: researchSceneDepthOrderCandidate,
                                     researchBarPreview: researchBarScenePreview,
                                     omitResearchBarComponents: researchBarSceneControl,
                                     exportPNG: exportScenePreviewPNG ? { scenePNG = $0 } : nil,

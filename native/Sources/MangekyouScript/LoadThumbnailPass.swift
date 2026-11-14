@@ -45,6 +45,7 @@ struct LoadThumbnailPass: Encodable {
     struct StaticRasterLayer: Encodable {
         let id: UInt64
         let resource: ScriptLocation
+        let priority: Int32
         let bounds: [Double]
     }
 
@@ -62,6 +63,7 @@ struct LoadThumbnailPass: Encodable {
     let sceneVideoCandidateTicks: [Int32]
     let sceneVideoFrozenFirstFrameCount: Int
     let sceneVideoExplicitSampleTicks: [Int32]
+    var sceneDepthOrderCandidate: String? = nil
     let sceneOutputMaskCandidate: Bool
     let sceneOutputMaskExcludedCount: Int
     struct BarPreviewComponent: Encodable {
@@ -111,7 +113,7 @@ struct LoadThumbnailPass: Encodable {
     let captureDrawChangedPixels: Int?
     let omittedLayers: [OmittedLayer]
     var isIncomplete: Bool {
-        barPreviewCandidate || sceneOutputMaskCandidate || !omittedLayers.isEmpty || !textPreviewIssues.isEmpty || interfaceBackgroundPreviewCount > 0 || fractionalScalePreviewCount > 0 || embeddedAlignmentCandidateCount > 0 || dynamicMessageSurfaceCount > 0 || sampling2CandidateCount > 0 || inactiveMessageSurfaceCount > 0 || dualTextureCandidateCount > 0 || cutinFrameCandidateCount > 0 || !sceneVideoCandidateTicks.isEmpty || savedLayerTimeCandidateCount > 0
+        barPreviewCandidate || sceneOutputMaskCandidate || sceneDepthOrderCandidate != nil || !omittedLayers.isEmpty || !textPreviewIssues.isEmpty || interfaceBackgroundPreviewCount > 0 || fractionalScalePreviewCount > 0 || embeddedAlignmentCandidateCount > 0 || dynamicMessageSurfaceCount > 0 || sampling2CandidateCount > 0 || inactiveMessageSurfaceCount > 0 || dualTextureCandidateCount > 0 || cutinFrameCandidateCount > 0 || !sceneVideoCandidateTicks.isEmpty || savedLayerTimeCandidateCount > 0
     }
     let changedPixels: Int
     let canvasSHA256: String
@@ -128,6 +130,7 @@ struct LoadThumbnailPass: Encodable {
          frozenVideoFirstFrame: Bool = false,
          unclockedVideoSampleTicks: Int32? = nil,
          filterOutputMaskCandidate: Bool = false,
+         sceneDepthOrderCandidate: Bool = false,
          researchBarPreview: Bool = false,
          omitResearchBarComponents: Bool = false,
          useSavedLayerTimesCandidate: Bool = false,
@@ -148,7 +151,13 @@ struct LoadThumbnailPass: Encodable {
             }
             return visible
         }
-        let sceneLayers = try rawLayers.filter { try included($0.id) }
+        let includedLayers = try rawLayers.filter { try included($0.id) }
+        let sceneLayers = sceneDepthOrderCandidate
+            ? includedLayers.sorted {
+                if $0.priority == $1.priority { return $0.id < $1.id }
+                return $0.priority > $1.priority
+            }
+            : includedLayers
         let messages = try rawMessages.filter { try included($0.id) }
         func isThumbnail(_ layer: ScriptMachine.StaticImageLayer) -> Bool {
             layer.resource.sourceFile.lowercased().hasSuffix("/saveload/thumimage.b")
@@ -594,6 +603,7 @@ struct LoadThumbnailPass: Encodable {
                         if covered {
                             rasters += 1
                             drawnStaticRasters.append(.init(id: layer.id, resource: layer.resource,
+                                priority: layer.priority,
                                 bounds: [Double(bounds.minX), Double(bounds.minY), Double(bounds.width), Double(bounds.height)]))
                         } else { nonDrawing["scene_video_frame_no_coverage", default: 0] += 1 }
                         continue
@@ -617,6 +627,7 @@ struct LoadThumbnailPass: Encodable {
                         if covered {
                             rasters += 1
                             drawnStaticRasters.append(.init(id: layer.id, resource: layer.resource,
+                                priority: layer.priority,
                                 bounds: [Double(bounds.minX), Double(bounds.minY), Double(bounds.width), Double(bounds.height)]))
                         } else { nonDrawing["cutin_frame_no_coverage", default: 0] += 1 }
                         continue
@@ -978,6 +989,7 @@ struct LoadThumbnailPass: Encodable {
                     if covered {
                         rasters += 1
                         drawnStaticRasters.append(.init(id: layer.id, resource: layer.resource,
+                            priority: layer.priority,
                             bounds: [Double(bounds.minX), Double(bounds.minY), Double(bounds.width), Double(bounds.height)]))
                         if layer.fractionalScalePercent != nil { fractionalScalePreviews += 1 }
                     } else {
@@ -1076,6 +1088,9 @@ struct LoadThumbnailPass: Encodable {
         sceneVideoCandidateTicks = sceneVideoTicks
         sceneVideoFrozenFirstFrameCount = sceneVideoFrozenCount
         sceneVideoExplicitSampleTicks = explicitVideoSamples
+        self.sceneDepthOrderCandidate = sceneDepthOrderCandidate
+            ? "placement_axis_descending_painter_order_inferred_original_depth_and_layer_order_not_tested"
+            : nil
         sceneOutputMaskCandidate = filterOutputMaskCandidate
         sceneOutputMaskExcludedCount = rawLayers.count - sceneLayers.count + rawMessages.count - messages.count
         barPreviewCandidate = researchBarPreview
