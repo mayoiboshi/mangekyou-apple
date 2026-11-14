@@ -32,6 +32,8 @@
 
 `verified` · `img` 模块 VMT `+0x20` 读取模块 `+0x18` 指向的图像对象，再由 `0x5adcc4` 返回图像对象 `+0xc55`。图像状态更新函数 `0x5ac7b0` 把 `param6` 写入 `+0xc55`；当 `param5==0` 时还复制到 `+0xc3d`。序列化函数 `0x68bf10` 用 `pos(%d,%d,%d)(%d)` 输出 `+0xc35/+0xc39/+0xc59/+0xc3d`，因此这条数据流把 `+0xc55` 连到第四个 `pos` 字段。脚本分派函数 `0x6c57ac` 的原始 token `0x3470` 分支读取 12 个操作数，调用点把第 10 个解码值传作 `param6`；该 token 是否应读作 `p4` 仍为 `inferred`。管理器会以 `+0xc55` 做范围和 1000 阈值门控，并将其用于单独的降序索引。字段与序列化 `pos` 的关系为 `verified`；它代表深度、priority、可见性组或其他 placement 属性仍为 `inferred`，最终绘制顺序仍为 `not_tested`。字节范围与局部回放的 `image_placement_candidate` 回执见 `private/codex-focus-cg/native-cg-module-dispatch-summary.json`。
 
+`inferred` · 本地研究模型把 `p4` 的第 10 个值映射到 `placement[2]`，并在显式场景候选中按该值降序排序（`ScriptMachine.swift:7094–7117`、`LoadThumbnailPass.swift:1380–1399,155–159`）。这与原版静态路径“token `0x3470` 第 10 个操作数 → 图像对象 `+0xc55` → 管理器 `+0xb4` 降序索引”相符，但只是研究模型交叉核对。原版 `+0x14` 绘制回调仍走原始 `+0xcc` 列表；降序候选是否等于最终 painter order 仍为 `not_tested`。
+
 `inferred` · 固定 EXE 的图像 VMT `0x5a90ac` 的 `+0x10` 槽指向 `0x5ab7b0`。其原始区间（`美少女万華鏡４.exe`，offset 1747888、length 461、SHA-256 `15087207b5e5a3ed7356811de50632701a22eceb68cb0bfc5f8bd97892053120`）的边界解码显示该方法构造变换矩阵后，在 `0x5ab971` 通过 `[EBX+0x14]` 做间接绘制调用（offset 1748337、length 3、SHA-256 `40cbe4079ba8371cbba5ea6f36f3760cd08995e80db6c6c136b6ceb64a12250d`）。Ghidra 未建立该方法的函数边界或直接调用者；它仍只支持单对象变换/绘制候选，未连到兄弟对象管理器，因此不证明 priority 排序或 Z-buffer 行为。REA Evidence ID 与下一查询方向见上述私有摘要。
 
 `verified` · 新的固定 EXE 调用者证据显示，管理器刷新分支会分别读取 `+0x4c`、`+0x50` 两槽对象的 `+0x124` 字段并传入同一回调，之后进入通用刷新封装；封装按模式选槽，绘制分支会把所选槽的 `+0x124` 对象交给后续绘制函数。它没有证明音乐页实际使用哪个槽、该页矩阵值或该分支在原版运行时是否执行。逐段字节摘要及 REA 证据见 `private/bar-evidence/projection-gate-music/native-music-context-refresh-manager-callers-summary.json`。
