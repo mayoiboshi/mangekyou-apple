@@ -604,9 +604,8 @@ struct LoadThumbnailPass: Encodable {
                         if directOpaqueVideoFrame,
                            let rows = try? ResourceImage.opaquePNGCanvasPixels(frameData,
                                width: canvas.first?.count ?? 0, height: canvas.count) {
-                            // The full-size FFmpeg PNG is already an opaque RGBA raster. Keep
-                            // its decoded channel values out of a DeviceRGB CGContext; the
-                            // prior drawRasterPreview path applied a measurable channel shift.
+                            // The full-size FFmpeg PNG can be copied in the scene canvas's
+                            // top-down BGRA lane order. The prior DeviceRGB draw shifted channels.
                             for y in rows.indices { canvas[y] = rows[y] }
                             covered = true
                         } else {

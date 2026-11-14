@@ -1008,10 +1008,10 @@ final class ResourceTests: XCTestCase {
         XCTAssertEqual(boundCanvas, [[SIMD4(0, 0, 255, 255)]])
     }
 
-    func testOpaquePNGCanvasPixelsPreserveDecoderChannels() throws {
+    func testOpaquePNGCanvasPixelsUseBGRAChannelOrder() throws {
         let opaque = try png([140, 77, 101, 255, 3, 211, 17, 255], width: 2, height: 1)
         XCTAssertEqual(try ResourceImage.opaquePNGCanvasPixels(opaque, width: 2, height: 1),
-                       [[SIMD4(140, 77, 101, 255), SIMD4(3, 211, 17, 255)]])
+                       [[SIMD4(101, 77, 140, 255), SIMD4(17, 211, 3, 255)]])
         XCTAssertThrowsError(try ResourceImage.opaquePNGCanvasPixels(
             png([140, 77, 101, 128]), width: 1, height: 1))
         XCTAssertThrowsError(try ResourceImage.opaquePNGCanvasPixels(opaque, width: 1, height: 1))
