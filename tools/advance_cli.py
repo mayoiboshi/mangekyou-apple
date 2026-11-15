@@ -17,10 +17,12 @@ from image_recipe import append_image_recipe
 def sha(data):return hashlib.sha256(data).hexdigest()
 
 
-def append_explicit_sources(requested, selected, cohort, index, lookup):
+def append_explicit_sources(requested, selected, cohort, index, lookup, allow_cross_cohort=False):
     for raw in requested:
         source = safe_member_name(raw)
-        if (len(selected) >= 128 or source in selected or not source.startswith(cohort + '.pack/')
+        cohort_match = source.startswith(cohort + '.pack/')
+        package_match = re.match(r'data[0-8]\.pack/', source) is not None
+        if (len(selected) >= 128 or source in selected or not (cohort_match or (allow_cross_cohort and package_match))
             or not source.lower().endswith(('.s', '.txt')) or source not in index):
             raise ProbeError('cli_progress_selection_identity_or_budget')
         lookup(source)
@@ -68,17 +70,22 @@ def main():
     p.add_argument('--click-ticks',type=int)
     p.add_argument('--dispatch-stop-callback',action='store_true')
     p.add_argument('--message-click',action='store_true')
-    p.add_argument('--message-clicks',type=int,choices=range(1,24001))
+    p.add_argument('--message-clicks',type=int,choices=range(1,48001))
     p.add_argument('--button-index',type=int)
     p.add_argument('--story-choice',type=int,choices=range(6),action='append',default=[])
     p.add_argument('--verify-route-return',action='store_true',
                    help='Open and cancel the title load menu, then require every supplied choice and a return to title')
+    p.add_argument('--verify-story-route',action='store_true',
+                   help='Start from the title and require every supplied story choice and a return to title')
     p.add_argument('--research-label-read-status',action='store_true',
                    help='Use the explicitly inferred label-read candidate in a fresh read-only replay')
     p.add_argument('--title-menu-target',choices=('album','memory','sound'),
                    help='After the verified route returns to title, try the named extra menu')
     p.add_argument('--load-task-capture',type=Path)
-    p.add_argument('--save-dir',type=Path,help='Read-only save directory for the route load-menu replay')
+    p.add_argument('--save-dir',type=Path,help='Read-only save directory for load-menu or private system-data research')
+    p.add_argument('--research-system-file',help='Private system-data filename inside --save-dir')
+    p.add_argument('--research-system-exe',help='Executable filename relative to --game-dir for the verified system header template')
+    p.add_argument('--research-system-output',help='New private system-data output filename in this report directory')
     p.add_argument('--load-task-page',type=int,action='append',default=[])
     p.add_argument('--scene-preview-background',help='Local resource path for strict final-frame compositing')
     p.add_argument('--replay-dir',type=Path,help='Reuse a private combined catalog, image recipe and resource receipts')
@@ -97,6 +104,8 @@ def main():
     p.add_argument('--selection-seed',type=Path,help='Reuse pinned choices from a previous same-cohort report')
     p.add_argument('--select-source',action='append',default=[],
                    help='Explicitly pin a catalogued source in the selected cohort; may be repeated')
+    p.add_argument('--source-override',action='append',default=[],
+                   help='Explicitly pin a catalogued data0-data8 script/table outside the cohort for a private hypothesis run')
     report_mode=p.add_mutually_exclusive_group()
     report_mode.add_argument('--private-report',action='store_true',help='Keep the summary alongside the private trace (default)')
     report_mode.add_argument('--publish-summary',action='store_true',help='Write a reviewed milestone summary under reports/p1')
@@ -112,16 +121,31 @@ def main():
         p.error('--source-coverage requires private output')
     coverage_source = safe_member_name(a.source_coverage) if a.source_coverage else None
     scene_background = safe_member_name(a.scene_preview_background) if a.scene_preview_background else None
+    research_system_file = safe_member_name(a.research_system_file) if a.research_system_file else None
+    research_system_exe = safe_member_name(a.research_system_exe) if a.research_system_exe else None
+    research_system_output = safe_member_name(a.research_system_output) if a.research_system_output else None
+    if bool(research_system_file) != bool(research_system_exe):
+        p.error('--research-system-file and --research-system-exe must be supplied together')
+    if research_system_file and (len(research_system_file.split('/')) != 1 or not a.save_dir or not a.game_dir or
+                                 not (a.verify_route_return or a.verify_story_route) or a.publish_summary):
+        p.error('--research-system-file requires a private strict route replay, --save-dir and --game-dir')
+    if research_system_output and (not research_system_file or len(research_system_output.split('/')) != 1 or a.publish_summary):
+        p.error('--research-system-output requires a private system-data input and a leaf filename')
     if a.verify_route_return:
         if not a.load_task_capture or not a.story_choice or a.publish_summary:
             p.error('--verify-route-return requires a local capture, story choices and private output')
-    elif a.load_task_capture or a.load_task_page or a.replay_dir or a.save_dir:
-        p.error('load-task options require --verify-route-return')
+    elif a.load_task_capture or a.load_task_page or (a.save_dir and not research_system_file):
+        p.error('title load-task options require --verify-route-return')
+    if a.verify_story_route and (not a.story_choice or a.verify_route_return or a.publish_summary):
+        p.error('--verify-story-route requires story choices, private output and no load-task verification')
+    if a.source_override and (not (a.verify_story_route or a.verify_route_return) or a.publish_summary):
+        p.error('--source-override requires a private strict route replay')
     if a.title_menu_target and not a.verify_route_return:
         p.error('--title-menu-target requires --verify-route-return')
-    if a.research_label_read_status and (not a.verify_route_return or a.save_dir or a.publish_summary):
+    if a.research_label_read_status and (not (a.verify_route_return or a.verify_story_route) or
+                                         (a.save_dir and not research_system_file) or a.publish_summary):
         p.error('--research-label-read-status requires a fresh private read-only route replay')
-    if a.replay_dir and any((a.selection_seed, a.resource_index, a.image_source, a.image_audit,
+    if a.replay_dir and any((a.resource_index, a.image_source, a.image_audit,
                              a.plain_image_source, a.audio_source, a.wave_source, a.movie_source,
                              a.large_movie_source, a.resource_provider, a.resource_cache)):
         p.error('--replay-dir cannot be combined with options that build or supply resources')
@@ -131,10 +155,27 @@ def main():
     save_directory = absolute(a.save_dir) if a.save_dir else None
     if save_directory and (save_directory == private or save_directory in private.parents or private in save_directory.parents):
         raise ProbeError('cli_progress_save_output_overlap')
+    research_system_input_path = save_directory / research_system_file if research_system_file and save_directory else None
+    research_system_exe_path = absolute(a.game_dir) / research_system_exe if research_system_exe and a.game_dir else None
+    if research_system_input_path:
+        if research_system_input_path.is_symlink():
+            raise ProbeError('cli_research_system_input_symlink')
+        system_input_sha = sha(read_bounded(research_system_input_path,16*1024*1024))
+    else:
+        system_input_sha = None
+    if research_system_exe_path:
+        if research_system_exe_path.is_symlink():
+            raise ProbeError('cli_research_system_exe_symlink')
+        system_exe_sha = sha(read_bounded(research_system_exe_path,64*1024*1024))
+    else:
+        system_exe_sha = None
     try:
-        private.mkdir(parents=True, exist_ok=not a.verify_route_return)
+        private.mkdir(parents=True, exist_ok=not (a.verify_route_return or a.verify_story_route))
     except FileExistsError:
         p.error('route_replay_stage_already_exists: choose a new --stage')
+    research_system_output_path = private / research_system_output if research_system_output else None
+    if research_system_output_path and (research_system_output_path.exists() or research_system_output_path.is_symlink()):
+        raise ProbeError('cli_research_system_output_exists')
     compiled_sources=[ROOT/'native/Package.swift',*sorted((ROOT/'native/Sources').rglob('*.swift'))]
     sources={s.relative_to(ROOT).as_posix():sha(read_bounded(s)) for s in compiled_sources}
     compiled=subprocess.run(['swift','build','--package-path',str(ROOT/'native'),'-c','release','--product','mangekyou-script'],capture_output=True,timeout=120,cwd=ROOT)
@@ -236,6 +277,26 @@ def main():
                     destination.add(name)
                 else:
                     destination.append(name)
+        # A replay receipt may pin standalone movies separately from image
+        # resources. Reattach those same source files when reusing its catalog.
+        for field, target in (('movie_resource', 'movie'), ('large_movie_resource', 'large_movie')):
+            entry = pinned.get(field)
+            if not entry:
+                continue
+            name = safe_member_name(entry['source_file'])
+            if (not re.fullmatch(r'data[0-9]+\.pack/.+\.ogv', name)
+                or entry.get('logical_path') != name.split('/', 1)[1]
+                or not re.fullmatch(r'[a-f0-9]{64}', entry.get('sha256', ''))):
+                raise ProbeError('cli_movie_receipt_identity')
+            if name in index and index[name]['sha256'] != entry['sha256']:
+                raise ProbeError('cli_resource_receipt_identity')
+            index[name] = entry
+            if target == 'movie':
+                movie_source = name
+            else:
+                large_movie_source = name
+        if large_movie_source:
+            trace_byte_limit = max(trace_byte_limit, (128 + 192) * 1024 * 1024)
     cache={};total=0
     if coverage_source and coverage_source not in index:
         raise ProbeError('cli_source_coverage_not_in_catalog')
@@ -258,7 +319,7 @@ def main():
     root,root_doc=lookup(script);selected=[];attempts=[];final=None
     seed_sha=None
     if a.selection_seed or receipts:
-        seed_bytes=read_bounded(receipts or absolute(a.selection_seed),8*1024*1024)
+        seed_bytes=read_bounded(absolute(a.selection_seed) if a.selection_seed else receipts,8*1024*1024)
         seed_sha=sha(seed_bytes);seed=json.loads(seed_bytes)
         if seed.get('source_cohort')!=a.source_cohort:
             raise ProbeError('cli_progress_seed_cohort_mismatch')
@@ -269,6 +330,8 @@ def main():
                 raise ProbeError('cli_progress_seed_identity_or_budget')
             lookup(source);selected.append(source)
     append_explicit_sources(a.select_source,selected,a.source_cohort,index,lookup)
+    explicit_source_overrides = list(a.source_override)
+    append_explicit_sources(a.source_override,selected,a.source_cohort,index,lookup,allow_cross_cohort=True)
     for attempt in range(129-len(selected)):
         command=[str(binary),'--assets-dir',str(assets),'--script',script,'--experimental-run','--maximum-steps',str(a.maximum_steps),'--catalog',str(manifest)]
         if not (a.full_trace or a.publish_summary):command.append("--compact-trace")
@@ -288,10 +351,18 @@ def main():
                         '--load-task-capture',str(absolute(a.load_task_capture))]
             for page in a.load_task_page:
                 command += ['--load-task-page',str(page)]
-            if save_directory:
-                command += ['--save-dir', str(save_directory)]
             if a.title_menu_target:
                 command += ['--title-menu-target', a.title_menu_target]
+        elif a.verify_story_route:
+            command += ['--start-from-title','--require-route-return']
+        if save_directory:
+            command += ['--save-dir', str(save_directory)]
+        if research_system_file:
+            command += ['--research-system-file',research_system_file,
+                        '--research-system-exe',research_system_exe]
+        if research_system_output:
+            output_relative = f"{private.relative_to(ROOT/'private').as_posix()}/{research_system_output}"
+            command += ['--research-system-output',output_relative]
         if a.button_index is not None:command+=['--button-index',str(a.button_index)]
         if a.pointer is not None:command+=['--pointer',a.pointer]
         if a.dispatch_stop_callback:command+=['--dispatch-stop-callback']
@@ -304,7 +375,7 @@ def main():
         stderr_path = private/f'attempt-{attempt:02}-stderr.log'
         with stderr_path.open('wb') as stderr:
             run=subprocess.run(command,stdout=subprocess.PIPE,stderr=stderr,
-                               timeout=3600 if a.resource_provider or a.verify_route_return else 150,cwd=ROOT)
+                               timeout=3600 if a.resource_provider or a.verify_route_return or a.verify_story_route else 150,cwd=ROOT)
         if run.returncode not in {0,2} or len(run.stdout)>512*1024*1024:raise ProbeError(f'cli_progress_process_failure: exit={run.returncode}, output_bytes={len(run.stdout)}')
         if not run.stdout:
             raise ProbeError(f'cli_progress_missing_json: exit={run.returncode}, see {stderr_path}')
@@ -312,7 +383,7 @@ def main():
         receipt_bytes = 0
         decoded_movies = []
         for line in read_bounded(stderr_path, 32*1024*1024).splitlines():
-            if a.verify_route_return:
+            if a.verify_route_return or a.verify_story_route:
                 movie = re.fullmatch(rb'decoded_movie=([0-9a-f]{64}) ticks=([0-9]{1,6})', line)
                 if movie:
                     decoded_movies.append(dict(sha256=movie[1].decode('ascii'), duration_ticks=int(movie[2])))
@@ -350,6 +421,19 @@ def main():
     else:raise ProbeError('cli_progress_selection_limit')
     if sha(read_bounded(binary))!=binary_sha or any(sha(read_bounded(ROOT/n))!=h for n,h in sources.items()):raise ProbeError('cli_progress_sources_changed')
     if config_path and sha(read_bounded(config_path,1024*1024))!=config_sha:raise ProbeError('cli_progress_config_changed')
+    if research_system_input_path and sha(read_bounded(research_system_input_path,16*1024*1024))!=system_input_sha:
+        raise ProbeError('cli_research_system_input_changed')
+    if research_system_exe_path and sha(read_bounded(research_system_exe_path,64*1024*1024))!=system_exe_sha:
+        raise ProbeError('cli_research_system_exe_changed')
+    system_output_receipt = None
+    if research_system_output_path:
+        if research_system_output_path.is_file() and not research_system_output_path.is_symlink():
+            system_output_bytes = read_bounded(research_system_output_path,16*1024*1024)
+            system_output_receipt = dict(status='inferred',path=research_system_output_path.relative_to(ROOT).as_posix(),
+                sha256=sha(system_output_bytes),byte_length=len(system_output_bytes),values='not_published')
+        else:
+            system_output_receipt = dict(status='unsupported',path=research_system_output_path.relative_to(ROOT).as_posix(),
+                issue='research_system_output_not_written')
     report=dict(large_movie_resource=index.get(large_movie_source),story_choices=a.story_choice,message_click=a.message_click,message_clicks=a.message_clicks,audio_resource=index.get(audio_sources[-1]) if audio_sources else None,audio_resources=[index[name] for name in audio_sources],headless_movie_decode=bool(a.headless_movie_tools),movie_resource=index.get(movie_source),supplied_click_tick_budget=a.click_ticks,maximum_steps=a.maximum_steps,dispatch_stop_callback=a.dispatch_stop_callback,pointer_sample=a.pointer,button_index=a.button_index,wave_resources=[index[name] for name in sorted(image_sources) if name.endswith(".wav")],image_resources=[index[name] for name in sorted(image_sources) if not name.endswith(".wav")],configuration_source=dict(source_file='GameData/System/config.txt',sha256=config_sha) if config_sha else None,schema_version=1,status='inferred',dataset='real',scope='One explicit source-cohort CLI path; no original package winner or complete-game claim',
         profile=final['profile'],source_cohort=a.source_cohort,source_choice_is_original_precedence='not_tested',
         native_binary_sha256=binary_sha,native_source_sha256=sources,corpus_report_sha256=sha(manifest_bytes),
@@ -361,14 +445,21 @@ def main():
         source_byte_reference_status='verified',checked_sources=len(cache),checked_source_bytes=total,
         full_corpus_retested=False,original_engine_equivalence='not_tested',full_game_compatibility='not_tested',
         original_files_written=False,external_game_data_uploads=False,private_trace_directory=private.relative_to(ROOT).as_posix())
+    if research_system_input_path:
+        report['research_system_input'] = dict(source_file=research_system_file,sha256=system_input_sha,
+            executable=research_system_exe,executable_sha256=system_exe_sha,values='not_published')
+    if system_output_receipt:
+        report['research_system_output'] = system_output_receipt
     if a.research_label_read_status:
         report['label_read_status_candidate']='inferred'
+    if explicit_source_overrides:
+        report['explicit_source_overrides'] = [dict(source_file=s,sha256=index[s]['sha256']) for s in explicit_source_overrides]
     report_path = ROOT/'reports/p1'/('cli-progress-'+a.stage+'-'+a.source_cohort+'.json') if a.publish_summary else private/'summary.json'
     if len(final['trace']) != final['steps']:
         report['trace_scope']='suffix'
         report['trace_first_step']=final['trace'][0]['sequence']
         report['trace_action_counts']=report.pop('action_counts')
-    if a.verify_route_return:
+    if a.verify_route_return or a.verify_story_route:
         budget = record.get('replayBudget') or {}
         returned = (budget.get('routeTitleReachedBeforeMenu') is True and
                     budget.get('remainingStoryChoices') == 0) if a.title_menu_target else run.returncode == 0
@@ -390,7 +481,7 @@ def main():
             report['scene_preview_issue'] = record.get('scenePreviewIssue') or 'scene_preview_incomplete'
     write_json(report_path,report)
     print(json.dumps(dict(steps=final['steps'],stop=final.get('stopReason'),selected_sources=len(selected),checked_sources=len(cache))))
-    return run.returncode if a.verify_route_return or scene_background else 0
+    return run.returncode if a.verify_route_return or a.verify_story_route or scene_background else 0
 
 
 if __name__=='__main__':raise SystemExit(main())

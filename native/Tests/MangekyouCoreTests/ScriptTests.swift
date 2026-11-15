@@ -1441,15 +1441,32 @@ final class ScriptTests: XCTestCase {
         XCTAssertEqual(try machine.value(named: "Missing"), .integer(-1))
         XCTAssertEqual(try machine.value(named: "Empty"), .integer(-1))
         XCTAssertEqual(machine.stopReason, "label_read_status_unsupported")
-        let fresh = try run("\\scp,llog\n\\?k2")
-        XCTAssertEqual(fresh.stopReason, "label_read_status_unsupported")
-        XCTAssertFalse(fresh.traces.contains { $0.action == "fresh_session_unread_status_candidate" })
+        let unsupportedFresh = try run("\\scp,llog\n\\?k2")
+        XCTAssertEqual(unsupportedFresh.stopReason, "label_read_status_unsupported")
         let document = try ScriptDocument(data: Data("\\scp,llog\n\\?k2".utf8), relativePath: "fresh.s")
         var research = try ScriptMachine(program: ScriptProgram(document), allowExperimental: true)
         research.allowLabelHistoryCandidate = true
         try research.run()
-        XCTAssertEqual(research.phase, .finished)
-        XCTAssertTrue(research.traces.contains { $0.action == "fresh_session_unread_status_candidate" })
+        XCTAssertEqual(research.stopReason, "label_read_status_context_unsupported")
+        XCTAssertFalse(research.traces.contains { $0.action == "label_read_status_missing_key_candidate" })
+    }
+    func testMissingLabelReadStatusUsesOnlyResolvableCurrentLabel() throws {
+        let directory = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
+            .deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent(".build/fresh-label-read-tests/" + UUID().uuidString)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+
+        let source = Data("@@Scene\n\\scp,llog\n\\s,\"unrelated\",123\n\\?k2\n\\gvar,int,status\n\\cal,status=ResultInt[0]\n".utf8)
+        let document = try ScriptDocument(data: source, relativePath: "scenario/root.s")
+        let reference = ScriptModuleReference(logicalPath: "scenario/root.s", sourceFile: "scenario/root.s", sourceSHA256: source.sha256Hex)
+        let repository = try ScriptRepository(directory: SafeDirectory(directory), catalog: ScriptModuleCatalog(entries: [reference]))
+        var machine = try ScriptMachine(program: ScriptProgram(document), allowExperimental: true, repository: repository)
+        try machine.run()
+
+        XCTAssertEqual(machine.phase, .finished, machine.stopReason ?? "no stop reason")
+        XCTAssertEqual(try machine.value(named: "status"), .integer(0))
+        XCTAssertTrue(machine.traces.contains { $0.action == "label_read_status_missing_key_candidate" })
     }
     func testPendingSentenceBlankPrefixAfterCommand() throws {
         let machine = try run(#"""

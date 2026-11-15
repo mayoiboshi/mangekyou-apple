@@ -1065,7 +1065,7 @@ struct HeadlessResourceReceipts: Decodable {
                     }
                     researchAutoAfterTimedMaxSeconds = value
                 case "--message-clicks":
-                    guard let count = Int(args[i+1]), (1...24000).contains(count) else {
+                    guard let count = Int(args[i+1]), (1...48000).contains(count) else {
                         throw ResourceError.rejected("invalid_message_click_count")
                     }
                     messageClicks = count

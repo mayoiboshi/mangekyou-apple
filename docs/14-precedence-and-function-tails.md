@@ -12,6 +12,12 @@
 
 另外，线性反汇编窗口 `0x4ec10c–0x4ec40c` 显示初始化候选路径构造 `data` + 数字 + `.pack`，在 32 个位置上循环并更新两张表；另一个窗口显示启动候选调用点传入 `GameData` 字符串地址。当前 Ghidra 没有把这两个区域完整识别成函数，因此它们是 **LLVM 的有界线性观察**，不是伪造的 Ghidra 函数证据，也没有据此宣称完整启动语义已恢复。
 
+后续对初始化窗口做了精确指令与原始字节复核，补实了该条件模型的一项前提。固定 EXE 的 `0x4ec10c–0x4ec40c`（文件 offset 963852、length 768、范围 SHA-256 `b9e73bf07a29b711e0c3438ef0de70276906fbdb8b2ceada97ea1ede82c970ca`）将循环索引从 0 增至 `0x20`；同一索引进入 `data` 名称构造，两个表指针分别从 `0x715580`、`0x715600` 开始并随循环各加 4，构造的包对象写入当前表项。由此 `dataN.pack` 后缀与槽位 N 的对应关系在这个有界初始化块中为 `verified`。该范围包含字符串常量 `data` 与 `.pack`（EXE offset 964652、length 64、SHA-256 `7936a1566f436b428ce10f30f85635799bfe40a8f1209fcc67d9fcd3653953f8`）。Ghidra 未识别窗口起点的所属函数，整段调用边界及运行到达仍 `not_tested`；完整证据见 `private/mainline-package-slot-followup.json`。
+
+既有查找路径证据还显示，脚本读取点 `0x69514a` 将槽参数置为 `-1` 后调用 `0x4ec5ac`；包装函数将其传给 `0x4ec798`。该选择器从槽 31 降至 0，每槽先查 `0x715580`，再查 `0x715600`。本机冻结清单中存在 `GameData/data0.pack` 至 `data8.pack`，没有散装 `.s`、`.b` 或 `.hash` 文件。因此，在这一初始化/查询路径确实被采用、数据包成功挂载且无其他根目录/缓存覆盖的前提下，重复 `script/title/main.s` 的 data8 版本是条件赢家（其槽 8 高于 data7 的槽 7）；实际运行时采用版本仍为 `not_tested`。
+
+另一个脚本分派路径中的包成员查询也按槽位倒序选首个匹配项：`FUN_006b21e8` 在 `0x6b3820` 直接调用 `FUN_006d10a0`；后者从 31 递减到 0，以当前槽号调用 `FUN_004ebbf8`，首个返回非零的位置会用于构造 `GameData\DataN` 路径后退出循环。`FUN_004ebbf8` 对单一有效槽调用 `FUN_004ebbac`，后者在该槽中依次读取 `0x715580`、`0x715600` 两张表项，并将非空项交给 `FUN_004ea57c` 检查。固定 EXE `美少女万華鏡４.exe`（SHA-256 `ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5`）字节引用：调用点 `(offset 2829344,length 5,SHA-256 4485665e2702c376dd699064c945f85a5a29c9692d5c957727ec5767a1b577af)`；`FUN_006d10a0` `(2950304,409,e1e21ca9729eeeb1ec13358348139509a6b6c9a0d6d66dc285e6cec9b7ee04fb)`；`FUN_004ebbf8` `(962552,106,bb585b5471fb7200ee58aad40d53caf887072e64858c42699a2eafb459f373b3)`；`FUN_004ebbac` `(962476,75,027c79d8b5059d41b965e38e54507081ba0b900bebc98bd2e4bfc097f834bb68)`。完整 Evidence ID 和 `FUN_006b21e8` 分派分支位置见 `private/package-slot-enumeration-followup.json`。这加强了“某个包成员枚举路径按高槽优先”这一静态事实，但不把它外推为普通脚本读取的运行时赢家：初始化块 `0x4ec10c` 仍不属于 Ghidra 识别的 procedure 且无直接 incoming xref，间接进入、包挂载成功和实际调用仍为 `not_tested`。
+
 一个搜索线索最终被排除：`0x5dae04` 附近的 `.pack` 字节其实位于 `.package` 的 MIME 注册内容中，不能作为游戏归档加载的证据。扩展名子串命中仍需跟踪使用位置。
 
 ## 条件版本选择视图
@@ -22,12 +28,12 @@
 
 模型明确保留以下前提：
 
-- `GameData/dataN.pack` 实际装到主表的槽位 N，且相关包成功装载。
+- 数字后缀到槽位 N 的对应关系已由 `0x4ec10c–0x4ec40c` 有界初始化块静态核实；相关包是否在目标运行中成功装载仍未测试。
 - 引擎最终解析出的路径没有命中优先的散文件。
 - 查找使用 -1，或明确给出的限定槽位。
 - 其他挂载根目录、第二张表、回调和动态变化没有改变该次查找。
 
-没有证据的前提写为 `not_tested`，槽位映射整体仍是 `inferred`。每条记录的 `effective_runtime_winner` 保持 `not_tested`。如果输入中有同槽位多个候选、无法映射的包，或明确存在散文件，模型拒绝给出包赢家；不会静默挑一个。
+本地生成的 `conditional-corpus.json` 是本次核验前的快照；后续私有补充现将槽位映射标为 `verified`（仅限所检代码块）。其他未观测加载前提仍为 `not_tested`，每条记录的 `effective_runtime_winner` 继续保持 `not_tested`。如果输入中有同槽位多个候选、无法映射的包，或明确存在散文件，模型拒绝给出包赢家；不会静默挑一个。
 
 公开的 `conditional-overlay-report.json` 包含全部计数及 11 组差异路径的元数据；完整条件视图在忽略的 `private/p1-round3/conditional-corpus.json`。没有删除旧副本，没有覆盖第一轮的 `overlay-report.json`，也没有将条件视图当作确定的实际游戏语料。
 

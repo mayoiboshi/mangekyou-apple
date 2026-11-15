@@ -5893,35 +5893,47 @@ public struct ScriptMachine: Sendable {
                     guard candidate.frames.last!.tableScope == [ScriptStorage.lineLogHandle] else {
                         throw ResourceError.rejected("read_status_query_requires_line_log_scope")
                     }
-                    // An empty log does not prove the native reader formed a
-                    // key: its no-key path returns a different result.
+                    // A missing entry has a native-backed result regardless
+                    // of unrelated label-log entries: TLabelLog.Get returns
+                    // -1, and the reader comparison yields unread (0). The
+                    // local reader-key mapping remains inferred, so require a
+                    // unique resolvable label and reject both known key forms
+                    // if either is present; present-key comparison stays in
+                    // the explicit research path below.
+                    let probe = labelHistoryProbe
+                    if probe.frames.count == candidate.frames.count,
+                       let selected = probe.frames.first(where: {
+                           $0.eligibleLabel && $0.nearestLabel?.sourceFile == program.document.source.relativePath &&
+                               $0.nearestLabel?.sourceSHA256 == program.document.source.sha256
+                       }), selected.uniqueLabel, selected.logicalPathAvailable,
+                       selected.relativeLine.map({ $0 >= 0 }) == true,
+                       selected.keyMatchWithMarker == false, selected.keyMatchWithoutMarker == false,
+                       selected.candidateReadStatus == 0 {
+                        candidate.clearResultBindings()
+                        try candidate.resultInteger(0)
+                        labelHistoryReadOutcome = 0
+                        action = "label_read_status_missing_key_candidate"
+                        break
+                    }
+                    // If either candidate key is present, exact reader-key
+                    // formation and read-position mapping remain research-only.
                     guard allowLabelHistoryCandidate else {
                         throw ResourceError.rejected("label_read_status_unsupported")
                     }
-                    if candidate.importedLabelHistory || !candidate.lineLogValues.isEmpty {
-                        let probe = labelHistoryProbe
-                        guard probe.frames.count == candidate.frames.count,
-                              let selected = probe.frames.first(where: {
-                                  $0.eligibleLabel && $0.nearestLabel?.sourceFile == program.document.source.relativePath &&
-                                      $0.nearestLabel?.sourceSHA256 == program.document.source.sha256
-                              }),
-                              selected.uniqueLabel, selected.logicalPathAvailable,
-                              let observed = selected.candidateReadStatus else {
-                            throw ResourceError.rejected("label_read_status_context_unsupported")
-                        }
-                        candidate.clearResultBindings()
-                        try candidate.resultInteger(observed)
-                        labelHistoryReadOutcome = observed
-                        if observed == 0 && allowResearchSkipFrameCandidate { unreadLabelProbe = probe }
-                        action = "label_read_status_context_candidate"
-                        break
+                    guard probe.frames.count == candidate.frames.count,
+                          let selected = probe.frames.first(where: {
+                              $0.eligibleLabel && $0.nearestLabel?.sourceFile == program.document.source.relativePath &&
+                                  $0.nearestLabel?.sourceSHA256 == program.document.source.sha256
+                          }),
+                          selected.uniqueLabel, selected.logicalPathAvailable,
+                          let observed = selected.candidateReadStatus else {
+                        throw ResourceError.rejected("label_read_status_context_unsupported")
                     }
-                    // Explicit research candidate only; a missing original
-                    // reader key can instead produce 2.
                     candidate.clearResultBindings()
-                    try candidate.resultInteger(0)
-                    labelHistoryReadOutcome = 0
-                    action = "fresh_session_unread_status_candidate"
+                    try candidate.resultInteger(observed)
+                    labelHistoryReadOutcome = observed
+                    if observed == 0 && allowResearchSkipFrameCandidate { unreadLabelProbe = probe }
+                    action = "label_read_status_context_candidate"
                 case "?mcw", "?ap":
                     try arity(0)
                     let scope = candidate.frames.last!.tableScope
