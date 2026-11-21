@@ -98,6 +98,52 @@ struct HeadlessMovieHost: Sendable {
         }
     }
 
+    /// Derive a bounded research duration from the header and decoded frame count.
+    func researchStandaloneVideoDuration(_ source: ScriptLocation) throws -> Int32 {
+        guard source.byteOffset == 0, source.rangeSHA256 == source.sourceSHA256,
+              source.sourceFile.lowercased().hasSuffix(".ogv") else {
+            throw ResourceError.rejected("research_video_duration_source_outside_profile")
+        }
+        return try assets.withFile(source.sourceFile) { fd, size in
+            guard size == source.byteLength, size > 0, size <= 16 * 1024 * 1024,
+                  try SafeDirectory.movieSHA256(fd: fd, size: size) == source.sourceSHA256 else {
+                throw ResourceError.rejected("research_video_duration_source_changed")
+            }
+            let header = try SafeDirectory.read(fd: fd, offset: 0, count: min(Int(size), 65536))
+            let dimensions = try ScriptMovieHeader.theoraDimensions(header)
+            let rate = try ScriptMovieHeader.theoraFrameRate(header)
+            guard (1...4096).contains(dimensions.0), (1...4096).contains(dimensions.1),
+                  dimensions.0 * dimensions.1 <= 4_194_304,
+                  rate.numerator == 30, rate.denominator == 1 else {
+                throw ResourceError.rejected("research_video_duration_header_outside_profile")
+            }
+            let output = Pipe()
+            try run("ffprobe", fd: fd, arguments: ["-v", "error", "-protocol_whitelist", "fd", "-fd", "0",
+                "-count_frames", "-select_streams", "v:0", "-show_entries",
+                "stream=codec_name,width,height,nb_read_frames,r_frame_rate:format=duration", "-of", "json", "fd:"],
+                output: output.fileHandleForWriting)
+            try output.fileHandleForWriting.close()
+            let data = output.fileHandleForReading.readDataToEndOfFile()
+            guard data.count <= 8192,
+                  let info = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let streams = info["streams"] as? [[String: Any]], streams.count == 1,
+                  streams[0]["codec_name"] as? String == "theora",
+                  streams[0]["width"] as? Int == dimensions.0,
+                  streams[0]["height"] as? Int == dimensions.1,
+                  streams[0]["r_frame_rate"] as? String == "30/1",
+                  let frameText = streams[0]["nb_read_frames"] as? String,
+                  let frames = Int64(frameText), (30...300).contains(frames),
+                  let format = info["format"] as? [String: Any], let text = format["duration"] as? String,
+                  let seconds = Double(text), seconds.isFinite,
+                  (frames * 1000) % 30 == 0,
+                  let milliseconds = Int32(exactly: frames * 1000 / 30),
+                  abs(seconds * 1000 - Double(milliseconds)) <= 1 else {
+                throw ResourceError.rejected("research_video_duration_probe_outside_profile")
+            }
+            return milliseconds
+        }
+    }
+
     /// Sample the player's bounded standalone Theora profile. The supplied
     /// clock is an interpreter candidate, not a verified original media clock.
     func standaloneSceneFrame(_ source: ScriptLocation, ticks: Int32) throws -> Data {
@@ -176,7 +222,7 @@ struct HeadlessMovieHost: Sendable {
         }
     }
 
-    func probeSoundDuration(_ source: ScriptLocation) throws -> Int32 {
+    func probeSoundDuration(_ source: ScriptLocation) throws -> (seconds: Double, scriptMilliseconds: Int32) {
         try assets.withFile(source.sourceFile) { fd, size in
             guard source.byteOffset == 0, source.rangeSHA256 == source.sourceSHA256,
                   size == Int64(source.byteLength), size <= 16 * 1024 * 1024,
@@ -188,14 +234,13 @@ struct HeadlessMovieHost: Sendable {
                 "-show_entries", "format=duration", "-of", "csv=p=0", "fd:"], output: output.fileHandleForWriting)
             try output.fileHandleForWriting.close()
             let text = String(decoding: output.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
-            guard let seconds = Float(text.trimmingCharacters(in: .whitespacesAndNewlines)),
+            guard let seconds = Double(text.trimmingCharacters(in: .whitespacesAndNewlines)),
                   seconds.isFinite, seconds > 0, seconds <= 600 else {
                 throw ResourceError.rejected("sound_duration_outside_profile")
             }
-            // Candidate for 0x5a1560 -> 0x404a9c: Float32 seconds,
-            // then the observed initialization's nearest-even FISTP mode.
-            // ffprobe duration and the original decoder remain distinct.
-            return Int32((Double(seconds) * 1000).rounded(.toNearestOrEven))
+            // The script duration follows the Float32 and nearest-even FISTP path
+            // at 0x5a1560 -> 0x404a9c. Seek validation uses the unrounded duration.
+            return (seconds, Int32((Double(Float(seconds)) * 1000).rounded(.toNearestOrEven)))
         }
     }
 

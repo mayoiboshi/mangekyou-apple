@@ -2,8 +2,10 @@ import Foundation
 import AVFoundation
 import Dispatch
 import MangekyouCore
+import MangekyouMedia
 
 private final class LiveAudioCompletion: NSObject, AVAudioPlayerDelegate {
+    nonisolated let repeats = StreamRepeatCounter()
     nonisolated private let lock = NSLock()
     nonisolated(unsafe) private var outcome: Bool?
     nonisolated override init() { super.init() }
@@ -20,11 +22,11 @@ private final class LiveAudioCompletion: NSObject, AVAudioPlayerDelegate {
     }
 
     nonisolated func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        finish(flag)
+        if let outcome = repeats.finished(player, succeeded: flag) { finish(outcome) }
     }
 
     nonisolated func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: (any Error)?) {
-        finish(false)
+        if let outcome = repeats.finished(player, succeeded: false) { finish(outcome) }
     }
 }
 
@@ -50,6 +52,18 @@ final class LiveAudioObserver {
         let replacementPositionMilliseconds: Double
         let sourceSHA256: String
     }
+    struct PendingControlObservation: Encodable {
+        let channel: Int32
+        let kind: String
+        let playbackStep: Int?
+        let initial: Float
+        let current: Float
+        let target: Float
+        let targetInteger: Int32
+        let duration: Int32
+        let delay: Int32
+        let originalEquivalence: EvidenceStatus = .notTested
+    }
     private enum Control: Hashable { case volume, pan }
     private struct ControlKey: Hashable { let channel: UInt64; let control: Control }
     private struct PendingControl {
@@ -58,6 +72,8 @@ final class LiveAudioObserver {
         let initial: Float
         let target: Float
         let targetIsRepresentable: Bool
+        let delayedVolumeBaselineGain: Float?
+        var delayedControlStarted = false
     }
     private struct Entry {
         let player: AVAudioPlayer
@@ -69,6 +85,8 @@ final class LiveAudioObserver {
         let filterChainText: String?
         let timeScalePitch: Int32?
         var playbackStep: Int?
+
+        func stop() { completion.repeats.stop(player) }
     }
     private var entries: [UInt64: Entry] = [:]
     private var directEntries: [UInt64: Entry] = [:]
@@ -107,33 +125,68 @@ final class LiveAudioObserver {
     private(set) var deferredSupersededSyncs = 0
     private(set) var streamSwapHandoffs = 0
     private(set) var streamSwapCancelledControls = 0
+    private(set) var streamSwapTransferredControls = 0
     private(set) var completionIdentityIssue: String?
     private(set) var completionIdentityChannel: Int32?
     private(set) var recentLifecycle: [LifecycleEvent] = []
     private(set) var observedCategoryGains: [Int32: Int32] = [:]
     private(set) var observedPlayerVolumes: [Int32: Float] = [:]
+    private(set) var observedPlayerPans: [Int32: Float] = [:]
     var pendingControlCount: Int { pendingControls.count }
+    var pendingControlObservations: [PendingControlObservation] {
+        pendingControls.compactMap { key, pending in
+            guard let index = ScriptMachine.streamSaveChannelIndex(key.channel),
+                  let entry = entries[key.channel] else { return nil }
+            let kind = key.control == .volume ? "volume" : "pan"
+            let current = key.control == .volume ? (rawVolumes[key.channel] ?? 1) : entry.player.pan
+            return PendingControlObservation(channel: index, kind: kind, playbackStep: entry.playbackStep,
+                initial: pending.initial, current: current, target: pending.target,
+                targetInteger: pending.change.target, duration: pending.change.duration, delay: pending.change.delay)
+        }.sorted { ($0.channel, $0.kind) < ($1.channel, $1.kind) }
+    }
     var observedStreamIndices: [Int32] {
         entries.keys.compactMap(ScriptMachine.streamSaveChannelIndex).sorted()
     }
     private let clock = ContinuousClock()
     private let deadline: ContinuousClock.Instant
+    private var stagingSaveRestore: Bool
 
-    init(maximumSeconds: Int = 120, maximumStarts: Int = 512, allowVolumeFilter: Bool = false,
-         forceMuteOutput: Bool = false, candidateSampleRate: Int = 22050, allowFilterChain: Bool = false,
-         allowTimeScale: Bool = false) {
+    convenience init(maximumSeconds: Int = 120, maximumStarts: Int = 512, allowVolumeFilter: Bool = false,
+                     forceMuteOutput: Bool = false, candidateSampleRate: Int = 22050, allowFilterChain: Bool = false,
+                     allowTimeScale: Bool = false) {
+        self.init(maximumStarts: maximumStarts, allowVolumeFilter: allowVolumeFilter,
+                  forceMuteOutput: forceMuteOutput, candidateSampleRate: candidateSampleRate,
+                  allowFilterChain: allowFilterChain, allowTimeScale: allowTimeScale,
+                  deadline: ContinuousClock.now.advanced(by: .seconds(maximumSeconds)), stagingSaveRestore: false)
+    }
+
+    private init(maximumStarts: Int, allowVolumeFilter: Bool, forceMuteOutput: Bool,
+                 candidateSampleRate: Int, allowFilterChain: Bool, allowTimeScale: Bool,
+                 deadline: ContinuousClock.Instant, stagingSaveRestore: Bool) {
         self.maximumStarts = maximumStarts
         self.allowVolumeFilter = allowVolumeFilter
         self.forceMuteOutput = forceMuteOutput
         self.allowFilterChain = allowFilterChain
         self.allowTimeScale = allowTimeScale
         self.candidateSampleRate = candidateSampleRate
-        deadline = ContinuousClock.now.advanced(by: .seconds(maximumSeconds))
+        self.deadline = deadline
+        self.stagingSaveRestore = stagingSaveRestore
+    }
+
+    func stageSaveRestore() -> LiveAudioObserver {
+        LiveAudioObserver(maximumStarts: maximumStarts - starts - directStarts, allowVolumeFilter: allowVolumeFilter,
+                          forceMuteOutput: forceMuteOutput, candidateSampleRate: candidateSampleRate,
+                          allowFilterChain: allowFilterChain, allowTimeScale: allowTimeScale,
+                          deadline: deadline, stagingSaveRestore: true)
+    }
+
+    func commitSaveRestore() {
+        stagingSaveRestore = false
     }
 
     deinit {
-        for entry in entries.values { entry.player.stop() }
-        for entry in directEntries.values { entry.player.stop() }
+        for entry in entries.values { entry.stop() }
+        for entry in directEntries.values { entry.stop() }
     }
 
     private func recordLifecycle(_ action: String, channel: UInt64, entry: Entry) {
@@ -144,12 +197,12 @@ final class LiveAudioObserver {
 
     func retainActiveChannels(_ active: Set<UInt64>) {
         for channel in directEntries.keys.filter({ !active.contains($0) }) {
-            directEntries.removeValue(forKey: channel)?.player.stop()
+            directEntries.removeValue(forKey: channel)?.stop()
         }
         for channel in entries.keys.filter({ !active.contains($0) }) {
             if let entry = entries.removeValue(forKey: channel) {
                 recordLifecycle("inactive_removed", channel: channel, entry: entry)
-                entry.player.stop()
+                entry.stop()
             }
             rawVolumes.removeValue(forKey: channel)
             pendingControls.removeValue(forKey: .init(channel: channel, control: .volume))
@@ -181,9 +234,17 @@ final class LiveAudioObserver {
         try check(oldFirst, destination: second)
         try check(oldSecond, destination: first)
         let affected: Set<UInt64> = [first, second]
-        let cancelled = pendingControls.keys.filter { affected.contains($0.channel) }
-        for key in cancelled { pendingControls.removeValue(forKey: key) }
-        streamSwapCancelledControls += cancelled.count
+        let controls = pendingControls.filter { affected.contains($0.key.channel) }
+        for key in controls.keys { pendingControls.removeValue(forKey: key) }
+        for (key, control) in controls {
+            let destination = key.channel == first ? second : first
+            if snapshots[destination] != nil {
+                pendingControls[.init(channel: destination, control: key.control)] = control
+                if destination != key.channel { streamSwapTransferredControls += 1 }
+            } else {
+                streamSwapCancelledControls += 1
+            }
+        }
         if first != second {
             let firstVolume = rawVolumes.removeValue(forKey: first)
             let secondVolume = rawVolumes.removeValue(forKey: second)
@@ -196,7 +257,7 @@ final class LiveAudioObserver {
                     recordLifecycle("swapped", channel: second, entry: oldFirst)
                 } else {
                     recordLifecycle("swap_inactive_removed", channel: first, entry: oldFirst)
-                    oldFirst.player.stop()
+                    oldFirst.stop()
                 }
             }
             if let oldSecond {
@@ -206,13 +267,13 @@ final class LiveAudioObserver {
                     recordLifecycle("swapped", channel: first, entry: oldSecond)
                 } else {
                     recordLifecycle("swap_inactive_removed", channel: second, entry: oldSecond)
-                    oldSecond.player.stop()
+                    oldSecond.stop()
                 }
             }
         } else if snapshots[first] == nil, let entry = entries.removeValue(forKey: first) {
             rawVolumes.removeValue(forKey: first)
             recordLifecycle("swap_inactive_removed", channel: first, entry: entry)
-            entry.player.stop()
+            entry.stop()
         }
         streamSwapHandoffs += 1
     }
@@ -226,10 +287,10 @@ final class LiveAudioObserver {
     }
 
     func startDirect(channel: UInt64, source: ScriptLocation, playbackStep: Int,
-                     decoder: HeadlessMovieHost) throws -> Int32 {
+                     repeats: Int32 = 0, decoder: HeadlessMovieHost) throws -> Int32 {
         guard ScriptMachine.directSoundChannelIndex(channel) != nil, clock.now < deadline,
-              directStarts + starts < maximumStarts, directEntries[channel] == nil,
-              directEntries.count + entries.count < 8 else {
+              directStarts + starts < maximumStarts, [-1, 0].contains(repeats),
+              directEntries[channel] != nil || directEntries.count + entries.count < 8 else {
             throw ResourceError.rejected("live_direct_audio_outside_profile")
         }
         let used = entries.values.reduce(0) { $0 + $1.bytes } + directEntries.values.reduce(0) { $0 + $1.bytes }
@@ -244,10 +305,12 @@ final class LiveAudioObserver {
         let completion = LiveAudioCompletion()
         player.delegate = completion
         player.volume = 0
+        completion.repeats.configure(repeats, player: player)
         guard player.duration.isFinite, abs(player.duration - converted.duration) <= max(0.1, converted.duration * 0.001),
               player.prepareToPlay(), player.play() else {
             throw ResourceError.rejected("live_direct_audio_start_failed")
         }
+        directEntries.removeValue(forKey: channel)?.stop()
         directEntries[channel] = Entry(player: player, completion: completion, source: source,
             bytes: converted.data.count, durationMilliseconds: converted.durationMilliseconds,
             volumeFilter: nil, filterChainText: nil, timeScalePitch: nil, playbackStep: playbackStep)
@@ -257,7 +320,8 @@ final class LiveAudioObserver {
 
     @discardableResult
     func start(channel: UInt64, source: ScriptLocation, playbackStep: Int?, repeats: Int32,
-               preservePosition: Bool, seek: Int32?, volumeFilter: StreamVolumeFilterCandidate? = nil,
+               preservePosition: Bool, seek: Int32?, seekSeconds: Double? = nil,
+               initialVolume: Int32 = 256, initialPan: Int32 = 0, volumeFilter: StreamVolumeFilterCandidate? = nil,
                filterChainText: String? = nil,
                decoder: HeadlessMovieHost) throws -> Int32? {
         guard ScriptMachine.streamSaveChannelIndex(channel) != nil else { return nil }
@@ -267,14 +331,14 @@ final class LiveAudioObserver {
             throw ResourceError.rejected("live_audio_stream_filter_chain_unsupported")
         }
         if preservePosition {
-            guard seek == nil, (-1...1024).contains(repeats),
+            guard seek == nil, seekSeconds == nil, (-1...1024).contains(repeats),
                   let previous = entries[channel], previous.player.isPlaying,
                   previous.source == source, previous.playbackStep == playbackStep,
                   previous.volumeFilter == volumeFilter, previous.filterChainText == filterChainText,
                   previous.timeScalePitch == nil else {
                 throw ResourceError.rejected("live_audio_preserved_stream_unavailable")
             }
-            previous.player.numberOfLoops = Int(repeats)
+            previous.completion.repeats.configure(repeats, player: previous.player)
             if repeats > 0 { finiteRepeatReassertions += 1 }
             return previous.durationMilliseconds
         }
@@ -289,7 +353,7 @@ final class LiveAudioObserver {
             throw ResourceError.rejected("live_audio_memory_limit")
         }
         let timeScale = filterChainText.flatMap { try? StreamTimeScaleCandidate.pitch(researchFilterText: $0) }
-        guard timeScale == nil || (allowTimeScale && seek == nil) else {
+        guard timeScale == nil || (allowTimeScale && seek == nil && seekSeconds == nil) else {
             throw ResourceError.rejected("live_audio_timescale_state_unsupported")
         }
         let chain = try timeScale == nil ? filterChainText.map { try StreamFilterChainCandidate(researchFilterText: $0) } : nil
@@ -309,27 +373,27 @@ final class LiveAudioObserver {
         guard player.duration.isFinite, abs(player.duration - converted.duration) <= max(0.1, converted.duration * 0.001) else {
             throw ResourceError.rejected("live_audio_duration_mismatch")
         }
-        if let seek {
-            guard seek >= 0, Double(seek) / 1000 < player.duration else {
+        if let position = seekSeconds ?? seek.map({ Double($0) / 1000 }) {
+            guard position.isFinite, position >= 0, position < player.duration else {
                 throw ResourceError.rejected("live_audio_seek_outside_track")
             }
-            player.currentTime = Double(seek) / 1000
+            player.currentTime = position
         }
-        player.numberOfLoops = Int(repeats)
-        // Candidate-mode samples are audible. Start muted until the first
-        // synchronization applies channel and category gain.
-        player.volume = allowVolumeFilter ? 0 : 1
+        completion.repeats.configure(repeats, player: player)
+        let rawVolume = Float(min(256, max(0, initialVolume))) / 256
+        player.pan = Float(min(256, max(-256, initialPan))) / 256
+        player.volume = allowVolumeFilter || forceMuteOutput || stagingSaveRestore ? 0 : rawVolume
         guard player.prepareToPlay(), player.play() else { throw ResourceError.rejected("live_audio_start_failed") }
         if let previous = entries[channel] {
             recordLifecycle("replaced", channel: channel, entry: previous)
-            previous.player.stop()
+            previous.stop()
         }
         entries[channel] = Entry(player: player, completion: completion, source: source,
                                  bytes: converted.data.count, durationMilliseconds: converted.durationMilliseconds,
                                  volumeFilter: volumeFilter, filterChainText: filterChainText, timeScalePitch: timeScale,
                                  playbackStep: playbackStep)
         if let entry = entries[channel] { recordLifecycle("started", channel: channel, entry: entry) }
-        rawVolumes[channel] = 1
+        rawVolumes[channel] = rawVolume
         starts += 1
         if allowVolumeFilter {
             if timeScale != nil {
@@ -355,7 +419,7 @@ final class LiveAudioObserver {
               request.previousChain == nil || (allowFilterChain && forceMuteOutput && request.updated == nil),
               old.source == request.source, old.playbackStep == request.playbackStep,
               old.volumeFilter == request.previous,
-              old.player.numberOfLoops == 0 || old.player.numberOfLoops == -1,
+              old.completion.repeats.configuredRepeats <= 0,
               pendingControls.keys.allSatisfy({ $0.channel != request.channel }), starts + directStarts < maximumStarts else {
             throw ResourceError.rejected("live_audio_volume_update_identity_or_state_unsupported")
         }
@@ -385,14 +449,14 @@ final class LiveAudioObserver {
             _ = old.player.play()
             throw ResourceError.rejected("live_audio_volume_update_seek_tolerance_exceeded")
         }
-        player.numberOfLoops = old.player.numberOfLoops
+        completion.repeats.configure(old.completion.repeats.configuredRepeats, player: player)
         player.volume = old.player.volume
         player.pan = old.player.pan
         guard player.play() else {
             _ = old.player.play()
             throw ResourceError.rejected("live_audio_volume_update_start_failed")
         }
-        old.player.stop()
+        old.stop()
         recordLifecycle("filter_replaced", channel: request.channel, entry: old)
         entries[request.channel] = Entry(player: player, completion: completion, source: request.source,
             bytes: converted.data.count, durationMilliseconds: converted.durationMilliseconds,
@@ -538,20 +602,18 @@ final class LiveAudioObserver {
             pendingControls.removeValue(forKey: key)
         }
         let now = DispatchTime.now().uptimeNanoseconds
-        func sample(_ pending: PendingControl) -> (value: Float, fraction: Float) {
+        func sample(_ pending: PendingControl) -> (value: Float, completed: Bool) {
             let elapsed = Double(now - pending.startNanoseconds) / 1_000_000
-            let afterDelay = max(0, elapsed - Double(pending.change.delay))
-            let fraction: Float = elapsed < Double(pending.change.delay) ? 0 :
-                (pending.change.duration == 0 ? 1 : Float(min(1, afterDelay / Double(pending.change.duration))))
-            return (pending.initial + (pending.target - pending.initial) * fraction, fraction)
+            return pending.change.sample(initial: pending.initial, target: pending.target, elapsedMilliseconds: elapsed)
         }
         func queue(_ changes: [UInt64: ScriptMachine.SoundControlChange], control: Control) {
             for (channel, change) in changes {
                 guard let player = entries[channel]?.player else { continue }
                 let key = ControlKey(channel: channel, control: control)
-                if let previous = pendingControls[key] {
-                    let value = sample(previous).value
-                    if control == .volume { rawVolumes[channel] = value } else { player.pan = value }
+                let previousSample = pendingControls[key].map(sample)
+                if let previousSample {
+                    if control == .volume { rawVolumes[channel] = previousSample.value }
+                    else { player.pan = previousSample.value }
                 }
                 let initial = control == .volume ? (rawVolumes[channel] ?? 1) : player.pan
                 let target: Float = control == .volume
@@ -559,19 +621,26 @@ final class LiveAudioObserver {
                     : Float(min(256, max(-256, change.target))) / 256
                 let targetIsRepresentable = control == .volume
                     ? (0...256).contains(change.target) : (-256...256).contains(change.target)
+                let volumeBaseline: Float? = control == .volume && change.delay > 0
+                    ? (change.savedVolumeRampTarget.map { Float($0) / 256 }
+                        ?? (previousSample?.completed != false ? initial : nil)) : nil
                 pendingControls[key] =
                     .init(change: change, startNanoseconds: now, initial: initial, target: target,
-                          targetIsRepresentable: targetIsRepresentable)
+                          targetIsRepresentable: targetIsRepresentable, delayedVolumeBaselineGain: volumeBaseline)
             }
         }
         queue(machine.takeSoundVolumeChanges(only: matching), control: .volume)
         queue(machine.takeSoundPanChanges(only: matching), control: .pan)
         for key in Array(pendingControls.keys) {
-            guard let pending = pendingControls[key], let player = entries[key.channel]?.player,
+            guard var pending = pendingControls[key], let player = entries[key.channel]?.player,
                   matching.contains(key.channel) else { continue }
-            let (value, fraction) = sample(pending)
+            let (value, completed) = sample(pending)
             if key.control == .volume { rawVolumes[key.channel] = value } else { player.pan = value }
-            if fraction == 1 {
+            // A zero-delay pan whose sampled start already equals the target
+            // has reached that target on this playback instance.
+            let stationaryPan = key.control == .pan && pending.change.delay == 0 &&
+                pending.targetIsRepresentable && pending.initial == pending.target
+            if completed || stationaryPan {
                 let actual = key.control == .volume ? (rawVolumes[key.channel] ?? 1) : player.pan
                 let kind: ScriptMachine.SoundControlKind = key.control == .volume ? .volume : .pan
                 if pending.targetIsRepresentable, abs(actual - pending.target) <= 0.0001,
@@ -582,17 +651,23 @@ final class LiveAudioObserver {
                     rejectedControlCount += 1
                 }
                 pendingControls.removeValue(forKey: key)
+            } else if pending.change.delay > 0, !pending.delayedControlStarted,
+                      Double(now - pending.startNanoseconds) / 1_000_000 >= Double(pending.change.delay) {
+                pending.delayedControlStarted = true
+                pendingControls[key] = pending
             }
         }
         let gains = try machine.soundCategoryGains(only: matching)
         observedCategoryGains.removeAll()
         observedPlayerVolumes.removeAll()
+        observedPlayerPans.removeAll()
         for channel in matching {
             guard let player = entries[channel]?.player, let gain = gains[channel],
                   let index = ScriptMachine.streamSaveChannelIndex(channel) else { continue }
-            player.volume = forceMuteOutput ? 0 : (rawVolumes[channel] ?? 1) * Float(gain) / 256
+            player.volume = forceMuteOutput || stagingSaveRestore ? 0 : (rawVolumes[channel] ?? 1) * Float(gain) / 256
             observedCategoryGains[index] = gain
             observedPlayerVolumes[index] = player.volume
+            observedPlayerPans[index] = player.pan
         }
     }
 
@@ -615,6 +690,58 @@ final class LiveAudioObserver {
             positions[index] = Int32(position.rounded(.toNearestOrEven))
         }
         return positions
+    }
+
+    func repeatSamplesForSave(_ snapshots: [UInt64: (source: ScriptLocation?, step: Int?)]) -> [Int32: ScriptMachine.SavedFiniteRepeatSample] {
+        var samples: [Int32: ScriptMachine.SavedFiniteRepeatSample] = [:]
+        for (channel, snapshot) in snapshots {
+            guard let index = ScriptMachine.streamSaveChannelIndex(channel), let entry = entries[channel],
+                  let step = snapshot.step, entry.source == snapshot.source, entry.playbackStep == step,
+                  let checkpoint = entry.completion.repeats.checkpoint(entry.player) else { continue }
+            samples[index] = .init(playbackStep: step, requested: checkpoint.requested,
+                remaining: checkpoint.remaining, positionSeconds: checkpoint.seconds)
+        }
+        return samples
+    }
+
+    static func waitForPlayback(milliseconds: Int32) {
+        // Finite streams can start a new pass from a delegate callback while
+        // the headless host waits. A blocking sleep would delay that callback.
+        let seconds = Double(milliseconds) / 1_000
+        let start = ProcessInfo.processInfo.systemUptime
+        RunLoop.current.run(until: Date().addingTimeInterval(seconds))
+        let remaining = seconds - (ProcessInfo.processInfo.systemUptime - start)
+        if remaining > 0 { Thread.sleep(forTimeInterval: remaining) }
+    }
+
+    func panSamplesForSave(_ snapshots: [UInt64: (source: ScriptLocation?, step: Int?)]) -> [Int32: ScriptMachine.SavedStreamPanSample] {
+        let now = DispatchTime.now().uptimeNanoseconds
+        var samples: [Int32: ScriptMachine.SavedStreamPanSample] = [:]
+        for (channel, snapshot) in snapshots {
+            guard let index = ScriptMachine.streamSaveChannelIndex(channel), let entry = entries[channel],
+                  let step = snapshot.step, entry.playbackStep == step, entry.source == snapshot.source,
+                  entry.player.isPlaying, let pending = pendingControls[.init(channel: channel, control: .pan)],
+                  pending.targetIsRepresentable else { continue }
+            samples[index] = .init(playbackStep: step, controlToken: pending.change.token,
+                normalizedPan: entry.player.pan, delay: pending.change.delay,
+                elapsedMilliseconds: Double(now - pending.startNanoseconds) / 1_000_000, started: pending.delayedControlStarted)
+        }
+        return samples
+    }
+
+    func volumeSamplesForSave(_ snapshots: [UInt64: (source: ScriptLocation?, step: Int?)]) -> [Int32: ScriptMachine.SavedDelayedVolumeSample] {
+        let now = DispatchTime.now().uptimeNanoseconds
+        var samples: [Int32: ScriptMachine.SavedDelayedVolumeSample] = [:]
+        for (channel, snapshot) in snapshots {
+            guard let index = ScriptMachine.streamSaveChannelIndex(channel), let entry = entries[channel],
+                  let step = snapshot.step, entry.playbackStep == step, entry.source == snapshot.source,
+                  entry.player.isPlaying, let pending = pendingControls[.init(channel: channel, control: .volume)],
+                  pending.targetIsRepresentable, pending.change.delay > 0 else { continue }
+            samples[index] = .init(playbackStep: step, change: pending.change,
+                elapsedMilliseconds: Double(now - pending.startNanoseconds) / 1_000_000,
+                baselineGain: pending.delayedVolumeBaselineGain, started: pending.delayedControlStarted)
+        }
+        return samples
     }
 
     /// Report only identity and player state; resource names and audio data stay private.

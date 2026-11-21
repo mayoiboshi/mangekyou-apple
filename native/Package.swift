@@ -20,6 +20,9 @@ let package = Package(
         .executableTarget(name: "MangekyouApp", dependencies: ["MangekyouCore", "MangekyouMedia"]),
         .executableTarget(name: "MangekyouInspect", dependencies: ["MangekyouCore", "MangekyouMedia"]),
         .executableTarget(name: "MangekyouScript", dependencies: ["MangekyouCore", "MangekyouMedia"]),
+        .executableTarget(name: "SaveInterruptionProbe", dependencies: ["MangekyouCore"], path: "ResearchTools/SaveInterruptionProbe"),
+        .executableTarget(name: "BlurFilterProbe", dependencies: ["MangekyouCore", "MangekyouMedia"], path: "ResearchTools/BlurFilterProbe"),
+        .executableTarget(name: "ColorFilterProbe", dependencies: ["MangekyouCore", "MangekyouMedia"], path: "ResearchTools/ColorFilterProbe"),
         .testTarget(name: "MangekyouCoreTests", dependencies: ["MangekyouCore", "MangekyouMedia"])
     ]
 )

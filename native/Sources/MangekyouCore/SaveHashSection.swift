@@ -7,6 +7,20 @@ struct SaveHashSection {
     private let seed: UInt32
     let values: [Data: Int32]
 
+    static func encodeEmpty(seed: UInt32) throws -> Data {
+        let packed = try SaveRunLength.encodeLiterals(Data(repeating: 0, count: 256 * 4))
+        let encoded = SaveSystemData.transform(packed, seed: seed, decode: false)
+        // 0x4e7d9d–0x4e7dfb clears the 68-byte header before writing the
+        // format tag, bucket count, lengths, codec and flags.
+        var data = Data("HashVer1.4".utf8) + Data(repeating: 0, count: 6)
+        for word: UInt32 in [256, 0, 0, UInt32(encoded.count), 2] {
+            withUnsafeBytes(of: word.littleEndian) { data.append(contentsOf: $0) }
+        }
+        data.append(Data(repeating: 0, count: 32))
+        data.append(encoded)
+        return data
+    }
+
     private static func hash(_ text: String) -> UInt32 {
         text.utf16.enumerated().reduce(UInt32(0)) { partial, item in
             (partial &+ (UInt32(item.element) << ((item.offset + 1) & 7))) & 0x3fff_ffff

@@ -139,9 +139,9 @@ def slot_sections(payload):
     return sections
 
 
-def reader_record_offset(data, routine_count):
+def reader_record_offset(data, routine_count, start_offset=16):
     """Walk version-10 routines and their control blocks without applying state."""
-    cursor = 16
+    cursor = start_offset
     remaining_blocks = 4096
 
     def take(size):
@@ -773,17 +773,27 @@ def inspect_decoded_state(data, report):
     offset = 0
     stage = "state_prefix"
     try:
-        if len(data) < 16 or data[:8] != b"thread\0\0":
+        if len(data) < 12 or data[:8] != b"thread\0\0":
             raise ProbeError("thread_prefix_missing")
-        version, count = struct.unpack_from("<ii", data, 8)
-        supported = version == 10 and count >= 0
+        version, = struct.unpack_from("<i", data, 8)
+        legacy = 0 <= version < 10
+        if legacy:
+            # 0x6c11bb skips the routine list, including its count word.
+            count = 0
+            offset = 12
+            report["restore"] = "unsupported"
+        else:
+            if len(data) < 16:
+                raise ProbeError("thread_prefix_missing")
+            count, = struct.unpack_from("<i", data, 12)
+            offset = 16
+        supported = legacy or (version == 10 and count >= 0)
         report[stage] = {"status": "verified" if supported else "unsupported",
                          "scope": "thread prefix only", "version": version, "routine_count": count}
-        offset = 16
         if not supported:
             return
         stage = "reader_record"
-        offset = reader_record_offset(data, count)
+        offset = reader_record_offset(data, count, offset)
         report[stage] = {"status": "verified", "decoded_offset": offset, "length": 77}
 
         for stage, parse in (

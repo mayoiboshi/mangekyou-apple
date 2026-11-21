@@ -148,22 +148,45 @@ public struct SaveReaderCursor: Encodable {
         }
     }
 
-    package init(threadState state: Data) throws {
-        guard state.count >= 16, state.starts(with: "thread\0\0".utf8) else {
+    package init(playbackState state: Data) throws {
+        try self.init(threadState: state)
+        guard !routines.isEmpty else {
+            throw ResourceError.rejected("save_restore_execution_state_unsupported:missing_routines")
+        }
+        guard utf16Position >= 0 else {
+            throw ResourceError.rejected("save_reader_cursor_bounds")
+        }
+    }
+
+    package init(threadState state: Data, inspectLegacyThread: Bool = false) throws {
+        guard state.count >= 12, state.starts(with: "thread\0\0".utf8) else {
             throw ResourceError.rejected("thread_prefix_missing")
         }
-        let (version, count) = state.withUnsafeBytes {
-            (Int32(littleEndian: $0.loadUnaligned(fromByteOffset: 8, as: Int32.self)),
-             Int32(littleEndian: $0.loadUnaligned(fromByteOffset: 12, as: Int32.self)))
+        let version = state.withUnsafeBytes {
+            Int32(littleEndian: $0.loadUnaligned(fromByteOffset: 8, as: Int32.self))
         }
+        if inspectLegacyThread, (0..<10).contains(version) {
+            // At 0x6c11bb the native reader skips the routine list and
+            // leaves the stream at the reader record. There is no saved stack.
+            try self.init(state: state, routineCount: 0, routinesOffset: 12)
+            return
+        }
+        guard state.count >= 16 else { throw ResourceError.rejected("thread_prefix_missing") }
         guard version == 10 else { throw ResourceError.rejected("unsupported_thread_header") }
+        let count = state.withUnsafeBytes {
+            Int32(littleEndian: $0.loadUnaligned(fromByteOffset: 12, as: Int32.self))
+        }
         try self.init(state: state, routineCount: count)
     }
 
     public init(state: Data, routineCount: Int32) throws {
+        try self.init(state: state, routineCount: routineCount, routinesOffset: 16)
+    }
+
+    private init(state: Data, routineCount: Int32, routinesOffset: Int) throws {
         (decodedOffset, relativeLine, utf16Position, replaceEnableByte, lineBuffer, scriptPath, label,
          textPrefix, emptyLineText, replacementCount, replacements, routines, nextDecodedOffset) = try state.withUnsafeBytes { bytes in
-            var offset = 16
+            var offset = routinesOffset
             var remainingBlocks = 4096
             var routines: [Routine] = []
 
@@ -452,9 +475,9 @@ extension SaveReaderCursor {
         let scalars = source.scalars
         var index = range.lowerBound
         let end = range.upperBound
+        let lineText = source.string(index..<end)
         if let lineBuffer {
-            let text = source.string(index..<end)
-            guard let encoded = text.data(using: .utf16LittleEndian),
+            guard let encoded = lineText.data(using: .utf16LittleEndian),
                   encoded.count == lineBuffer.length, encoded.sha256Hex == lineBuffer.sha256 else {
                 throw ResourceError.rejected("save_reader_line_buffer_differs")
             }
@@ -504,7 +527,9 @@ extension SaveReaderCursor {
 
     static func routineReturnPosition(_ block: ControlBlock, in state: Data,
                                       repository: inout ScriptRepository,
-                                      emptyLineText: String? = nil) throws -> (ScriptLocation, Int?, ScriptProgram, ScriptLocation) {
+                                      emptyLineText: String? = nil) throws
+        -> (position: ScriptLocation, instruction: Int?, program: ScriptProgram,
+            anchor: ScriptLocation, status: EvidenceStatus, resolution: String) {
         let path = try block.stringReferences[0].utf16Text(in: state)
         let label = try block.stringReferences[1].utf16Text(in: state)
         let resolved = try resolveLabel(path: path, name: label, repository: &repository)
@@ -512,6 +537,17 @@ extension SaveReaderCursor {
             throw ResourceError.rejected("saved_return_source_unavailable")
         }
         let records = resolved.program.document.records
+        let savedReader = try SaveReaderCursor(threadState: state)
+        var lineTagExpansions: [Data: [String]] = [:]
+        if savedReader.replaceEnableByte != 0 {
+            for replacement in savedReader.replacements {
+                let key = try replacement.firstText.utf16Text(in: state)
+                let value = try replacement.secondText.utf16Text(in: state)
+                guard key.hasPrefix("^") else { continue }
+                let fields = value.split(separator: ",", omittingEmptySubsequences: false).map(String.init)
+                lineTagExpansions[Data(asciiLower(key).utf8)] = fields
+            }
+        }
         if let prefix = emptyLineText, prefix.hasPrefix("\\subp,@@"),
            prefix.split(separator: ",", omittingEmptySubsequences: false).count == 2,
            Int(block.rawValueAt3C) == prefix.utf16.count,
@@ -524,22 +560,60 @@ extension SaveReaderCursor {
                     record.location.byteOffset == start.byteOffset && record.location.lineNumber == start.lineNumber
             }
             if matches.count == 1, matches[0] + 1 < records.count {
-                return (start, matches[0] + 1, resolved.program, resolved.location)
+                let emptyIndex = matches[0]
+                let blankRun = records[emptyIndex]
+                let successor = records[emptyIndex + 1]
+                if blankRun.lineCount > 0,
+                   successor.location.lineNumber == blankRun.location.lineNumber + blankRun.lineCount,
+                   successor.location.byteOffset == blankRun.location.byteOffset + blankRun.location.byteLength {
+                    // On EXE SHA-256 ad02b1115887b8e5b453d4b5760077e8b63e153bba1161e1704209cf3db5cda5,
+                    // FUN_00695a7c refills when
+                    // Pos >= the current line length; FUN_00695c24 advances
+                    // Line by one and FUN_0069630c resets Pos to zero. Thus a
+                    // saved prefix cursor positioned at an empty span resumes
+                    // at the first following source record. This verifies the
+                    // pinned local source mapping only, not native execution.
+                    return (start, emptyIndex + 1, resolved.program, resolved.location,
+                            .verified, "verified_blank_line_successor")
+                }
             }
         }
         let position = try resolvePosition(anchor: resolved.location, source: source,
             relativeLine: block.rawValueAt38, utf16Position: block.rawValueAt3C, lineBuffer: nil)
+        if let instruction = try? resolved.program.saveCommandIndex(position) {
+            return (position, instruction, resolved.program, resolved.location,
+                    .verified, "unique_pinned_source_command_boundary")
+        }
         let calls = records.indices.dropLast().filter { index in
             let record = records[index]
             let location = record.location
-            return record.kind == .command && record.command.map(asciiLower) == "sub" &&
-                location.sourceFile.utf8.elementsEqual(position.sourceFile.utf8) &&
+            let adjacent = location.sourceFile.utf8.elementsEqual(position.sourceFile.utf8) &&
                 location.sourceSHA256 == position.sourceSHA256 && location.lineNumber == position.lineNumber &&
                 location.byteOffset + location.byteLength == position.byteOffset
+            if !adjacent { return false }
+            if record.kind == .command && record.command.map(asciiLower) == "sub" { return true }
+            guard record.kind == .lineTag, let tag = record.command,
+                  let fields = lineTagExpansions[Data(asciiLower("^" + tag).utf8)], record.fields.count <= 16 else {
+                return false
+            }
+            let packed = fields.count >= 3 && fields[0] == "\\subp" && fields[2].isEmpty
+            let ordinary = (2...3).contains(fields.count) && fields[0] == "\\sub" &&
+                ((fields.count == 3 && (fields[2].isEmpty || asciiLower(fields[2]) == "self")) ||
+                 record.fields.isEmpty)
+            return packed || (ordinary && record.fields.allSatisfy { $0.key == nil })
         }
-        let instruction = (try? resolved.program.saveCommandIndex(position)) ??
-            (calls.count == 1 ? calls[0] + 1 : nil)
-        return (position, instruction, resolved.program, resolved.location)
+        guard calls.count == 1 else {
+            return (position, nil, resolved.program, resolved.location,
+                    .unsupported, "no_unique_adjacent_local_call_successor")
+        }
+        let call = records[calls[0]]
+        let isLineTag = call.kind == .lineTag
+        // This local cursor mapping recognizes both literal sub calls and a
+        // registered line-tag expansion to a local sub call. The latter stays
+        // inferred because line-tag dispatch is a candidate host path.
+        return (position, calls[0] + 1, resolved.program, resolved.location,
+                isLineTag ? .inferred : .verified,
+                isLineTag ? "inferred_adjacent_line_tag_successor" : "unique_adjacent_sub_successor")
     }
 
     /// Resolve a saved label against the explicitly selected script catalog.

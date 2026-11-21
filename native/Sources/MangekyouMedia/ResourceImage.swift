@@ -141,31 +141,45 @@ public struct ResourceImage: Sendable {
         } && layer.runs.reduce(0, { $0 + $1.text.utf16.count }) <= 8192 ? layer.lineBreakCandidate : nil
         let lineStart = candidate.map { Array($0.prohibitedLineStart.utf16) } ?? []
         let lineEnd = candidate.map { Array($0.prohibitedLineEnd.utf16) } ?? []
+        let plainSpacing = layer.returnSpacing.flatMap { spacing -> ScriptMachine.MessageTextLayer.ReturnSpacing? in
+            guard let candidate, (0...32).contains(candidate.reserve),
+                  (-1...8192).contains(spacing.matching), (-1...8192).contains(spacing.ordinary),
+                  layer.runs.allSatisfy({ $0.ruby == nil && $0.horizontalAdvance == nil }) else { return nil }
+            return spacing
+        }
+        let returnWords = plainSpacing.map { Array($0.words.utf16) } ?? []
         var candidatePen = 0.0
         var candidateBreaks = 0
         var candidateRubyRuns = 0
         var candidateIndentRuns = 0
+        var explicitBreaks = 0
+        var isFirstParagraphToken = true
+        var continuationIndent = 0.0
         func containsToken(_ token: [UInt16], in units: [UInt16]) -> Bool {
             guard !token.isEmpty, token.count <= units.count else { return false }
             return (0...(units.count - token.count)).contains { start in
                 units[start..<(start + token.count)].elementsEqual(token)
             }
         }
+        func appendAdvance(_ advance: Double) throws {
+            guard advance > 0 else { return }
+            var callbacks = CTRunDelegateCallbacks(version: kCTRunDelegateVersion1,
+                dealloc: { $0.deallocate() }, getAscent: { _ in 0 }, getDescent: { _ in 0 },
+                getWidth: { $0.load(as: CGFloat.self) })
+            let width = UnsafeMutableRawPointer.allocate(byteCount: MemoryLayout<CGFloat>.size,
+                                                         alignment: MemoryLayout<CGFloat>.alignment)
+            width.storeBytes(of: CGFloat(advance), as: CGFloat.self)
+            guard let delegate = CTRunDelegateCreate(&callbacks, width) else {
+                width.deallocate()
+                throw ResourceError.rejected("text_preview_advance")
+            }
+            text.append(NSAttributedString(string: "\u{fffc}", attributes: [
+                .init(kCTRunDelegateAttributeName as String): delegate
+            ]))
+        }
         for run in layer.runs {
             if let advance = run.horizontalAdvance {
-                var callbacks = CTRunDelegateCallbacks(version: kCTRunDelegateVersion1,
-                    dealloc: { $0.deallocate() }, getAscent: { _ in 0 }, getDescent: { _ in 0 },
-                    getWidth: { $0.load(as: CGFloat.self) })
-                let width = UnsafeMutableRawPointer.allocate(byteCount: MemoryLayout<CGFloat>.size,
-                                                             alignment: MemoryLayout<CGFloat>.alignment)
-                width.storeBytes(of: CGFloat(advance), as: CGFloat.self)
-                guard let delegate = CTRunDelegateCreate(&callbacks, width) else {
-                    width.deallocate()
-                    throw ResourceError.rejected("text_preview_advance")
-                }
-                text.append(NSAttributedString(string: "\u{fffc}", attributes: [
-                    .init(kCTRunDelegateAttributeName as String): delegate
-                ]))
+                try appendAdvance(Double(advance))
                 if candidate != nil {
                     candidatePen += Double(advance)
                     candidateIndentRuns += 1
@@ -173,8 +187,7 @@ public struct ResourceImage: Sendable {
                 continue
             }
             let size = CGFloat(run.height)
-            var matrix = CGAffineTransform(scaleX: CGFloat(run.width) / size, y: 1)
-            let font = CTFontCreateWithName((run.fontName ?? "Hiragino Sans") as CFString, size, &matrix)
+            let font = messageTextFont(name: run.fontName, width: run.width, height: run.height)
             func color(_ argb: UInt32) -> CGColor {
                 func component(_ shift: Int) -> CGFloat { CGFloat((argb >> shift) & 255) / 255 }
                 return CGColor(red: component(16), green: component(8), blue: component(0), alpha: component(24))
@@ -219,6 +232,9 @@ public struct ResourceImage: Sendable {
                     if character.isNewline {
                         text.append(NSAttributedString(string: value, attributes: attributes))
                         candidatePen = 0
+                        explicitBreaks += 1
+                        continuationIndent = 0
+                        isFirstParagraphToken = true
                         continue
                     }
                     let units = Array(value.utf16)
@@ -229,11 +245,27 @@ public struct ResourceImage: Sendable {
                     let remaining = available - Int64(candidate.reserve)
                     if available < 1 || (!atStart && (atEnd ? remaining < 2 : remaining < 1)) {
                         text.append(NSAttributedString(string: "\n", attributes: attributes))
-                        candidatePen = 0
+                        candidatePen = continuationIndent
+                        try appendAdvance(continuationIndent)
+                        isFirstParagraphToken = false
                         candidateBreaks += 1
                     }
                     let token = NSAttributedString(string: value, attributes: attributes)
-                    candidatePen += CTLineGetTypographicBounds(CTLineCreateWithAttributedString(token), nil, nil, nil)
+                    let glyphAdvance = CTLineGetTypographicBounds(CTLineCreateWithAttributedString(token), nil, nil, nil)
+                    if let spacing = plainSpacing, isFirstParagraphToken {
+                        // 0x678455 checks wrapping before 0x67b220 applies line-head spacing.
+                        // A matching opener remembers an indent for subsequent automatic lines.
+                        if containsToken(units, in: returnWords) {
+                            continuationIndent = spacing.matching < 0 ? glyphAdvance : Double(spacing.matching)
+                        } else {
+                            continuationIndent = spacing.ordinary < 0
+                                ? Double(Int64(run.width) + Int64(run.estimatedTracking)) : Double(spacing.ordinary)
+                            try appendAdvance(continuationIndent)
+                            candidatePen += continuationIndent
+                        }
+                        isFirstParagraphToken = false
+                    }
+                    candidatePen += glyphAdvance
                     text.append(token)
                 }
             } else {
@@ -248,6 +280,7 @@ public struct ResourceImage: Sendable {
         context.scaleBy(x: scaleX, y: scaleY)
         context.textMatrix = .identity
         let frame = CTFramesetterCreateFrame(CTFramesetterCreateWithAttributedString(text), CFRange(), path, nil)
+        let lines = CTFrameGetLines(frame) as NSArray
         var missingGlyphCount = 0
         var textTruncated = false
         func inspectGlyphs(_ line: CTLine) {
@@ -270,7 +303,7 @@ public struct ResourceImage: Sendable {
                 missingGlyphCount += glyphs.count { $0 == 0 }
             }
         }
-        if CFArrayGetCount(CTFrameGetLines(frame)) == 0, text.length > 0,
+        if lines.count == 0, text.length > 0,
            text.string.rangeOfCharacter(from: .newlines) == nil {
             // A short surface can fit the glyphs while rejecting the font's
             // full line metrics. Draw one line within the original clip.
@@ -284,7 +317,6 @@ public struct ResourceImage: Sendable {
             context.textPosition = CGPoint(x: 0, y: (CGFloat(height) - ascent + descent) / 2)
             CTLineDraw(line, context)
         } else {
-            let lines = CTFrameGetLines(frame) as NSArray
             for index in 0..<lines.count { inspectGlyphs(lines[index] as! CTLine) }
             let visible = CTFrameGetVisibleStringRange(frame)
             textTruncated = visible.location < 0 || visible.length < 0 ||
@@ -294,7 +326,12 @@ public struct ResourceImage: Sendable {
         guard let image = context.makeImage() else { throw ResourceError.rejected("text_preview_image") }
         var notes = ["native_font_metrics", "missing_glyphs:\(missingGlyphCount)",
                      textTruncated ? "text_truncated" : "text_complete"]
-        if candidate != nil { notes.append("line_break_candidate:\(candidateBreaks)") }
+        if plainSpacing != nil, lines.count <= explicitBreaks + candidateBreaks + 1, !textTruncated {
+            notes.append("plain_line_layout_applied")
+        } else if let candidate,
+           candidate.reserve != 0 || candidateBreaks > 0 || lines.count > 1 || candidateRubyRuns > 0 || candidateIndentRuns > 0 {
+            notes.append("line_break_candidate:\(candidateBreaks)")
+        }
         if candidateRubyRuns > 0 { notes.append("line_break_candidate_ruby:\(candidateRubyRuns)") }
         if candidateIndentRuns > 0 { notes.append("line_break_candidate_indent:\(candidateIndentRuns)") }
         return Self(image: image, format: "CoreText", notes: notes)
@@ -331,6 +368,25 @@ public struct ResourceImage: Sendable {
         return Self(image: try decodeStandard(data, identifier: identifier), format: format, notes: [])
     }
 
+    package static func jpegRepresentation(_ data: Data) throws -> Data {
+        let decoded = try decode(data)
+        let output = NSMutableData()
+        guard let destination = CGImageDestinationCreateWithData(output, "public.jpeg" as CFString, 1, nil) else {
+            throw ResourceError.rejected("image_jpeg_destination_unavailable")
+        }
+        CGImageDestinationAddImage(destination, decoded.image,
+            [kCGImageDestinationLossyCompressionQuality: 0.9] as CFDictionary)
+        guard CGImageDestinationFinalize(destination) else {
+            throw ResourceError.rejected("image_jpeg_encode_failed")
+        }
+        let jpeg = output as Data
+        guard jpeg.count <= 16 * 1024 * 1024,
+              InventoryScanner.signature(Data(jpeg.prefix(16))) == "JPEG" else {
+            throw ResourceError.rejected("image_jpeg_output_outside_profile")
+        }
+        return jpeg
+    }
+
     /// Read straight BGRA for CPU texture sampling. Drawing into a premultiplied
     /// CGContext would erase RGB in fully transparent mask pixels.
     package static func straightPNGPixels(_ data: Data) throws -> [[SIMD4<UInt8>]] {
@@ -361,6 +417,73 @@ public struct ResourceImage: Sendable {
                              alpha == .last ? bytes[index + 3] : 255)
             }
         }
+    }
+
+    /// Assemble only complete, disjoint, unflagged tiles without passing
+    /// through a premultiplied canvas. Native DPNG equivalence remains open.
+    package static func straightDPNGBytes(_ data: Data) throws -> (width: Int, height: Int, bgra: Data) {
+        let descriptor = try DPNGDescriptor.parse(data)
+        let width = descriptor.width, height = descriptor.height
+        guard width <= 4096, height <= 4096, width <= 4_194_304 / height,
+              !descriptor.tiles.isEmpty,
+              descriptor.tiles.allSatisfy({ !$0.payload.isEmpty && $0.width > 0 && $0.height > 0 && $0.flags == [0, 0] }) else {
+            throw ResourceError.rejected("straight_dpng_layout_outside_profile")
+        }
+        for y in 0..<height {
+            let spans = descriptor.tiles.filter { y >= $0.y && y < $0.y + $0.height }
+                .map { ($0.x, $0.x + $0.width) }.sorted { $0.0 < $1.0 }
+            var end = 0
+            for span in spans {
+                guard span.0 == end else { throw ResourceError.rejected("straight_dpng_incomplete_or_overlapping") }
+                end = span.1
+            }
+            guard end == width else { throw ResourceError.rejected("straight_dpng_incomplete_or_overlapping") }
+        }
+        var output = Data(count: width * height * 4)
+        for tile in descriptor.tiles {
+            let rows = try straightPNGPixels(data.subdata(in: tile.payload))
+            guard rows.count == tile.height, rows.allSatisfy({ $0.count == tile.width }) else {
+                throw ResourceError.rejected("straight_dpng_tile_shape")
+            }
+            output.withUnsafeMutableBytes { (bytes: UnsafeMutableRawBufferPointer) in
+                for (row, pixels) in rows.enumerated() {
+                    var index = ((tile.y + row) * width + tile.x) * 4
+                    for pixel in pixels {
+                        bytes[index] = pixel.x; bytes[index + 1] = pixel.y
+                        bytes[index + 2] = pixel.z; bytes[index + 3] = pixel.w
+                        index += 4
+                    }
+                }
+            }
+        }
+        return (width, height, output)
+    }
+
+    package static func blurredStraightDPNGCandidate(_ data: Data, horizontal: Int, vertical: Int) throws -> Self {
+        let decoded = try straightDPNGBytes(data)
+        let pixels = try BlurFilterCandidate.apply(decoded.bgra, width: decoded.width, height: decoded.height,
+                                                   horizontal: horizontal, vertical: vertical)
+        guard let provider = CGDataProvider(data: pixels as CFData),
+              let result = CGImage(width: decoded.width, height: decoded.height, bitsPerComponent: 8,
+                  bitsPerPixel: 32, bytesPerRow: decoded.width * 4, space: CGColorSpaceCreateDeviceRGB(),
+                  bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.first.rawValue | CGBitmapInfo.byteOrder32Little.rawValue),
+                  provider: provider, decode: nil, shouldInterpolate: false, intent: .defaultIntent) else {
+            throw ResourceError.rejected("blur_candidate_image_creation")
+        }
+        return Self(image: result, format: "DPNGBlurCandidate", notes: ["filter_and_native_renderer_equivalence_not_tested"])
+    }
+
+    package static func savedBlurRaster(_ data: Data, source: ScriptLocation, descriptor: String)
+        throws -> (raster: Self, horizontal: Int, vertical: Int) {
+        guard let blur = BlurFilterCandidate.parameters(descriptor) else {
+            throw ResourceError.rejected("saved_blur_descriptor_outside_profile")
+        }
+        guard data.count <= 16 * 1024 * 1024, source.byteOffset == 0, source.byteLength == data.count,
+              source.rangeSHA256 == source.sourceSHA256, data.sha256Hex == source.sourceSHA256 else {
+            throw ResourceError.rejected("saved_blur_resource_identity")
+        }
+        let raster = try blurredStraightDPNGCandidate(data, horizontal: blur.horizontal, vertical: blur.vertical)
+        return (raster, blur.horizontal, blur.vertical)
     }
 
     /// Return an opaque PNG in the scene canvas's top-down BGRA lane order without drawing through a color-managed context.
@@ -566,6 +689,30 @@ public struct ResourceImage: Sendable {
 }
 
 extension ResourceImage {
+    package static func encodeSaveThumbnailJPEG(_ image: CGImage, width: Int = 160, height: Int = 90) throws -> Data {
+        guard (1...512).contains(width), (1...512).contains(height),
+              let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8,
+                  bytesPerRow: width * 4, space: CGColorSpaceCreateDeviceRGB(),
+                  bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue) else {
+            throw ResourceError.rejected("save_thumbnail_context_unavailable")
+        }
+        context.interpolationQuality = .high
+        context.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
+        guard let scaled = context.makeImage() else {
+            throw ResourceError.rejected("save_thumbnail_image_unavailable")
+        }
+        let encoded = NSMutableData()
+        guard let destination = CGImageDestinationCreateWithData(encoded, "public.jpeg" as CFString, 1, nil) else {
+            throw ResourceError.rejected("save_thumbnail_encoder_unavailable")
+        }
+        CGImageDestinationAddImage(destination, scaled,
+            [kCGImageDestinationLossyCompressionQuality: 0.86] as CFDictionary)
+        guard CGImageDestinationFinalize(destination) else {
+            throw ResourceError.rejected("save_thumbnail_encode_failed")
+        }
+        return encoded as Data
+    }
+
     /// Decode the optional JPEG carried by a validated original save slot.
     public static func decodeSaveThumbnail(_ data: Data) throws -> Self? {
         guard let slot = try SaveEnvelope(data).slot else {

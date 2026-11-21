@@ -113,3 +113,13 @@ class SaveSlotProbeTests(unittest.TestCase):
         self.assertEqual(report["remaining_state"]["length"], 0)
         self.assertEqual(report["state_structure_status"], "verified")
         self.assertEqual(report["restore"], "not_tested")
+
+        legacy_state = b"thread\0\0" + struct.pack("<i", 9) + state[len(thread):]
+        payload = slot_header + bytes(20) + struct.pack("<i", len(legacy_state)) + legacy_state
+        envelope = struct.pack("<III", 0xFD324D4E, payload_checksum(payload), len(payload))
+        legacy_report = probe(envelope + payload)
+        self.assertEqual(legacy_report["state_prefix"]["routine_count"], 0)
+        self.assertEqual(legacy_report["reader_record"]["decoded_offset"], 12)
+        self.assertEqual(legacy_report["reader_metadata"]["utf16_position"], 5)
+        self.assertEqual(legacy_report["state_structure_status"], "verified")
+        self.assertEqual(legacy_report["restore"], "unsupported")

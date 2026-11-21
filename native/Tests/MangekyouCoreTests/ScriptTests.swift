@@ -3,6 +3,161 @@ import Foundation
 @testable import MangekyouCore
 
 final class ScriptTests: XCTestCase {
+    func testStandaloneVideoClockCandidateWrapsAtLoopBoundary() throws {
+        var times = [Int32](repeating: 0, count: 256)
+        let auxiliary = [Int32](repeating: 0, count: 256)
+        times[1] = 42
+        for _ in 0..<7 {
+            let next = try XCTUnwrap(StandaloneVideoClockCandidate.advance(times: times, auxiliary: auxiliary,
+                                                                          delta: 50, duration: 3600))
+            times = next.times
+        }
+        XCTAssertEqual(Float(bitPattern: UInt32(bitPattern: times[0])), 350)
+        XCTAssertEqual(times[1], 42)
+        times[0] = Int32(bitPattern: Float(3590).bitPattern)
+        let wrapped = try XCTUnwrap(StandaloneVideoClockCandidate.advance(times: times, auxiliary: auxiliary,
+                                                                          delta: 10, duration: 3600))
+        XCTAssertEqual(Float(bitPattern: UInt32(bitPattern: wrapped.times[0])), 0)
+        let overshoot = try XCTUnwrap(StandaloneVideoClockCandidate.advance(times: times, auxiliary: auxiliary,
+                                                                            delta: 25, duration: 3600))
+        XCTAssertEqual(Float(bitPattern: UInt32(bitPattern: overshoot.times[0])), 15)
+        var delayed = auxiliary
+        delayed[0] = 1
+        XCTAssertNil(StandaloneVideoClockCandidate.advance(times: times, auxiliary: delayed, delta: 1, duration: 3600))
+    }
+    func testCameraFilterAndPriorityUseBoundCameraWithoutLocalInitFlag() throws {
+        let filterMachine = try run(#"""
+        \scp,camex
+        \g2,"filter-name",1
+        \wait,1
+        """#)
+        XCTAssertEqual(filterMachine.phase, .waiting)
+        XCTAssertNil(filterMachine.stopReason)
+
+        let priorityMachine = try run("\\scp,camex\n\\pri,10,20\n\\wait,1")
+        XCTAssertEqual(priorityMachine.phase, .waiting)
+        XCTAssertNil(priorityMachine.stopReason)
+
+        let motionMachine = try run("\\scp,camex\n\\mm,1,50\n\\wait,1")
+        XCTAssertEqual(motionMachine.phase, .waiting)
+        XCTAssertNil(motionMachine.stopReason)
+
+        let colorMachine = try run("\\scp,camex\n\\col,255,16777215,10,0\n\\wait,1")
+        XCTAssertEqual(colorMachine.phase, .waiting)
+        XCTAssertNil(colorMachine.stopReason)
+
+        let placementMachine = try run("\\scp,camex\n\\p,0,0,0,100,100,100,0,0,0,0,0\n\\wait,1")
+        XCTAssertEqual(placementMachine.phase, .waiting)
+        XCTAssertNil(placementMachine.stopReason)
+
+        let generatorMachine = try run("\\scp,camex\n\\g,0,0,0,100,100,100,0,0,0,0\n\\wait,1")
+        XCTAssertEqual(generatorMachine.phase, .waiting)
+        XCTAssertNil(generatorMachine.stopReason)
+    }
+
+    func testSaveMenuRegexSubstitutionsHandleSpeakerRubyAndTags() throws {
+        let text = "[RB,Ann,voice] text [PC,字幕] [ruby]"
+        let speaker = try ScriptRegexSubstitution.replace(input: text,
+            pattern: #"\[rb,([^,]+),[^,]+\]"#, with: "$1")
+        XCTAssertEqual(speaker, "Ann text [PC,字幕] [ruby]")
+        let ruby = try ScriptRegexSubstitution.replace(input: speaker,
+            pattern: #"\[pc,([^\]]+)\]"#, with: "$1")
+        XCTAssertEqual(ruby, "Ann text 字幕 [ruby]")
+        let tags = try ScriptRegexSubstitution.replace(input: ruby,
+            pattern: #"\[([^\]]*).*?\]"#, with: "")
+        XCTAssertEqual(tags, "Ann text 字幕 ")
+        XCTAssertThrowsError(try ScriptRegexSubstitution.replace(input: text,
+            pattern: ".*", with: "$0"))
+    }
+
+    func testZencUsesFixedAsciiKanaAndDakutenMappings() throws {
+        XCTAssertEqual(try ScriptCharacterConversion.zenc(""), "")
+        XCTAssertEqual(try ScriptCharacterConversion.zenc("A z"), "Ａ　ｚ")
+        XCTAssertEqual(try ScriptCharacterConversion.zenc("\u{5c}\u{22}\u{27}\u{60}\u{2c}"), "￥”’‘、")
+        XCTAssertEqual(try ScriptCharacterConversion.zenc("ｶﾞﾊﾟ"), "ガパ")
+        XCTAssertEqual(try ScriptCharacterConversion.zenc("ｱﾞ"), "アﾞ")
+        XCTAssertEqual(try ScriptCharacterConversion.zenc("｡セーブ"), "｡セーブ")
+
+        for value in UInt32(0x20)...UInt32(0x7e) {
+            let expected: UInt32
+            switch value {
+            case 0x20: expected = 0x3000
+            case 0x22: expected = 0x201d
+            case 0x27: expected = 0x2019
+            case 0x2c: expected = 0x3001
+            case 0x5c: expected = 0xffe5
+            case 0x60: expected = 0x2018
+            default: expected = value + 0xfee0
+            }
+            XCTAssertEqual(try ScriptCharacterConversion.zenc(String(Unicode.Scalar(value)!)),
+                           String(Unicode.Scalar(expected)!))
+        }
+        for value in Array(UInt32(0xff66)...UInt32(0xff6f)) + Array(UInt32(0xff71)...UInt32(0xff9d)) {
+            let input = String(Unicode.Scalar(value)!)
+            XCTAssertEqual(try ScriptCharacterConversion.zenc(input), input.precomposedStringWithCompatibilityMapping)
+        }
+        for base in Array(UInt32(0xff76)...UInt32(0xff84)) + Array(UInt32(0xff8a)...UInt32(0xff8e)) {
+            let input = String(Unicode.Scalar(base)!) + String(Unicode.Scalar(0xff9e)!)
+            XCTAssertEqual(try ScriptCharacterConversion.zenc(input), input.precomposedStringWithCompatibilityMapping)
+        }
+        for base in UInt32(0xff8a)...UInt32(0xff8e) {
+            let input = String(Unicode.Scalar(base)!) + String(Unicode.Scalar(0xff9f)!)
+            XCTAssertEqual(try ScriptCharacterConversion.zenc(input), input.precomposedStringWithCompatibilityMapping)
+        }
+        XCTAssertThrowsError(try ScriptCharacterConversion.zenc(String(repeating: "A", count: 8193)))
+    }
+
+    func testRegisteredNativeDialogScopeCanBeSelectedAndUnknownDialogCommandStops() throws {
+        let machine = try run("\\scp,dlgs\n\\wait,1")
+        XCTAssertEqual(machine.phase, .waiting)
+        let unknownCommand = try run("\\scp,dlgs\n\\sl,sl,\"\",\"\",\"\",\"\",\"\",1,500,400")
+        XCTAssertEqual(unknownCommand.phase, .stopped)
+        XCTAssertEqual(unknownCommand.summary.stopReason, "unsupported_command")
+    }
+
+    func testDialogueLogThreeStringAppendAndReverseQuery() throws {
+        let machine = try run(#"""
+        \gvar,str,Speaker,Text,Voice,Extra
+        \gvar,int,Int0,Int1,Int2,Int3
+        \scp,log
+        \a,"Ann","Line","voice.ogg"
+        \?g,0
+        \cal,Speaker=ResultStr[0],Text=ResultStr[1],Voice=ResultStr[2],Extra=ResultStr[3]
+        \cal,Int0=ResultInt[0],Int1=ResultInt[1],Int2=ResultInt[2],Int3=ResultInt[3]
+        \wait,1
+        """#)
+        XCTAssertEqual(machine.phase, .waiting)
+        XCTAssertEqual(try machine.value(named: "Speaker"), .string("Ann"))
+        XCTAssertEqual(try machine.value(named: "Text"), .string("Line"))
+        XCTAssertEqual(try machine.value(named: "Voice"), .string("voice.ogg"))
+        XCTAssertEqual(try machine.value(named: "Extra"), .string(""))
+        for name in ["Int0", "Int1", "Int2", "Int3"] {
+            XCTAssertEqual(try machine.value(named: name), .integer(0))
+        }
+    }
+
+    func testSystemTaskInheritsAndReturnsDialogueLogState() {
+        let digest = String(repeating: "a", count: 64)
+        let location = ScriptLocation(sourceFile: "scene.s", sourceSHA256: digest,
+            byteOffset: 0, byteLength: 0, rangeSHA256: digest, lineNumber: 1)
+        var primary = ScriptStorage()
+        primary.dialogueLogEntries = [.init(location: location, speaker: "A", text: "Line",
+            voice: "voice", extra: "", integerFields: [0, 0, 0, 0])]
+        primary.dialogueLogBytes = 10
+
+        var task = ScriptStorage()
+        task.syncDialogueLog(from: primary)
+        XCTAssertEqual(task.dialogueLogEntries.map(\.text), ["Line"])
+        XCTAssertEqual(task.dialogueLogBytes, 10)
+
+        task.dialogueLogEntries.append(.init(location: location, speaker: "B", text: "Next",
+            voice: "", extra: "", integerFields: [0, 0, 0, 0]))
+        task.dialogueLogBytes += 4
+        primary.syncDialogueLog(from: task)
+        XCTAssertEqual(primary.dialogueLogEntries.map(\.speaker), ["A", "B"])
+        XCTAssertEqual(primary.dialogueLogBytes, 14)
+    }
+
     func testScriptFrameClockClampsSelectedNativeElapsedPath() {
         XCTAssertEqual(ScriptFrameClock.elapsedMilliseconds(current: 100, previous: 100), 1)
         XCTAssertEqual(ScriptFrameClock.elapsedMilliseconds(current: 116, previous: 100), 16)
@@ -107,7 +262,7 @@ final class ScriptTests: XCTestCase {
                   filterChainCandidateText: nil,
                   volumeType: 0, appliedVolumeType: 0, volumeTarget: 128, volumeDuration: 0,
                   volumeDelay: 0, volumeChangePending: false, volumeAcknowledgementPending: false,
-                  panDuration: 0, panDelay: 0, panTarget: 0, panChangePending: false,
+                  panDuration: 0, panDelay: 0, panTarget: 0, panInvariantDiagnostic: nil, panChangePending: false,
                   panAcknowledgementPending: false, seekPending: false, seekTarget: nil)
         }
         let composed = "\u{00E9}"
@@ -200,6 +355,31 @@ final class ScriptTests: XCTestCase {
                        ["kwb", "kwe", "kwl", "nsw"])
     }
 
+    func testMessagePreviewRetainsLineEndOverridesThatCanAffectText() throws {
+        for (text, expected) in [("name", []), ("0", ["kwe", "kwl"]), ("（name", ["kwe", "kwl"])] {
+            let script = #"""
+            \gvar,msg,sample
+            \scp,sample
+            \ts,0,0,240,80
+            \kwe,0
+            \kwl,1
+            \p,0,0,1
+            \e
+            \o,"\#(text)"
+            \if,1\then
+            \stop,@@!Resume
+            \end
+            @@!Resume
+            \ret
+            """#
+            var machine = try run(script)
+            XCTAssertTrue(try machine.commitHeadlessMessageOutput())
+            let layer = try XCTUnwrap(machine.messageTextLayers.first)
+            XCTAssertEqual(layer.unhandledDirectives, expected, text)
+            XCTAssertEqual(layer.lineBreakCandidate?.reserve, expected.isEmpty ? nil : 1, text)
+        }
+    }
+
     func testImagePlacementResetsScaleAtImmediateAndTimedEndpoints() throws {
         let directory = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
             .appendingPathComponent(".build/owned-image-placement-tests/" + UUID().uuidString)
@@ -269,6 +449,65 @@ final class ScriptTests: XCTestCase {
             maximumSteps: maximumSteps,maximumFrames: maximumFrames)
         try machine.run(); return machine
     }
+
+    func testMacExceptionBackupUsesLastSafeStopWaitWithoutThumbnail() throws {
+        let directory = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
+            .deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent(".build/owned-mac-exception-backup-tests/" + UUID().uuidString)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+
+        let source = Data("@@Scene\n\\stop,@@!Continue\n@@!Continue\n\\mystery,private\n".utf8)
+        let sourceFile = "data6.pack/scenario/root.s"
+        let sourceURL = directory.appendingPathComponent(sourceFile)
+        try FileManager.default.createDirectory(at: sourceURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try source.write(to: sourceURL)
+        let reference = ScriptModuleReference(logicalPath: "scenario/root.s", sourceFile: sourceFile,
+                                              sourceSHA256: source.sha256Hex)
+        let repository = try ScriptRepository(directory: SafeDirectory(directory),
+            catalog: ScriptModuleCatalog(entries: [reference]))
+        let program = try ScriptProgram(ScriptDocument(data: source, relativePath: sourceFile))
+        var safeWait = try ScriptMachine(program: program, allowExperimental: true, repository: repository)
+        safeWait.allowPrimarySave = true
+        try safeWait.setReadOnlySaveSlots([], directory: SafeDirectory(directory),
+                                          headerTemplate: Data(repeating: 0, count: 40))
+        try safeWait.configureSystemDataSave(name: "SystemData.dat", headerTemplate: Data(repeating: 0, count: 44),
+                                             expectedSHA256: nil)
+        try safeWait.run()
+        XCTAssertEqual(safeWait.phase, .waitingForEvent)
+
+        var injected = safeWait
+        try injected.injectMacExceptionBackupFailureForTesting(reason: "controlled_mac_exception_backup_probe")
+        try injected.run()
+        XCTAssertEqual(injected.phase, .stopped)
+        XCTAssertEqual(injected.scriptStepFailure?.reason, "controlled_mac_exception_backup_probe")
+
+        var failed = safeWait
+        try failed.dispatchStopCallback()
+        try failed.run()
+        XCTAssertEqual(failed.phase, .stopped)
+        let failure = try XCTUnwrap(failed.scriptStepFailure)
+        XCTAssertEqual(failure.reason, "unsupported_command")
+
+        XCTAssertTrue(try safeWait.beginMacExceptionBackup(fromSafeWait: failure))
+        XCTAssertEqual(safeWait.phase, .waitingForPrimarySave)
+        XCTAssertEqual(safeWait.primarySaveRequest?.name, "ExceptionBackup.svd")
+        XCTAssertEqual(safeWait.primarySaveRequest?.needsThumbnail, false)
+        let thread = try safeWait.encodeTimedWaitThread(readerOpaqueFields: Data(repeating: 0, count: 64),
+                                                       allowsIndexedLocals: true)
+        try safeWait.validateTimedWaitReturnCursors(thread)
+        let reader = try SaveReaderCursor(threadState: thread)
+        XCTAssertEqual(reader.routines.last?.rawState, 2)
+        XCTAssertGreaterThan(reader.routines.last?.eventLabel.length ?? 0, 0)
+
+        try safeWait.failPrimarySave(ResourceError.rejected("controlled_write_failure"))
+        XCTAssertEqual(safeWait.phase, .ready)
+        XCTAssertEqual(safeWait.lastSaveWriteIssue, "controlled_write_failure")
+        try safeWait.run()
+        XCTAssertEqual(safeWait.phase, .stopped)
+        XCTAssertTrue(safeWait.stopReason?.hasPrefix("mac_exception_backup_failed:") == true)
+    }
+
     func testTimedStopCountdownsAndIndefiniteZero() throws {
         let source = #"""
         \gvar,int,Observed
@@ -297,6 +536,17 @@ final class ScriptTests: XCTestCase {
         try indefinite.run()
         XCTAssertEqual(try indefinite.value(named: "Observed"), .integer(-1))
     }
+
+    func testResearchWindowSaveDiagnosticIdentifiesFiniteWaitAndTimedStopBlockers() throws {
+        let finiteWait = try run("@@Start\n\\wait,120\n\\cal,1\n")
+        XCTAssertEqual(finiteWait.phase, .waiting)
+        XCTAssertEqual(finiteWait.researchWindowSaveUnavailableReason, "missing_button")
+
+        let timedStop = try run("@@Start\n\\stop,@@OnStop,120,0\n@@OnStop\n\\wait,1\n")
+        XCTAssertEqual(timedStop.phase, .waitingForEvent)
+        XCTAssertEqual(timedStop.researchWindowSaveUnavailableReason, "timed_stop")
+    }
+
     func testSkipQueryRejectsUnmodelledActiveModes() throws {
         for mode in 3...5 {
             let machine = try run("\\scp,sys\n\\p,\(mode)\n\\?skp\n\\wait,1\n")
@@ -866,6 +1116,8 @@ final class ScriptTests: XCTestCase {
         let script = #"""
         \scp,snd[0]
         \l,"clip.ogg"
+        \v,192,400,100
+        \pan,-80,600,100
         \p
         \swap,snd[0],snd[1]
         \wait,1
@@ -881,16 +1133,31 @@ final class ScriptTests: XCTestCase {
         let originalChannel = try XCTUnwrap(machine.soundPlaybackChannel)
         let original = try XCTUnwrap(machine.activeStreamPlaybackSnapshots[originalChannel])
         try machine.acknowledgeSoundPlayback()
+        let volume = try XCTUnwrap(machine.takeSoundVolumeChanges()[originalChannel])
+        let pan = try XCTUnwrap(machine.takeSoundPanChanges()[originalChannel])
         try machine.run()
         XCTAssertEqual(machine.phase, .waitingForSoundSwap)
         let request = try XCTUnwrap(machine.soundSwapRequest)
         XCTAssertEqual(request.first, originalChannel)
+        XCTAssertEqual(machine.streamChannelTransitions.last?.action, "sound_channel_swap_candidate")
+        XCTAssertEqual(machine.streamChannelTransitions.last?.before, [0])
+        XCTAssertEqual(machine.streamChannelTransitions.last?.after, [1])
+        XCTAssertEqual(machine.streamChannelTransitions.last?.swappedHandles, [request.first, request.second])
+        let (capturedTransitions, omittedTransitions) = machine.takeStreamChannelTransitions()
+        XCTAssertEqual(capturedTransitions.last?.action, "sound_channel_swap_candidate")
+        XCTAssertEqual(omittedTransitions, 0)
+        XCTAssertTrue(machine.streamChannelTransitions.isEmpty)
+        XCTAssertEqual(machine.streamChannelTransitionsOmitted, 0)
         XCTAssertNil(machine.activeStreamPlaybackSnapshots[request.first])
         XCTAssertEqual(machine.activeStreamPlaybackSnapshots[request.second]?.source, original.source)
         XCTAssertEqual(machine.activeStreamPlaybackSnapshots[request.second]?.step, original.step)
         XCTAssertThrowsError(try machine.acknowledgeSoundSwap(.init(first: request.second, second: request.first)))
         XCTAssertEqual(machine.phase, .waitingForSoundSwap)
         try machine.acknowledgeSoundSwap(request)
+        XCTAssertFalse(machine.acknowledgeSoundControlChange(volume, channel: request.first, kind: .volume))
+        XCTAssertFalse(machine.acknowledgeSoundControlChange(pan, channel: request.first, kind: .pan))
+        XCTAssertTrue(machine.acknowledgeSoundControlChange(volume, channel: request.second, kind: .volume))
+        XCTAssertTrue(machine.acknowledgeSoundControlChange(pan, channel: request.second, kind: .pan))
         try machine.run()
         XCTAssertEqual(machine.phase, .waiting)
 
@@ -1020,7 +1287,15 @@ final class ScriptTests: XCTestCase {
         packet[15] = 5
         packet[18] = 2
         packet[19] = 208
+        packet[25] = 30
+        packet[29] = 1
         page.append(packet)
+        let rate = try ScriptMovieHeader.theoraFrameRate(page)
+        XCTAssertEqual(rate.numerator, 30)
+        XCTAssertEqual(rate.denominator, 1)
+        var invalidRate = page
+        invalidRate[invalidRate.count - 42 + 29] = 0
+        XCTAssertThrowsError(try ScriptMovieHeader.theoraFrameRate(invalidRate))
         try page.write(to: directory.appendingPathComponent("clip.ogv"))
         let script = #"""
         \gvar,img,Picture
@@ -1468,6 +1743,40 @@ final class ScriptTests: XCTestCase {
         XCTAssertEqual(try machine.value(named: "status"), .integer(0))
         XCTAssertTrue(machine.traces.contains { $0.action == "label_read_status_missing_key_candidate" })
     }
+    func testExplicitLabelReadCandidateIncludesUniqueInternalLabel() throws {
+        let directory = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
+            .deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent(".build/internal-label-read-tests/" + UUID().uuidString)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+
+        let source = Data(#"""
+        @@!Internal
+        \gvar,int,status
+        \scp,llog
+        \s,"scenario\root.s@@!Internal",100
+        \?k2
+        \cal,status=ResultInt[0]
+        \wait,1
+        """#.utf8)
+        let document = try ScriptDocument(data: source, relativePath: "scenario/root.s")
+        let reference = ScriptModuleReference(logicalPath: "scenario/root.s", sourceFile: "scenario/root.s",
+                                              sourceSHA256: source.sha256Hex)
+        let repository = try ScriptRepository(directory: SafeDirectory(directory),
+            catalog: ScriptModuleCatalog(entries: [reference]))
+        var strict = try ScriptMachine(program: ScriptProgram(document), allowExperimental: true,
+                                       repository: repository)
+        try strict.run()
+        XCTAssertEqual(strict.stopReason, "label_read_status_unsupported")
+
+        var research = try ScriptMachine(program: ScriptProgram(document), allowExperimental: true,
+                                         repository: repository)
+        research.allowLabelHistoryCandidate = true
+        try research.run()
+        XCTAssertEqual(research.phase, .waiting, research.stopReason ?? "no stop reason")
+        XCTAssertEqual(try research.value(named: "status"), .integer(1))
+        XCTAssertTrue(research.traces.contains { $0.action == "label_read_status_context_candidate" })
+    }
     func testPendingSentenceBlankPrefixAfterCommand() throws {
         let machine = try run(#"""
         @@Root
@@ -1789,6 +2098,87 @@ final class ScriptTests: XCTestCase {
             try machine.run(); XCTAssertEqual(machine.pc,pc); XCTAssertEqual(machine.traces.count,count)
             XCTAssertEqual(machine.summary.currentLocation,machine.traces.last?.location)
         }
+    }
+    func testQuickLoadThreadRequestRetainsItsTarget() throws {
+        let machine = try run("\\thrd,1,@@!QuickLoad")
+        XCTAssertEqual(machine.phase, .waitingForSystemTask)
+        XCTAssertEqual(machine.systemTaskRequest?.entryLabel, "@@!QuickLoad")
+        let unsupported = try run("\\thrd,1,@@!Unknown")
+        XCTAssertEqual(unsupported.stopReason, "system_task_request_outside_profile")
+    }
+    func testDeleteLocalScalarRevealsOuterBinding() throws {
+        let machine = try run("\\gvar,int,x\n\\cal,x=9\n\\sub,@@Work\n\\jmp,@@Done\n@@Work\n\\var,int,t\n\\cal,t=3\n\\del,t\n\\ret\n@@Done")
+        XCTAssertEqual(machine.phase, .finished)
+        XCTAssertEqual(try machine.value(named: "x"), .integer(9))
+        XCTAssertThrowsError(try machine.value(named: "t"))
+    }
+    func testQuickLoadTaskStartsWithNativeFilenameDefaults() throws {
+        let directory = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
+            .deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent(".build/quick-load-test/" + UUID().uuidString)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let root = Data("\\thrd,1,@@!QuickLoad\n".utf8)
+        let startup = Data("@@!QuickLoad\n\\cal,_SelectSaveFilename\n\\thrd,0\n".utf8)
+        let waiting = Data("\\scp,sys\n\\lk,2\n\\clk,500\n\\cal,7\n".utf8)
+        try root.write(to: directory.appendingPathComponent("root.s"))
+        try startup.write(to: directory.appendingPathComponent("sysstartup.s"))
+        try waiting.write(to: directory.appendingPathComponent("wait.s"))
+        let references = [("root.s", root), ("sysstartup.s", startup), ("wait.s", waiting)].map {
+            ScriptModuleReference(logicalPath: $0.0, sourceFile: $0.0, sourceSHA256: $0.1.sha256Hex)
+        }
+        let repository = try ScriptRepository(directory: SafeDirectory(directory),
+                                              catalog: ScriptModuleCatalog(entries: references))
+        var machine = try ScriptMachine(program: ScriptProgram(ScriptDocument(data: root, relativePath: "root.s")),
+                                        allowExperimental: true, repository: repository)
+        try machine.run()
+        let task = try machine.startSystemLoadTask()
+        XCTAssertEqual(try task.value(named: "_SelectSaveFilename"), .string("SelectSaveData.svd"))
+        XCTAssertEqual(try task.value(named: "_QuickSaveFilename"), .string("QuickSaveData.svd"))
+
+        var host = try ScriptMachine(program: ScriptProgram(ScriptDocument(data: waiting, relativePath: "wait.s")),
+                                     allowExperimental: true, repository: repository)
+        try host.setReadOnlySaveSlots([], directory: SafeDirectory(directory))
+        try host.run()
+        try host.advanceClickWait(ticks: 150)
+        XCTAssertThrowsError(try host.dispatchQuickSave())
+        try host.dispatchQuickLoad()
+        XCTAssertEqual(host.systemTaskRequest?.entryLabel, "@@!QuickLoad")
+        var linked = try host.startSystemLoadTask()
+        let pausedScene = try host.pausedSystemTaskScene()
+        XCTAssertEqual(pausedScene.phase, .waiting)
+        XCTAssertEqual(pausedScene.clickWaitRemaining, 350)
+        XCTAssertEqual(host.phase, .waitingForSystemTask)
+        try host.runSystemLoadTask(&linked)
+        try host.finishSystemLoadTask(linked)
+        XCTAssertEqual(host.phase, .waiting)
+        XCTAssertEqual(host.clickWaitRemaining, 350)
+    }
+    func testFailedSystemTaskRestoresSaveMetadataNames() throws {
+        let directory = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
+            .deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent(".build/system-task-rollback-test/" + UUID().uuidString)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let root = Data("\\scp,sys\n\\n2,3,\"original\"\n\\thrd,1,@@!QuickLoad\n".utf8)
+        let startup = Data("@@!QuickLoad\n\\scp,sys\n\\n2,3,\"temporary\"\n\\not_a_real_command\n".utf8)
+        try root.write(to: directory.appendingPathComponent("root.s"))
+        try startup.write(to: directory.appendingPathComponent("sysstartup.s"))
+        let references = [("root.s", root), ("sysstartup.s", startup)].map {
+            ScriptModuleReference(logicalPath: $0.0, sourceFile: $0.0, sourceSHA256: $0.1.sha256Hex)
+        }
+        let repository = try ScriptRepository(directory: SafeDirectory(directory),
+                                              catalog: ScriptModuleCatalog(entries: references))
+        var machine = try ScriptMachine(program: ScriptProgram(ScriptDocument(data: root, relativePath: "root.s")),
+                                        allowExperimental: true, repository: repository)
+        try machine.run()
+        XCTAssertEqual(machine.nativeSaveMetadata[3], "original")
+        var task = try machine.startSystemLoadTask()
+        try machine.runSystemLoadTask(&task)
+        XCTAssertEqual(task.phase, .stopped)
+        XCTAssertEqual(machine.nativeSaveMetadata[3], "temporary")
+        XCTAssertTrue(machine.abortSystemLoad())
+        XCTAssertEqual(machine.nativeSaveMetadata[3], "original")
     }
     func testVisualDeclarationTypesSurviveUntilDeletion() throws {
         var storage = ScriptStorage()

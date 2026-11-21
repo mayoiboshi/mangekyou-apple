@@ -7,9 +7,53 @@ def sha(data):
     return hashlib.sha256(data).hexdigest()
 
 
+def wide_timelines(metadata, *, action_zero_only=False, clock_inputs=False, nested_inputs=False):
+    timelines = {}
+    for motion in metadata.get('wide_motion_layout_candidates', []):
+        index = motion['motion_index']
+        if (action_zero_only and index != 0) or not motion.get('layers'):
+            continue
+        layers = []
+        for layer in motion['layers']:
+            keys = []
+            for key in layer['keys']:
+                texture = key.get('first_texture_input', {})
+                entry = dict(time=key['time'], type=key['raw_type'], offset=key['decoded_offset'],
+                             literal_opacity_input=key['opacity_input']['raw_value'],
+                             opacity_mode_input=key['opacity_input']['mode'],
+                             texture_numbers=[texture['number']] if texture.get('mode') == 0 else None,
+                             blend=key.get('draw_mode_inputs', {}).get('blend'),
+                             sampling=key.get('draw_mode_inputs', {}).get('sampling'),
+                             **key.get('geometry_inputs', {}))
+                if clock_inputs:
+                    entry['time_control_inputs'] = key['time_control_inputs']
+                if nested_inputs and texture.get('mode') == 0:
+                    if 'action' in texture:
+                        clock = key['child_time_input']
+                        entry['nested_motion_input'] = dict(action=texture['action'], mode=clock['mode'],
+                                                            value=clock['value'])
+                        entry['nested_literal_draw_state'] = key.get('literal_draw_state', False)
+                    if key.get('literal_draw_state_at_key'):
+                        entry['nested_literal_draw_state_at_key'] = True
+                    if 'nested_color_curve' in key:
+                        entry['nested_color_curve'] = key['nested_color_curve']
+                    if 'nested_mask_mode' in key:
+                        entry['texture_numbers'].append(key['second_texture_number'])
+                        entry['nested_mask_mode'] = key['nested_mask_mode']
+                    if 'type20_input' in key:
+                        entry['type20_input'] = key['type20_input']
+                    if 'particle_raster_mode' in key:
+                        entry['particle_raster_mode'] = key['particle_raster_mode']
+                keys.append(entry)
+            layers.append(keys)
+        timelines[index] = layers
+    return timelines
+
+
 def append_image_recipe(recipes, content, audit):
     root_sha = sha(content)
-    def collect(node,base,span,expected,depth):
+    scoped_rasters = {}
+    def collect(node,base,span,expected,depth,direct_scope=False):
         if depth>4 or node.get('status')!='verified' or node.get('container_sha256')!=expected:
             raise ProbeError('cli_image_audit_identity')
         for member in node['members']:
@@ -20,7 +64,9 @@ def append_image_recipe(recipes, content, audit):
             start=base+offset
             if sha(content[start:start+length])!=ref['sha256']:raise ProbeError('cli_image_member_identity')
             if member.get('nested'):
-                collect(member['nested'],start,length,ref['sha256'],depth+1)
+                direct_child = ((depth == 0 or direct_scope) and
+                                member.get('image_anchor_offset_inputs', {}).get('nested_surface_flag') == 0)
+                collect(member['nested'],start,length,ref['sha256'],depth+1,direct_child)
             elif member.get('imoavi_status') == 'verified':
                 recipes.append(dict(container_sha256=root_sha,offset=start,length=length,sha256=ref['sha256'],
                                     format='IMOAVI',name=member['name'],width=member['width'],height=member['height']))
@@ -44,14 +90,42 @@ def append_image_recipe(recipes, content, audit):
                   or member.get('format')=='DPNG' and member.get('dpng', {}).get('metadata_status')=='verified'
                   or member.get('format')=='Ogg' and member['name'].lower().endswith('.ogv')):
                 recipes.append(dict(container_sha256=root_sha,offset=start,length=length,sha256=ref['sha256'],name=member['name'],format=member['format']))
-                if depth == 0 and 'image_slot' in member:
-                    recipes[-1]['image_slot'] = member['image_slot']
+                if (depth == 0 or direct_scope) and 'image_slot' in member:
+                    raster = recipes[-1]
+                    if direct_scope:
+                        raster = dict(raster, container_sha256=expected, offset=offset)
+                        scoped_rasters.setdefault(expected, {})[offset, member['image_slot']] = raster
+                    raster['image_slot'] = member['image_slot']
                     if member.get('width') and member.get('height'):
-                        recipes[-1].update(width=member['width'], height=member['height'])
+                        raster.update(width=member['width'], height=member['height'])
                     anchor = member.get('image_anchor_offset_inputs', {})
                     if 'raw_words' in anchor:
-                        recipes[-1]['image_anchor_words'] = anchor['raw_words']
+                        raster['image_anchor_words'] = anchor['raw_words']
                 if len(recipes)>128:raise ProbeError('cli_image_recipe_limit')
+    scoped_digests = set()
+
+    def read_nested_slots(node):
+        slots = {}
+        for member in node['members']:
+            if (member.get('compressed') or not member.get('nested') or 'image_slot' not in member
+                or member.get('image_anchor_offset_inputs', {}).get('nested_surface_flag') != 0):
+                continue
+            child = member['nested']
+            child_meta = next((item for item in child['members'] if item.get('name') == 'data_000.bin'), {})
+            duration = child_meta.get('wide_duration_inputs')
+            timelines = wide_timelines(child_meta, clock_inputs=True, nested_inputs=True)
+            if duration and timelines:
+                slot = dict(**member['raw_bytes_reference'], duration=duration['duration'],
+                            loop_start=duration['loop_start'], timelines=timelines,
+                            canvas=child_meta.get('wide_canvas_inputs'),
+                            image_anchor_words=member['image_anchor_offset_inputs']['raw_words'])
+                children = read_nested_slots(child)
+                if children:
+                    slot['nested_slots'] = children
+                slots[member['image_slot']] = slot
+                scoped_digests.add(slot['sha256'])
+        return slots
+
     before=len(recipes);collect(audit,0,len(content),root_sha,0)
     metadata=[m for m in audit['members'] if m.get('name')=='data_000.bin']
     if len(metadata)==1 and (metadata[0].get('extended_key_markers_absent') is True
@@ -83,28 +157,26 @@ def append_image_recipe(recipes, content, audit):
             if motion_types:
                 recipes[before]['motion_key_types'] = motion_types
             timelines = {}
-            if root_sha == '7c0cb9495c6a551403d42832ee067caa42d31677cfcbbb4ef0f4e3489ab70c55':
-                # The dialog sample has verified time, type, draw modes, texture
-                # inputs and opacity fields. Geometry is a preview candidate.
-                wide_timelines = {}
-                for motion in metadata[0].get('wide_motion_layout_candidates', []):
-                    layers = motion.get('layers')
-                    if not layers:
-                        continue
-                    wide_timelines[motion['motion_index']] = [
-                        [dict(time=key['time'], type=key['raw_type'], offset=key['decoded_offset'],
-                              literal_opacity_input=key['opacity_input']['raw_value'],
-                              opacity_mode_input=key['opacity_input']['mode'],
-                              texture_numbers=[key['first_texture_input']['number']]
-                              if key.get('first_texture_input', {}).get('mode') == 0 else None,
-                              blend=key.get('draw_mode_inputs', {}).get('blend'),
-                              sampling=key.get('draw_mode_inputs', {}).get('sampling'),
-                              **key.get('geometry_inputs', {}))
-                         for key in layer['keys']]
-                        for layer in layers
-                    ]
-                if wide_timelines:
-                    recipes[before]['partial_motion_timelines'] = wide_timelines
+            wide_dialog = root_sha == '7c0cb9495c6a551403d42832ee067caa42d31677cfcbbb4ef0f4e3489ab70c55'
+            wide_title_control = root_sha in {
+                '0f49b2d5f24def184da0c66b5facc9c4ee743e284fb4ef616d2fee6083ebdc77',
+                'f27fe5e672a0e94c68bf0f43c33e60657570e89795e251b310706f11db7c8bc6',
+            }
+            nested_slots = read_nested_slots(audit)
+            if wide_dialog or wide_title_control or nested_slots:
+                partial = wide_timelines(metadata[0], action_zero_only=wide_title_control,
+                                         clock_inputs=wide_title_control or bool(nested_slots),
+                                         nested_inputs=bool(nested_slots))
+                if partial:
+                    recipes[before]['partial_motion_timelines'] = partial
+                    if nested_slots:
+                        recipes[before]['direct_nested_motion_slots'] = nested_slots
+                        if 'wide_canvas_inputs' in metadata[0]:
+                            recipes[before]['motion_canvas_inputs'] = metadata[0]['wide_canvas_inputs']
+                        for digest in sorted(scoped_digests):
+                            recipes.extend(scoped_rasters.get(digest, {}).values())
+                        if len(recipes) > 128:
+                            raise ProbeError('cli_image_recipe_limit')
             for motion in metadata[0].get('motion_layer_layout_candidates', []):
                 layers = motion['layers']
                 if not layers or not all(layer.get('key_time_values') and
@@ -132,6 +204,46 @@ def append_image_recipe(recipes, content, audit):
                 ]
             if timelines:
                 recipes[before]['motion_timelines'] = timelines
+            layer_flags = {}
+            for layout_key in ('motion_layer_layout_candidates', 'wide_motion_layout_candidates'):
+                for motion in metadata[0].get(layout_key, []):
+                    layers = motion.get('layers') or []
+                    if layers and all('raw_layer_flag' in layer for layer in layers):
+                        values = [layer['raw_layer_flag'] for layer in layers]
+                        if all(isinstance(value, int) and 0 <= value <= 0xff for value in values):
+                            layer_flags[motion['motion_index']] = values
+            if layer_flags:
+                # 0x592998 reads this byte into each native layer row at +0x21;
+                # 0x57e840 copies it into the image save block's 256-byte flag area.
+                recipes[before]['motion_layer_flags'] = layer_flags
+            clock_timelines = {}
+            for layout_key in ('motion_layer_layout_candidates', 'wide_motion_layout_candidates'):
+                for motion in metadata[0].get(layout_key, []):
+                    layers = motion.get('layers') or []
+                    clock_layers = []
+                    valid = bool(layers)
+                    for layer in layers:
+                        if layout_key == 'motion_layer_layout_candidates':
+                            times = layer.get('key_time_values') or []
+                            fields = layer.get('key_image_fields') or []
+                            if len(times) != len(fields) or not fields:
+                                valid = False
+                                break
+                            keys = [dict(time=int(time), time_control_inputs=field.get('time_control_inputs'))
+                                    for time, field in zip(times, fields)]
+                        else:
+                            keys = [dict(time=int(key['time']), time_control_inputs=key.get('time_control_inputs'))
+                                    for key in layer.get('keys', [])]
+                        if not keys or any(not isinstance(key.get('time_control_inputs'), list) or
+                                len(key['time_control_inputs']) != 4 for key in keys):
+                            valid = False
+                            break
+                        clock_layers.append(keys)
+                    if valid:
+                        clock_timelines[int(motion['motion_index'])] = clock_layers
+            if clock_timelines:
+                # Keep clock inputs separate from renderer recipes; unsupported draw fields remain untouched.
+                recipes[before]['motion_clock_timelines'] = clock_timelines
             non_drawing = [index for index, types in motion_types.items() if types == [0]]
             if non_drawing:
                 recipes[before]['non_drawing_motion_indices'] = non_drawing

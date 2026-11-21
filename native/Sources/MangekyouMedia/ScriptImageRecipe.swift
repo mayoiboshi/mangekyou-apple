@@ -8,10 +8,12 @@ public struct ScriptImageRecipe: Decodable, Sendable {
 
     private let texturesByContainer: [String: [Int: ImageMemberRecipe]]
     private let validTimelines: [String: [Int: [[MotionKey]]]]
+    private let validClockTimelines: [String: [Int: [[ImageLayerClockKey]]]]
 
     public init() {
         entriesByContainer = [:]
         validTimelines = [:]
+        validClockTimelines = [:]
         texturesByContainer = [:]
     }
 
@@ -19,6 +21,15 @@ public struct ScriptImageRecipe: Decodable, Sendable {
         let entries = try decoder.singleValueContainer().decode([ImageMemberRecipe].self)
         let grouped = Dictionary(grouping: entries, by: \.container_sha256)
         entriesByContainer = grouped
+        validClockTimelines = grouped.compactMapValues { members in
+            members.first { $0.motion_clock_timelines != nil }?.motion_clock_timelines?.filter { _, layers in
+                (1...256).contains(layers.count) && layers.allSatisfy { layer in
+                    (1...255).contains(layer.count) && (layer.first?.time ?? -1) >= 0 &&
+                        zip(layer, layer.dropFirst()).allSatisfy { $0.time < $1.time } &&
+                        layer.allSatisfy { $0.time_control_inputs?.count == 4 }
+                }
+            }
+        }
         texturesByContainer = grouped.mapValues { members in
             var unique: [Int: ImageMemberRecipe] = [:]
             var ambiguous: Set<Int> = []
@@ -119,6 +130,32 @@ public struct ScriptImageRecipe: Decodable, Sendable {
         let position_mode_input: UInt8?
         let position_strength_input: Int32?
         let time_control_inputs: [Int32]?
+        fileprivate struct NestedMotionInput: Decodable, Sendable {
+            let action: Int32
+            let mode: UInt8
+            let value: Int32
+
+            var isLiteralTime: Bool { (0..<0x10000000).contains(value) }
+        }
+        fileprivate let nested_motion_input: NestedMotionInput?
+        fileprivate let nested_literal_draw_state: Bool?
+        fileprivate let nested_literal_draw_state_at_key: Bool?
+        fileprivate var sampledNestedDrawStateIsLiteral = false
+        fileprivate struct NestedColorCurve: Decodable, Sendable {
+            let mode: UInt8
+            let strength: Int32
+            let additive: UInt32
+            let multiplier: UInt32
+            let transfer: Int32?
+        }
+        fileprivate let nested_color_curve: NestedColorCurve?
+        fileprivate let nested_mask_mode: UInt32?
+        fileprivate let type20_input: Type20Motion.Input?
+        fileprivate var sampledType20Input: Type20Motion.Input?
+        fileprivate let particle_raster_mode: Type20Motion.RasterMode?
+        fileprivate var sampledParticlePose: Type20Motion.Pose?
+        fileprivate var sampledNestedColors: (additive: UInt32, multiplier: UInt32)?
+        fileprivate var sampledNestedMotionTick: Int32?
         fileprivate var sampledTranslation: (x: Double, y: Double)?
         fileprivate var translationUnsupported = false
         fileprivate var sampledOpacity: UInt8?
@@ -130,7 +167,8 @@ public struct ScriptImageRecipe: Decodable, Sendable {
             case literal_opacity_input, opacity_mode_input, source_area_mode_input, source_area_interpolation_flag
             case source_area_strength_input
             case anchor_ratio_inputs, position_mode_input, position_strength_input
-            case time_control_inputs
+            case time_control_inputs, nested_motion_input, nested_literal_draw_state, nested_literal_draw_state_at_key
+            case nested_color_curve, nested_mask_mode, type20_input, particle_raster_mode
         }
     }
 
@@ -150,12 +188,14 @@ public struct ScriptImageRecipe: Decodable, Sendable {
     /// This does not advance the saved auxiliary state or establish original playback equivalence.
     public func motionKeysAtSavedLayerTimesCandidate(_ container: ScriptLocation, selectedMember: Int32,
                                                       layerTimes: [Int32]) -> [MotionKey]? {
-        guard layerTimes.count == 256, layerTimes.allSatisfy({ $0 >= 0 }),
+        let decodedTimes = layerTimes.map { Float(bitPattern: UInt32(bitPattern: $0)) }
+        guard layerTimes.count == 256,
+              decodedTimes.allSatisfy({ $0.isFinite && (0...16_777_216).contains($0) }),
               container.byteOffset == 0, container.sourceSHA256 == container.rangeSHA256,
               let layers = validTimelines[container.sourceSHA256]?[Int(selectedMember)],
               layers.count <= layerTimes.count else { return nil }
         return sampleMotion(layers, container: container, selectedMember: selectedMember, time: 0,
-                            savedLayerTimes: layerTimes)
+                            savedLayerTimes: decodedTimes.map(Double.init))
     }
 
     /// Restricted research candidate for one integer clock increment. Only a single
@@ -202,7 +242,7 @@ public struct ScriptImageRecipe: Decodable, Sendable {
             times[index] = Int32(destination)
         }
         guard let keys = sampleMotion(layers, container: container, selectedMember: selectedMember,
-                                      time: 0, savedLayerTimes: times) else { return nil }
+                                      time: 0, savedLayerTimes: times.map(Double.init)) else { return nil }
         return (times, remaining, keys)
     }
 
@@ -250,13 +290,465 @@ public struct ScriptImageRecipe: Decodable, Sendable {
         return sampleMotion(layers, container: container, selectedMember: selectedMember, time: Double(time))
     }
 
+    package struct DirectNestedMotionSample: Encodable {
+        package struct OmittedKey: Encodable {
+            package let type: Int32
+            package let offset: Int
+            package let reason: String
+        }
+
+        struct Type20Track: Encodable {
+            struct Sample: Encodable {
+                let instance: Type20Motion.Instance
+                let wrappedClock: Int32
+                let activeKeyOffsets: [Int]
+                let projectedQuad: [[Float]]?
+            }
+
+            let trackOffset: Int
+            let textureSlot: Int32
+            let resource: ScriptLocation
+            let randomTableSHA256: String
+            let usedStartupFallback: Bool
+            let samples: [Sample]
+        }
+
+        package let slot: Int32
+        package let resource: ScriptLocation
+        package let action: Int32
+        package let ticks: Int32
+        package let drawTypes: [Int32]
+        var parentDrawKeyOffset: Int? = nil
+        package fileprivate(set) var compositedDrawKeyOffsets: [Int] = []
+        package fileprivate(set) var omittedDrawKeys: [OmittedKey] = []
+        var children: [DirectNestedMotionSample]? = nil
+        var type20Tracks: [Type20Track]? = nil
+
+        package var unresolvedCount: Int {
+            omittedDrawKeys.count + (children?.reduce(0) { $0 + $1.unresolvedCount } ?? 0)
+        }
+
+        var hasCoverage: Bool {
+            !compositedDrawKeyOffsets.isEmpty || children?.contains(where: \.hasCoverage) == true
+        }
+    }
+
+    package struct DirectNestedMotionPreview {
+        package let children: [DirectNestedMotionSample]
+        package let isComplete: Bool
+        package var hasCoverage: Bool { children.contains(where: \.hasCoverage) }
+    }
+
+    private struct DirectNestedDrawState {
+        let origin: SIMD2<Int>
+        let scale: SIMD2<Double>
+        let depth: Int64
+        let opacity: UInt8
+        let sampling: UInt8
+    }
+
+    private struct DirectNestedSubmission {
+        enum Draw {
+            case texture(MotionKey, DirectNestedDrawState, Data)
+            case particle(Int, Type20Motion.Raster)
+        }
+        let childIndex: Int
+        let depth: Int64
+        let draw: Draw
+    }
+
+    package func hasDirectNestedMotion(_ container: ScriptLocation) -> Bool {
+        container.byteOffset == 0 && container.sourceSHA256 == container.rangeSHA256 &&
+            entriesByContainer[container.sourceSHA256]?.contains { $0.direct_nested_motion_slots != nil } == true
+    }
+
+    package func drawDirectNestedMotionPreview(_ layer: ScriptMachine.StaticImageLayer, data: Data,
+                                               particleTable: () throws -> Data?,
+                                               canvas: inout [[SIMD4<UInt8>]]) throws -> DirectNestedMotionPreview {
+        let container = layer.resource
+        guard container.byteOffset == 0, container.byteLength == data.count,
+              container.sourceSHA256 == container.rangeSHA256,
+              ImageMemberRecipe.digest(data) == container.sourceSHA256,
+              let selectedMember = layer.selectedMember, let time = layer.motionElapsedTicks,
+              let profile = entriesByContainer[container.sourceSHA256]?.first(where: {
+                  $0.direct_nested_motion_slots != nil
+              }), let slots = profile.direct_nested_motion_slots,
+              let parent = profile.partial_motion_timelines?[Int(selectedMember)],
+              Self.hasSupportedLiteralClocks(parent),
+              let keys = sampleMotion(parent, container: container, selectedMember: selectedMember,
+                                      time: Double(time)) else {
+            throw ResourceError.rejected("nested_motion_parent_unresolved")
+        }
+        let hostScale = SIMD2(Double(layer.scaleXPercent) / 100, Double(layer.scaleYPercent) / 100)
+        let hostGeometrySupported = !layer.unappliedTransform && layer.fractionalScalePercent == nil &&
+            layer.boundRasterPreview == nil && layer.boundTextureLocations.isEmpty && layer.filterOverrides.isEmpty &&
+            (layer.textureFilter == nil || layer.textureFilter == 0) && hostScale.x > 0 && hostScale.y > 0
+        let alignment = SIMD2(layer.alignmentXPercent, layer.alignmentYPercent)
+        let unaligned = !layer.hasExplicitAlignment || alignment == .zero
+        func requiresDraw(_ key: MotionKey) -> Bool {
+            // 0x586b07 returns before particle evaluation when the sampled alpha is zero.
+            key.type != 0 && (key.type != 20 || key.sampledOpacity != 0)
+        }
+        var nodes: [(parent: Int?, sample: DirectNestedMotionSample)] = []
+        var submissions: [DirectNestedSubmission] = []
+        var ordinaryCount = 0
+        var allParentKeysResolved = true
+        var randomTable: Result<Type20Motion.RandomTable, Error>?
+        var particleCount = 0
+        func submitParticles(_ key: MotionKey, slots: [Int: ImageMemberRecipe.DirectNestedMotion]?,
+                             location: ScriptLocation, payload: Data, state: DirectNestedDrawState?,
+                             index: Int) {
+            do {
+                guard let state, let input = key.sampledType20Input, let opacity = key.sampledOpacity,
+                      let textureSlot = key.texture_numbers?.first, let sprite = slots?[Int(textureSlot)] else {
+                    throw ResourceError.rejected("type20_emitter_input_unresolved")
+                }
+                let tableResult = randomTable ?? Result { try Type20Motion.RandomTable(particleTable()) }
+                randomTable = tableResult
+                let (track, draws, resolved) = try prepareType20Track(input, key: key, slot: textureSlot, sprite: sprite,
+                    parentData: payload, parentLocation: location, table: tableResult.get(),
+                    state: state, opacity: UInt8(Int(opacity) * Int(state.opacity) / 255), childIndex: index)
+                guard track.samples.count <= 1024 - particleCount else {
+                    throw ResourceError.rejected("type20_instance_budget")
+                }
+                particleCount += track.samples.count
+                nodes[index].sample.type20Tracks = (nodes[index].sample.type20Tracks ?? []) + [track]
+                if !resolved {
+                    nodes[index].sample.omittedDrawKeys.append(.init(type: key.type, offset: key.offset,
+                        reason: "type20_instance_geometry_not_rendered"))
+                }
+                submissions.append(contentsOf: draws)
+            } catch {
+                nodes[index].sample.omittedDrawKeys.append(.init(type: key.type, offset: key.offset,
+                    reason: String(describing: error)))
+            }
+        }
+        func expand(_ key: MotionKey, slot: Int32, child: ImageMemberRecipe.DirectNestedMotion,
+                    parent: Int?, location: ScriptLocation, payload: Data,
+                    state: DirectNestedDrawState?, nesting: Int) throws {
+            guard nesting <= 4, nodes.count < 64 else {
+                throw ResourceError.rejected("nested_motion_draw_limit")
+            }
+            guard (0...255).contains(slot),
+                  let action = key.nested_motion_input?.action, action >= 0,
+                  let rawTick = key.sampledNestedMotionTick,
+                  let layers = child.timelines[Int(action)], Self.hasSupportedLiteralClocks(layers) else {
+                throw ResourceError.rejected("nested_motion_child_unresolved")
+            }
+            let childData = try child.boundPayload(payload, location: location)
+            let ticks = try child.wrappedTick(rawTick)
+            guard let active = sampleMotion(layers, container: container, selectedMember: action,
+                                            time: Double(ticks)) else {
+                throw ResourceError.rejected("nested_motion_child_clock_unresolved")
+            }
+            let childLocation = ScriptLocation(sourceFile: location.sourceFile, sourceSHA256: location.sourceSHA256,
+                byteOffset: location.byteOffset + child.offset, byteLength: child.length,
+                rangeSHA256: child.sha256, lineNumber: 1)
+            let activeKeys = active.filter(requiresDraw)
+            let index = nodes.count
+            nodes.append((parent, DirectNestedMotionSample(slot: slot, resource: childLocation, action: action,
+                ticks: ticks, drawTypes: activeKeys.map(\.type), parentDrawKeyOffset: key.offset)))
+            guard !activeKeys.isEmpty else { return }
+            // The child inherits the parent's matrix and depth in the same
+            // queue (0x5866aa/0x5866b9/0x586702), with inherited alpha and sampling
+            // (0x587d3c–0x587d7b). The anchor uses the child's declared canvas.
+            guard let state, let childCanvas = child.canvas,
+               (0...8192).contains(childCanvas.width), (0...8192).contains(childCanvas.height),
+               child.image_anchor_words == [0, 0, 0], key.sampledNestedDrawStateIsLiteral,
+               key.blend == 0, let sampling = key.sampling, sampling == 0 || sampling == 2,
+               let opacity = key.sampledOpacity,
+               key.source_areas?.first == [0, 0, 0, 0], let anchor = key.literalAnchorRatio,
+               let local = axisAlignedState([key]), local.scaleX > 0, local.scaleY > 0,
+               let depth = key.transform_fields?["0xa8"],
+               let x = Int(exactly: Double(state.origin.x) + state.scale.x *
+                   (local.x - anchor.x * Double(childCanvas.width) * local.scaleX)),
+               let y = Int(exactly: Double(state.origin.y) + state.scale.y *
+                   (local.y - anchor.y * Double(childCanvas.height) * local.scaleY)) else {
+                nodes[index].sample.omittedDrawKeys = activeKeys.map {
+                    .init(type: $0.type, offset: $0.offset, reason: "nested_parent_draw_state_unsupported")
+                }
+                return
+            }
+            let childState = DirectNestedDrawState(origin: SIMD2(x, y),
+                scale: state.scale * SIMD2(local.scaleX, local.scaleY), depth: state.depth + Int64(depth),
+                opacity: UInt8(Int(opacity) * Int(state.opacity) / 255),
+                sampling: state.sampling == 0 ? sampling : state.sampling)
+            guard childState.opacity != 0 else { return }
+            for leaf in activeKeys {
+                if leaf.type == 20 {
+                    submitParticles(leaf, slots: child.nested_slots, location: childLocation, payload: childData,
+                                    state: childState, index: index)
+                    continue
+                }
+                guard leaf.type == 4 || leaf.type == 10 && leaf.nested_mask_mode != nil,
+                      let leafDepth = leaf.transform_fields?["0xa8"] else {
+                    nodes[index].sample.omittedDrawKeys.append(.init(type: leaf.type, offset: leaf.offset,
+                                                                     reason: "nested_draw_type_unsupported"))
+                    continue
+                }
+                if leaf.type == 4, let leafSlot = leaf.texture_numbers?.first,
+                   let nested = child.nested_slots?[Int(leafSlot)] {
+                    do {
+                        try expand(leaf, slot: leafSlot, child: nested, parent: index, location: childLocation,
+                                   payload: childData, state: childState, nesting: nesting + 1)
+                    } catch {
+                        nodes[index].sample.omittedDrawKeys.append(.init(type: leaf.type, offset: leaf.offset,
+                                                                         reason: String(describing: error)))
+                    }
+                    continue
+                }
+                guard leaf.sampledNestedDrawStateIsLiteral || leaf.sampledNestedColors != nil else {
+                    nodes[index].sample.omittedDrawKeys.append(.init(type: leaf.type, offset: leaf.offset,
+                                                                     reason: "nested_texture_draw_state_unsupported"))
+                    continue
+                }
+                guard ordinaryCount < 64 else { throw ResourceError.rejected("nested_motion_draw_limit") }
+                ordinaryCount += 1
+                submissions.append(.init(childIndex: index, depth: childState.depth + Int64(leafDepth),
+                                         draw: .texture(leaf, childState, childData)))
+            }
+        }
+        let origin = SIMD2(Int(layer.x), Int(layer.y))
+        func rootState(origin: SIMD2<Int>) -> DirectNestedDrawState {
+            DirectNestedDrawState(origin: origin, scale: hostScale, depth: 0, opacity: layer.opacity, sampling: 0)
+        }
+        let rootDrawState: DirectNestedDrawState?
+        if hostGeometrySupported, unaligned {
+            rootDrawState = rootState(origin: origin)
+        } else if hostGeometrySupported, let size = profile.motion_canvas_inputs,
+                  (1...8192).contains(size.width), (1...8192).contains(size.height),
+                  (0...100).contains(alignment.x), (0...100).contains(alignment.y),
+                  let x = Int(exactly: Double(origin.x) - Double(size.width) * hostScale.x * Double(alignment.x) / 100),
+                  let y = Int(exactly: Double(origin.y) - Double(size.height) * hostScale.y * Double(alignment.y) / 100) {
+            rootDrawState = rootState(origin: SIMD2(x, y))
+        } else {
+            rootDrawState = nil
+        }
+        for key in keys where requiresDraw(key) {
+            if key.type == 20, let slot = key.texture_numbers?.first {
+                guard nodes.count < 64 else { throw ResourceError.rejected("nested_motion_draw_limit") }
+                let index = nodes.count
+                nodes.append((nil, DirectNestedMotionSample(slot: slot, resource: container,
+                    action: selectedMember, ticks: time, drawTypes: [key.type], parentDrawKeyOffset: key.offset)))
+                if let rootDrawState {
+                    submitParticles(key, slots: slots, location: container, payload: data,
+                                    state: rootDrawState, index: index)
+                } else {
+                    let state = "transform=\(layer.unappliedTransform) fractional=\(layer.fractionalScalePercent != nil) " +
+                        "alignment=\(layer.alignmentXPercent),\(layer.alignmentYPercent) " +
+                        "filter=\(layer.textureFilter ?? 0) scale=\(layer.scaleXPercent),\(layer.scaleYPercent) " +
+                        "overrides=\(layer.filterOverrides.count)"
+                    nodes[index].sample.omittedDrawKeys.append(.init(type: key.type, offset: key.offset,
+                        reason: "type20_host_geometry_unsupported: \(state)"))
+                }
+                continue
+            }
+            guard key.type == 4, let slot = key.texture_numbers?.first else {
+                allParentKeysResolved = false
+                continue
+            }
+            if let child = slots[Int(slot)] {
+                try expand(key, slot: slot, child: child, parent: nil, location: container, payload: data,
+                           state: hostGeometrySupported && unaligned && layer.opacity == 255 ? rootDrawState : nil,
+                           nesting: 1)
+                continue
+            }
+            guard let rootDrawState, key.sampledNestedDrawStateIsLiteral,
+                  let depth = key.transform_fields?["0xa8"] else {
+                allParentKeysResolved = false
+                continue
+            }
+            guard nodes.count < 64, ordinaryCount < 64 else {
+                throw ResourceError.rejected("nested_motion_draw_limit")
+            }
+            // A root raster and the expanded children share the same depth order.
+            let index = nodes.count
+            nodes.append((nil, DirectNestedMotionSample(slot: slot, resource: container, action: selectedMember,
+                ticks: time, drawTypes: [key.type], parentDrawKeyOffset: key.offset)))
+            ordinaryCount += 1
+            submissions.append(.init(childIndex: index, depth: rootDrawState.depth + Int64(depth),
+                                     draw: .texture(key, rootDrawState, data)))
+        }
+        let ordered = submissions.enumerated().sorted { ($0.element.depth, $0.offset) < ($1.element.depth, $1.offset) }
+        for (_, submission) in ordered {
+            let index = submission.childIndex
+            switch submission.draw {
+            case .particle(let offset, let raster):
+                if raster.draw(canvas: &canvas), !nodes[index].sample.compositedDrawKeyOffsets.contains(offset) {
+                    nodes[index].sample.compositedDrawKeyOffsets.append(offset)
+                }
+            case .texture(let key, let state, let data):
+                do {
+                    let covered = key.type == 10
+                        ? try drawDirectNestedMask(key, data: data, state: state, canvas: &canvas)
+                        : try drawFullTexturePreview(key, container: data, origin: state.origin,
+                            hostScale: state.scale, layerOpacity: state.opacity, inheritedSampling: state.sampling,
+                            canvas: &canvas)
+                    if covered { nodes[index].sample.compositedDrawKeyOffsets.append(key.offset) }
+                } catch {
+                    nodes[index].sample.omittedDrawKeys.append(.init(type: key.type, offset: key.offset,
+                                                                     reason: String(describing: error)))
+                }
+            }
+        }
+        var children: [DirectNestedMotionSample] = []
+        for index in nodes.indices.reversed() {
+            var sample = nodes[index].sample
+            sample.children?.reverse()
+            if let parent = nodes[index].parent {
+                if nodes[parent].sample.children == nil { nodes[parent].sample.children = [] }
+                nodes[parent].sample.children?.append(sample)
+            } else {
+                children.append(sample)
+            }
+        }
+        return DirectNestedMotionPreview(children: children.reversed(),
+            isComplete: allParentKeysResolved && children.allSatisfy { $0.unresolvedCount == 0 })
+    }
+
+    private func prepareType20Track(_ input: Type20Motion.Input, key: MotionKey, slot: Int32,
+                                    sprite: ImageMemberRecipe.DirectNestedMotion, parentData: Data,
+                                    parentLocation: ScriptLocation, table: Type20Motion.RandomTable,
+                                    state: DirectNestedDrawState, opacity: UInt8, childIndex: Int)
+        throws -> (DirectNestedMotionSample.Type20Track, [DirectNestedSubmission], Bool) {
+        guard let size = sprite.canvas,
+              sprite.timelines.keys.sorted() == Array(0..<sprite.timelines.count),
+              sprite.timelines.values.allSatisfy(Self.hasSupportedLiteralClocks) else {
+            throw ResourceError.rejected("type20_sprite_actions_unresolved")
+        }
+        let spriteData = try sprite.boundPayload(parentData, location: parentLocation)
+        let resource = ScriptLocation(sourceFile: parentLocation.sourceFile, sourceSHA256: parentLocation.sourceSHA256,
+            byteOffset: parentLocation.byteOffset + sprite.offset, byteLength: sprite.length,
+            rangeSHA256: sprite.sha256, lineNumber: 1)
+        let instances = try Type20Motion.instances(input, table: table, actionCount: sprite.timelines.count,
+            childSize: SIMD2(size.width, size.height), opacity: opacity)
+        var textures: [Int: [[SIMD4<UInt8>]]] = [:]
+        var draws: [DirectNestedSubmission] = []
+        let hostOrigin = SIMD2(Float(state.origin.x), Float(state.origin.y))
+        let hostScale = SIMD2(Float(state.scale.x), Float(state.scale.y))
+        let emitter = key.sampledParticlePose
+        let blend: Type20Motion.Raster.Blend?
+        switch key.blend {
+        case nil, 0: blend = .normal
+        case 7: blend = .additive
+        default: blend = nil
+        }
+        let colors = key.sampledNestedColors
+        guard key.nested_color_curve == nil || (colors?.additive == 0 && key.blend == 7) else {
+            throw ResourceError.rejected("type20_emitter_color_unresolved")
+        }
+        let multiplierRGB = colors?.multiplier ?? 0xffffff
+        let canProject = emitter != nil && blend != nil && state.sampling == 0 &&
+            (key.sampling ?? 0) == 0 && sprite.image_anchor_words == [0, 0, 0]
+        let samples = try instances.map { instance -> DirectNestedMotionSample.Type20Track.Sample in
+            let time = try sprite.wrappedTick(instance.clock)
+            guard let layers = sprite.timelines[Int(instance.action)],
+                  let keys = sampleMotion(layers, container: resource, selectedMember: instance.action,
+                                          time: Double(time)) else {
+                throw ResourceError.rejected("type20_sprite_clock_unresolved")
+            }
+            let active = keys.filter { $0.type != 0 }
+            let offsets = active.map(\.offset)
+            guard canProject, let emitter, let blend, instance.opacity != 0, !active.isEmpty else {
+                return .init(instance: instance, wrappedClock: time, activeKeyOffsets: offsets, projectedQuad: nil)
+            }
+            guard active.count == 1, let raster = active.first, raster.type == 4,
+                  let pose = raster.sampledParticlePose, let alpha = raster.sampledOpacity,
+                  let slot = raster.texture_numbers?.first,
+                  let member = texturesByContainer[sprite.sha256]?[Int(slot)],
+                  member.format == "PNG", member.image_anchor_words == [0, 0, 0] else {
+                throw ResourceError.rejected("type20_sprite_raster_unresolved")
+            }
+            let pixels: [[SIMD4<UInt8>]]
+            if let cached = textures[Int(slot)] {
+                pixels = cached
+            } else {
+                pixels = try ResourceImage.straightPNGPixels(member.payload(spriteData))
+                textures[Int(slot)] = pixels
+            }
+            guard let width = pixels.first?.count, (1...512).contains(width), (1...512).contains(pixels.count) else {
+                throw ResourceError.rejected("type20_sprite_dimensions")
+            }
+            let w = Float(width), h = Float(pixels.count)
+            let pivot = SIMD2(w, h) * pose.anchor
+            let emitterPivot = SIMD2(input.volume[0], input.volume[1]) * emitter.anchor
+            let points = [SIMD2<Float>.zero, SIMD2(w, 0), SIMD2(w, h), SIMD2(0, h)].map { point in
+                // Sprite-local matrix, then per-instance scale and offset,
+                // then the emitter rotation around its authored volume anchor.
+                let local = pose.rotate((point - pivot) * pose.scale) + pose.translation
+                let offset = SIMD2(instance.offset[0], instance.offset[1])
+                let parent = emitter.project(local * instance.scale + offset - emitterPivot,
+                    centeredZ: instance.offset[2] - input.volume[2] * 0.5) + emitter.translation
+                return hostOrigin + parent * hostScale
+            }
+            guard points.allSatisfy({ (-32768...32767).contains($0.x) && (-32768...32767).contains($0.y) }) else {
+                throw ResourceError.rejected("type20_projected_vertices_out_of_range")
+            }
+            // The raw depth mode is zero in this profile; 0x5823fc then
+            // contributes zero, leaving the sum of the authored queue keys.
+            let texture = Type20Motion.Raster(pixels: pixels, vertices: points,
+                opacity: UInt8(Int(alpha) * Int(instance.opacity) / 255), blend: blend,
+                multiplierRGB: multiplierRGB)
+            draws.append(.init(childIndex: childIndex, depth: state.depth + emitter.depth + pose.depth,
+                               draw: .particle(key.offset, texture)))
+            return .init(instance: instance, wrappedClock: time, activeKeyOffsets: offsets,
+                         projectedQuad: points.map { [$0.x, $0.y] })
+        }
+        return (.init(trackOffset: key.offset, textureSlot: slot, resource: resource, randomTableSHA256: table.sha256,
+                      usedStartupFallback: table.usedStartupFallback, samples: samples), draws, canProject)
+    }
+
+    private static func hasSupportedLiteralClocks(_ layers: [[MotionKey]]) -> Bool {
+        (1...256).contains(layers.count) && layers.allSatisfy { layer in
+            guard (1...255).contains(layer.count), (layer.first?.time ?? -1) >= 0,
+                  zip(layer, layer.dropFirst()).allSatisfy({ $0.time < $1.time }),
+                  layer.allSatisfy({ $0.time_control_inputs?.count == 4 }) else { return false }
+            let controls = layer.filter { $0.time_control_inputs?.first != 0 }
+            guard let control = controls.first else { return true }
+            guard controls.count == 1, let input = control.time_control_inputs,
+                  input[0] == 1, input[2] == 0, input[3] == 0,
+                  layer.indices.contains(Int(input[1])) else { return false }
+            return layer[Int(input[1])].time < control.time
+        }
+    }
+
+    private static func interpolationProgress(_ mode: UInt8, fraction: Float, strength: Int32?) -> Float? {
+        switch mode {
+        case 1: return fraction
+        case 3, 4:
+            guard let strength, (0...255).contains(strength) else { return nil }
+            let exponent = Float(1 + 1.4 * Double(strength) / 100)
+            return mode == 3 ? 1 - pow(1 - fraction, exponent) : pow(fraction, exponent)
+        default: return nil
+        }
+    }
+
+    private static func interpolatePackedColor(_ first: UInt32, _ second: UInt32, progress: Float) -> UInt32 {
+        // 0x58ad0f rounds a byte weight; 0x4e09a0 divides each packed lane by 255.
+        let weight = Int((progress * 255).rounded(.toNearestOrEven))
+        var color: UInt32 = 0
+        for shift in [0, 8, 16] {
+            let a = Int((first >> shift) & 255), b = Int((second >> shift) & 255)
+            color |= UInt32((a * (255 - weight) + b * weight) / 255) << shift
+        }
+        return color
+    }
+
+    private static let legacySaveMenuLoopDigests: Set<String> = [
+        "95d1f278b398031e26ae93d5a7c40774979a79ce2012010e9708b99bc455c60d",
+        "56364220b5ae5097dbbb9bf189e60db7c0beaa4d4295f37aa2b7259d62500782",
+        "63334e09b3d483502b03de401134abc5f9c70f9e4fe1ab8e5936de2d6a6a9872",
+        "6e3acebd1c0b2e1bb28c4c0d95c385de30fc7575bd464ebe46c34156ba96983b",
+        "223df70710c923c12451f1e4a17681dd285147eb2e07c40d95ec26499005e62d",
+    ]
+
     private func sampleMotion(_ layers: [[MotionKey]], container: ScriptLocation,
                               selectedMember: Int32, time: Double,
-                              savedLayerTimes: [Int32]? = nil) -> [MotionKey]? {
+                              savedLayerTimes: [Double]? = nil) -> [MotionKey]? {
         guard time >= 0 else { return nil }
         return layers.enumerated().compactMap { entry -> MotionKey? in
             let (layerIndex, layer) = entry
-            let time = savedLayerTimes.map { Double($0[layerIndex]) } ?? time
+            let time = savedLayerTimes.map { $0[layerIndex] } ?? time
             let sampleTime: Double
             if savedLayerTimes != nil {
                 // Saved values already represent each layer's selected time;
@@ -272,6 +764,16 @@ public struct ScriptImageRecipe: Decodable, Sendable {
                 // +0xd4, and the jump carries excess time (0x57f7c7–0x57f8cf).
                 let period = Double(control.time) - Double(start)
                 sampleTime = time < Double(control.time) ? time : Double(start) + (time - Double(control.time)).truncatingRemainder(dividingBy: period)
+            } else if Self.legacySaveMenuLoopDigests.contains(container.sourceSHA256),
+                      layer.allSatisfy({ $0.time_control_inputs == nil }),
+                      layer.first?.time == 0,
+                      let jump = layer.firstIndex(where: { $0.time == 1000 && $0.type == 0 }),
+                      (1...2).contains(jump), layer[jump - 1].time < 1000,
+                      layer[..<jump].allSatisfy({ [4, 6, 11].contains($0.type) }) {
+                // The audited legacy menu tracks jump to the preceding raster
+                // or hit-region key, carrying excess time across the endpoint.
+                let start = Double(layer[jump - 1].time)
+                sampleTime = time < 1000 ? time : start + (time - 1000).truncatingRemainder(dividingBy: 1000 - start)
             } else if container.sourceSHA256 == "5b0f2bc31cc6b14311642df53590c1efd3edec3b6a032e13b90424ce70e99b03",
                selectedMember == 0, layer.first?.offset == 2133,
                layer.count == 4, layer[1].offset == 2573, layer[1].time == 1000 {
@@ -294,6 +796,55 @@ public struct ScriptImageRecipe: Decodable, Sendable {
             guard low > 0 else { return nil }
             let index = low - 1
             var key = layer[index]
+            key.sampledNestedDrawStateIsLiteral = key.nested_literal_draw_state == true ||
+                (sampleTime == Double(key.time) && key.nested_literal_draw_state_at_key == true)
+            if let input = key.type20_input {
+                let next = index < layer.count - 1 ? layer[index + 1] : nil
+                let fraction = next.map { Float((sampleTime - Double(key.time)) / Double($0.time - key.time)) } ?? 0
+                key.sampledType20Input = input.sampled(fraction: fraction, next: next?.type20_input)
+            }
+            if let mode = key.particle_raster_mode, mode.mode == 0 || mode.mode == 1,
+               let fields = key.transform_fields, fields["0x8c"] == 0,
+               let pitch = fields["0x9c"], let yaw = fields["0xa0"],
+               mode.rotation_order == nil && pitch == 0 && yaw == 0 ||
+                   mode.rotation_order == 0 && key.type == 20 && key.blend == 7 && mode.mode == 0 &&
+                   (-360...360).contains(pitch) && (-360...360).contains(yaw),
+               key.type == 20 || fields["0x98"] == 100,
+               let anchor = key.literalAnchorRatio {
+                let next = index < layer.count - 1 ? layer[index + 1] : nil
+                let fraction = next.map { Float((sampleTime - Double(key.time)) / Double($0.time - key.time)) } ?? 0
+                func field(_ name: String, flag: UInt8) -> Float? {
+                    guard let start = fields[name], (-32768...32767).contains(start) else { return nil }
+                    guard mode.mode == 1, mode.flags & flag != 0, fraction > 0 else { return Float(start) }
+                    guard let end = next?.transform_fields?[name], (-32768...32767).contains(end),
+                          next?.particle_raster_mode != nil else { return nil }
+                    return Float(Double(start) * Double(1 - fraction) + Double(end) * Double(fraction))
+                }
+                if mode.mode == 0 || fraction == 0 || mode.flags & 1 == 0,
+                   let x = field("0x84", flag: 2), let y = field("0x88", flag: 2),
+                   let sx = field("0x90", flag: 4), let sy = field("0x94", flag: 4),
+                   let angle = field("0xa4", flag: 8),
+                   let depth = field("0xa8", flag: 32).flatMap(Int64.init(exactly:)),
+                   sx > 0, sy > 0 {
+                    key.sampledParticlePose = .init(translation: SIMD2(x, y),
+                        scale: SIMD2(Float(Double(sx) * 0.01), Float(Double(sy) * 0.01)),
+                        anchor: SIMD2(Float(anchor.x), Float(anchor.y)), angle: angle, depth: depth,
+                        tilt: mode.rotation_order.map { _ in SIMD2(Float(pitch), Float(yaw)) })
+                }
+            }
+            if let input = key.nested_motion_input, input.isLiteralTime {
+                // 0x58bf24 uses mode 0 or linear mode 1 from 0x589ca0.
+                // 0x404aa8 converts the sampled Float by truncating toward zero.
+                if input.mode == 0 || input.mode == 1 && (index == layer.count - 1 || sampleTime == Double(key.time)) {
+                    key.sampledNestedMotionTick = Int32(Float(input.value))
+                } else if input.mode == 1, let next = layer[index + 1].nested_motion_input, next.isLiteralTime {
+                    let duration = Int64(layer[index + 1].time) - Int64(key.time)
+                    let fraction = Float((sampleTime - Double(key.time)) / Double(duration))
+                    let value = Float(Double(Float(input.value)) * Double(1 - fraction) +
+                                      Double(Float(next.value)) * Double(fraction))
+                    key.sampledNestedMotionTick = Int32(value)
+                }
+            }
             if let input = key.dual_texture_raw_inputs, input.layout == "ablayer18",
                (0...255).contains(input.key_c8) {
                 if sampleTime == Double(key.time) || key.opacity_mode_input == 0 || index == layer.count - 1 {
@@ -317,21 +868,48 @@ public struct ScriptImageRecipe: Decodable, Sendable {
                 let opacity = Float(start) * (1 - fraction) + Float(end) * fraction
                 key.sampledOpacity = UInt8(clamping: Int(opacity.rounded(.toNearestOrEven)))
             }
+            if let color = key.nested_color_curve, color.additive <= 0xffffff, color.multiplier <= 0xffffff {
+                if color.mode == 0 || (sampleTime == Double(key.time) && [1, 3, 4].contains(color.mode)) {
+                    key.sampledNestedColors = (color.additive, color.multiplier)
+                } else if index < layer.count - 1, let next = layer[index + 1].nested_color_curve,
+                          next.additive <= 0xffffff, next.multiplier <= 0xffffff {
+                    let duration = Int64(layer[index + 1].time) - Int64(key.time)
+                    let fraction = Float((sampleTime - Double(key.time)) / Double(duration))
+                    if let progress = Self.interpolationProgress(color.mode, fraction: fraction, strength: color.strength) {
+                        key.sampledNestedColors = (
+                            Self.interpolatePackedColor(color.additive, next.additive, progress: progress),
+                            Self.interpolatePackedColor(color.multiplier, next.multiplier, progress: progress))
+                    }
+                }
+                if key.sampledOpacity == nil, let mode = key.opacity_mode_input, index < layer.count - 1,
+                   let start = key.literal_opacity_input, let end = layer[index + 1].literal_opacity_input {
+                    let duration = Int64(layer[index + 1].time) - Int64(key.time)
+                    let fraction = Float((sampleTime - Double(key.time)) / Double(duration))
+                    if let progress = Self.interpolationProgress(mode, fraction: fraction, strength: color.strength) {
+                        let alpha = Float(start) * (1 - progress) + Float(end) * progress
+                        key.sampledOpacity = UInt8(clamping: Int(alpha.rounded(.toNearestOrEven)))
+                    }
+                }
+                if key.nested_mask_mode != nil, let transfer = color.transfer, (0...255).contains(transfer),
+                   let mode = key.opacity_mode_input {
+                    // +0xc8 follows the same byte interpolation as opacity.
+                    if mode == 0 || (sampleTime == Double(key.time) && [1, 3, 4].contains(mode)) {
+                        key.sampledDualTransferValue = transfer
+                    } else if index < layer.count - 1, let target = layer[index + 1].nested_color_curve?.transfer,
+                              (0...255).contains(target) {
+                        let duration = Int64(layer[index + 1].time) - Int64(key.time)
+                        let fraction = Float((sampleTime - Double(key.time)) / Double(duration))
+                        if let progress = Self.interpolationProgress(mode, fraction: fraction, strength: color.strength) {
+                            let value = Float(transfer) * (1 - progress) + Float(target) * progress
+                            key.sampledDualTransferValue = Int32(value.rounded(.toNearestOrEven))
+                        }
+                    }
+                }
+            }
             if sampleTime > Double(key.time), index < layer.count - 1, let mode = key.position_mode_input, mode != 0 {
                 let next = layer[index + 1]
                 let fraction = Float(sampleTime - Double(key.time)) / Float(Int64(next.time) - Int64(key.time))
-                let progress: Float?
-                switch mode {
-                case 1: progress = fraction
-                case 3, 4:
-                    // 0x589df6 / 0x589e31, with the original default curve flag.
-                    progress = key.position_strength_input.flatMap { strength in
-                        guard (0...255).contains(strength) else { return nil }
-                        let exponent = Float(1 + 1.4 * Double(strength) / 100)
-                        return mode == 3 ? 1 - pow(1 - fraction, exponent) : pow(fraction, exponent)
-                    }
-                default: progress = nil
-                }
+                let progress = Self.interpolationProgress(mode, fraction: fraction, strength: key.position_strength_input)
                 if let progress, let x0 = key.transform_fields?["0x84"], let y0 = key.transform_fields?["0x88"],
                    let x1 = next.transform_fields?["0x84"], let y1 = next.transform_fields?["0x88"],
                    [x0, y0, x1, y1].allSatisfy({ (-32768...32767).contains($0) }) {
@@ -453,7 +1031,7 @@ public struct ScriptImageRecipe: Decodable, Sendable {
     /// Geometry candidate for a literal, full-raster key with no additional texture offset.
     /// The caller supplies the host transform. Interpolated local geometry is separate.
     public func fullTextureRectangle(_ key: MotionKey, size: CGSize, host: CGAffineTransform) -> CGRect? {
-        fullTextureRectangle(key, size: size, host: host, anchorOverride: nil)
+        key.type == 4 ? fullTextureRectangle(key, size: size, host: host, anchorOverride: nil) : nil
     }
 
     private func fullTextureRectangle(_ key: MotionKey, size: CGSize, host: CGAffineTransform,
@@ -461,7 +1039,7 @@ public struct ScriptImageRecipe: Decodable, Sendable {
         let areaIsFull = key.source_area_mode_input == nil
             ? key.source_areas?.first == [0, 0, 0, 0]
             : key.sampledFirstSourceArea == [0, 0, 0, 0]
-        guard key.type == 4, areaIsFull,
+        guard areaIsFull,
               let anchor = key.literalAnchorRatio, let local = axisAlignedState([key]),
               local.scaleX > 0, local.scaleY > 0 else { return nil }
         // 0x584b75–0x584bc5 applies anchor translation, scale, then position.
@@ -558,6 +1136,7 @@ public struct ScriptImageRecipe: Decodable, Sendable {
                                         layerOpacity: UInt8 = 255,
                                         states: [MotionKey] = [],
                                         sampling2CandidateSlot: Int32? = nil,
+                                        inheritedSampling: UInt8? = nil,
                                         allowTinyAnchorCandidate: Bool = false,
                                         canvas: inout [[SIMD4<UInt8>]]) throws -> Bool {
         guard key.type == 4 else { throw ResourceError.rejected("unsupported_texture_preview_key") }
@@ -569,10 +1148,13 @@ public struct ScriptImageRecipe: Decodable, Sendable {
               (modes.blend == 1 || modes.blend == 4) else {
             throw ResourceError.rejected("unsupported_texture_preview_raster_modes")
         }
-        let sampling2Candidate = modes.sampling == 2 && modes.blend == 1 &&
+        let sampling = inheritedSampling.flatMap { $0 == 0 ? nil : $0 } ?? modes.sampling
+        let sampling2Candidate = sampling == 2 && modes.blend == 1 &&
             sampling2CandidateSlot != nil && key.texture_numbers?.first == sampling2CandidateSlot &&
             sampling2CandidateSlot.flatMap { boundTextures[$0] } != nil
-        guard modes.sampling == 0 || sampling2Candidate else {
+        let embeddedBilinear = sampling == 2 && modes.blend == 1 &&
+            key.sampledNestedDrawStateIsLiteral && states.isEmpty && boundTextures.isEmpty
+        guard sampling == 0 || sampling2Candidate || embeddedBilinear else {
             throw ResourceError.rejected("unsupported_texture_preview_raster_modes")
         }
         guard let keyOpacity = composedOpacity(texture: key, states: states) else {
@@ -713,21 +1295,63 @@ public struct ScriptImageRecipe: Decodable, Sendable {
               let rasterWidth = Int(exactly: rect.width.rounded()), (1...65536).contains(rasterWidth),
               let rasterHeight = Int(exactly: rect.height.rounded()), (1...65536).contains(rasterHeight),
               (-65536...65536).contains(left), (-65536...65536).contains(top) else {
-            throw ResourceError.rejected("unsupported_texture_preview_geometry")
+            let local = axisAlignedState([key])
+            let scoped = axisAlignedState(states)
+            throw ResourceError.rejected("unsupported_texture_preview_geometry:local=\(local != nil):rect=\(localRect != nil):scoped=\(scoped != nil):texture=\(Int(size.width))x\(Int(size.height)):host_scale=\(hostScale.x),\(hostScale.y):anchor=\(key.literalAnchorRatio != nil)")
         }
         guard (fullArea && modes.blend == 1) ||
                           (hostScale.x == 1 && hostScale.y == 1 && state.scaleX == 1 && state.scaleY == 1 &&
                            rasterWidth == sourceArea[2] && rasterHeight == sourceArea[3]) else {
             throw ResourceError.rejected("scaled_texture_source_area_unsupported")
         }
+        let inherited = inheritedSampling != nil
+        // In the nested queue 0x587d45–0x587d56 truncates the inherited
+        // opacity multiplication, before the scanner prepares its factor.
+        let opacity = (Int(keyOpacity) * Int(layerOpacity) + (inherited ? 0 : 127)) / 255
+        guard opacity > 0 else { return false }
+        let opacityScale = UInt8((opacity >> 1) + (opacity >> 7))
+        if inherited, let colors = key.sampledNestedColors,
+           colors.additive != 0 || colors.multiplier != 0xffffff {
+            guard fullArea, decodedRaster == nil, sampling == 0, modes.blend == 1,
+                  hostScale.x > 0, hostScale.y > 0, rect.size == size,
+                  rect.minX >= 0, rect.minY >= 0,
+                  Int(exactly: rect.minX * 2) != nil, Int(exactly: rect.minY * 2) != nil else {
+                throw ResourceError.rejected("nested_color_raster_geometry_unsupported")
+            }
+            let tint = TwoTexturePixel.scannerColors(additiveRGB: colors.additive, multiplierRGB: colors.multiplier,
+                                                    multiplierAlpha: UInt8(opacity))
+            guard let columns = SingleTextureScanBounds.inclusiveRange(start: Float(rect.minX), end: Float(rect.maxX),
+                    limit: width),
+                  let rows = SingleTextureScanBounds.inclusiveRange(start: Float(rect.minY), end: Float(rect.maxY),
+                    limit: canvas.count) else { return false }
+            // At the integer trailing edge the direct scan reads the replicated texel.
+            var covered = false
+            for y in rows {
+                let row = pixels[min(y - rows.lowerBound, pixels.count - 1)]
+                for x in columns {
+                    let pixel = row[min(x - columns.lowerBound, row.count - 1)]
+                    guard (Int(pixel.w) * Int(tint.multiplier.w)) >> 7 != 0 else { continue }
+                    canvas[y][x] = TwoTexturePixel.blendOntoTarget(
+                        source: SIMD4<Int16>(truncatingIfNeeded: pixel), target: canvas[y][x],
+                        multiplier: tint.multiplier, additive: tint.additive)
+                    covered = true
+                }
+            }
+            return covered
+        }
+        if embeddedBilinear {
+            guard fullArea, decodedRaster == nil, hostScale.x > 0, hostScale.y > 0,
+                  rect.minX >= 0, rect.minY >= 0, rect.size == size,
+                  Int(exactly: rect.minX * 2) != nil, Int(exactly: rect.minY * 2) != nil else {
+                throw ResourceError.rejected("embedded_bilinear_geometry_unsupported")
+            }
+            return Self.drawUnitBilinearRaster(pixels, bounds: rect, opacityScale: opacityScale, canvas: &canvas)
+        }
         let xStart = max(0, -left)
         let yStart = max(0, -top)
         let xEnd = min(rasterWidth, width - left)
         let yEnd = min(rasterHeight, canvas.count - top)
         guard xStart < xEnd, yStart < yEnd else { return false }
-        // Preview modulation. Original scanner color preparation is unverified.
-        let opacity = (Int(keyOpacity) * Int(layerOpacity) + 127) / 255
-        guard opacity > 0 else { return false }
         if let decodedRaster {
             return try decodedRaster.drawRasterPreview(origin: SIMD2(left, top), opacity: UInt8(opacity),
                 size: SIMD2(rasterWidth, rasterHeight), flipX: hostScale.x < 0, flipY: hostScale.y < 0,
@@ -741,7 +1365,8 @@ public struct ScriptImageRecipe: Decodable, Sendable {
             for x in xStart..<xEnd {
                 let sampleX = hostScale.x < 0 ? rasterWidth - 1 - x : x
                 let source = row[sourceArea[0] + sampleX * sourceArea[2] / rasterWidth]
-                let alpha = (Int(source.w) * opacity + 127) / 255
+                let alpha = inherited ? (Int(source.w) * Int(opacityScale)) >> 7 :
+                    (Int(source.w) * opacity + 127) / 255
                 guard alpha != 0 else { continue }
                 coveredPixels = true
                 if modes.blend == 4 {
@@ -755,6 +1380,126 @@ public struct ScriptImageRecipe: Decodable, Sendable {
             }
         }
         return coveredPixels
+    }
+
+    private static func drawUnitBilinearRaster(_ pixels: [[SIMD4<UInt8>]], bounds: CGRect,
+                                               opacityScale: UInt8,
+                                               canvas: inout [[SIMD4<UInt8>]]) -> Bool {
+        guard let sourceWidth = pixels.first?.count, let targetWidth = canvas.first?.count,
+              let columns = SingleTextureScanBounds.coordinateSpan(start: Float(bounds.minX), end: Float(bounds.maxX),
+                sourceStart: 0, sourceEnd: Float(sourceWidth), limit: targetWidth),
+              let rows = SingleTextureScanBounds.coordinateSpan(start: Float(bounds.minY), end: Float(bounds.maxY),
+                sourceStart: 0, sourceEnd: Float(pixels.count), limit: canvas.count) else { return false }
+        // 0x536df8 subtracts half a texel and uses the top seven fractional
+        // bits. Texels outside the image come from its replicated padding.
+        func indices(_ position: Int, length: Int) -> (Int, Int, Int16) {
+            let shifted = position - 32768
+            let left = shifted >> 16
+            return (max(0, min(left, length - 1)), max(0, min(left + 1, length - 1)),
+                    Int16((shifted & 65535) >> 9))
+        }
+        func interpolate(_ a: SIMD4<Int16>, _ b: SIMD4<Int16>, weight: Int16) -> SIMD4<Int16> {
+            a &+ (((b &- a) &* weight) &>> 7)
+        }
+        let xSamples = columns.pixels.enumerated().map { i, _ in
+            indices(Int(columns.firstFixed) + i * Int(columns.stepFixed), length: sourceWidth)
+        }
+        var covered = false
+        for (i, y) in rows.pixels.enumerated() {
+            let (a, b, wy) = indices(Int(rows.firstFixed) + i * Int(rows.stepFixed), length: pixels.count)
+            let upper = pixels[a]
+            let lower = pixels[b]
+            for (x, sample) in zip(columns.pixels, xSamples) {
+                let (a, b, wx) = sample
+                let north = interpolate(SIMD4<Int16>(truncatingIfNeeded: upper[a]),
+                                        SIMD4<Int16>(truncatingIfNeeded: upper[b]), weight: wx)
+                let south = interpolate(SIMD4<Int16>(truncatingIfNeeded: lower[a]),
+                                        SIMD4<Int16>(truncatingIfNeeded: lower[b]), weight: wx)
+                var source = interpolate(north, south, weight: wy)
+                source.w = (source.w * Int16(opacityScale)) >> 7
+                guard source.w != 0 else { continue }
+                covered = true
+                canvas[y][x] = TwoTexturePixel.blendOntoTarget(source: source, target: canvas[y][x])
+            }
+        }
+        return covered
+    }
+
+    private func drawDirectNestedMask(_ key: MotionKey, data: Data, state: DirectNestedDrawState,
+                                      canvas: inout [[SIMD4<UInt8>]]) throws -> Bool {
+        guard key.blend == 0, key.sampling == 0, state.sampling == 0, state.scale == SIMD2(1, 1),
+              key.source_areas == [[0, 0, 0, 0], [0, 0, 0, 0]],
+              let colors = key.sampledNestedColors, let opacity = key.sampledOpacity,
+              let mode = key.nested_mask_mode, mode <= 7, let transfer = key.sampledDualTransferValue,
+              let prepared = TwoTexturePixel.command3Threshold(value: transfer, rawMode: mode),
+              let numbers = key.texture_numbers, numbers.count == 2, numbers[0] != numbers[1],
+              let members = texturesByContainer[ImageMemberRecipe.digest(data)],
+              let first = members[Int(numbers[0])], let second = members[Int(numbers[1])],
+              first.image_anchor_words == [0, 0, 0], second.image_anchor_words == [0, 0, 0],
+              first.format == "PNG", second.format == "PNG",
+              let width = canvas.first?.count else {
+            throw ResourceError.rejected("nested_mask_inputs_unsupported")
+        }
+        let source = try ResourceImage.straightPNGPixels(first.payload(data))
+        let maskData = try second.payload(data)
+        let mask: [[SIMD4<UInt8>]]
+        do {
+            mask = try ResourceImage.straightPNGPixels(maskData)
+        } catch ResourceError.rejected("unsupported_straight_texture_layout") {
+            let raster = try ResourceImage.decode(maskData)
+            guard raster.image.alphaInfo == .none || raster.image.alphaInfo == .noneSkipLast ||
+                  raster.image.alphaInfo == .noneSkipFirst else { throw ResourceError.rejected("nested_mask_layout_unsupported") }
+            mask = try raster.opaqueCanvas(over: CGColor(gray: 0, alpha: 1))
+        }
+        guard let sourceWidth = source.first?.count, let maskWidth = mask.first?.count,
+              sourceWidth > 0, maskWidth > 0, !source.isEmpty, !mask.isEmpty,
+              sourceWidth != maskWidth || source.count != mask.count else {
+            throw ResourceError.rejected("nested_mask_scan_profile_unsupported")
+        }
+        let size = CGSize(width: sourceWidth, height: source.count)
+        let host = CGAffineTransform(translationX: CGFloat(state.origin.x), y: CGFloat(state.origin.y))
+        guard let bounds = fullTextureRectangle(key, size: size, host: host, anchorOverride: nil),
+              bounds.size == size, bounds.minX >= 0, bounds.minY >= 0,
+              Int(exactly: bounds.minX * 2) != nil, Int(exactly: bounds.minY * 2) != nil else {
+            throw ResourceError.rejected("nested_mask_geometry_unsupported")
+        }
+        guard let columns = SingleTextureScanBounds.coordinateSpan(start: Float(bounds.minX), end: Float(bounds.maxX),
+                sourceStart: 0, sourceEnd: Float(sourceWidth), limit: width),
+              let maskColumns = SingleTextureScanBounds.coordinateSpan(start: Float(bounds.minX), end: Float(bounds.maxX),
+                sourceStart: 0, sourceEnd: Float(maskWidth), limit: width),
+              let rows = SingleTextureScanBounds.inclusiveRange(start: Float(bounds.minY), end: Float(bounds.maxY),
+                limit: canvas.count) else { return false }
+        let drawOpacity = UInt8(Int(opacity) * Int(state.opacity) / 255)
+        let tint = TwoTexturePixel.scannerColors(additiveRGB: colors.additive, multiplierRGB: colors.multiplier,
+                                                 multiplierAlpha: drawOpacity)
+        // 0x53a870 advances Y in the edge table as Float; 0x53ac94
+        // converts each row's values, and the per-pixel X steps, to 16.16.
+        let topOffset = Float(rows.lowerBound) - Float(bounds.minY)
+        let maskStepY = Float(mask.count) / Float(bounds.height)
+        var sourceY = topOffset, maskY = topOffset * maskStepY
+        var covered = false
+        for y in rows {
+            let row = source[min(Int((Double(sourceY) * 65536 + 0.5).rounded(.down)) >> 16, source.count - 1)]
+            let maskRow = mask[min(Int((Double(maskY) * 65536 + 0.5).rounded(.down)) >> 16, mask.count - 1)]
+            for (i, x) in columns.pixels.enumerated() {
+                let sx = (Int(columns.firstFixed) + i * Int(columns.stepFixed)) >> 16
+                let mx = (Int(maskColumns.firstFixed) + i * Int(maskColumns.stepFixed)) >> 16
+                let pixel = row[min(sx, sourceWidth - 1)]
+                guard pixel.w != 0 else { continue }
+                let value = TwoTexturePixel.command3Mask(sample: maskRow[min(mx, maskWidth - 1)].x,
+                    threshold: prepared.threshold, gain: prepared.gain, inverted: prepared.inverted)
+                let weight = (Int(value) >> 1) + (Int(value) >> 7)
+                let alpha = (Int(pixel.w) * weight) >> 7
+                guard (alpha * Int(tint.multiplier.w)) >> 7 > 0 else { continue }
+                canvas[y][x] = TwoTexturePixel.blendOntoTarget(
+                    source: SIMD4(Int16(pixel.x), Int16(pixel.y), Int16(pixel.z), Int16(alpha)),
+                    target: canvas[y][x], multiplier: tint.multiplier, additive: tint.additive)
+                covered = true
+            }
+            sourceY += 1
+            maskY += maskStepY
+        }
+        return covered
     }
 
     /// Explicit preview candidate for the audited center-text type-10 path.
@@ -896,6 +1641,19 @@ public struct ScriptImageRecipe: Decodable, Sendable {
     }
 
     /// Candidate for the audited untextured white flash at its default dimension inputs.
+    package func isEmptyFlashTexture(_ key: MotionKey, layer: ScriptMachine.StaticImageLayer) -> Bool {
+        let container = layer.resource
+        // This descriptor has no payload or surface name. Without a binding, the literal
+        // zero rectangle stays zero through 0x584164 and yields a degenerate type-4 quad.
+        return container.byteOffset == 0 && container.byteLength == 766 &&
+            container.sourceSHA256 == container.rangeSHA256 &&
+            container.rangeSHA256 == "dea47b18a5dac17a733523ca0a8c00167bf24217b168bf5330e8f11097f0d354" &&
+            layer.selectedMember == 0 && !layer.unappliedTransform && layer.boundRasterPreview == nil &&
+            layer.boundTextureLocations[0] == nil && embeddedTexture(container, slot: 0) == nil &&
+            key.type == 4 && key.offset == 87 && key.texture_numbers?.first == 0 &&
+            key.sampledFirstSourceArea == [0, 0, 0, 0]
+    }
+
     package func whiteFlashPreview(_ key: MotionKey, container: ScriptLocation) -> (size: SIMD2<Int>, alpha: UInt8)? {
         guard container.byteOffset == 0, container.sourceSHA256 == container.rangeSHA256,
               key.type == 1, key.blend == 1, key.sampling == 0,
@@ -960,11 +1718,36 @@ public struct ScriptImageRecipe: Decodable, Sendable {
         case "script/title/back01.b": staticMember = "bg01.jpg"
         case "script/title/back02.b": staticMember = "bg.png"
         case "script/title/cursor.b": staticMember = "cursor01.png"
+        // The saved title frame's action 0 begins with a verified type-4 draw
+        // from texture slot 0 at tick 0. Show that base image while the title
+        // button's animated state and cursor transitions remain unsupported.
+        case "script/title/button.b" where selectedMember == 0: staticMember = "Memory01.png"
+        // The saved dialogue-window menu button uses action 0 for its named
+        // inactive member. Other actions remain unsupported until their
+        // serialized hover/help selection is mapped.
+        case "avg/window/button_i.b" where selectedMember == 0: staticMember = "ウィンドウ消去_off.png"
+        // The default *Enable action has one audited Frame.jpg texture at slot 0.
+        // This supplies its static base frame; the complete motion is not modeled here.
+        case "avg/window/animation.b" where selectedMember == 0: staticMember = "Frame.jpg"
+        // The small auto control's observed default action is its first
+        // named raster; non-default action selection remains unsupported.
+        case "avg/window/button_s.b" where selectedMember == 0: staticMember = "Auto01.png"
+        case "avg/uppermenu/button_s.b" where selectedMember == 0: staticMember = "ゲームの終了_off.png"
+        // The pinned upper-menu frame has a single slot-0 raster member;
+        // its default NoName action is a one-layer type-4 draw at zero anchor.
+        case "avg/uppermenu/frame.b" where selectedMember == 0: staticMember = "メニューバー.png"
         case "script/saveload/button_l.b": staticMember = "戻る_off.png"
         case "script/saveload/button_data.b": staticMember = "セーブファイル_off.png"
         case "script/saveload/button_delete.b": staticMember = "削除ボタン_off.png"
         case "script/dialog/button_yes.b": staticMember = "確認_はい_off.png"
         case "script/dialog/button_no.b": staticMember = "確認_いいえ_off.png"
+        // Action 0 of these audited log controls draws slot 0 with a 50% center anchor.
+        case "script/log/button_jump.b" where selectedMember == 0 && digest == "338cadc3ac13bb4910489793357c54a1c5ad49a49c3ebb70097984b33e89869c":
+            staticMember = "スキップ_off.png"
+        case "script/log/button_l.b" where selectedMember == 0 && digest == "bf883fe2270eec13464517816f8c93b5606c457db1c08b97033a9ae5dc97e5d1":
+            staticMember = "ゲームに戻る_off.png"
+        case "script/log/button_voice.b" where selectedMember == 0 && digest == "b6d56d4bcac78361763b872a01d8b58fbc7b32e068545a6f7be03184ae918652":
+            staticMember = "音声再生_off.png"
         default: staticMember = nil
         }
         if let staticMember {
@@ -1152,6 +1935,86 @@ public struct ScriptImageRecipe: Decodable, Sendable {
     public func motionNames(_ container: ScriptLocation) -> [String]? {
         entriesByContainer[container.sourceSHA256]?.first { $0.motion_name_candidates != nil }?.motion_name_candidates
     }
+
+    public func motionLayerFlags(_ container: ScriptLocation, selectedMember: Int32) -> [UInt8]? {
+        guard container.byteOffset == 0, container.sourceSHA256 == container.rangeSHA256,
+              let values = entriesByContainer[container.sourceSHA256]?.first(where: {
+                  $0.motion_layer_flags != nil
+              })?.motion_layer_flags?[Int(selectedMember)],
+              values.count <= 256 else { return nil }
+        return values
+    }
+
+    /// Restricted storage-clock candidate for the native per-layer time routine.
+    /// Only literal mode 0 and mode 1 with zero variable lookups are admitted.
+    public func advanceSavedLayerClockCandidate(_ container: ScriptLocation, selectedMember: Int32,
+                                                 layerTimes: [Int32], auxiliary: [Int32], delta: Float)
+        -> (times: [Int32], auxiliary: [Int32])? {
+        let exactLimit: Float = 16_777_216
+        guard delta.isFinite, (0...100_000).contains(delta), layerTimes.count == 256, auxiliary.count == 256,
+              container.byteOffset == 0, container.sourceSHA256 == container.rangeSHA256,
+              let layers = validClockTimelines[container.sourceSHA256]?[Int(selectedMember)] else { return nil }
+        var times = layerTimes.map { Float(bitPattern: UInt32(bitPattern: $0)) }
+        var remaining = auxiliary.map { Float(bitPattern: UInt32(bitPattern: $0)) }
+        for (index, layer) in layers.enumerated() {
+            let current = times[index]
+            let auxiliaryValue = remaining[index]
+            guard current.isFinite, (0...exactLimit).contains(current),
+                  auxiliaryValue.isFinite, (0...exactLimit).contains(auxiliaryValue),
+                  let last = layer.last,
+                  layer.allSatisfy({ $0.time_control_inputs?.count == 4 }) else { return nil }
+            let endTime = Float(last.time)
+            if current >= endTime {
+                times[index] = endTime
+                continue
+            }
+            var next = current
+            if delta > 0 {
+                if auxiliaryValue < delta {
+                    let updated = Double(current) + (Double(delta) - Double(auxiliaryValue))
+                    guard updated.isFinite, updated <= Double(exactLimit) else { return nil }
+                    next = Float(updated)
+                    remaining[index] = 0
+                } else {
+                    remaining[index] = auxiliaryValue - delta
+                }
+            }
+            let active = layer.lastIndex(where: { Float($0.time) <= next }) ?? 0
+            guard layer.indices.contains(active) else { return nil }
+            let activeControl = layer[active].time_control_inputs ?? []
+            if activeControl == [0, 0, 0, 0] {
+                let crossed = layer.enumerated().filter { $0.offset > active && Float($0.element.time) <= next }
+                guard crossed.allSatisfy({ $0.element.time_control_inputs == [0, 0, 0, 0] }) else { return nil }
+                times[index] = min(next, endTime)
+                continue
+            }
+            // The native control-1 branch uses a literal target index when the
+            // remaining control operands are zero, then carries excess time once.
+            guard activeControl.count == 4, activeControl[0] == 1,
+                  activeControl[2] == 0, activeControl[3] == 0,
+                  layer.indices.contains(Int(activeControl[1])) else { return nil }
+            let target = layer[Int(activeControl[1])]
+            let controlTime = Float(layer[active].time)
+            let targetTime = Float(target.time)
+            guard targetTime < controlTime,
+                  layer[..<active].filter({ Float($0.time) > targetTime }).allSatisfy({
+                      $0.time_control_inputs == [0, 0, 0, 0]
+                  }) else { return nil }
+            let destination = Double(targetTime) + (Double(next) - Double(controlTime))
+            guard destination >= 0, destination < Double(controlTime),
+                  destination <= Double(exactLimit),
+                  layer.filter({ Float($0.time) > targetTime && Double($0.time) <= destination })
+                      .allSatisfy({ $0.time_control_inputs == [0, 0, 0, 0] }) else { return nil }
+            times[index] = Float(destination)
+        }
+        return (times.map { Int32(bitPattern: $0.bitPattern) },
+                remaining.map { Int32(bitPattern: $0.bitPattern) })
+    }
+}
+
+private struct ImageLayerClockKey: Decodable, Sendable {
+    let time: Int32
+    let time_control_inputs: [Int32]?
 }
 
 private struct ImageMemberRecipe: Decodable, Sendable {
@@ -1163,6 +2026,43 @@ private struct ImageMemberRecipe: Decodable, Sendable {
         let offset: Int
         let length: Int
         let sha256: String
+    }
+    struct DirectNestedMotion: Decodable, Sendable {
+        let container_sha256: String
+        let offset: Int
+        let length: Int
+        let sha256: String
+        let duration: Int32
+        let loop_start: Int32
+        let timelines: [Int: [[ScriptImageRecipe.MotionKey]]]
+        let canvas: MotionCanvasInputs?
+        let image_anchor_words: [UInt32]?
+        let nested_slots: [Int: DirectNestedMotion]?
+
+        func boundPayload(_ parent: Data, location: ScriptLocation) throws -> Data {
+            guard container_sha256 == location.rangeSHA256, offset >= 22, offset <= parent.count,
+                  length > 0, length <= parent.count - offset,
+                  parent[parent.startIndex + offset - 22] == 6, parent[parent.startIndex + offset - 9] == 0 else {
+                throw ResourceError.rejected("nested_motion_child_unresolved")
+            }
+            let bytes = parent.subdata(in: offset..<offset + length)
+            guard ImageMemberRecipe.digest(bytes) == sha256 else {
+                throw ResourceError.rejected("nested_motion_child_unresolved")
+            }
+            return bytes
+        }
+
+        // 0x5837b4 wraps the child time before recursive queue submission.
+        func wrappedTick(_ value: Int32) throws -> Int32 {
+            guard duration > 0, value >= loop_start else { return value }
+            let period = Int64(duration) - Int64(loop_start)
+            let divisor = period >= 1 ? period : Int64(duration)
+            let wrapped = Int64(loop_start) + (Int64(value) - Int64(loop_start)) % divisor
+            guard let tick = Int32(exactly: wrapped) else {
+                throw ResourceError.rejected("nested_motion_clock_out_of_range")
+            }
+            return tick
+        }
     }
     let imoavi_frame_references: [FrameReference]?
     let motion_canvas_inputs: MotionCanvasInputs?
@@ -1177,10 +2077,13 @@ private struct ImageMemberRecipe: Decodable, Sendable {
     let motion_name_candidates: [String]?
     let non_drawing_motion_indices: [Int32]?
     let motion_key_types: [Int: [Int32]]?
+    let motion_layer_flags: [Int: [UInt8]]?
+    let motion_clock_timelines: [Int: [[ImageLayerClockKey]]]?
     let image_slot: Int?
     let image_anchor_words: [UInt32]?
     let motion_timelines: [Int: [[ScriptImageRecipe.MotionKey]]]?
     let partial_motion_timelines: [Int: [[ScriptImageRecipe.MotionKey]]]?
+    let direct_nested_motion_slots: [Int: DirectNestedMotion]?
     let extended_scalar_values: [Int: Int32]?
     let container_sha256: String
     let offset: Int

@@ -236,15 +236,24 @@ public struct SaveEnvelope: Encodable {
         return UInt32(bitPattern: checksum)
     }
 
-    /// Wrap an already serialized, uncompressed state. A caller-provided seed
-    /// enables the state feedback transform. A missing verification field
-    /// produces a synthetic slot for native tests only.
+    /// Wrap a serialized state in the slot envelope. Native mode 1 uses BPE
+    /// and mode 2 uses runlengthpack before the feedback transform. A missing header
+    /// verification field produces a synthetic slot for tests only.
     package static func encodeSlot(state: Data, metadata: [String], thumbnail: Data,
                                    savedDays: Double, seed: UInt32? = nil,
-                                   headerVerification: Data? = nil) throws -> Data {
+                                   headerVerification: Data? = nil, packedCodec: UInt32? = nil,
+                                   clearHeaderTemplate: Data? = nil, headerSeed: UInt32? = nil) throws -> Data {
         guard metadata.count == 8, savedDays.isFinite, (0..<2_958_466).contains(savedDays),
               state.count <= maxFileBytes, thumbnail.count <= maxFileBytes else {
             throw ResourceError.rejected("save_slot_encoding_bounds")
+        }
+        guard headerVerification == nil || clearHeaderTemplate == nil else {
+            throw ResourceError.rejected("save_header_verification_conflict")
+        }
+        let verificationSeed = headerSeed ?? seed
+        guard clearHeaderTemplate == nil || (clearHeaderTemplate?.count == 40 && verificationSeed != nil),
+              headerSeed == nil || clearHeaderTemplate != nil else {
+            throw ResourceError.rejected("save_header_template_seed_required")
         }
         var payload = Data(repeating: 0, count: 138)
         payload.replaceSubrange(0..<10, with: "IMOSAVE110".utf8)
@@ -253,9 +262,19 @@ public struct SaveEnvelope: Encodable {
                 throw ResourceError.rejected("save_header_verification_size")
             }
             payload.replaceSubrange(16..<56, with: headerVerification)
+        } else if let clearHeaderTemplate, let verificationSeed {
+            var stored = transformState(Data(clearHeaderTemplate.prefix(32)), seed: verificationSeed, encoding: true)
+            stored.append(contentsOf: clearHeaderTemplate.suffix(8))
+            payload.replaceSubrange(16..<56, with: stored)
         }
         payload[56] = 10
         if seed != nil { payload[60] = 1 }
+        if let packedCodec {
+            payload[61] = 1
+            withUnsafeBytes(of: packedCodec.littleEndian) {
+                payload.replaceSubrange(70..<74, with: $0)
+            }
+        }
         withUnsafeBytes(of: savedDays.bitPattern.littleEndian) {
             payload.replaceSubrange(62..<70, with: $0)
         }
@@ -267,15 +286,46 @@ public struct SaveEnvelope: Encodable {
             withUnsafeBytes(of: units.littleEndian) { payload.append(contentsOf: $0) }
             payload.append(text)
         }
-        guard payload.count + 20 + state.count + thumbnail.count <= maxFileBytes else {
+        let packedState: Data
+        switch packedCodec {
+        case nil: packedState = state
+        case 0: packedState = try SaveBPE.encodeLiterals(state)
+        case 1: packedState = try SaveRunLength.encodeLiterals(state)
+        default: throw ResourceError.rejected("unsupported_save_slot_codec")
+        }
+        let storedState = seed.map { transformState(packedState, seed: $0, encoding: true) } ?? packedState
+        guard payload.count + 20 + storedState.count + thumbnail.count <= maxFileBytes else {
             throw ResourceError.rejected("save_envelope_size")
         }
-        let storedState = seed.map { transformState(state, seed: $0, encoding: true) } ?? state
         for section in [thumbnail, storedState] {
             withUnsafeBytes(of: UInt32(section.count).littleEndian) { payload.append(contentsOf: $0) }
             payload.append(section)
         }
         return wrapPayload(payload)
+    }
+
+    /// Validate a complete slot before atomically publishing it over an
+    /// existing regular slot file. The old slot remains intact on validation,
+    /// staging, or rename failure.
+    @discardableResult
+    package static func replaceSlotAtomically(_ name: String, in directory: SafeDirectory,
+                                              with data: Data, seed: UInt32? = nil,
+                                              inferSeed: Bool = false,
+                                              expectedDestination: SafeDirectory.AtomicDestinationExpectation? = nil,
+                                              beforePublish: (() throws -> Void)? = nil,
+                                              afterPublish: (() throws -> Void)? = nil,
+                                              directorySyncErrorForTesting: ((Int32) -> Int32?)? = nil)
+        throws -> SafeDirectory.AtomicReplacementReceipt {
+        let envelope = try SaveEnvelope(data)
+        guard envelope.kind == "slot", envelope.slot != nil else {
+            throw ResourceError.rejected("save_slot_required")
+        }
+        _ = try readSlotMetadata(data)
+        _ = try decodeSlotState(data, seed: seed, inferSeed: inferSeed)
+        return try directory.replaceAtomically(name, data: data, limit: maxFileBytes,
+                                               expectedDestination: expectedDestination,
+                                               beforePublish: beforePublish, afterPublish: afterPublish,
+                                               directorySyncErrorForTesting: directorySyncErrorForTesting)
     }
 
     /// Replace only the preview image in memory, preserving the stored state

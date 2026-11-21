@@ -1,5 +1,27 @@
 import Foundation
 
+enum SaveLayerClockWords {
+    /// The native reader converts each serialized Int32 time word to a floating
+    /// value before storing it in the live object arrays. Keep float bit patterns
+    /// only inside renderer-facing snapshots.
+    static func runtimeFloatBitPatterns(fromSavedWords words: [Int32]) -> [Int32] {
+        words.map { Int32(bitPattern: Float($0).bitPattern) }
+    }
+
+    /// The native writer applies its x87 ROUND helper to each live float before
+    /// writing fixed-record integer words. The default host rounding mode is
+    /// nearest-even; other native rounding modes remain outside this profile.
+    static func savedWords(fromRuntimeFloatBitPatterns words: [Int32]) throws -> [Int32] {
+        try words.map { word in
+            let value = Float(bitPattern: UInt32(bitPattern: word))
+            guard value.isFinite, let rounded = Int32(exactly: Double(value).rounded(.toNearestOrEven)) else {
+                throw ResourceError.rejected("save_layer_clock_word_out_of_range")
+            }
+            return rounded
+        }
+    }
+}
+
 /// Scalar array records at a caller-verified CalVal or ValIdx array offset.
 /// Header bytes and the two serialized text fields retain their original order.
 package struct SaveVariableArrays {
@@ -70,49 +92,80 @@ package struct SaveVariableArrays {
                               groupSpans: spans, nextDecodedOffset: cursor)
     }
 
-    static func encodeIndexedLocals(in state: Data, at offset: Int, frames: [ScriptFrame]) throws
+    private static func generatedIndexedLocals(_ frames: [ScriptFrame], liveStorage: ScriptStorage?) throws -> Data {
+        guard frames.count <= 64 else { throw ResourceError.rejected("save_indexed_locals_frame_count") }
+        var output = Data("ValIdx\0\0".utf8) + Data(repeating: 0, count: 4)
+        let count = UInt32(frames.count)
+        withUnsafeBytes(of: count.littleEndian) { output.append(contentsOf: $0) }
+        let emptyCalVal = Data("CalVal\0\0".utf8) + Data([1, 0, 0, 0]) + Data(repeating: 0, count: 8)
+        for (frameIndex, frame) in frames.enumerated() {
+            var values = liveStorage ?? ScriptStorage()
+            values.global.merge(frame.locals, uniquingKeysWith: { _, local in local })
+            values.system.removeAll()
+            values.frames = [frame]
+            values.globalObjectAliases.formUnion(frame.objectAliases)
+            values.globalAliasReferences.merge(frame.objectAliasReferences, uniquingKeysWith: { _, local in local })
+            var newBindingKeys = Set(frame.locals.keys)
+            let parameterKeys = ["paramcount", "paramint", "paramstr"].map { Data($0.utf8) }
+            if (frame.parameterCount ?? 0) != 0 {
+                guard frame.returnIndex != nil, let count = frame.parameterCount, (0...16).contains(count),
+                      let integers = frame.integerParameters, integers.count == 16,
+                      let strings = frame.stringParameters, strings.count == 16,
+                      parameterKeys.allSatisfy({ !frame.locals.keys.contains($0) && liveStorage?.global[$0] == nil }) else {
+                    throw ResourceError.rejected("save_indexed_call_parameter_shape")
+                }
+                values.global[parameterKeys[0]] = .init(elements: [.integer(count)])
+                values.global[parameterKeys[1]] = .init(elements: integers.map(ScriptValue.integer))
+                values.global[parameterKeys[2]] = .init(elements: strings.map(ScriptValue.string))
+                newBindingKeys.formUnion(parameterKeys)
+            }
+            let unsupported = newBindingKeys.filter { generatedBindingType($0, in: values) == nil }
+            guard unsupported.isEmpty else {
+                let details = unsupported.sorted { $0.lexicographicallyPrecedes($1) }.prefix(8).map { key in
+                    let kinds = values.global[key]?.elements.map { value -> String in
+                        switch value {
+                        case .integer: return "int"
+                        case .string: return "str"
+                        case .object(let handle):
+                            let matches = [
+                                values.tables[handle] != nil ? "table" : nil,
+                                values.lists[handle] != nil ? "list" : nil,
+                                values.images[handle] != nil ? "image" : nil,
+                                values.messages[handle] != nil ? "message" : nil,
+                                values.buttons.contains(handle) ? "button" : nil,
+                                values.timers[handle] != nil ? "timer" : nil,
+                                values.movies[handle] != nil ? "movie" : nil
+                            ].compactMap { $0 }.joined(separator: ",")
+                            return matches.isEmpty ? "object_unknown" : matches
+                        }
+                    }.joined(separator: ",") ?? "missing"
+                    return "\(key.sha256Hex):alias=\(values.globalObjectAliases.contains(key) ? 1 : 0):kind=\(kinds)"
+                }.joined(separator: ";")
+                throw ResourceError.rejected(
+                    "save_indexed_new_binding_type_outside_profile:frame=\(frameIndex):bindings=\(unsupported.count):\(details)")
+            }
+            let generated = try encodeCalValValues(template: emptyCalVal, storage: values,
+                                                   newBindingKeys: newBindingKeys)
+            guard generated.count - 16 <= SaveEnvelope.maxFileBytes - output.count else {
+                throw ResourceError.rejected("save_indexed_locals_size_limit")
+            }
+            output.append(contentsOf: generated.dropFirst(16))
+        }
+        let checked = try inspectValIdx(state: output, at: 0, visit: nil)
+        guard checked.status == .verified, checked.groupCount == frames.count,
+              checked.nextDecodedOffset == output.count else {
+            throw ResourceError.rejected("save_indexed_generated_boundary")
+        }
+        return output
+    }
+
+    static func encodeIndexedLocals(in state: Data, at offset: Int, frames: [ScriptFrame],
+                                   liveStorage: ScriptStorage? = nil) throws
         -> (bytes: Data, end: Int) {
         let indexed = try inspectValIdx(state: state, at: offset, visit: nil)
         let needsGroups = frames.contains { !$0.locals.isEmpty || ($0.parameterCount ?? 0) != 0 }
         if indexed.issue == "validx_tag_absent", needsGroups {
-            guard frames.count <= 64 else { throw ResourceError.rejected("save_indexed_locals_frame_count") }
-            var output = Data("ValIdx\0\0".utf8) + Data(repeating: 0, count: 4)
-            let count = UInt32(frames.count)
-            withUnsafeBytes(of: count.littleEndian) { output.append(contentsOf: $0) }
-            let emptyCalVal = Data("CalVal\0\0".utf8) + Data([1, 0, 0, 0]) + Data(repeating: 0, count: 8)
-            for frame in frames {
-                var values = ScriptStorage()
-                values.global = frame.locals
-                values.globalObjectAliases = frame.objectAliases
-                values.globalAliasReferences = frame.objectAliasReferences
-                let parameterKeys = ["paramcount", "paramint", "paramstr"].map { Data($0.utf8) }
-                if (frame.parameterCount ?? 0) != 0 {
-                    guard frame.returnIndex != nil, let count = frame.parameterCount, (0...16).contains(count),
-                          let integers = frame.integerParameters, integers.count == 16,
-                          let strings = frame.stringParameters, strings.count == 16,
-                          parameterKeys.allSatisfy({ values.global[$0] == nil }) else {
-                        throw ResourceError.rejected("save_indexed_call_parameter_shape")
-                    }
-                    values.global[parameterKeys[0]] = .init(elements: [.integer(count)])
-                    values.global[parameterKeys[1]] = .init(elements: integers.map(ScriptValue.integer))
-                    values.global[parameterKeys[2]] = .init(elements: strings.map(ScriptValue.string))
-                }
-                guard values.global.keys.allSatisfy({ generatedBindingType($0, in: values) != nil }) else {
-                    throw ResourceError.rejected("save_indexed_new_binding_type_outside_profile")
-                }
-                let generated = try encodeCalValValues(template: emptyCalVal, storage: values,
-                                                       newBindingKeys: Set(values.global.keys))
-                guard generated.count - 16 <= SaveEnvelope.maxFileBytes - output.count else {
-                    throw ResourceError.rejected("save_indexed_locals_size_limit")
-                }
-                output.append(contentsOf: generated.dropFirst(16))
-            }
-            let checked = try inspectValIdx(state: output, at: 0, visit: nil)
-            guard checked.status == .verified, checked.groupCount == frames.count,
-                  checked.nextDecodedOffset == output.count else {
-                throw ResourceError.rejected("save_indexed_generated_boundary")
-            }
-            return (output, offset)
+            return (try generatedIndexedLocals(frames, liveStorage: liveStorage), offset)
         }
         guard let groups = indexed.groupSpans, let end = indexed.nextDecodedOffset else {
             guard indexed.issue == "validx_tag_absent", !needsGroups else {
@@ -121,7 +174,11 @@ package struct SaveVariableArrays {
             return (Data(), offset)
         }
         guard groups.count == frames.count || (groups.isEmpty && !needsGroups) else {
-            throw ResourceError.rejected("save_indexed_locals_frame_count")
+            // A real running call stack can differ from the donor save's
+            // indexed-local frame count. Rebuild only from the current live
+            // frame bindings and parameter arrays, then validate the emitted
+            // ValIdx structure before using it.
+            return (try generatedIndexedLocals(frames, liveStorage: liveStorage), end)
         }
         var output = Data(state.dropFirst(offset).prefix(16))
         for (span, frame) in zip(groups, frames) {
@@ -146,7 +203,10 @@ package struct SaveVariableArrays {
             }
             guard template.global.count == group.records.count,
                   Set(template.global.keys) == Set(values.global.keys) else {
-                throw ResourceError.rejected("save_indexed_locals_binding_mismatch")
+                // Donor frames can have the same depth but different locals.
+                // Rebuild the entire group list from the live frames and keep
+                // the original donor boundary for the following engine tail.
+                return (try generatedIndexedLocals(frames, liveStorage: liveStorage), end)
             }
             let header = Data("CalVal\0\0".utf8) + Data([1, 0, 0, 0, 0, 0, 0, 0])
             let source = Data(state.dropFirst(span.decodedOffset).prefix(span.byteLength))
@@ -224,11 +284,13 @@ package struct SaveVariableArrays {
 
     struct TimerPayload: Encodable, Sendable {
         let decodedOffset: Int
+        let baseRecordWord: Int32
         let fixedRecord: SaveReaderCursor.Reference
         let interval: Int32
         let elapsed: Int32
         let enabledByte: UInt8
         let updateMask: UInt32
+        let secondaryUpdateMask: UInt32
         let rawUpdateMode: Int32
         let callbackStrings: [SaveReaderCursor.Reference]
         let nextDecodedOffset: Int
@@ -237,27 +299,39 @@ package struct SaveVariableArrays {
             enabledByte == 0 && elapsed == 0 && interval >= 0 && rawUpdateMode == 0 &&
                 updateMask == 0 && callbackStrings.allSatisfy { $0.length == 0 }
         }
+
+        var isSupportedEnabledCallbackTimer: Bool {
+            enabledByte == 1 && interval > 0 && elapsed >= 0 && elapsed < interval &&
+                updateMask == 0xff && secondaryUpdateMask == 0xff && rawUpdateMode == 0 &&
+                callbackStrings.count == 2 && callbackStrings[0].length > 0
+        }
     }
 
     struct ImagePayload: Encodable, Sendable {
+        let baseRecordWord: Int32
         let fixedRecord: SaveReaderCursor.Reference
         let userIntegerReferences: [SaveReaderCursor.Reference]
         let userIntegerWords: [Int32]
         let userStrings: [SaveReaderCursor.Reference]
         enum CodingKeys: String, CodingKey {
-            case fixedRecord, userIntegerReferences, userStrings, layerTiming, staticPlacement, staticScale, activePlacement
+            case fixedRecord, userIntegerReferences, userStrings, layerTiming, staticPlacement, staticScale, activePlacement, alignment
             case opacityTransition, staticOpacity, textureSlots, rawActionIndex, rawActionElapsed
-            case rawActionClockRemainder, rawActionSpeed, drawGate, enableFlag, decodedOffset
-            case byteLength, imageSource, rawPlacementMode, rawPlacementStrength
+            case rawActionClockRemainder, rawActionSpeed, rawAnimationSpeed, layerAuxiliaryFlags
+            case drawGate, enableFlag, miFlag, decodedOffset
+            case byteLength, imageSource, anchorName, rawPlacementMode, rawPlacementStrength, baseRecordWord
+            case generatorGroup, generatorGroupRecords
+            case filterNames, nativeActionElapsed, drawSettings
         }
         struct LayerTiming: Encodable, Sendable {
             let savedTimeWords: SaveReaderCursor.Reference
             let savedAuxiliaryWords: SaveReaderCursor.Reference
             let nonzeroTimeCount: Int
             let nonzeroAuxiliaryCount: Int
-            let restoreStatus: EvidenceStatus = .unsupported
-            // Keep values in memory for the bounded sampling candidate; reports
-            // expose only ranges, hashes and counts.
+            let restoreStatus: EvidenceStatus = .inferred
+            // img/btn/msg native loaders share the fixed image-record reader,
+            // which converts serialized integers numerically to runtime floats.
+            // Staging retains renderer-facing float bit patterns; reports expose
+            // only ranges, hashes and counts.
             let timeWords: [Int32]
             let auxiliaryWords: [Int32]
             enum CodingKeys: String, CodingKey {
@@ -265,10 +339,19 @@ package struct SaveVariableArrays {
             }
         }
         // The reader restores these two 256-word ranges into per-layer
-        // floating-point state. The current motion candidate does not yet use them.
+        // floating-point state. The local renderer uses them as a candidate.
         let layerTiming: LayerTiming
         let staticPlacement: SIMD3<Int32>?
         let staticScale: SIMD3<Int32>?
+        let alignment: SIMD2<Int32>
+        struct DrawSettings: Encodable, Sendable {
+            let channel: Int32
+            let inputMask: Int32
+            let outputMask: Int32
+            let tabOrder: Int32
+            let textureFilter: Int32
+        }
+        let drawSettings: DrawSettings
         struct ActivePlacement: Encodable, Sendable {
             let origin: SIMD3<Int32>
             let destination: SIMD3<Int32>
@@ -278,6 +361,9 @@ package struct SaveVariableArrays {
             let mode: UInt8
         }
         let activePlacement: ActivePlacement?
+        let generatorGroup: SaveReaderCursor.Reference?
+        let generatorGroupRecords: [SaveImageGenerators.Record]
+        let filterNames: [SaveReaderCursor.Reference]
         struct OpacityTransition: Encodable, Sendable {
             let origin: UInt8
             let target: UInt8
@@ -298,22 +384,50 @@ package struct SaveVariableArrays {
         let rawActionElapsed: Int32
         let rawActionClockRemainder: Int32
         let rawActionSpeed: Int32
+        let rawAnimationSpeed: Int32
+        // For standalone video, the native writer stores animation speed at
+        // +0x810, the layer remainder at +0x814 and action time at +0x898.
+        // Keep the earlier report fields for slots written by research builds.
+        let nativeActionElapsed: Int32
+        var nativeAnimationSpeed: Int32 { rawActionClockRemainder }
+        var nativeLayerRemainder: Int32 { rawAnimationSpeed }
+        let layerAuxiliaryFlags: SaveReaderCursor.Reference
         let drawGate: UInt8
         let enableFlag: UInt8
+        let miFlag: UInt8
         let decodedOffset: Int
         let byteLength: Int
         let imageSource: SaveReaderCursor.Reference?
+        let anchorName: SaveReaderCursor.Reference?
         let rawPlacementMode: UInt8
         let rawPlacementStrength: Int32
+
+        // In the pinned EXE, FUN_005ad744 routes a null file pointer to
+        // FUN_005aae18, which clears the image resource state. A zero-length
+        // filename with no serialized texture slots is therefore an empty
+        // resource identity, not an unresolved external file.
+        static func hasVerifiedEmptyFileResource(source: SaveReaderCursor.Reference?,
+                                                 textureSlots: [TextureSlot]) -> Bool {
+            source == nil && textureSlots.isEmpty
+        }
     }
 
     struct ButtonPayload: Encodable, Sendable {
         let decodedOffset: Int
+        let baseRecordWord: Int32
         let imageLibraryOffset: Int
         let imageSource: SaveReaderCursor.Reference?
+        let anchorName: SaveReaderCursor.Reference?
         let fixedRecordOffset: Int
         let drawableRectangle: [Int32]
         let stringOffsets: [Int]
+        let textStrings: [SaveReaderCursor.Reference]
+        let rawTextCursor: Int32
+        let rawTextMargins: [Int32]
+        let rawKinsokuWordLength: Int32
+        let returnSpacing: SIMD2<Int32>
+        let rawAsEnabled: UInt8
+        let rawApEnabled: UInt8
         let userStrings: [SaveReaderCursor.Reference]
         let userIntegerReferences: [SaveReaderCursor.Reference]
         let userIntegerWords: [Int32]
@@ -322,6 +436,15 @@ package struct SaveVariableArrays {
         let rawImageDrawGate: UInt8
         let rawImageEnableFlag: UInt8
         let rawButtonState: UInt8
+        let layerTiming: ImagePayload.LayerTiming
+        let layerAuxiliaryFlags: SaveReaderCursor.Reference
+        let rawActionIndex: Int32
+        let rawActionElapsed: Int32
+        let rawActionClockRemainder: Int32
+        let rawActionSpeed: Int32
+        let rawAnimationSpeed: Int32
+        let rawSP: [Int32]
+        let spReference: SaveReaderCursor.Reference
         // Version 10's 42-byte button record maps byte 8 to object +0xf08.
         let rawCheckByte: UInt8?
         let rawLockByte: UInt8?
@@ -331,26 +454,35 @@ package struct SaveVariableArrays {
         let nextDecodedOffset: Int
         // Keep raw user values in memory; reports expose only offsets and hashes.
         enum CodingKeys: String, CodingKey {
-            case decodedOffset, imageLibraryOffset, imageSource, fixedRecordOffset, drawableRectangle
-            case stringOffsets, userStrings, userIntegerReferences, soundNames, textureSlots
+            case decodedOffset, imageLibraryOffset, imageSource, anchorName, fixedRecordOffset, drawableRectangle
+            case stringOffsets, textStrings, rawTextCursor, rawTextMargins, rawKinsokuWordLength, rawAsEnabled, rawApEnabled
+            case returnSpacing
+            case userStrings, userIntegerReferences, soundNames, textureSlots
             case rawImageDrawGate, rawImageEnableFlag, rawButtonState, rawCheckByte, rawLockByte
-            case staticPlacement, staticScale, buttonRecordOffset, nextDecodedOffset
+            case layerTiming, layerAuxiliaryFlags, rawActionIndex, rawActionElapsed, rawActionClockRemainder
+            case rawActionSpeed, rawAnimationSpeed
+            case spReference
+            case staticPlacement, staticScale, buttonRecordOffset, nextDecodedOffset, baseRecordWord
         }
     }
 
     struct MessagePayload: Encodable, Sendable {
         let decodedOffset: Int
+        let baseRecordWord: Int32
         let imageLibraryOffset: Int
         let imageSource: SaveReaderCursor.Reference?
+        let anchorName: SaveReaderCursor.Reference?
         let fixedRecordOffset: Int
         let drawableRectangle: [Int32]
         let stringOffsets: [Int]
+        let userStrings: [SaveReaderCursor.Reference]
         // The first two serialized strings are object +0xecc and +0xed0.
         // 0x678edd passes fixed +0x44 with the first to the text replay path.
         let textStrings: [SaveReaderCursor.Reference]
         let rawTextCursor: Int32
         let rawTextMargins: [Int32]
         let rawKinsokuWordLength: Int32
+        let returnSpacing: SIMD2<Int32>
         let rawAsEnabled: UInt8
         let rawApEnabled: UInt8
         let staticPlacement: SIMD3<Int32>?
@@ -359,10 +491,40 @@ package struct SaveVariableArrays {
         let rawActionElapsed: Int32
         let rawActionClockRemainder: Int32
         let rawActionSpeed: Int32
+        let rawAnimationSpeed: Int32
+        let nativeActionIndex: Int32
+        let nativeActionElapsed: Int32
+        let layerTiming: ImagePayload.LayerTiming
+        let layerAuxiliaryFlags: SaveReaderCursor.Reference
         let textureSlots: [ImagePayload.TextureSlot]
         let rawImageDrawGate: UInt8
         let rawImageEnableFlag: UInt8
         let nextDecodedOffset: Int
+
+        /// Earlier local writers use this tuple for an unselected background.
+        /// The native reader can still select an action for a drawable resource.
+        var isNativeResetMotionState: Bool {
+            Self.isNativeResetMotionState(rawActionIndex: rawActionIndex,
+                rawActionElapsed: rawActionElapsed, rawActionClockRemainder: rawActionClockRemainder,
+                rawActionSpeed: rawActionSpeed, rawAnimationSpeed: rawAnimationSpeed)
+        }
+
+        static func isNativeResetMotionState(rawActionIndex: Int32, rawActionElapsed: Int32,
+                                             rawActionClockRemainder: Int32, rawActionSpeed: Int32,
+                                             rawAnimationSpeed: Int32) -> Bool {
+            rawActionIndex == 0 && rawActionElapsed == 0 && rawActionClockRemainder == 100 &&
+                rawActionSpeed == 100 && rawAnimationSpeed == 0
+        }
+
+        // FUN_005ac0b8 serializes TImageLib.FBaseFilename (+0x94) immediately
+        // after the 0xa5e-byte fixed record. RTTI identifies that field, and
+        // FUN_005abb34 calls FUN_005ad744 only when it is nonempty. With no
+        // child texture slots, this proves an empty external file-resource
+        // identity; it does not prove message pixels or callback equivalence.
+        static func hasVerifiedEmptyFileResource(source: SaveReaderCursor.Reference?,
+                                                 textureSlots: [ImagePayload.TextureSlot]) -> Bool {
+            source == nil && textureSlots.isEmpty
+        }
 
         /// Candidate for the primary-buffer path only. Additional native
         /// queues and the original renderer are not reconstructed here.
@@ -648,12 +810,15 @@ package struct SaveVariableArrays {
 
     /// Rebuild a standalone CalVal section with live scalars and inline text objects.
     /// Keep opaque fields from the supplied template. Refuse unsupported live objects.
-    static func generatedBindingType(_ key: Data, in storage: ScriptStorage) -> (kind: UInt8, objectType: String)? {
+    package static let visualPayloadTypes: Set<String> = ["img", "simg", "btn", "sbtn", "msg"]
+
+    static func generatedBindingType(_ key: Data, in storage: ScriptStorage,
+                                    objectPayloads: [UInt64: Data] = [:]) -> (kind: UInt8, objectType: String)? {
         guard let elements = storage.global[key]?.elements, !elements.isEmpty else { return nil }
         if elements.allSatisfy({ $0.integer != nil }) { return (0, "") }
         if elements.allSatisfy({ $0.typeName == "string" }) { return (1, "") }
         if storage.globalObjectAliases.contains(key) {
-            return storage.savedSoundAliasTexts(key) == nil ? nil : (2, "obj")
+            return storage.savedObjectAliasTexts(key) == nil ? nil : (2, "obj")
         }
         let handles = elements.compactMap { value -> UInt64? in
             guard case .object(let handle) = value else { return nil }
@@ -662,11 +827,22 @@ package struct SaveVariableArrays {
         guard handles.count == elements.count else { return nil }
         if handles.allSatisfy({ storage.lists[$0] != nil }) { return (2, "list") }
         if handles.allSatisfy({ storage.tables[$0] != nil }) { return (2, "table") }
+        if handles.count == 1, let handle = handles.first,
+           storage.timers[handle]?.hasSupportedActiveSaveState == true { return (2, "timer") }
+        guard handles.allSatisfy({ objectPayloads[$0] != nil }) else { return nil }
+        if handles.allSatisfy({ storage.messages[$0] != nil }) { return (2, "msg") }
+        if handles.allSatisfy({ storage.buttons.contains($0) }),
+           let first = storage.visualObjectTypes[handles[0]], ["btn", "sbtn"].contains(first),
+           handles.allSatisfy({ storage.visualObjectTypes[$0] == first }) { return (2, first) }
+        if handles.allSatisfy({ storage.images[$0] != nil }),
+           let first = storage.visualObjectTypes[handles[0]], ["img", "simg"].contains(first),
+           handles.allSatisfy({ storage.visualObjectTypes[$0] == first }) { return (2, first) }
         return nil
     }
 
     static func encodeCalValValues(template: Data, storage: ScriptStorage,
-                                   newBindingKeys: Set<Data> = []) throws -> Data {
+                                   newBindingKeys: Set<Data> = [],
+                                   objectPayloads: [UInt64: Data] = [:]) throws -> Data {
         let arrays = try readCalVal(state: template, at: 0)
         guard arrays.nextDecodedOffset == template.count, template.count <= SaveEnvelope.maxFileBytes else {
             throw ResourceError.rejected("save_scalar_template_boundary")
@@ -690,17 +866,127 @@ package struct SaveVariableArrays {
             try append(bytes)
         }
         var names: Set<Data> = []
+        func appendVisualPayload(_ payload: Data) throws {
+            guard payload.count >= 12, payload.prefix(4).elementsEqual("objd".utf8),
+                  payload.withUnsafeBytes({ Int32(littleEndian: $0.loadUnaligned(fromByteOffset: 4, as: Int32.self)) }) == 1,
+                  payload.count <= SaveEnvelope.maxFileBytes - output.count else {
+                throw ResourceError.rejected("save_visual_object_payload_header_or_limit")
+            }
+            try appendText("")
+            try append(payload)
+        }
+        func newActiveTimerPayload(_ handle: UInt64) throws -> Data {
+            guard let timer = storage.timers[handle], timer.hasSupportedActiveSaveState,
+                  storage.savedObjectBaseWords[handle] == 0,
+                  let callback = timer.callback else {
+                throw ResourceError.rejected("save_new_active_timer_state_outside_profile")
+            }
+            var payload = Data("objd".utf8)
+            func word(_ value: Int32) {
+                withUnsafeBytes(of: value.littleEndian) { payload.append(contentsOf: $0) }
+            }
+            word(1)
+            // TImoDataTimer's constructor sets its +0x14 serialized base word to zero.
+            word(0)
+            var fixed = Data(repeating: 0, count: 89)
+            func store(_ value: Int32, at offset: Int) {
+                withUnsafeBytes(of: value.littleEndian) {
+                    fixed.replaceSubrange(offset..<(offset + 4), with: $0)
+                }
+            }
+            store(10, at: 0)
+            store(timer.interval, at: 4)
+            store(timer.elapsed, at: 8)
+            fixed[12] = 1
+            store(0xff, at: 13)
+            store(0xff, at: 17)
+            store(0, at: 21)
+            payload.append(fixed)
+            func text(_ value: String) throws {
+                guard value.utf8.count <= 8192, let count = Int16(exactly: value.utf16.count),
+                      let bytes = value.data(using: .utf16LittleEndian) else {
+                    throw ResourceError.rejected("save_new_active_timer_string_limit")
+                }
+                withUnsafeBytes(of: count.littleEndian) { payload.append(contentsOf: $0) }
+                payload.append(bytes)
+            }
+            try text(callback.label)
+            try text(timer.argument)
+            return payload
+        }
+        var removedBindingCount = 0
         for record in arrays.records {
+            let deletedKey = Data(asciiLower(record.textFields[0]).utf8)
+            if storage.global[deletedKey] == nil, storage.deletedGlobalBindings.contains(deletedKey) {
+                let supported: Bool
+                switch record.values {
+                case .integers, .strings: supported = true
+                case .objectText(let elements):
+                    let objectType = asciiLower(record.textFields[1])
+                    supported = !elements.isEmpty && elements.allSatisfy {
+                        (objectType == "timer" && $0.timerPayload != nil) ||
+                        ((objectType == "list" || objectType == "table") && $0.reference.isEmpty && $0.payload != nil)
+                    }
+                default: supported = false
+                }
+                let flags = record.header.withUnsafeBytes {
+                    UInt32(littleEndian: $0.loadUnaligned(fromByteOffset: 4, as: UInt32.self))
+                }
+                let unique = names.insert(deletedKey).inserted
+                guard supported, flags & 4 != 0, unique else {
+                    throw ResourceError.rejected("save_deleted_binding_outside_profile:key_sha256=\(deletedKey.sha256Hex):supported=\(supported ? 1 : 0):deletable=\(flags & 4 != 0 ? 1 : 0):unique=\(unique ? 1 : 0)")
+                }
+                removedBindingCount += 1
+                continue
+            }
             let objectType = asciiLower(record.textFields[1])
             if objectType == "obj", record.header[record.header.startIndex + 13] == 1,
                case .objectText(let elements) = record.values, !elements.isEmpty {
                 let key = Data(asciiLower(record.textFields[0]).utf8)
                 guard names.insert(key).inserted, let valueOffset = record.valueOffset,
-                      let references = storage.savedSoundAliasTexts(key), references.count == elements.count else {
+                      let references = storage.savedObjectAliasTexts(key), references.count == elements.count else {
                     throw ResourceError.rejected("save_sound_alias_reference_outside_profile")
                 }
                 try append(span(record.decodedOffset, valueOffset))
                 for reference in references { try appendText(reference) }
+                continue
+            }
+            if Self.visualPayloadTypes.contains(objectType), case .objectText(let elements) = record.values,
+               record.header[record.header.startIndex + 13] == 0,
+               !elements.isEmpty, elements.allSatisfy({ $0.reference.isEmpty }) {
+                let key = Data(asciiLower(record.textFields[0]).utf8)
+                guard names.insert(key).inserted else {
+                    throw ResourceError.rejected("save_global_visual_object_duplicate_name")
+                }
+                guard let binding = storage.global[key] else {
+                    throw ResourceError.rejected("save_global_visual_object_binding_missing:elements=\(elements.count)")
+                }
+                guard binding.elements.count == elements.count else {
+                    throw ResourceError.rejected("save_global_visual_object_count_mismatch:template=\(elements.count):live=\(binding.elements.count)")
+                }
+                guard let valueOffset = record.valueOffset else {
+                    throw ResourceError.rejected("save_global_visual_object_value_offset_missing")
+                }
+                let handles = binding.elements.compactMap { value -> UInt64? in
+                    guard case .object(let handle) = value else { return nil }; return handle
+                }
+                guard handles.count == elements.count else {
+                    throw ResourceError.rejected("save_global_visual_object_non_object_binding")
+                }
+                guard handles.allSatisfy({ handle in
+                          if objectType == "msg" { return storage.messages[handle] != nil }
+                          if objectType == "btn" || objectType == "sbtn" {
+                              return storage.buttons.contains(handle) && storage.visualObjectTypes[handle] == objectType
+                          }
+                          return storage.images[handle] != nil && storage.visualObjectTypes[handle] == objectType
+                      }) else {
+                    throw ResourceError.rejected("save_global_visual_object_type_mismatch:template=\(objectType)")
+                }
+                guard handles.allSatisfy({ objectPayloads[$0] != nil }) else {
+                    throw ResourceError.rejected("save_global_visual_object_payload_missing")
+                }
+                try append(span(record.decodedOffset, valueOffset))
+                for handle in handles { try appendVisualPayload(objectPayloads[handle]!) }
                 continue
             }
             if objectType == "timer", case .objectText(let elements) = record.values,
@@ -717,6 +1003,53 @@ package struct SaveVariableArrays {
                 try append(span(record.decodedOffset, intervalOffset))
                 try append(withUnsafeBytes(of: timer.interval.littleEndian) { Data($0) })
                 try append(span(intervalOffset + 4, record.nextDecodedOffset))
+                continue
+            }
+            if objectType == "timer", case .objectText(let elements) = record.values,
+               elements.count == 1, let element = elements.first, element.reference.isEmpty,
+               let payload = element.timerPayload, payload.isSupportedEnabledCallbackTimer {
+                let key = Data(asciiLower(record.textFields[0]).utf8)
+                guard names.insert(key).inserted, let binding = storage.global[key],
+                      binding.elements.count == 1, case .object(let handle) = binding.first,
+                      let timer = storage.timers[handle] else {
+                    throw ResourceError.rejected("save_global_active_timer_binding_identity")
+                }
+                guard timer.enabled, timer.interval > 0, timer.elapsed >= 0, timer.elapsed < timer.interval,
+                      timer.argument.utf8.count <= 8192 else {
+                    throw ResourceError.rejected("save_global_active_timer_runtime_state")
+                }
+                guard let callback = timer.callback, callback.label.hasPrefix("@@"),
+                      callback.program.document.records.indices.contains(callback.index),
+                      callback.program.ancestors[callback.index].isEmpty,
+                      (try? callback.program.label(callback.label)) == callback.index else {
+                    throw ResourceError.rejected("save_global_active_timer_callback_identity")
+                }
+                guard payload.fixedRecord.length == 89 else {
+                    throw ResourceError.rejected("save_global_active_timer_fixed_record_shape")
+                }
+                let fixedOffset = payload.fixedRecord.decodedOffset
+                let fixedEnd = fixedOffset + payload.fixedRecord.length
+                guard fixedOffset >= payload.decodedOffset, fixedEnd <= payload.nextDecodedOffset,
+                      payload.callbackStrings.count == 2,
+                      payload.callbackStrings[0].decodedOffset == fixedEnd + 2,
+                      payload.callbackStrings[1].decodedOffset > payload.callbackStrings[0].decodedOffset,
+                      payload.callbackStrings[1].decodedOffset + payload.callbackStrings[1].length == payload.nextDecodedOffset else {
+                    throw ResourceError.rejected("save_global_active_timer_payload_boundary")
+                }
+                let objectPrefix = span(record.decodedOffset, fixedOffset)
+                try append(objectPrefix)
+                var fixed = span(fixedOffset, fixedEnd)
+                func storeTimerWord(_ value: Int32, at offset: Int) {
+                    withUnsafeBytes(of: value.littleEndian) {
+                        fixed.replaceSubrange((fixed.startIndex + offset)..<(fixed.startIndex + offset + 4), with: $0)
+                    }
+                }
+                storeTimerWord(timer.interval, at: 4)
+                storeTimerWord(timer.elapsed, at: 8)
+                fixed[fixed.startIndex + 12] = 1
+                try append(fixed)
+                try appendText(callback.label)
+                try appendText(timer.argument)
                 continue
             }
             if case .objectText(let elements) = record.values, !elements.isEmpty,
@@ -757,7 +1090,7 @@ package struct SaveVariableArrays {
             case .absent:
                 let key = Data(asciiLower(record.textFields[0]).utf8)
                 guard names.insert(key).inserted, storage.global[key] == nil else {
-                    throw ResourceError.rejected("save_scalar_replacement_identity")
+                    throw ResourceError.rejected("save_scalar_replacement_identity:absent:key_sha256=\(key.sha256Hex):live=\(storage.global[key] == nil ? 0 : 1)")
                 }
                 try append(span(record.decodedOffset, record.nextDecodedOffset))
                 continue
@@ -765,7 +1098,7 @@ package struct SaveVariableArrays {
             let key = Data(asciiLower(record.textFields[0]).utf8)
             guard names.insert(key).inserted, let valueOffset = record.valueOffset,
                   let binding = storage.global[key], binding.elements.count <= 1_000_000 else {
-                throw ResourceError.rejected("save_scalar_replacement_identity")
+                throw ResourceError.rejected("save_scalar_replacement_identity:value:key_sha256=\(key.sha256Hex):live=\(storage.global[key] == nil ? 0 : 1):offset=\(record.valueOffset == nil ? 0 : 1)")
             }
             let newCount = Int32(binding.elements.count)
             if binding.elements.count == oldCount {
@@ -803,7 +1136,7 @@ package struct SaveVariableArrays {
                   name.range(of: #"^#?[a-z_][a-z_0-9]*$"#, options: .regularExpression) != nil else {
                 throw ResourceError.rejected("save_new_scalar_declaration_outside_profile")
             }
-            guard let (kind, objectType) = generatedBindingType(key, in: storage) else {
+            guard let (kind, objectType) = generatedBindingType(key, in: storage, objectPayloads: objectPayloads) else {
                 throw ResourceError.rejected("save_new_binding_type_outside_profile")
             }
             func appendWord(_ word: UInt32) throws {
@@ -822,10 +1155,29 @@ package struct SaveVariableArrays {
             let count = UInt32(binding.elements.count)
             for word in [count, 1, 1, 1, count] { try appendWord(word) }
             if objectType == "obj" {
-                guard let references = storage.savedSoundAliasTexts(key), references.count == binding.elements.count else {
+                guard let references = storage.savedObjectAliasTexts(key), references.count == binding.elements.count else {
                     throw ResourceError.rejected("save_sound_alias_reference_outside_profile")
                 }
                 for reference in references { try appendText(reference) }
+                continue
+            }
+            if objectType == "timer" {
+                guard kind == 2, binding.elements.count == 1,
+                      case .object(let handle) = binding.first else {
+                    throw ResourceError.rejected("save_new_active_timer_binding_shape")
+                }
+                try appendVisualPayload(newActiveTimerPayload(handle))
+                continue
+            }
+            if Self.visualPayloadTypes.contains(objectType) {
+                let handles = binding.elements.compactMap { value -> UInt64? in
+                    guard case .object(let handle) = value else { return nil }; return handle
+                }
+                guard handles.count == binding.elements.count,
+                      handles.allSatisfy({ objectPayloads[$0] != nil }) else {
+                    throw ResourceError.rejected("save_new_visual_object_payload_missing")
+                }
+                for handle in handles { try appendVisualPayload(objectPayloads[handle]!) }
                 continue
             }
             for element in binding.elements {
@@ -847,13 +1199,46 @@ package struct SaveVariableArrays {
                 }
             }
         }
-        if !newBindingKeys.isEmpty {
-            let count = UInt32(arrays.records.count + newBindingKeys.count)
+        if !newBindingKeys.isEmpty || removedBindingCount != 0 {
+            let count = UInt32(arrays.records.count + newBindingKeys.count - removedBindingCount)
             withUnsafeBytes(of: count.littleEndian) { output.replaceSubrange(16..<20, with: $0) }
         }
         let decoded = try readCalVal(state: output, at: 0)
         guard decoded.nextDecodedOffset == output.count else {
             throw ResourceError.rejected("save_scalar_encoding_boundary")
+        }
+        for key in newBindingKeys {
+            guard let (kind, objectType) = generatedBindingType(key, in: storage, objectPayloads: objectPayloads),
+                  kind == 2 else { continue }
+            let name = String(decoding: key, as: UTF8.self)
+            guard let record = decoded.records.first(where: { asciiLower($0.textFields[0]) == name }),
+                  asciiLower(record.textFields[1]) == objectType,
+                  case .objectText(let elements) = record.values,
+                  elements.count == (storage.global[key]?.elements.count ?? -1) else {
+                throw ResourceError.rejected("save_new_object_roundtrip_shape")
+            }
+            if objectType == "timer" {
+                guard elements.count == 1, let element = elements.first, element.reference.isEmpty,
+                      let timer = element.timerPayload, timer.isSupportedEnabledCallbackTimer,
+                      timer.baseRecordWord == 0, let live = storage.global[key]?.first,
+                      case .object(let handle) = live, let timerState = storage.timers[handle],
+                      let callback = timerState.callback,
+                      try timer.callbackStrings[0].utf16Text(in: output) == callback.label,
+                      try timer.callbackStrings[1].utf16Text(in: output) == timerState.argument else {
+                    throw ResourceError.rejected("save_new_active_timer_roundtrip_mismatch")
+                }
+            } else if Self.visualPayloadTypes.contains(objectType) {
+                guard elements.allSatisfy({ element in
+                    guard element.reference.isEmpty else { return false }
+                    switch objectType {
+                    case "msg": return element.messagePayload != nil
+                    case "btn", "sbtn": return element.buttonPayload != nil
+                    default: return element.imagePayload != nil
+                    }
+                }) else {
+                    throw ResourceError.rejected("save_new_visual_object_roundtrip_mismatch")
+                }
+            }
         }
         return output
     }
@@ -976,7 +1361,7 @@ package struct SaveVariableArrays {
                             guard try take(4).elementsEqual("objd".utf8), try integer() == 1 else {
                                 throw ResourceError.rejected("unsupported_saved_timer_object_header")
                             }
-                            _ = try integer()
+                            let baseRecordWord = try integer()
                             let fixedOffset = offset
                             let fixed = try take(89)
                             func timerWord(_ offset: Int) -> Int32 {
@@ -994,38 +1379,53 @@ package struct SaveVariableArrays {
                             }
                             return ObjectElement(reference: reference, payload: nil, buttonPayload: nil, imagePayload: nil,
                                 timerPayload: .init(decodedOffset: objectOffset,
+                                    baseRecordWord: baseRecordWord,
                                     fixedRecord: .init(decodedOffset: fixedOffset, length: fixed.count, sha256: Data(fixed).sha256Hex),
                                     interval: timerWord(4), elapsed: timerWord(8), enabledByte: fixed[fixed.startIndex + 12],
-                                    updateMask: UInt32(bitPattern: timerWord(13)), rawUpdateMode: timerWord(21),
+                                    updateMask: UInt32(bitPattern: timerWord(13)),
+                                    secondaryUpdateMask: UInt32(bitPattern: timerWord(17)), rawUpdateMode: timerWord(21),
                                     callbackStrings: callbackStrings, nextDecodedOffset: offset))
                         }
                         if isButton || isImage || isMessage {
                             guard try take(4).elementsEqual("objd".utf8), try integer() == 1 else {
                                 throw ResourceError.rejected("unsupported_saved_visual_object_header")
                             }
-                            _ = try integer()
+                            let baseRecordWord = try integer()
                             let libraryOffset = offset
                             var imageSource: SaveReaderCursor.Reference?
+                            var imageLayerAuxiliaryFlagsReference: SaveReaderCursor.Reference?
                             var imageTextureSlots: [ImagePayload.TextureSlot] = []
                             var rawActionIndex: Int32 = -1
                             var rawActionElapsed: Int32 = 0
                             var rawActionClockRemainder: Int32 = 0
                             var rawActionSpeed: Int32 = 100
+                            var rawAnimationSpeed: Int32 = 100
+                            var nativeActionIndex: Int32 = 0
+                            var nativeActionElapsed: Int32 = 0
+                            var rawButtonSP: [Int32] = [0, 0]
+                            var buttonSPReference: SaveReaderCursor.Reference?
                             var rawPlacementMode: UInt8 = 0
                             var rawPlacementStrength: Int32 = 0
                             var imageFixedRecord: SaveReaderCursor.Reference?
                             var imageLayerTiming: ImagePayload.LayerTiming?
                             var imageStaticPlacement: SIMD3<Int32>?
                             var imageStaticScale: SIMD3<Int32>?
+                            var imageAlignment = SIMD2<Int32>.zero
+                            var imageDrawSettings: ImagePayload.DrawSettings?
                             var activePlacement: ImagePayload.ActivePlacement?
                             var imageStaticOpacity: UInt8?
                             var imageOpacityTransition: ImagePayload.OpacityTransition?
                             var imageDrawGate: UInt8 = 0
                             var imageEnableFlag: UInt8 = 0
+                            var imageMIFlag: UInt8 = 0
                             var buttonUserStrings: [SaveReaderCursor.Reference] = []
                             var buttonUserIntegerReferences: [SaveReaderCursor.Reference] = []
                             var buttonUserIntegerWords: [Int32] = []
                             var buttonSoundNames: [SaveReaderCursor.Reference] = []
+                            var imageGeneratorGroup: SaveReaderCursor.Reference?
+                            var imageGeneratorGroupRecords: [SaveImageGenerators.Record] = []
+                            var imageFilterNames: [SaveReaderCursor.Reference] = []
+                            var imageAnchorName: SaveReaderCursor.Reference?
                             try state.withUnsafeBytes { bytes in
                                 try SaveStatePrefix.walkImageLibrary(bytes, take: { count in
                                     let start = offset
@@ -1059,6 +1459,25 @@ package struct SaveVariableArrays {
                                         buttonSoundNames.append(.init(decodedOffset: range.lowerBound,
                                             length: range.count, sha256: Data(bytes[range]).sha256Hex))
                                     }
+                                }, visitFilterName: { range in
+                                    if isImage {
+                                        imageFilterNames.append(.init(decodedOffset: range.lowerBound, length: range.count,
+                                            sha256: Data(bytes[range]).sha256Hex))
+                                    }
+                                }, visitLayerAuxiliaryBytes: { range in
+                                    imageLayerAuxiliaryFlagsReference = .init(decodedOffset: range.lowerBound,
+                                        length: range.count, sha256: Data(bytes[range]).sha256Hex)
+                                }, visitGeneratorGroup: { range, records in
+                                    if isImage && !range.isEmpty {
+                                        imageGeneratorGroup = .init(decodedOffset: range.lowerBound, length: range.count,
+                                            sha256: Data(bytes[range]).sha256Hex)
+                                        imageGeneratorGroupRecords = records
+                                    }
+                                }, visitAnchorName: { range in
+                                    if !range.isEmpty {
+                                        imageAnchorName = .init(decodedOffset: range.lowerBound, length: range.count,
+                                                sha256: Data(bytes[range]).sha256Hex)
+                                    }
                                 }, visit: { start, _, sourceRange, slots, _ in
                                     imageTextureSlots = slots.map { .init(index: $0.index, name: $0.name, embeddedOffset: $0.embeddedOffset, embeddedLength: $0.embeddedLength) }
                                     let fixed = start..<sourceRange.lowerBound - 2
@@ -1067,34 +1486,51 @@ package struct SaveVariableArrays {
                                     // 0x5ab666 checks the draw gate; 0x5ad0dc reads the separate enable flag.
                                     imageDrawGate = bytes[start + 0x9f9]
                                     imageEnableFlag = bytes[start + 0x9fa]
+                                    imageMIFlag = bytes[start + 0x8b4]
                                     rawPlacementMode = bytes[start + 0x9fd]
                                     func field(_ offset: Int) -> Int32 {
                                         Int32(littleEndian: bytes.loadUnaligned(fromByteOffset: start + offset, as: Int32.self))
                                     }
                                     if isImage {
+                                        imageAlignment = SIMD2(field(0x8f1), field(0x8f5))
+                                        imageDrawSettings = .init(channel: field(0x8a0), inputMask: field(0x8bd),
+                                            outputMask: field(0x8c1), tabOrder: field(0x8cd), textureFilter: field(0x9b9))
+                                    }
+                                    if isButton {
+                                        rawButtonSP = [field(0x8c5), field(0x8c9)]
+                                        let range = (start + 0x8c5)..<(start + 0x8cd)
+                                        buttonSPReference = .init(decodedOffset: range.lowerBound, length: range.count,
+                                            sha256: Data(bytes[range]).sha256Hex)
+                                    }
+                                    if isImage || isButton || isMessage {
                                         let timeRange = (start + 4)..<(start + 0x404)
                                         let auxiliaryRange = (start + 0x404)..<(start + 0x804)
-                                        let times = (0..<256).map { field(4 + $0 * 4) }
-                                        let auxiliaries = (0..<256).map { field(0x404 + $0 * 4) }
-                                        imageLayerTiming = .init(
-                                            savedTimeWords: .init(decodedOffset: timeRange.lowerBound,
-                                                length: timeRange.count, sha256: Data(bytes[timeRange]).sha256Hex),
-                                            savedAuxiliaryWords: .init(decodedOffset: auxiliaryRange.lowerBound,
-                                                length: auxiliaryRange.count, sha256: Data(bytes[auxiliaryRange]).sha256Hex),
+                                        let times: [Int32] = (0..<256).map { field(4 + $0 * 4) }
+                                        let auxiliaries: [Int32] = (0..<256).map { field(0x404 + $0 * 4) }
+                                        let savedTimeWords = SaveReaderCursor.Reference(decodedOffset: timeRange.lowerBound,
+                                            length: timeRange.count, sha256: Data(bytes[timeRange]).sha256Hex)
+                                        let savedAuxiliaryWords = SaveReaderCursor.Reference(decodedOffset: auxiliaryRange.lowerBound,
+                                            length: auxiliaryRange.count, sha256: Data(bytes[auxiliaryRange]).sha256Hex)
+                                        let timing = ImagePayload.LayerTiming(savedTimeWords: savedTimeWords,
+                                            savedAuxiliaryWords: savedAuxiliaryWords,
                                             nonzeroTimeCount: times.filter { $0 != 0 }.count,
                                             nonzeroAuxiliaryCount: auxiliaries.filter { $0 != 0 }.count,
                                             timeWords: times, auxiliaryWords: auxiliaries)
+                                        imageLayerTiming = timing
                                     }
                                     rawPlacementStrength = field(0x9f1)
-                                    if isImage || isMessage {
-                                        // 0x5abda9 passes fixed record +0x804 to 0x57e840.
-                                        rawActionIndex = field(0x804)
-                                        // 0x5abe27 writes the accumulated action clock.
+                                    if isImage || isButton || isMessage {
+                                        // Older local slots use +0x80c. The native reader at 0x5abda9 uses +0x808.
+                                        rawActionIndex = field(0x80c)
+                                        nativeActionIndex = field(0x808)
+                                        // Preserve research-build field names in reports.
                                         rawActionElapsed = field(0x894)
-                                        // 0x5abe1a restores the pending delta separately from elapsed time.
                                         rawActionClockRemainder = field(0x810)
-                                        // 0x5abea4–0x5abeb4 restores the speed through 0x5ae608.
-                                        rawActionSpeed = field(0x80c)
+                                        // 0x5abd99 passes +0x8ac to playback-speed setter 0x5ae668.
+                                        rawActionSpeed = field(0x8ac)
+                                        rawAnimationSpeed = field(0x814)
+                                        // 0x5abe21–0x5abe27 restores +0x898 to the manager's action clock.
+                                        nativeActionElapsed = field(0x898)
                                     }
                                     if isImage {
                                         // 0x5ab74e multiplies the stored alpha into the draw command.
@@ -1136,7 +1572,7 @@ package struct SaveVariableArrays {
                                            (0..<2).allSatisfy({ (-16_777_216...16_777_216).contains(scale[$0]) }) {
                                             imageStaticScale = scale
                                         }
-                                    } else if bytes[start + 0x9fd] <= 1, placementRepeats == 0,
+                                    } else if [UInt8(0), 1, 3].contains(bytes[start + 0x9fd]), placementRepeats == 0,
                                               placementRemaining <= min(placementDuration, Int32.max / 1024),
                                               [0x925, 0x929, 0x931, 0x935, 0x93d, 0x941, 0x949, 0x94d].allSatisfy({ field($0) == 0 }),
                                               originScale.z == 100, scale.z == 100,
@@ -1145,7 +1581,9 @@ package struct SaveVariableArrays {
                                         let origin = SIMD3(field(0x909), field(0x90d), field(0x911))
                                         let destination = SIMD3(field(0x915), field(0x919), field(0x91d))
                                         if (0..<3).allSatisfy({ (-16_777_216...16_777_216).contains(origin[$0]) &&
-                                            (-16_777_216...16_777_216).contains(destination[$0]) }) {
+                                            (-16_777_216...16_777_216).contains(destination[$0]) }) &&
+                                            (bytes[start + 0x9fd] == 0 || ScriptStorage.PlacementTransition.canSample(
+                                                mode: bytes[start + 0x9fd], strength: field(0x9f1))) {
                                             imageStaticScale = originScale
                                             let mode = bytes[start + 0x9fd]
                                             activePlacement = .init(origin: origin, destination: destination, destinationScale: scale,
@@ -1161,14 +1599,21 @@ package struct SaveVariableArrays {
                                 })
                             }
                             if isImage {
-                                guard let imageFixedRecord, let imageLayerTiming else { throw ResourceError.rejected("missing_saved_image_fixed_record") }
+                                guard let imageFixedRecord, let imageLayerTiming,
+                                      let imageLayerAuxiliaryFlagsReference, let imageDrawSettings else {
+                                    throw ResourceError.rejected("missing_saved_image_fixed_record")
+                                }
                                 return ObjectElement(reference: reference, payload: nil, buttonPayload: nil,
-                                    imagePayload: .init(fixedRecord: imageFixedRecord, userIntegerReferences: buttonUserIntegerReferences, userIntegerWords: buttonUserIntegerWords, userStrings: buttonUserStrings, layerTiming: imageLayerTiming, staticPlacement: imageStaticPlacement, staticScale: imageStaticScale, activePlacement: activePlacement, opacityTransition: imageOpacityTransition, staticOpacity: imageStaticOpacity, textureSlots: imageTextureSlots, rawActionIndex: rawActionIndex, rawActionElapsed: rawActionElapsed, rawActionClockRemainder: rawActionClockRemainder, rawActionSpeed: rawActionSpeed, drawGate: imageDrawGate, enableFlag: imageEnableFlag, decodedOffset: objectOffset, byteLength: offset - objectOffset,
-                                                        imageSource: imageSource, rawPlacementMode: rawPlacementMode,
+                                    imagePayload: .init(baseRecordWord: baseRecordWord, fixedRecord: imageFixedRecord, userIntegerReferences: buttonUserIntegerReferences, userIntegerWords: buttonUserIntegerWords, userStrings: buttonUserStrings, layerTiming: imageLayerTiming, staticPlacement: imageStaticPlacement, staticScale: imageStaticScale, alignment: imageAlignment, drawSettings: imageDrawSettings, activePlacement: activePlacement, generatorGroup: imageGeneratorGroup, generatorGroupRecords: imageGeneratorGroupRecords, filterNames: imageFilterNames, opacityTransition: imageOpacityTransition, staticOpacity: imageStaticOpacity, textureSlots: imageTextureSlots, rawActionIndex: rawActionIndex, rawActionElapsed: rawActionElapsed, rawActionClockRemainder: rawActionClockRemainder, rawActionSpeed: rawActionSpeed, rawAnimationSpeed: rawAnimationSpeed, nativeActionElapsed: nativeActionElapsed, layerAuxiliaryFlags: imageLayerAuxiliaryFlagsReference, drawGate: imageDrawGate, enableFlag: imageEnableFlag, miFlag: imageMIFlag, decodedOffset: objectOffset, byteLength: offset - objectOffset,
+                                                        imageSource: imageSource, anchorName: imageAnchorName, rawPlacementMode: rawPlacementMode,
                                                         rawPlacementStrength: rawPlacementStrength))
                             }
                             let fixedOffset = offset
                             let fixed = try take(189)
+                            let returnSpacing = fixed.withUnsafeBytes { bytes in
+                                SIMD2(Int32(littleEndian: bytes.loadUnaligned(fromByteOffset: 0x84, as: Int32.self)),
+                                      Int32(littleEndian: bytes.loadUnaligned(fromByteOffset: 0x9d, as: Int32.self)))
+                            }
                             // 0x678e69–0x678e87 passes these fields to the rectangle setter.
                             let rectangle = fixed.withUnsafeBytes { bytes in
                                 (0..<4).map { Int32(littleEndian: bytes.loadUnaligned(
@@ -1178,7 +1623,7 @@ package struct SaveVariableArrays {
                             let strings = try (0..<5).map { _ in
                                 let start = offset
                                 _ = try string()
-                                if isMessage {
+                                if isMessage || isButton {
                                     let payload = Data(state[(state.startIndex + start + 2)..<(state.startIndex + offset)])
                                     textReferences.append(.init(decodedOffset: start + 2, length: payload.count,
                                                                 sha256: payload.sha256Hex))
@@ -1186,22 +1631,29 @@ package struct SaveVariableArrays {
                                 return start
                             }
                             if isMessage {
+                                guard let imageLayerTiming, let imageLayerAuxiliaryFlagsReference else {
+                                    throw ResourceError.rejected("missing_saved_message_layer_state")
+                                }
                                 // 0x68cc34 and 0x68cca4 use the common button
                                 // loader/writer without the derived 42-byte tail.
                                 return ObjectElement(reference: reference, payload: nil, buttonPayload: nil, imagePayload: nil,
-                                    messagePayload: .init(decodedOffset: objectOffset, imageLibraryOffset: libraryOffset,
-                                        imageSource: imageSource, fixedRecordOffset: fixedOffset, drawableRectangle: rectangle,
-                                        stringOffsets: strings, textStrings: textReferences,
+                                    messagePayload: .init(decodedOffset: objectOffset, baseRecordWord: baseRecordWord,
+                                        imageLibraryOffset: libraryOffset,
+                                        imageSource: imageSource, anchorName: imageAnchorName, fixedRecordOffset: fixedOffset, drawableRectangle: rectangle,
+                                        stringOffsets: strings, userStrings: buttonUserStrings, textStrings: textReferences,
                                         rawTextCursor: fixed.withUnsafeBytes { Int32(littleEndian: $0.loadUnaligned(fromByteOffset: 0x44, as: Int32.self)) },
                                         rawTextMargins: fixed.withUnsafeBytes { bytes in
                                             [0x90, 0x94].map { Int32(littleEndian: bytes.loadUnaligned(fromByteOffset: $0, as: Int32.self)) }
                                         }, rawKinsokuWordLength: fixed.withUnsafeBytes {
                                             Int32(littleEndian: $0.loadUnaligned(fromByteOffset: 0x8c, as: Int32.self))
-                                        }, rawAsEnabled: fixed[fixed.startIndex + 0x9a],
+                                        }, returnSpacing: returnSpacing, rawAsEnabled: fixed[fixed.startIndex + 0x9a],
                                         rawApEnabled: fixed[fixed.startIndex + 0x9b],
                                         staticPlacement: imageStaticPlacement, staticScale: imageStaticScale,
                                         rawActionIndex: rawActionIndex, rawActionElapsed: rawActionElapsed,
                                         rawActionClockRemainder: rawActionClockRemainder, rawActionSpeed: rawActionSpeed,
+                                        rawAnimationSpeed: rawAnimationSpeed,
+                                        nativeActionIndex: nativeActionIndex, nativeActionElapsed: nativeActionElapsed,
+                                        layerTiming: imageLayerTiming, layerAuxiliaryFlags: imageLayerAuxiliaryFlagsReference,
                                         textureSlots: imageTextureSlots,
                                         rawImageDrawGate: imageDrawGate, rawImageEnableFlag: imageEnableFlag,
                                         nextDecodedOffset: offset))
@@ -1213,13 +1665,32 @@ package struct SaveVariableArrays {
                             }
                             let checkByte = buttonVersion == 10 ? buttonRecord[buttonRecord.startIndex + 8] : nil
                             let lockByte = buttonVersion == 10 ? buttonRecord[buttonRecord.startIndex + 9] : nil
+                            guard let imageLayerTiming, let imageLayerAuxiliaryFlagsReference, let buttonSPReference else {
+                                throw ResourceError.rejected("missing_saved_button_layer_state")
+                            }
                             return ObjectElement(reference: reference, payload: nil,
-                                buttonPayload: .init(decodedOffset: objectOffset, imageLibraryOffset: libraryOffset, imageSource: imageSource,
-                                    fixedRecordOffset: fixedOffset, drawableRectangle: rectangle, stringOffsets: strings, userStrings: buttonUserStrings,
+                                buttonPayload: .init(decodedOffset: objectOffset, baseRecordWord: baseRecordWord,
+                                    imageLibraryOffset: libraryOffset, imageSource: imageSource, anchorName: imageAnchorName,
+                                    fixedRecordOffset: fixedOffset, drawableRectangle: rectangle, stringOffsets: strings,
+                                    textStrings: textReferences,
+                                    rawTextCursor: fixed.withUnsafeBytes { Int32(littleEndian: $0.loadUnaligned(fromByteOffset: 0x44, as: Int32.self)) },
+                                    rawTextMargins: fixed.withUnsafeBytes { bytes in [0x90, 0x94].map { Int32(littleEndian: bytes.loadUnaligned(fromByteOffset: $0, as: Int32.self)) } },
+                                    rawKinsokuWordLength: fixed.withUnsafeBytes { Int32(littleEndian: $0.loadUnaligned(fromByteOffset: 0x8c, as: Int32.self)) },
+                                    returnSpacing: returnSpacing,
+                                    rawAsEnabled: fixed[fixed.startIndex + 0x9a],
+                                    rawApEnabled: fixed[fixed.startIndex + 0x9b],
+                                    userStrings: buttonUserStrings,
                                     userIntegerReferences: buttonUserIntegerReferences, userIntegerWords: buttonUserIntegerWords, soundNames: buttonSoundNames,
                                     textureSlots: imageTextureSlots,
                                     rawImageDrawGate: imageDrawGate, rawImageEnableFlag: imageEnableFlag,
-                                    rawButtonState: fixed[fixed.startIndex + 0x98], rawCheckByte: checkByte, rawLockByte: lockByte,
+                                    rawButtonState: fixed[fixed.startIndex + 0x98],
+                                    layerTiming: imageLayerTiming, layerAuxiliaryFlags: imageLayerAuxiliaryFlagsReference,
+                                    rawActionIndex: rawActionIndex, rawActionElapsed: rawActionElapsed,
+                                    rawActionClockRemainder: rawActionClockRemainder, rawActionSpeed: rawActionSpeed,
+                                    rawAnimationSpeed: rawAnimationSpeed,
+                                    rawSP: rawButtonSP,
+                                    spReference: buttonSPReference,
+                                    rawCheckByte: checkByte, rawLockByte: lockByte,
                                     staticPlacement: imageStaticPlacement,
                                     staticScale: activePlacement == nil ? imageStaticScale : nil,
                                     buttonRecordOffset: buttonOffset, nextDecodedOffset: offset), imagePayload: nil)

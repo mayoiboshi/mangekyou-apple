@@ -132,25 +132,59 @@ package struct SaveSystemData {
         try scalarBindings().count
     }
 
+    static func encodeNew(from storage: ScriptStorage, headerTemplate: Data, seed: UInt32) throws -> Data {
+        guard headerTemplate.count == 44 else {
+            throw ResourceError.rejected("system_data_header_bounds")
+        }
+        let hashSeed = headerTemplate.withUnsafeBytes {
+            UInt32(littleEndian: $0.loadUnaligned(fromByteOffset: 40, as: UInt32.self))
+        }
+        let emptyLog = try SaveHashSection.encodeEmpty(seed: hashSeed)
+        let variables = try SaveRunLength.encodeLiterals(Data(repeating: 0, count: 4))
+        // 0x6aeb97–0x6aebf8 clears 124 bytes, copies the tag and 40-byte
+        // template, sets the codec, then transforms the first 32 template bytes.
+        var payload = Data("IMOSYSDATA12".utf8)
+        payload.append(Data(repeating: 0, count: 16 - payload.count))
+        payload.append(transform(Data(headerTemplate.prefix(32)), seed: seed, decode: false))
+        payload.append(headerTemplate.dropFirst(32).prefix(8))
+        withUnsafeBytes(of: UInt32(2).littleEndian) { payload.append(contentsOf: $0) }
+        payload.append(Data(repeating: 0, count: 64))
+        for section in [transform(variables, seed: seed, decode: false), emptyLog, emptyLog] {
+            withUnsafeBytes(of: UInt32(section.count).littleEndian) { payload.append(contentsOf: $0) }
+            payload.append(section)
+        }
+        return try Self(data: SaveEnvelope.wrapPayload(payload), headerTemplate: headerTemplate)
+            .replacingScalars(from: storage)
+    }
+
     /// Rewrite matched scalars and both explicitly updated log tables.
     func replacingScalars(from storage: ScriptStorage) throws -> Data {
         let originalBindings = try scalarBindings()
         let originalKeys = Set(originalBindings.keys)
         let liveKeys = Set(storage.system.keys)
         let transient = liveKeys.subtracting(originalKeys)
-        guard originalKeys.isSubset(of: liveKeys), transient.isSubset(of: storage.transientButtonResultNames),
-              transient.allSatisfy({ key in
-                  guard let binding = storage.system[key], binding.elements.count == 4 else { return false }
-                  if key == Data("resultbtnint".utf8) { return binding.elements.allSatisfy { $0.integer != nil } }
-                  if key == Data("resultbtnstr".utf8) { return binding.elements.allSatisfy { $0.typeName == "string" } }
-                  return false
-              }) else {
-            throw ResourceError.rejected("system_data_live_binding_set_mismatch")
+        let missing = originalKeys.subtracting(liveKeys)
+        guard missing.isEmpty else {
+            throw ResourceError.rejected("system_data_live_bindings_missing_count_\(missing.count)")
+        }
+        let runtimeResultNames = Set([
+            "resultint", "resultstr", "resultobj", "resultclkint", "resultsubint", "resultsubstr",
+            "resultbtnint", "resultbtnstr"
+        ].map { Data($0.utf8) }).union(storage.transientButtonResultNames)
+        let newBindingKeys = transient.subtracting(runtimeResultNames)
+        let nonScalarNewBindings = newBindingKeys.filter { key in
+            guard let binding = storage.system[key], !binding.elements.isEmpty else { return true }
+            return !binding.elements.allSatisfy({ $0.integer != nil }) &&
+                !binding.elements.allSatisfy({ $0.typeName == "string" })
+        }
+        guard nonScalarNewBindings.isEmpty else {
+            throw ResourceError.rejected("system_data_new_global_non_scalar_count_\(nonScalarNewBindings.count)")
         }
         var staged = ScriptStorage()
-        staged.global = storage.system.filter { originalKeys.contains($0.key) }
+        staged.global = storage.system.filter { originalKeys.contains($0.key) || newBindingKeys.contains($0.key) }
         let header = Data("CalVal\0\0".utf8) + Data([1, 0, 0, 0, 0, 0, 0, 0])
-        let encoded = try SaveVariableArrays.encodeCalValValues(template: header + decodedVariables, storage: staged)
+        let encoded = try SaveVariableArrays.encodeCalValValues(template: header + decodedVariables,
+            storage: staged, newBindingKeys: newBindingKeys)
         let values = Data(encoded.dropFirst(header.count))
         let packed = try SaveRunLength.encodeLiterals(values)
         let transformed = Self.transform(packed, seed: seed, decode: false)

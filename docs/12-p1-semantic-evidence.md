@@ -355,8 +355,40 @@
 
 对话记录跳转在 data8 `script/log/main.s` 第 71 行用 `tdat ?g` 查询检查点，第 78–80 行在 `srct` 切换之间执行 `tdat l`。原生 `?g` 查询已用合成脚本验证，保留、容量淘汰和清空分别得到 1、0、0。原版内存来源加载候选在 `0x6cc76f` 查找对象，命中时在 `0x6cc784` 以非空 ECX、零 EDX 调用与磁盘读档相同的 `0x6addcc`。尚未确认外层指令如何选中该分支，也未验证内存检查点的场景和执行栈恢复。
 
+`verified`（补充固定 EXE 的外层分派）。`0x6bf3c5–0x6bf411` 分别把 `mdat`、`tdat` 关联到 `+0x104`、`+0x108` 的容器。类型 `0x20`、`0x21` 经 `0x6aaebe` 的跳转表进入 `0x6ab1a5`、`0x6ab1bb`，两个包装器均调用 `0x6cc630`。缺名时 `0x6cc73e–0x6cc7b7` 保留零并写入发起方的 `ResultInt[0]`。命中时才调用 `0x6addcc`。保存例程的末端把模式 1、2 分别变换为封装参数 1、2，内存流和磁盘分支均调用 `0x6908cc`。读取器的内存流分支转入 `0x6903f8`。以上为静态调用及参数证据，正向恢复的状态与媒体交接仍为 `not_tested`。固定字节范围见 `private/save-menu-research/memory-checkpoint-load-20261121/native/named-load-static.json`。
+
 `verified`（日志检查点保存参数与原版内存流）。data8 `avg/avgsystem_logjump.s:99–106` 的默认容量为 16，保存选项为 14、模式为 1，并允许配置覆盖。原版跳转表 `0x6cc6a5` 将 `l` 分派至 `0x6cc73e`，将 `s` 分派至 `0x6cc7b8`。保存侧在 `0x6cc86e–0x6cc87a` 向序列化器 `0x6ae2b4` 传入流、选项和模式，成功后才在 `0x6cc892` 存入命名容器。加载侧以该流调用 `0x6addcc`。因此原版检查点包含按选项序列化的数据，移植端当前保存的 `ScriptStorage` 快照尚未证明与这份内容等价。选项控制的各数据段仍待核对。
 
-`verified`（日志检查点默认选项 14 的分支选择）。序列化器 `0x6ae2b4` 用选项位 `0x04` 跳过 `SystemDataSave`（`0x6ae2f4–0x6ae30b`），用 `0x02` 向图形状态写入器 `0x6926d0` 传布尔真（`0x6ae3f6–0x6ae405`），用 `0x01` 向堆栈存档数据写入器 `0x5b22c0` 传布尔假（`0x6ae4cf–0x6ae4de`），并用 `0x08` 跳过 `0x6ae538–0x6ae605` 的画面捕获分支。两个写入器内部如何使用所传布尔值、以及加载时对现有状态的合并规则，仍待核对。
+`verified`（日志检查点默认选项 14 的分支选择）。序列化器 `0x6ae2b4` 用选项位 `0x04` 跳过 `SystemDataSave`（`0x6ae2f4–0x6ae30b`），用 `0x02` 向图形状态写入器 `0x6926d0` 传布尔真（`0x6ae3f6–0x6ae405`），用 `0x01` 向 `+0x104` 的 `mdat` 容器写入器 `0x5b22c0` 传布尔假（`0x6ae4cf–0x6ae4de`），并用 `0x08` 跳过 `0x6ae538–0x6ae605` 的画面捕获分支。
 
-`verified`（默认日志检查点的内嵌段）。默认选项令 `0x6926d0` 的布尔参数为真，`0x69270d` 与 `0x692767` 因此跳过两个内嵌显示表面分支。默认选项令 `0x5b22c0` 的布尔参数为假，`0x5b22eb` 因此进入 `0x5b2306–0x5b2343`，写实际容器条数并逐条调用 `0x5b24d8`，而布尔真分支写零条。以上只确认保存行为。加载时容器是否替换、截断或与当前容器合并仍为 `not_tested`。
+`verified`（默认日志检查点的内嵌段）。默认选项令 `0x6926d0` 的布尔参数为真，`0x69270d` 与 `0x692767` 因此跳过两个内嵌显示表面分支。默认选项令 `0x5b22c0` 的布尔参数为假，`0x5b22eb` 因此进入 `0x5b2306–0x5b2343`，写实际 `mdat` 条数并逐条调用 `0x5b24d8`，而布尔真分支写零条。
+
+`verified`（固定 EXE 中内嵌 `mdat` 的恢复方式）。`0x6ae100–0x6ae106` 读取 `+0x104` 的容器并调用 `0x5b219c`。读取器先经 `0x5b2160` 移除旧条目，再读 68 字节容器固定段和条数。逐条由 `0x5b2440` 读入 UTF-16 名称、8 字节固定段、长度及流，随后按文件原顺序追加。名称查找 `0x5b234c` 从首条向后，`0x414b08` 对 ASCII 字母折叠大小写，其余 UTF-16 码元直接比较。固定 EXE SHA-256 及各窗口的原始偏移、长度、范围摘要见 `private/save-menu-research/memory-store-wire-20261121/windows.json`。静态调用路径已核对，原版运行时行为为 `not_tested`。
+
+`verified`（固定 EXE 的内存条目时间字段）。`0x5b201e` 和 `0x5b2053` 调用 `0x4189f8` 并把返回值写为条目偏移 8 的浮点数，封装器在 `0x690b87` 使用相同例程生成槽头时间。新条目的固定 8 字节使用与新槽头相同的本地日期编码，读取的旧条目保留原有字段。原始偏移、长度和摘要见 `private/save-menu-research/live-memory-capture-20261121/static.json`。字段路径与本地写回为 `verified`，原版实玩档对照为 `not_tested`。
+
+`verified`（随第四作提供的回跳配置）。`data8.pack/avg/setting.txt` 第 147、152、153 行配置容量 64、选项 14、模式 2。`data8.pack/avg/avgsystem_logjump.s` 第 99–101 行读取该表，键缺失时才回退到容量 16、选项 14、模式 1。封装器 `0x69095b–0x690965` 将模式 2 写为压缩算法 1。`data8.pack/script/sequence/onload.s` 第 11 行清除 `tdat`，日志跳转使用紧随其后的 `@@!NoClearTempData` 入口。固定字节与脚本范围见 `private/save-menu-research/temporary-checkpoint-20261121/static.json`。原版菜单运行时交接为 `not_tested`。
+
+`verified`（日志查询与回跳标记）。`data0.pack/sysstartup.s` 第 52–53 行将 `@@!Log` 转入日志模块。其第 71 行查询条目，第 78–80 行切换目标并加载；固定 EXE `0x6cb45c–0x6cb468` 在存在 `+0xc8` 父对象时返回该对象。`0x6b8280–0x6b8296` 读取对话日志对象的 `+0x04` 计数并写入第一个整数结果，与原脚本第 436–437 行查询并使用条数的路径一致。固定范围见 `private/save-menu-research/linked-log-jump-20261121/static.json`。本地验证覆盖已暂存候选的提交和回退，原版菜单确认后的动态等价为 `not_tested`。
+
+`verified`（图像优先字段与模式 1 格式）。图像分派的 `0x6c5899–0x6c58b7` 到达 `0x6c6580`，其 `0x6c65a9` 将单参数 `pri` 的整数写到基类 `+0x14`。`0x6c65c1` 的 `?pri` 读取同一字段。`objd` 在 `0x68bd9b`、`0x68bdf2` 使用同一地址读写 4 字节，故 Swift 复用现有的 `savedObjectBaseWords`。封装器 `0x69094a–0x690954` 为模式 1 设压缩标志及算法 0，`0x4e1d31–0x4e1d9d` 支持 BPE 字典跳过和两字节数据块长度。Swift 字面块在现有 `testSaveBPEDictionaryExpansionAndOutputBound` 中通过三个块的封装回读。固定范围见 `private/save-menu-research/log-image-commands-20261121/static.json`。静态字段、格式及本地回读为 `verified`，原版实玩档的动态等价为 `not_tested`。
+
+`verified`（日志布局中的图像与滚动条状态）。图像分派 `0x6c79c4–0x6c79ca` 进入 `mi` setter，`0x6c7fe3–0x6c7fed` 比较整数是否等于 1，并将结果写入对象 `+0xbec`。`0x6c8008` 的查询检查同一字节是否非零。固定记录从 `+0x338` 起，Swift 在 `+0x8b4` 读写该字节。滚动条 `0x67dd82` 保留第四参数，前三个资源按顺序装入 `+0x150/+0x154/+0x158`。`0x67e9b4` 依据第四参数分派两套轴向运算。`0x6cc25d`、`0x6cc26e` 用 `0x5ae6bc` 设置前两个子对象的音量组。固定范围与布局字节见 `private/save-menu-research/log-mask-bar-20261121/static.json`。本地验证覆盖命令状态及 `mi` 写读，指针路由与滚动条像素为 `not_tested`。
+
+`verified`（日志数组及空文件名查询）。`0x6afe35–0x6afe50` 的累计减法将 `sarr` 分派至 `0x6b0206`，逐参数交给 `0x69d7b4`。`0x69d815–0x69d824` 把维度下限设为 1，载入全局值表后经 `0x69e338` 和 `0x69de68` 调用对象的数组调整槽。对象方法 `0x69e764` 对比旧长度和新长度，收缩分支处理尾元素，增长分支分配新尾元素。Swift 这一轮的动态范围限于全局自有的图像、按钮和消息数组。`fexs` 的固定 EXE 分支在 `0x6b1411` 检查最终解析的名称，空值时保留结果零；Swift 对空字符串直接返回零。固定范围及脚本行摘要见 `private/save-menu-research/log-array-20261121/static.json`。本地数组、空名及脚本回放为 `verified`，原版菜单点选动态等价为 `not_tested`。
+
+`verified`（文字区域、数学比较与锚点的静态路径）。`?tda` 在 `0x6c94bd–0x6c950b` 读取消息对象 `+0xdf4/+0xdf8/+0xdfc/+0xe00`。`0x678869` 清零四项，`0x6784fe–0x67850a` 更新当前行最大字高，`0x678518` 调用 `0x678368` 合并横向笔位置和纵向笔位置加行高。Swift 保留累积与清除规则，字形推进采用本地 CoreText。原版 Win32 字体度量为 `not_tested`。`math max` 在 `0x6c0134–0x6c013a` 作有符号比较，`0x6c015b` 填写整数结果。`anc` 在 `0x6c698a–0x6c6992` 写入图像 `+0x88` 的引用字符串，图像读档 `0x5abcca` 和写档 `0x5ac300` 使用同一字段。`0x5adeb0` 解析该引用并进入变换处理，该轮尚未接入 Swift 的对应动态路径。固定范围见 `private/save-menu-research/log-text-area-20261121/static.json`。
+
+`verified`（锚点读写和日志选择）。固定 EXE `0x5abcb2–0x5abccf` 将图像库最后的字符串读入 `+0x88`，`0x5ac2fd–0x5ac30a` 写回同一字段。父级解析在 `0x5adeb0–0x5adf0c`，矩阵处理调用 `0x50b37c`，直接父级 `+0x50` 的 Z 复制到子级 `+0x90` 后参与绘制。`0x5adcc4` 的位置查询读取局部 Z。Swift 本地回放验证平移和局部查询，原版画面等价为 `not_tested`。`vi` 和 `?vi` 分别在 `0x6cc0e2`、`0x6cc141` 从最大值减去参数或当前值。原菜单按钮路径经 `@@!LogJumpSub` 暂存了读档候选，该轮在 `onload.s` 第 21 行的 `tsub` 停止。固定 EXE 的 `0x6b0f6c–0x6b0f76` 将此调用交给父实例，原脚本回调可在 `data8.pack/avg/imoscripter_custom.s` 第 1388 行定位。固定范围见 `private/save-menu-research/log-anchor-20261121/static.json`。
+
+`verified`（日志回跳转场）。固定 EXE 的 `0x6d17dd–0x6d18c4` 在父实例执行回调并检查返回层级。`vexs` 的 `0x6b157f–0x6b15ac` 从选中的实例查找变量类别并向调用方写入结果。`del` 在类别 3 时经 `0x69f074` 进入 `0x6a0308` 的局部帧删除。当前实现仅对无别名引用的单个局部图像开放该对象删除路径。命令行用受控双条目执行原转场及实际主回调后完成接管，回调中断时原会话保持。二进制范围与回执见 `private/save-menu-research/log-onload-20261121/static.json` 和 `summary.json`。两次捕获使用回放输入 PNG，原版动态渲染为 `not_tested`。
+
+`verified`（日志回跳的两次截图来源）。固定 EXE `0x6d70c1–0x6d70e5` 匹配 `$$$gamethreadimagez:` 并经 `0x6d6cf8` 使用游戏渲染入口，`0x6d6d39–0x6d6d82` 解析截图参数并调用 `0x6d15f8`。命令行在原版日志和转场脚本中分别渲染暂停会话和暂存检查点，两次画布摘要均与受控图层的独立像素计算一致；第二次截图失败会撤回恢复候选。原版动态画面与窗口输入为 `not_tested`。来源范围和回执见 `private/save-menu-research/log-transition-capture-20261121/summary.json`。
+
+`verified`（从真实对白调用日志）。`data8.pack/avg/avgsystem_custom.s` 第 292 行注册 `$10009` 到 `log` 和 `@@!Log`。固定 EXE 在 `0x6d07ed–0x6d07fc` 将 `log` 归为类型 6，`0x6baf74–0x6bafa7` 保留向系统线程投递时使用的目标字段，`0x6c08b7` 检查日志锁位 `0x10`。CLI 在普通对白等待中根据该注册和当前锁进入日志。两条真实剧情检查点均完成接管和下一批对白输入，命令行音轨预检保留未取整秒数，真正超出时长的隔离样本仍拒绝。证据见 `private/save-menu-research/log-story-input-20261121/static.json` 和 `summary.json`。物理输入与原版动态音画为 `not_tested`。
+
+`verified`（日志方向键与翻页）。`data8.pack/script/log/main.s` 第 219–233 行从 `k2` 接收方向键和翻页键，再进入原有位置更新分支。第 105、107 行以 `ScrollBar[0]` 取滚动条并用单参数 `vi` 反向设置目标。固定 EXE `0x6cc0b0–0x6cc123` 读取反向值和动画控制，`0x6caa6e–0x6caaa8` 对 `swp,1` 调用 `0x5a48a8` 清除活动滑动状态。资源为空的锚点使用 `0x5ae22d–0x5ae292` 对应的零坐标初始化。命令行和播放器诊断均从真实剧情翻到原先在画布外的检查点并续玩。证据见 `private/save-menu-research/log-navigation-20261121/summary.json`。滚轮、滚动条拖动和物理键盘为 `not_tested`。
+
+`verified`（日志的滚轮采样）。固定 EXE `0x5a3851–0x5a3883` 依据滚动累计值的符号设置向上或向下事件，把带符号的值复制到输入对象 `+0x64`，随后清除累计值。`0x6ca654–0x6ca67e` 将 `+0x64` 放到 `?mw` 的结果槽。`data8.pack/script/log/main.s` 第 206–215 行将两个事件交给 `@@!WheelNoCancel`，第 105–109 行沿用反向滚动值和限幅。真实剧情命令行和播放器诊断均经此路径把画布外旧检查点滚入可选范围并续玩。来源引用和运行回执见 `private/save-menu-research/log-wheel-20261121/summary.json`。物理事件匹配和原版运行时等价为 `not_tested`。
+
+`verified`（日志纵向滚动条与回跳）。固定 EXE `0x67e9de–0x67ea09` 以滑块画布高的一半和轨道画布高计算纵向端点，`0x67e3c6–0x67e424` 把宿主坐标换算为限幅值并标记变更。`0x67e142–0x67e16d` 按下滑块时保留抓取偏移，`0x67ec21–0x67ec82` 计算显示位置。真实资源的时间零轨道命中区为 `34×528`，滑块画布高 47。命令行和播放器诊断经原版 `gsc`、`@@!Bar` 移动列表并续玩。macOS 位置采用布局第 53 行提供的三个参数，第四参数的原版运行结果为 `not_tested`。固定字节和验证回执见 `private/save-menu-research/log-scrollbar-20261121/static.json`、`resources.json` 和 `summary.json`。

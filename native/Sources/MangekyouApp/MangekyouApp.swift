@@ -147,6 +147,7 @@ import MangekyouMedia
 
 @main struct MangekyouApplication: App {
     @StateObject private var model = LibraryModel()
+    @NSApplicationDelegateAdaptor(PlayerApplicationExit.self) private var applicationExit
     @Environment(\.openWindow) private var openWindow
     private let launch: PlayerLaunch?
 
@@ -168,7 +169,7 @@ import MangekyouMedia
         WindowGroup(launch == nil ? "Mangekyou" : "万華鏡试玩") {
             Group {
                 if let launch {
-                    PlayerWindow(library: model, launch: launch)
+                    PlayerWindow(library: model, launch: launch, applicationExit: applicationExit)
                 } else {
                     LibraryView(model: model)
                         .frame(minWidth: 960, minHeight: 640)
@@ -184,7 +185,7 @@ import MangekyouMedia
             }
         }
         Window("万華鏡试玩", id: "player") {
-            PlayerWindow(library: model)
+            PlayerWindow(library: model, applicationExit: applicationExit)
                 .preferredColorScheme(.dark)
         }
     }

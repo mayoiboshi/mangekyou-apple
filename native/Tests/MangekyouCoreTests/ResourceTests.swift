@@ -6,6 +6,58 @@ import ImageIO
 import MangekyouMedia
 
 final class ResourceTests: XCTestCase {
+    func testChromaCandidatePreservesAlphaAndChecksBounds() throws {
+        let pixels = Data([255, 0, 0, 7, 255, 255, 255, 200, 1, 2, 3, 0])
+        let expected = Data([84, 84, 84, 7, 254, 254, 254, 200, 1, 1, 1, 0])
+        XCTAssertEqual(try ChromaFilterCandidate.desaturate(pixels, width: 3, height: 1), expected)
+        XCTAssertThrowsError(try ChromaFilterCandidate.desaturate(pixels, width: 2, height: 1))
+        XCTAssertThrowsError(try ChromaFilterCandidate.desaturate(pixels, width: 0, height: 1))
+    }
+    func testColorFillScreenCandidatePreservesAlphaAndHandlesOpacity() throws {
+        let pixels = Data([0, 0, 0, 7, 100, 100, 100, 200, 255, 255, 255, 0])
+        let expected = Data([8, 16, 32, 7, 105, 110, 120, 200, 255, 255, 255, 0])
+        XCTAssertEqual(Array(try ChromaFilterCandidate.screenFill(pixels, width: 3, height: 1, color: 0x80402010)), Array(expected))
+        XCTAssertEqual(try ChromaFilterCandidate.screenFill(pixels, width: 3, height: 1, color: 0x00402010), pixels)
+        XCTAssertThrowsError(try ChromaFilterCandidate.screenFill(pixels, width: 1, height: 1, color: 0xff000000))
+    }
+    func testBlurCandidateTwoPassEdgesAndBounds() throws {
+        XCTAssertEqual(BlurFilterCandidate.parameters("blur,10,10")?.horizontal, 10)
+        XCTAssertNil(BlurFilterCandidate.parameters("blur,-1,10"))
+        XCTAssertNil(BlurFilterCandidate.parameters("blur,129,10"))
+        XCTAssertNil(BlurFilterCandidate.parameters("other,10,10"))
+        let input = Data([UInt8(0), 90, 180, 255].flatMap { [$0, $0, $0, 255] })
+        let output = try BlurFilterCandidate.apply(input, width: 2, height: 2, horizontal: 2, vertical: 2)
+        XCTAssertEqual(Array(output), [116,116,116,255, 125,125,125,255,
+                                       135,135,135,255, 144,144,144,255])
+        XCTAssertEqual(try BlurFilterCandidate.apply(input, width: 2, height: 2, horizontal: 0, vertical: 0), input)
+        XCTAssertThrowsError(try BlurFilterCandidate.apply(input, width: 2, height: 2, horizontal: 129, vertical: 0))
+    }
+    func testSavedLayerClockUsesNativeFloatWordsAndScaledDelta() throws {
+        let containerSHA = String(repeating: "a", count: 64)
+        let recipeData = try JSONSerialization.data(withJSONObject: [[
+            "container_sha256": containerSHA,
+            "offset": 0,
+            "length": 1,
+            "sha256": containerSHA,
+            "motion_clock_timelines": ["0": [[
+                ["time": 0, "time_control_inputs": [0, 0, 0, 0]],
+                ["time": 1_000, "time_control_inputs": [0, 0, 0, 0]]
+            ]]]
+        ]])
+        let recipe = try JSONDecoder().decode(ScriptImageRecipe.self, from: recipeData)
+        let location = ScriptModuleReference(logicalPath: "clock.b", sourceFile: "clock.b",
+            sourceSHA256: containerSHA).wholeFileLocation(byteLength: 1)
+        let times = Array(repeating: Int32(0), count: 256)
+        let auxiliary = Array(repeating: Int32(0), count: 256)
+
+        let advanced = try XCTUnwrap(recipe.advanceSavedLayerClockCandidate(location,
+            selectedMember: 0, layerTimes: times, auxiliary: auxiliary, delta: 7.5))
+
+        XCTAssertEqual(Float(bitPattern: UInt32(bitPattern: advanced.times[0])), 7.5)
+        XCTAssertEqual(Float(bitPattern: UInt32(bitPattern: advanced.auxiliary[0])), 0)
+        XCTAssertEqual(advanced.times.dropFirst().allSatisfy({ $0 == 0 }), true)
+    }
+
     func testPitchShiftCandidateKeepsSpectralStateAcrossBlocks() throws {
         var input: [Int32] = []
         for i in 0..<6000 {
@@ -178,6 +230,17 @@ final class ResourceTests: XCTestCase {
         try plain.drawRasterPreview(origin: .zero, opacity: 255, canvas: &plainCanvas)
         XCTAssertNotEqual(constrainedCanvas, plainCanvas)
 
+        layer.lineBreakCandidate = .init(reserve: 0, prohibitedLineStart: "、", prohibitedLineEnd: "（")
+        let disabledTable = try ResourceImage.textPreview(layer, width: 100, height: 80)
+        XCTAssertFalse(disabledTable.notes.contains(where: { $0.hasPrefix("line_break_candidate:") }))
+        let wrapped = try ResourceImage.textPreview(layer, width: 50, height: 80)
+        XCTAssertTrue(wrapped.notes.contains(where: { $0.hasPrefix("line_break_candidate:") }))
+        layer.lineBreakCandidate = nil
+        let standard = try ResourceImage.textPreview(layer, width: 100, height: 80)
+        let disabledPixels = try XCTUnwrap(disabledTable.image.dataProvider?.data) as Data
+        let standardPixels = try XCTUnwrap(standard.image.dataProvider?.data) as Data
+        XCTAssertEqual(disabledPixels, standardPixels)
+
         let prefix = ScriptMachine.MessageTextLayer.Run(text: "甲乙", width: 20, height: 20,
             ruby: nil, colorARGB: 0xffff_ffff, fontName: nil)
         let indent = ScriptMachine.MessageTextLayer.Run(text: "", width: 20, height: 20,
@@ -192,6 +255,22 @@ final class ResourceTests: XCTestCase {
             scaleXPercent: 100, scaleYPercent: 100, isVisible: true, priority: 0)
         let rubyRaster = try ResourceImage.textPreview(layer, width: 65, height: 80)
         XCTAssertTrue(rubyRaster.notes.contains("line_break_candidate:1"))
+
+        let paragraph = ScriptMachine.MessageTextLayer.Run(text: "「甲乙丙\n甲乙", width: 20, height: 20,
+            ruby: nil, colorARGB: 0xffff_ffff, fontName: nil)
+        layer = ScriptMachine.MessageTextLayer(id: 1, runs: [paragraph],
+            lineBreakCandidate: .init(reserve: 1, prohibitedLineStart: "、", prohibitedLineEnd: "（"),
+            canvasBounds: [0, 0, 65, 220], surfaceMargins: [0, 0], x: 0, y: 0,
+            scaleXPercent: 100, scaleYPercent: 100, isVisible: true, priority: 0)
+        let noSpacing = try ResourceImage.textPreview(layer, width: 65, height: 220)
+        layer.returnSpacing = .init(matching: 12, ordinary: 16, words: "「")
+        let spaced = try ResourceImage.textPreview(layer, width: 65, height: 220)
+        XCTAssertTrue(spaced.notes.contains("plain_line_layout_applied"))
+        XCTAssertNotEqual(try XCTUnwrap(spaced.image.dataProvider?.data) as Data,
+                          try XCTUnwrap(noSpacing.image.dataProvider?.data) as Data)
+        let clipped = try ResourceImage.textPreview(layer, width: 65, height: 140)
+        XCTAssertTrue(clipped.notes.contains("text_truncated"))
+        XCTAssertFalse(clipped.notes.contains("plain_line_layout_applied"))
     }
 
     func testTextPreviewRendersFractionallyScaledAndMirroredSurface() throws {
@@ -631,6 +710,24 @@ final class ResourceTests: XCTestCase {
             XCTAssertFalse(try directory.entries().contains { $0.name.hasPrefix(".mangekyou-stage-") })
         }
     }
+    func testAtomicSlotReplacementPreservesOldFileOnFailure() throws {
+        try temporary { root in
+            let directory = try SafeDirectory(root)
+            let previous = Data(repeating: 0x31, count: 4096)
+            let replacement = Data(repeating: 0x72, count: 8192)
+            try directory.writeNewAtomically("SaveData0.svd", data: previous)
+            XCTAssertThrowsError(try directory.replaceAtomically("SaveData0.svd", data: replacement,
+                                                                   limit: replacement.count - 1))
+            XCTAssertEqual(try directory.read("SaveData0.svd"), previous)
+            XCTAssertFalse(try directory.entries().contains { $0.name.hasPrefix(".mangekyou-stage-") })
+
+            try directory.replaceAtomically("SaveData0.svd", data: replacement)
+            XCTAssertEqual(try directory.read("SaveData0.svd"), replacement)
+            XCTAssertFalse(try directory.entries().contains { $0.name.hasPrefix(".mangekyou-stage-") })
+            XCTAssertThrowsError(try directory.replaceAtomically("SaveData0.svd", data: Data([1]), limit: 0))
+            XCTAssertEqual(try directory.read("SaveData0.svd"), replacement)
+        }
+    }
     func testInvalidPackIsReportedAndDoesNotDisappear() throws {
         try temporary { root in
             try Data([1,2,3]).write(to: root.appendingPathComponent("owned.pack"))
@@ -686,8 +783,8 @@ final class ResourceTests: XCTestCase {
             XCTAssertEqual(recipe.composedOpacity(texture: draw.texture, states: draw.states), expected)
         }
         var savedTimes = [Int32](repeating: 0, count: 256)
-        savedTimes[0] = 125
-        savedTimes[3] = 250
+        savedTimes[0] = Int32(bitPattern: Float(125).bitPattern)
+        savedTimes[3] = Int32(bitPattern: Float(250).bitPattern)
         let savedKeys = try XCTUnwrap(recipe.motionKeysAtSavedLayerTimesCandidate(location, selectedMember: 0,
                                                                                  layerTimes: savedTimes))
         XCTAssertEqual(savedKeys.map(\.type), [16, 4, 17, 0])
@@ -903,6 +1000,19 @@ final class ResourceTests: XCTestCase {
         }
     }
 
+    func testSaveTextureEncoderUsesRendererForARGBAndProducesBoundedJPEG() throws {
+        let raster = try png([40, 120, 210, 255])
+        let argb = Data("ARGBSaveData1".utf8) + Data([0, 0, 0, 1]) +
+            le([UInt32(raster.count), 0]) + raster
+        let jpeg = try SaveVisualObjectEncoder.jpegRepresentation(argb,
+            fallback: ResourceImage.jpegRepresentation)
+        XCTAssertEqual(InventoryScanner.signature(Data(jpeg.prefix(16))), "JPEG")
+        XCTAssertLessThanOrEqual(jpeg.count, 16 * 1024 * 1024)
+        let decoded = try ResourceImage.decode(jpeg)
+        XCTAssertEqual(decoded.image.width, 1)
+        XCTAssertEqual(decoded.image.height, 1)
+    }
+
     func testABMPFullTexturePreviewDrawsPinnedJPEGAtOrigin() throws {
         let source = try ResourceImage.decode(png([255, 0, 0, 255])).image
         let encoded = NSMutableData()
@@ -1049,6 +1159,69 @@ final class ResourceTests: XCTestCase {
         XCTAssertEqual(canvas, [[black, SIMD4(0, 0, 255, 255), black], [black, black, black]])
     }
 
+    func testUpperMenuDefaultFrameUsesEmbeddedSlotZeroCandidate() throws {
+        let image = try png([30, 60, 90, 255])
+        let header = Data("abmp12".utf8)
+        let container = header + image
+        let digest = container.sha256Hex
+        let receipt: [[String: Any]] = [
+            ["container_sha256": digest, "offset": header.count, "length": image.count,
+             "sha256": image.sha256Hex, "name": "メニューバー.png", "format": "PNG",
+             "image_slot": 0, "image_anchor_words": [0, 0, 0]],
+            ["container_sha256": digest, "offset": 0, "length": header.count,
+             "sha256": header.sha256Hex, "name": "data_000.bin", "format": "MotionOnly",
+             "motion_name_candidates": ["NoName"]]
+        ]
+        let recipe = try JSONDecoder().decode(ScriptImageRecipe.self,
+            from: JSONSerialization.data(withJSONObject: receipt))
+        XCTAssertEqual(try recipe.staticRasterPayload(container,
+            sourceFile: "data8.pack/avg/uppermenu/frame.b", selectedMember: 0), image)
+        XCTAssertThrowsError(try recipe.staticRasterPayload(container,
+            sourceFile: "data8.pack/avg/uppermenu/frame.b", selectedMember: 1))
+    }
+
+    func testSavedTitleButtonEnableUsesEmbeddedMemoryBaseFrame() throws {
+        let image = try png([30, 90, 60, 255])
+        let header = Data("abmp12".utf8)
+        let container = header + image
+        let digest = container.sha256Hex
+        let receipt: [[String: Any]] = [
+            ["container_sha256": digest, "offset": header.count, "length": image.count,
+             "sha256": image.sha256Hex, "name": "Memory01.png", "format": "PNG",
+             "image_slot": 0, "image_anchor_words": [0, 0, 0]],
+            ["container_sha256": digest, "offset": 0, "length": header.count,
+             "sha256": header.sha256Hex, "name": "data_000.bin", "format": "MotionOnly",
+             "motion_name_candidates": ["*Enable", "*Disable"]]
+        ]
+        let recipe = try JSONDecoder().decode(ScriptImageRecipe.self,
+            from: JSONSerialization.data(withJSONObject: receipt))
+        XCTAssertEqual(try recipe.staticRasterPayload(container,
+            sourceFile: "data7.pack/script/title/button.b", selectedMember: 0), image)
+        XCTAssertThrowsError(try recipe.staticRasterPayload(container,
+            sourceFile: "data7.pack/script/title/button.b", selectedMember: 1))
+    }
+
+    func testWindowAnimationDefaultEnableUsesEmbeddedFrameBase() throws {
+        let image = try png([90, 60, 30, 255])
+        let header = Data("abmp12".utf8)
+        let container = header + image
+        let digest = container.sha256Hex
+        let receipt: [[String: Any]] = [
+            ["container_sha256": digest, "offset": header.count, "length": image.count,
+             "sha256": image.sha256Hex, "name": "Frame.jpg", "format": "PNG", "image_slot": 0,
+             "image_anchor_words": [0, 0, 0]],
+            ["container_sha256": digest, "offset": 0, "length": header.count,
+             "sha256": header.sha256Hex, "name": "data_000.bin", "format": "MotionOnly",
+             "motion_name_candidates": ["*Enable", "*Disable"]]
+        ]
+        let recipe = try JSONDecoder().decode(ScriptImageRecipe.self,
+            from: JSONSerialization.data(withJSONObject: receipt))
+        XCTAssertEqual(try recipe.staticRasterPayload(container,
+            sourceFile: "data8.pack/avg/window/animation.b", selectedMember: 0), image)
+        XCTAssertThrowsError(try recipe.staticRasterPayload(container,
+            sourceFile: "data8.pack/avg/window/animation.b", selectedMember: 1))
+    }
+
     func testDPNGDescriptorPreservesOffsetsAndRejectsBoundsFlagsAndTrailingBytes() throws {
         let data = dpng([(1,0,1,1,try png([1,2,3,255]),1)])
         let result = try DPNGDescriptor.parse(data)
@@ -1069,6 +1242,18 @@ final class ResourceTests: XCTestCase {
         let decoded = try ResourceImage.decode(data)
         XCTAssertEqual(try rgba(decoded.image), [255,0,0,255, 0,0,0,0, 0,0,0,0, 0,0,255,255])
         XCTAssertEqual(decoded.originalRendererEquivalence, .notTested)
+    }
+    func testStraightDPNGRequiresCompleteDisjointTiles() throws {
+        let red = try png([255, 0, 0, 128]), blue = try png([0, 0, 255, 255])
+        let valid = dpng([(0,0,1,1,red,0), (1,0,1,1,blue,0)])
+        let result = try ResourceImage.straightDPNGBytes(valid)
+        XCTAssertEqual(result.width, 2)
+        XCTAssertEqual(result.height, 1)
+        XCTAssertEqual(Array(result.bgra), [0,0,255,128, 255,0,0,255])
+        let blurred = try ResourceImage.blurredStraightDPNGCandidate(valid, horizontal: 0, vertical: 0)
+        XCTAssertEqual(try rgba(blurred.image), [128,0,0,128, 0,0,255,255])
+        XCTAssertThrowsError(try ResourceImage.straightDPNGBytes(dpng([(0,0,1,1,red,0)])))
+        XCTAssertThrowsError(try ResourceImage.straightDPNGBytes(dpng([(0,0,1,1,red,0), (0,0,1,1,blue,0)])))
     }
     func testDPNGTransparentOverlapUsesCopyNotSourceOver() throws {
         let red = try png([255,0,0,255]), blue = try png([0,0,255,128])

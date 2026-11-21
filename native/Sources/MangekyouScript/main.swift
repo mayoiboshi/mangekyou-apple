@@ -113,6 +113,7 @@ struct HeadlessReplayBudget: Encodable {
         var pendingControlCount: Int = 0
         var rejectedControlCount: Int = 0
         var completedPlaybackCount: Int = 0
+        var completedPlaybackChannels: [Int32]? = nil
         var playbackStartCount: Int = 0
         var finiteRepeatStarts: Int = 0
         var finiteRepeatReassertions: Int = 0
@@ -120,6 +121,7 @@ struct HeadlessReplayBudget: Encodable {
         var deferredSupersededSyncs: Int = 0
         var streamSwapHandoffs: Int = 0
         var streamSwapCancelledControls: Int = 0
+        var streamSwapTransferredControls: Int = 0
         var positionObservationRecoveries: Int = 0
         var completionIdentityIssue: String? = nil
         var completionIdentityChannel: Int32? = nil
@@ -128,6 +130,7 @@ struct HeadlessReplayBudget: Encodable {
         var recentLifecycleOnFailure: [LiveAudioObserver.LifecycleEvent]? = nil
         var categoryGains: [Int32: Int32]? = nil
         var playerVolumes: [Int32: Float]? = nil
+        var playerPans: [Int32: Float]? = nil
         var positionsAtWriteRequest: [Int32: Int32]? = nil
         var saveAudioPreflightStatus: EvidenceStatus? = nil
         var saveAudioPreflightIssue: String? = nil
@@ -148,6 +151,7 @@ struct HeadlessReplayBudget: Encodable {
         let scriptTimingEquivalence: EvidenceStatus = .notTested
     }
     var hostIterations = 0
+    var maximumHostIterations = 50_000
     var remainingMessageClicks: Int
     var remainingTicks: Int32?
     var timedStopRemaining: Int32? = nil
@@ -429,6 +433,33 @@ struct HeadlessReplayBudget: Encodable {
 }
 
 struct HeadlessLoadTask: Encodable {
+    enum LogInput {
+        case key(ScriptMachine.DialogueLogNavigation)
+        case wheel(Int32)
+        case drag(Int32)
+
+        var description: String {
+            switch self {
+            case .key(let key): key.rawValue
+            case .wheel(let delta): "wheel:\(delta)"
+            case .drag(let y): "drag:\(y)"
+            }
+        }
+    }
+    struct DialogueOrigin: Encodable {
+        let location: ScriptLocation
+        let steps: Int
+        let textSHA256: String
+    }
+
+    struct Capture: Encodable {
+        let scene: ScriptMachine.ScreenCaptureRequest.Scene
+        let request: ScriptLocation
+        let priority: Int32
+        let imageSHA256: String
+        let canvasSHA256: String?
+    }
+
     struct TextSurface: Encodable {
         let id: UInt64
         let runCount: Int
@@ -453,13 +484,20 @@ struct HeadlessLoadTask: Encodable {
     let exitRequested: Bool
     var experimentalAdoption: ScriptMachineSummary? = nil
     var experimentalAdoptionIssue: String? = nil
+    var experimentalAdoptionFailureLocation: ScriptLocation? = nil
+    var experimentalAdoptionFailureCallDepth: Int? = nil
+    var experimentalAdoptionFailureScope: ScriptMachine.ExperimentalScopeSnapshot? = nil
     var experimentalAdoptionRecoveryIssue: String? = nil
+    var experimentalAdoptionTrialAudioStarts: Int? = nil
+    var resumedDialogueAfterUnsupportedSave: Bool? = nil
+    var dialogueRecoveryStartSteps: Int? = nil
     var experimentalAdoptionStagedStreams: Int? = nil
     var experimentalAdoptionRestoredStreamNames: Int? = nil
     var experimentalAdoptionUnrestoredSavedStreamNames: Int? = nil
     var experimentalAdoptionRestoredStreamFilters: Int? = nil
     var experimentalAdoptionUnrestoredSavedStreamFilters: Int? = nil
     var experimentalAdoptionScheduledStreams: Int? = nil
+    var experimentalAdoptionValidatedImageFilters: Int? = nil
     var experimentalAdoptionScheduledDirectSounds: Int? = nil
     var experimentalAdoptionAudioGaps: [ScriptMachine.ExperimentalSaveAudio.Gap]? = nil
     let saveResumeBoundary: ScriptMachine.SaveResumeBoundary?
@@ -473,7 +511,7 @@ struct HeadlessLoadTask: Encodable {
     var stagedSoundPlayback: [ScriptMachine.SaveResumeBoundary.SoundResumeRequest]? = nil
     struct StreamSeekCheck: Encodable {
         let recordOffset: Int
-        let milliseconds: Int32
+        let milliseconds: Int32?
         let decodedBytes: Int?
         let status: EvidenceStatus
         let issue: String?
@@ -485,9 +523,41 @@ struct HeadlessLoadTask: Encodable {
     var visibleDialogueAfterRestart: Int?
     var clickedSaveSlot: Bool?
     var answeredSaveConfirmation: Bool?
+    var moduleCandidates: [ScriptModuleReference]? = nil
+    var liveControlSettleDelayMilliseconds: Int32?
+    var pendingControlsBeforeConfirmationChunk: Int?
+    var pendingControlsAtLastSystemTaskChunk: Int?
+    var pendingControlObservationsAtLastSystemTaskChunk: [LiveAudioObserver.PendingControlObservation]?
+    var activeAudioAtLastSystemTaskChunk: [ScriptMachine.ResearchActiveAudioSnapshot]?
+    var streamPositionsAtLastSystemTaskChunk: [Int32: Int32]?
+    var systemNameSlotUTF16Lengths: [Int]?
     var resumedTitleAfterUnsupportedSave: Bool?
+    var saveFailureResumedPhase: String?
+    var recoverySavedSlotSHA256: String?
+    var systemDataWritebackIssue: String?
+    var selectionCheckpointFound: Bool?
+    var selectionCheckpointBoundary: ScriptLocation?
+    var selectionCheckpointSHA256: String?
+    var saveFailureRemainingWait: Int32?
+    var researchFailedFollowupAborted: Bool?
+    var researchFailedFollowupResumePhase: String?
+    var researchFailedFollowupStartSteps: Int?
+    var researchFailedFollowupEndSteps: Int?
+    var researchFailedFollowupRemainingClicks: Int?
     let suppliedCaptureSHA256: String?
+    var capturedSceneSHA256: String?
+    var captures: [Capture]?
+    var dialogueOrigin: DialogueOrigin?
+    var resumedDialogueSHA256: String?
+    var resumedDialogueClicks: Int?
+    var visibleLogCheckpoints: [String]?
+    var logNavigation: [String]?
+    var logTargetCanvasY: [Int32]?
+    var logScrollbarSamples: [ScriptMachine.DialogueLogScrollbar]?
+    var captureIssue: String?
+    var captureFailureResumedPhase: String?
     let layers: [Layer]
+    let unrenderedBars: [ScriptMachine.UnrenderedBarSnapshot]?
     let visibleTextSurfaces: [TextSurface]
     let savedDisplayDraw: ScriptMachine.SavedDisplayDraw?
     var thumbnailPass: LoadThumbnailPass?
@@ -500,7 +570,9 @@ struct HeadlessLoadTask: Encodable {
         exitRequested = task.systemTaskExitRequested
         saveResumeBoundary = task.saveResumeBoundary
         savedDisplayDraw = task.savedDisplayDrawReceipt
-        checkedPages = task.loadMenuButtons.filter(task.isLoadPageChecked).compactMap(task.loadPageIndex).sorted()
+        checkedPages = task.systemTaskMenuButtons.filter(task.isLoadPageChecked).compactMap(task.loadPageIndex).sorted()
+        let bars = task.unrenderedBarSnapshots
+        unrenderedBars = bars.isEmpty ? nil : bars
         layers = task.staticImageLayers.map {
             Layer(resource: $0.resource, boundFirst: $0.boundRasterPreview,
                   x: $0.x, y: $0.y, priority: $0.priority, action: $0.selectedMember, time: $0.motionElapsedTicks)
@@ -526,16 +598,23 @@ struct ScriptRunReport: Encodable {
     let moduleCandidates: [ScriptModuleReference]?
     let replayBudget: HeadlessReplayBudget?
     let loadTask: HeadlessLoadTask?
+    var followupSystemTask: HeadlessLoadTask? = nil
     var saveResumeBoundary: ScriptMachine.SaveResumeBoundary? = nil
     var scenePreview: LoadThumbnailPass? = nil
     var scenePreviewIssue: String? = nil
     var pendingMovieVolume: Int32? = nil
 }
 struct ScriptBatchReport: Encodable {
+    struct SaveInventoryIssue: Encodable {
+        let name: String
+        let status: EvidenceStatus
+        let issue: String
+    }
     let schemaVersion = 1
     let status: EvidenceStatus
     let mode: String
     let reports: [ScriptRunReport]
+    let saveInventoryIssues: [SaveInventoryIssue]?
     let originalFilesWritten = false
     let externalUploads = false
     let fullGameCompatibility: EvidenceStatus = .notTested
@@ -634,6 +713,26 @@ struct HeadlessResourceReceipts: Decodable {
             }
             let args = Array(CommandLine.arguments.dropFirst())
             var dispatchStop = false
+            var dispatchWindowSave = false
+            var researchWindowSaveAfterClicks = false
+            var researchSavedBlur = false
+            var researchVideoClocks: [String: Int32] = [:]
+            var researchVideoClockSources: [String] = []
+            var researchVideoFilterSHA256: String?
+            var researchSaveVisualTicks: Int32?
+            var researchWindowQuickSave = false
+            var dispatchQuickSave = false
+            var dispatchQuickLoad = false
+            var recoverAutosaveSlot: String?
+            var researchContinueAfterQuickFailure = false
+            var researchAbortFailedFollowup = false
+            var dispatchWindowSaveAtTimedWait = false
+            var dispatchWindowLoad = false
+            var researchOpenDialogueLog = false
+            var researchDialogueLogSlot: String?
+            var researchDialogueLogResumeClicks: Int?
+            var saveAfterLoadRecoverySlot: String?
+            var researchRestoreSelectionCheckpoint = false
             var inspectLoadTask = false
             var loadTaskEscape = false
             var startAfterLoadEscape = false
@@ -641,7 +740,9 @@ struct HeadlessResourceReceipts: Decodable {
             var titleMenuTarget: String?
             var requireRouteReturn = false
             var loadTaskPages: [Int32] = []
+            var logNavigation: [HeadlessLoadTask.LogInput] = []
             var openTitleLoad = false
+            var openTitleQuickLoad = false
             var loadThumbnailBackground: String?
             var scenePreviewBackground: String?
             var scenePreviewCanvas: SIMD2<Int>?
@@ -661,12 +762,14 @@ struct HeadlessResourceReceipts: Decodable {
             var stopAfterStoryChoices = false
             var recoverUnsupportedSave = false
             var adoptSaveCandidate = false
+            var inspectFollowupSystemTask = false
             var startAfterSaveRecovery = false
             var loadTaskCapturePath: String?
             var saveDirectoryPath: String?
             var researchSystemFile: String?
             var researchSystemExecutable: String?
             var researchSystemOutput: String?
+            var researchSystemWriteback = false
             var researchConfigInput: String?
             var researchConfigOutput: String?
             var researchSettingsInput: String?
@@ -719,12 +822,18 @@ struct HeadlessResourceReceipts: Decodable {
             var saveHeaderTemplateFromStdin = false
             var saveHeaderExecutable: String?
             var loadTaskSlot: String?
+            var loadTaskDelete = false
             var loadTaskConfirmation: Bool?
+            var startupBackupResponse: Bool?
+            var cleanExit = false
+            var titleQuitResponse: Bool?
             var savedAutoWaitClicks = 0
             var savedDialogueClicks = 0
             var clickAfterSavedMovie = false
             var savedReplayStepLimit: Int?
             var loadTaskTicks: Int32?
+            var loadTaskControlSettleMilliseconds: Int32?
+            var followupTaskControlSettleMilliseconds: Int32?
             var messageClicks = 0
             var buttonIndex: Int32?
             var buttonArray: String?
@@ -741,6 +850,7 @@ struct HeadlessResourceReceipts: Decodable {
             var researchBarVisualTicks: Int32?
             var storyChoices: [Int32] = []
             var pointer: (x: Int32, y: Int32)?
+            var initialPointerSample: (x: Int32, y: Int32)?
             var compactSavedReplay = false
             var compactTrace = false
             var captureSourceVisits = false
@@ -748,6 +858,8 @@ struct HeadlessResourceReceipts: Decodable {
             var resourceReceiptsPath: String?
             var resourceProviderPath: String?, resourceCachePath: String?
             var maximumSteps: Int?
+            var maximumHostIterations = 50_000
+            var maximumHostIterationsOptionProvided = false
             var entryArguments: [ScriptValue] = []
             var clickTicks: Int32?
             var researchDrawFrames: Int?
@@ -790,13 +902,18 @@ struct HeadlessResourceReceipts: Decodable {
                 if args[i] == "--research-image-file-log" { researchImageFileLog = true; i += 1; continue }
                 if args[i] == "--research-audio-file-log" { researchAudioFileLog = true; i += 1; continue }
                 if args[i] == "--open-title-load" { openTitleLoad = true; i += 1; continue }
+                if args[i] == "--open-title-quick-load" { openTitleLoad = true; openTitleQuickLoad = true; i += 1; continue }
+                if args[i] == "--research-direct-quick-load" { openTitleQuickLoad = true; i += 1; continue }
                 if args[i] == "--observe-live-audio" { observeLiveAudio = true; i += 1; continue }
                 if args[i] == "--research-audible-volume-filter" { researchAudibleVolumeFilter = true; i += 1; continue }
                 if args[i] == "--research-muted-volume-output" { researchMutedVolumeOutput = true; i += 1; continue }
                 if args[i] == "--research-muted-filter-chain" { researchMutedFilterChain = true; i += 1; continue }
                 if args[i] == "--research-muted-timescale" { researchMutedTimeScale = true; i += 1; continue }
                 if args[i] == "--inspect-load-task" { inspectLoadTask = true; i += 1; continue }
+                if args[i] == "--clean-exit" { cleanExit = true; i += 1; continue }
+                if args[i] == "--research-system-writeback" { researchSystemWriteback = true; i += 1; continue }
                 if args[i] == "--load-task-escape" { loadTaskEscape = true; i += 1; continue }
+                if args[i] == "--load-task-delete" { loadTaskDelete = true; i += 1; continue }
                 if args[i] == "--infer-save-state-seed" { inferSaveStateSeed = true; i += 1; continue }
                 if args[i] == "--save-header-template-stdin" { saveHeaderTemplateFromStdin = true; i += 1; continue }
                 if args[i] == "--start-after-load-escape" { startAfterLoadEscape = true; i += 1; continue }
@@ -815,8 +932,45 @@ struct HeadlessResourceReceipts: Decodable {
                 if args[i] == "--stop-after-story-choices" { stopAfterStoryChoices = true; i += 1; continue }
                 if args[i] == "--start-after-save-recovery" { startAfterSaveRecovery = true; i += 1; continue }
                 if args[i] == "--adopt-experimental-save-candidate" { adoptSaveCandidate = true; i += 1; continue }
+                if args[i] == "--research-saved-blur" { researchSavedBlur = true; i += 1; continue }
+                if args[i] == "--inspect-followup-system-task" { inspectFollowupSystemTask = true; i += 1; continue }
                 if args[i] == "--recover-unsupported-save" { recoverUnsupportedSave = true; i += 1; continue }
                 if args[i] == "--dispatch-stop-callback" { dispatchStop = true; i += 1; continue }
+                if args[i] == "--dispatch-window-save" { dispatchWindowSave = true; i += 1; continue }
+                if args[i] == "--research-open-dialogue-log" {
+                    researchOpenDialogueLog = true; inspectLoadTask = true; i += 1; continue
+                }
+                if args[i] == "--research-window-save-after-clicks" {
+                    dispatchWindowSave = true; researchWindowSaveAfterClicks = true; i += 1; continue
+                }
+                if args[i] == "--research-window-quicksave" { dispatchWindowSave = true; researchWindowQuickSave = true; i += 1; continue }
+                if args[i] == "--quick-save" {
+                    dispatchQuickSave = true; dispatchWindowSave = true; inspectLoadTask = true; i += 1; continue
+                }
+                if args[i] == "--quick-load" {
+                    dispatchQuickLoad = true; inspectLoadTask = true; i += 1; continue
+                }
+                if args[i] == "--recover-autosave" {
+                    guard recoverAutosaveSlot == nil, i + 1 < args.count,
+                          ScriptMachine.isPrimaryAutosaveSlotName(args[i + 1]) else {
+                        throw ResourceError.rejected("recover_autosave_requires_slot_name")
+                    }
+                    recoverAutosaveSlot = args[i + 1]
+                    i += 2
+                    continue
+                }
+                if args[i] == "--research-continue-after-quick-failure" { researchContinueAfterQuickFailure = true; i += 1; continue }
+                if args[i] == "--research-abort-failed-followup" { researchAbortFailedFollowup = true; i += 1; continue }
+                if args[i] == "--research-restore-selection-checkpoint" {
+                    researchRestoreSelectionCheckpoint = true; i += 1; continue
+                }
+                if args[i] == "--dispatch-window-save-at-timed-wait" {
+                    dispatchWindowSave = true
+                    dispatchWindowSaveAtTimedWait = true
+                    i += 1
+                    continue
+                }
+                if args[i] == "--dispatch-window-load" { dispatchWindowLoad = true; i += 1; continue }
                 if args[i] == "--click-saved-auto-wait" {
                     guard savedAutoWaitClicks < 64 else { throw ResourceError.rejected("saved_auto_wait_click_limit") }
                     savedAutoWaitClicks += 1
@@ -847,6 +1001,11 @@ struct HeadlessResourceReceipts: Decodable {
                         throw ResourceError.rejected("invalid_research_bar_visual_ticks")
                     }
                     researchBarVisualTicks = ticks
+                case "--research-save-visual-ticks":
+                    guard researchSaveVisualTicks == nil, let ticks = Int32(args[i+1]), (0...5000).contains(ticks) else {
+                        throw ResourceError.rejected("invalid_research_save_visual_ticks")
+                    }
+                    researchSaveVisualTicks = ticks
                 case "--subsequent-bar":
                     let parts = args[i+1].split(separator: ":", omittingEmptySubsequences: false)
                     guard syntheticBarAxis == nil, syntheticBarEvent == nil, parts.count == 2, !parts[0].isEmpty,
@@ -984,6 +1143,14 @@ struct HeadlessResourceReceipts: Decodable {
                         throw ResourceError.rejected("invalid_pointer_sample")
                     }
                     pointer = (x,y)
+                case "--initial-pointer-sample":
+                    let fields = args[i+1].split(separator: ",",omittingEmptySubsequences: false)
+                    guard initialPointerSample == nil, fields.count == 2,
+                          let x = Int32(fields[0]), let y = Int32(fields[1]),
+                          (-32768...32767).contains(x), (-32768...32767).contains(y) else {
+                        throw ResourceError.rejected("invalid_initial_pointer_sample")
+                    }
+                    initialPointerSample = (x,y)
                 case "--entry-int":
                     guard entryArguments.count < 16, let value = Int32(args[i+1]) else {
                         throw ResourceError.rejected("invalid_entry_argument")
@@ -999,6 +1166,13 @@ struct HeadlessResourceReceipts: Decodable {
                         throw ResourceError.rejected("invalid_step_budget")
                     }
                     maximumSteps = value
+                case "--maximum-host-iterations":
+                    guard !maximumHostIterationsOptionProvided,
+                          let value = Int(args[i+1]), (50_000...1_000_000).contains(value) else {
+                        throw ResourceError.rejected("invalid_host_iteration_budget")
+                    }
+                    maximumHostIterations = value
+                    maximumHostIterationsOptionProvided = true
                 case "--research-followthrough-max-steps":
                     guard researchFollowthroughMaximumSteps == nil, let value = Int(args[i+1]), (1...64_000_000).contains(value) else {
                         throw ResourceError.rejected("invalid_research_followthrough_max_steps")
@@ -1069,6 +1243,46 @@ struct HeadlessResourceReceipts: Decodable {
                         throw ResourceError.rejected("invalid_message_click_count")
                     }
                     messageClicks = count
+                case "--research-dialogue-log-resume-clicks":
+                    guard researchDialogueLogResumeClicks == nil,
+                          let count = Int(args[i+1]), (1...32).contains(count) else {
+                        throw ResourceError.rejected("invalid_dialogue_log_resume_click_count")
+                    }
+                    researchDialogueLogResumeClicks = count
+                case "--research-dialogue-log-slot":
+                    guard researchDialogueLogSlot == nil else {
+                        throw ResourceError.rejected("duplicate_dialogue_log_slot")
+                    }
+                    researchDialogueLogSlot = args[i+1]
+                case "--research-save-after-load-recovery":
+                    guard saveAfterLoadRecoverySlot == nil else {
+                        throw ResourceError.rejected("duplicate_save_after_load_recovery_slot")
+                    }
+                    saveAfterLoadRecoverySlot = args[i+1]
+                case "--research-video-clock-candidate":
+                    let parts = args[i+1].split(separator: ":", omittingEmptySubsequences: false)
+                    guard researchVideoClocks.count < 8, parts.count == 2, parts[0].count == 64,
+                          parts[0].utf8.allSatisfy({ (48...57).contains($0) || (97...102).contains($0) }),
+                          let duration = Int32(parts[1]), (51...3_600_000).contains(duration),
+                          researchVideoClocks[String(parts[0])] == nil else {
+                        throw ResourceError.rejected("invalid_research_video_clock_candidate")
+                    }
+                    researchVideoClocks[String(parts[0])] = duration
+                case "--research-video-clock-source":
+                    guard researchVideoClockSources.count < 8,
+                          !researchVideoClockSources.contains(args[i+1]),
+                          args[i+1].lowercased().hasSuffix(".ogv"),
+                          !(try SafeDirectory.components(args[i+1])).isEmpty else {
+                        throw ResourceError.rejected("invalid_research_video_clock_source")
+                    }
+                    researchVideoClockSources.append(args[i+1])
+                case "--research-video-filter-sha256":
+                    let value = args[i+1]
+                    guard researchVideoFilterSHA256 == nil, value.utf8.count == 64,
+                          value.utf8.allSatisfy({ (48...57).contains($0) || (97...102).contains($0) }) else {
+                        throw ResourceError.rejected("invalid_research_video_filter_sha256")
+                    }
+                    researchVideoFilterSHA256 = value
                 case "--click-ticks":
                     guard clickTicks == nil, let value = Int32(args[i+1]), (0...3_000_000).contains(value) else {
                         throw ResourceError.rejected("invalid_click_tick_budget")
@@ -1108,11 +1322,41 @@ struct HeadlessResourceReceipts: Decodable {
                         throw ResourceError.rejected("invalid_load_task_tick_budget")
                     }
                     loadTaskTicks = ticks
+                case "--load-task-settle-live-controls-ms":
+                    guard loadTaskControlSettleMilliseconds == nil,
+                          let milliseconds = Int32(args[i+1]), (1...5000).contains(milliseconds) else {
+                        throw ResourceError.rejected("invalid_load_task_control_settle_delay")
+                    }
+                    loadTaskControlSettleMilliseconds = milliseconds
+                case "--followup-task-settle-live-controls-ms":
+                    guard followupTaskControlSettleMilliseconds == nil,
+                          let milliseconds = Int32(args[i+1]), (1...5000).contains(milliseconds) else {
+                        throw ResourceError.rejected("invalid_followup_task_control_settle_delay")
+                    }
+                    followupTaskControlSettleMilliseconds = milliseconds
                 case "--load-task-page":
                     guard loadTaskPages.count < 32, let page = Int32(args[i+1]), page >= 0 else {
                         throw ResourceError.rejected("invalid_load_task_page")
                     }
                     loadTaskPages.append(page)
+                case "--load-task-log-key":
+                    guard logNavigation.count < 32,
+                          let key = ScriptMachine.DialogueLogNavigation(rawValue: args[i+1]) else {
+                        throw ResourceError.rejected("invalid_dialogue_log_navigation_key")
+                    }
+                    logNavigation.append(.key(key))
+                case "--load-task-log-wheel":
+                    let limit = ScriptMachine.maximumDialogueLogWheelDelta
+                    guard logNavigation.count < 32, let delta = Int32(args[i+1]),
+                          delta != 0, (-limit...limit).contains(delta) else {
+                        throw ResourceError.rejected("invalid_dialogue_log_wheel_delta")
+                    }
+                    logNavigation.append(.wheel(delta))
+                case "--load-task-log-drag-y":
+                    guard logNavigation.count < 32, let y = Int32(args[i+1]), (0..<720).contains(y) else {
+                        throw ResourceError.rejected("invalid_dialogue_log_drag_y")
+                    }
+                    logNavigation.append(.drag(y))
                 case "--load-task-capture":
                     guard loadTaskCapturePath == nil else { throw ResourceError.rejected("duplicate_load_task_capture") }
                     loadTaskCapturePath = args[i+1]
@@ -1220,6 +1464,16 @@ struct HeadlessResourceReceipts: Decodable {
                         throw ResourceError.rejected("invalid_load_task_confirmation")
                     }
                     loadTaskConfirmation = args[i+1] == "yes"
+                case "--startup-backup-response":
+                    guard startupBackupResponse == nil, ["yes", "no"].contains(args[i+1]) else {
+                        throw ResourceError.rejected("invalid_startup_backup_response")
+                    }
+                    startupBackupResponse = args[i+1] == "yes"
+                case "--title-quit-response":
+                    guard titleQuitResponse == nil, ["yes", "no"].contains(args[i+1]) else {
+                        throw ResourceError.rejected("invalid_title_quit_response")
+                    }
+                    titleQuitResponse = args[i+1] == "yes"
                 case "--image-recipe": guard imageRecipePath == nil else { throw ResourceError.rejected("duplicate_image_recipe") }; imageRecipePath = args[i+1]
                 case "--game-dir": guard game == nil else { throw ResourceError.rejected("duplicate_game_option") }; game = args[i+1]
                 case "--assets-dir": guard assets == nil else { throw ResourceError.rejected("duplicate_assets_option") }; assets = args[i+1]
@@ -1241,6 +1495,9 @@ struct HeadlessResourceReceipts: Decodable {
                 syntheticBarPointerInput = true
             }
             guard (pointer == nil && buttonIndex == nil) || (execute && dispatchStop) else { throw ResourceError.rejected("pointer_requires_stop_dispatch") }
+            guard initialPointerSample == nil || execute else {
+                throw ResourceError.rejected("initial_pointer_sample_requires_execution")
+            }
             let restoredSoundInspection = titleMenuTarget == "sound" && researchSystemFile != nil &&
                 saveDirectoryPath != nil && researchSystemOutput == nil
             guard !researchBarSceneControl || researchBarScenePreview else {
@@ -1284,8 +1541,7 @@ struct HeadlessResourceReceipts: Decodable {
                 throw ResourceError.rejected("research_bar_visual_ticks_require_synthetic_event")
             }
             guard (directSoundCount == nil && directSoundLock == nil) ||
-                (directSoundCount != nil && directSoundLock != nil && execute && movieToolsPath != nil &&
-                 (!observeLiveAudio || researchObserveDirectSound)) else {
+                (directSoundCount != nil && directSoundLock != nil && execute && movieToolsPath != nil) else {
                 throw ResourceError.rejected("direct_sound_requires_headless_decoder_and_configuration")
             }
             guard let assets, (source == nil) != (manifest == nil), !execute || source != nil, entry == nil || execute else {
@@ -1308,9 +1564,103 @@ struct HeadlessResourceReceipts: Decodable {
                 return entries
             } ?? [:]
             let directory = try SafeDirectory(URL(fileURLWithPath: assets,isDirectory: true))
+            if let recoverAutosaveSlot {
+                guard !dispatchQuickLoad, loadTaskSlot == nil, !loadTaskDelete else {
+                    throw ResourceError.rejected("recover_autosave_options_incompatible")
+                }
+                dispatchQuickLoad = true
+                inspectLoadTask = true
+                startFromTitle = true
+                loadTaskSlot = recoverAutosaveSlot
+            }
+            if dispatchQuickSave || dispatchQuickLoad {
+                guard execute, source != nil, catalogPath != nil, saveDirectoryPath != nil,
+                      !(dispatchQuickSave && dispatchQuickLoad), !openTitleLoad, !openTitleQuickLoad,
+                      !dispatchWindowLoad, !researchWindowQuickSave, !loadTaskEscape, loadTaskPages.isEmpty else {
+                    throw ResourceError.rejected("quick_system_task_options_incompatible")
+                }
+                if loadTaskTicks == nil { loadTaskTicks = 30_000 }
+                if dispatchQuickLoad {
+                    openTitleQuickLoad = true
+                    if loadTaskSlot == nil { loadTaskSlot = "SelectSaveData.svd" }
+                    if loadTaskConfirmation == true { adoptSaveCandidate = true }
+                } else if loadTaskSlot != nil || loadTaskConfirmation != nil {
+                    throw ResourceError.rejected("quick_save_uses_selected_slot")
+                }
+            }
             guard clickTicks == nil || execute else { throw ResourceError.rejected("click_ticks_require_execution") }
             guard game == nil || execute else { throw ResourceError.rejected("game_configuration_requires_execution") }
             guard !openTitleLoad || inspectLoadTask else { throw ResourceError.rejected("title_load_requires_task_inspection") }
+            guard !openTitleQuickLoad || (loadTaskSlot == (recoverAutosaveSlot ?? "SelectSaveData.svd") &&
+                  !loadTaskEscape && loadTaskPages.isEmpty) else {
+                throw ResourceError.rejected("quick_load_requires_select_slot")
+            }
+            guard !dispatchWindowSave || (execute && source != nil && catalogPath != nil && inspectLoadTask) else {
+                throw ResourceError.rejected("window_save_dispatch_requires_inspected_direct_replay")
+            }
+            guard !researchWindowSaveAfterClicks || (adoptSaveCandidate && messageClicks > 0) else {
+                throw ResourceError.rejected("window_save_after_clicks_requires_save_adoption_and_clicks")
+            }
+            let inspectDialogueLogAfterLoad = researchOpenDialogueLog && openTitleLoad
+            let inspectDialogueLogInGallery = researchOpenDialogueLog && titleMenuTarget == "memory"
+            if researchOpenDialogueLog {
+                let storyInput = startFromTitle && titleMenuTarget == nil
+                let galleryInput = inspectDialogueLogInGallery && !openTitleLoad && !subsequentButtons.isEmpty
+                guard execute, source != nil, catalogPath != nil, storyInput || galleryInput, messageClicks > 0,
+                      !dispatchWindowLoad, !dispatchWindowSave, !dispatchQuickLoad,
+                      loadTaskPages.isEmpty else {
+                    throw ResourceError.rejected("dialogue_log_requires_story_replay_and_clicks")
+                }
+                if inspectDialogueLogAfterLoad {
+                    guard adoptSaveCandidate, loadTaskConfirmation == true, !inspectFollowupSystemTask,
+                          !loadTaskEscape, !loadTaskDelete else {
+                        throw ResourceError.rejected("dialogue_log_after_load_requires_confirmed_title_load")
+                    }
+                }
+                if loadTaskTicks == nil { loadTaskTicks = 30_000 }
+            }
+            guard researchDialogueLogSlot == nil || inspectDialogueLogAfterLoad else {
+                throw ResourceError.rejected("dialogue_log_slot_requires_dialogue_log_after_title_load")
+            }
+            let confirmsDialogueLogJump = inspectDialogueLogAfterLoad
+                ? researchDialogueLogSlot != nil : loadTaskConfirmation == true
+            guard researchDialogueLogResumeClicks == nil || (researchOpenDialogueLog && confirmsDialogueLogJump) else {
+                throw ResourceError.rejected("dialogue_log_resume_clicks_require_confirmed_jump")
+            }
+            guard researchVideoClocks.isEmpty || researchVideoClockSources.isEmpty else {
+                throw ResourceError.rejected("conflicting_research_video_clock_sources")
+            }
+            guard (researchVideoClocks.isEmpty && researchVideoClockSources.isEmpty) || (execute && adoptSaveCandidate) else {
+                throw ResourceError.rejected("video_clock_research_requires_save_adoption")
+            }
+            guard researchVideoClockSources.isEmpty || movieToolsPath != nil else {
+                throw ResourceError.rejected("video_clock_source_requires_decoder")
+            }
+            guard researchVideoFilterSHA256 == nil || ((!researchVideoClocks.isEmpty || !researchVideoClockSources.isEmpty) && researchSavedBlur) else {
+                throw ResourceError.rejected("video_filter_research_requires_clock_and_filter_validator")
+            }
+            guard researchSaveVisualTicks == nil || researchWindowSaveAfterClicks else {
+                throw ResourceError.rejected("save_visual_ticks_require_save_after_clicks")
+            }
+            guard !researchContinueAfterQuickFailure || (researchWindowQuickSave && !storyChoices.isEmpty) else {
+                throw ResourceError.rejected("quick_failure_continuation_requires_quicksave_and_choices")
+            }
+            guard !researchAbortFailedFollowup || (inspectFollowupSystemTask && researchWindowSaveAfterClicks) else {
+                throw ResourceError.rejected("followup_abort_research_requires_save_after_clicks")
+            }
+            guard !dispatchWindowLoad || (execute && source != nil && catalogPath != nil && inspectLoadTask &&
+                  startFromTitle && loadTaskSlot != nil && loadTaskConfirmation == true) else {
+                throw ResourceError.rejected("window_load_dispatch_requires_confirmed_title_route")
+            }
+            if let slot = saveAfterLoadRecoverySlot {
+                guard dispatchWindowLoad || dispatchQuickLoad, adoptSaveCandidate, startFromTitle,
+                      observeLiveAudio, messageClicks > 0, !dispatchWindowSave, !researchWindowSaveAfterClicks,
+                      !inspectFollowupSystemTask, let loadTaskSlot,
+                      slot.caseInsensitiveCompare(loadTaskSlot) != .orderedSame,
+                      try SafeDirectory.components(slot).count == 1 else {
+                    throw ResourceError.rejected("save_after_load_recovery_requires_confirmed_story_load_and_distinct_slot")
+                }
+            }
             guard !loadTaskEscape || inspectLoadTask else { throw ResourceError.rejected("escape_requires_load_task") }
             guard !startAfterLoadEscape || (openTitleLoad && loadTaskEscape) else {
                 throw ResourceError.rejected("start_requires_title_load_escape")
@@ -1320,6 +1670,9 @@ struct HeadlessResourceReceipts: Decodable {
             }
             guard loadTaskPages.isEmpty || inspectLoadTask else {
                 throw ResourceError.rejected("page_requires_load_task")
+            }
+            guard logNavigation.isEmpty || researchOpenDialogueLog else {
+                throw ResourceError.rejected("dialogue_log_navigation_requires_story_log")
             }
             guard (loadTaskCapturePath == nil && loadTaskTicks == nil && loadThumbnailBackground == nil) || inspectLoadTask else { throw ResourceError.rejected("capture_requires_load_task") }
             guard !inspectLoadTask || execute else { throw ResourceError.rejected("load_task_requires_execution") }
@@ -1383,11 +1736,29 @@ struct HeadlessResourceReceipts: Decodable {
                 throw ResourceError.rejected("stop_after_story_choices_requires_partial_choice_replay")
             }
             guard saveDirectoryPath == nil || execute else { throw ResourceError.rejected("save_directory_requires_execution") }
+            guard startupBackupResponse == nil || (execute && source != nil && saveDirectoryPath != nil) else {
+                throw ResourceError.rejected("startup_backup_response_requires_save_replay")
+            }
+            guard !cleanExit || (execute && source != nil && catalogPath != nil && saveDirectoryPath != nil) else {
+                throw ResourceError.rejected("clean_exit_requires_save_replay")
+            }
+            if titleQuitResponse != nil {
+                guard execute, source != nil, catalogPath != nil, saveDirectoryPath != nil,
+                      !startFromTitle, !openTitleLoad, !dispatchWindowLoad, !dispatchWindowSave, !dispatchQuickLoad,
+                      loadTaskSlot == nil, !loadTaskEscape, loadTaskPages.isEmpty, titleMenuTarget == nil, !cleanExit else {
+                    throw ResourceError.rejected("title_quit_requires_own_save_replay")
+                }
+                inspectLoadTask = true
+                if loadTaskTicks == nil { loadTaskTicks = 30_000 }
+            }
             guard !inferSaveStateSeed || saveDirectoryPath != nil else {
                 throw ResourceError.rejected("save_seed_inference_requires_save_directory")
             }
+            let writesSlotWithGameHeader = saveHeaderExecutable != nil && dispatchWindowSave &&
+                saveDirectoryPath != nil && (loadTaskSlot != nil || researchWindowQuickSave || dispatchQuickSave)
             guard (!saveHeaderTemplateFromStdin && saveHeaderExecutable == nil)
-                    || (loadTaskConfirmation == true && !inferSaveStateSeed &&
+                    || ((loadTaskConfirmation == true || startupBackupResponse == true || cleanExit || titleQuitResponse != nil ||
+                        writesSlotWithGameHeader) && !inferSaveStateSeed &&
                         !(saveHeaderTemplateFromStdin && saveHeaderExecutable != nil)) else {
                 throw ResourceError.rejected("save_header_template_requires_confirmed_slot")
             }
@@ -1396,6 +1767,16 @@ struct HeadlessResourceReceipts: Decodable {
             }
             guard loadTaskConfirmation == nil || loadTaskSlot != nil else {
                 throw ResourceError.rejected("confirmation_requires_load_task_slot")
+            }
+            guard !loadTaskDelete || ((dispatchWindowSave || dispatchWindowLoad || openTitleLoad) &&
+                                      !dispatchQuickSave && !openTitleQuickLoad && !researchWindowQuickSave &&
+                                      !adoptSaveCandidate && loadTaskSlot != nil && loadTaskConfirmation != nil) else {
+                throw ResourceError.rejected("delete_requires_menu_slot_and_confirmation")
+            }
+            guard loadTaskControlSettleMilliseconds == nil ||
+                    (observeLiveAudio && inspectLoadTask && dispatchWindowSave && (loadTaskSlot != nil || researchWindowQuickSave || dispatchQuickSave) &&
+                     (loadTaskConfirmation == nil || loadTaskConfirmation == true)) else {
+                throw ResourceError.rejected("load_task_control_settle_requires_observed_confirmed_save")
             }
             guard compactSavedReplay || (savedReplayStepLimit ?? 0) <= ScriptMachine.maximumFullSavedReplaySteps else {
                 throw ResourceError.rejected("extended_saved_replay_requires_compact_trace")
@@ -1415,11 +1796,33 @@ struct HeadlessResourceReceipts: Decodable {
             guard !recoverUnsupportedSave || (openTitleLoad && loadTaskConfirmation == true) else {
                 throw ResourceError.rejected("recover_unsupported_save_requires_title_load_confirmation")
             }
-            guard !adoptSaveCandidate || (inspectLoadTask && openTitleLoad && loadTaskConfirmation == true && !recoverUnsupportedSave) else {
+            guard !adoptSaveCandidate || (inspectLoadTask && loadTaskSlot != nil &&
+                  loadTaskConfirmation == true && !recoverUnsupportedSave) else {
                 throw ResourceError.rejected("adopt_save_requires_confirmed_title_load")
+            }
+            guard !researchRestoreSelectionCheckpoint || (adoptSaveCandidate && observeLiveAudio &&
+                  !researchOpenDialogueLog && saveAfterLoadRecoverySlot == nil) else {
+                throw ResourceError.rejected("selection_checkpoint_probe_requires_confirmed_disk_load")
+            }
+            guard !researchSavedBlur || adoptSaveCandidate else {
+                throw ResourceError.rejected("saved_blur_research_requires_save_adoption")
+            }
+            guard !inspectFollowupSystemTask || (adoptSaveCandidate && loadTaskSlot != nil &&
+                  loadTaskConfirmation == true) else {
+                throw ResourceError.rejected("followup_system_task_requires_confirmed_save_adoption")
             }
             let saveDirectory = try saveDirectoryPath.map {
                 try SafeDirectory(URL(fileURLWithPath: $0, isDirectory: true))
+            }
+            if let saveDirectory {
+                let saveComponents = saveDirectory.root.resolvingSymlinksInPath().standardizedFileURL.pathComponents.map { $0.lowercased() }
+                for input in [assets, game].compactMap({ $0 }) {
+                    let inputComponents = URL(fileURLWithPath: input, isDirectory: true)
+                        .resolvingSymlinksInPath().standardizedFileURL.pathComponents.map { $0.lowercased() }
+                    guard !saveComponents.starts(with: inputComponents), !inputComponents.starts(with: saveComponents) else {
+                        throw ResourceError.rejected("save_directory_overlaps_input")
+                    }
+                }
             }
             guard researchSettingsInput == nil || (researchSystemFile == nil && researchConfigInput == nil),
                   researchSettingsOutput == nil || (researchSystemOutput == nil && researchConfigOutput == nil &&
@@ -1435,25 +1838,107 @@ struct HeadlessResourceReceipts: Decodable {
                     .appendingPathComponent("private", isDirectory: true)
                 settingsBundleInput = try ResearchSettingsBundle.decode(SafeDirectory(privateURL).read(path, limit: 12 * 1024 * 1024))
             } else { settingsBundleInput = nil }
-            let researchSystemData: SaveSystemData?
-            if let bundle = settingsBundleInput {
-                guard let game, let executable = researchSystemExecutable else {
-                    throw ResourceError.rejected("research_settings_bundle_requires_game_exe")
-                }
+            var saveHeaderTemplate: Data?
+            if let executable = saveHeaderExecutable {
+                guard let game else { throw ResourceError.rejected("save_header_exe_requires_game_directory") }
                 let gameDirectory = try SafeDirectory(URL(fileURLWithPath: game, isDirectory: true))
-                let template = try SaveSystemData.headerTemplate(from: gameDirectory, executable: executable)
-                researchSystemData = try SaveSystemData(data: bundle.systemData, headerTemplate: template)
-            } else if let name = researchSystemFile {
-                guard execute, let saveDirectory, let game, let executable = researchSystemExecutable else {
-                    throw ResourceError.rejected("research_system_file_requires_execution_save_directory_and_game_exe")
+                saveHeaderTemplate = try SaveEnvelope.slotHeaderTemplate(from: gameDirectory, executable: executable)
+            } else if saveHeaderTemplateFromStdin {
+                var template = Data()
+                while template.count < 41,
+                      let chunk = try FileHandle.standardInput.read(upToCount: 41 - template.count),
+                      !chunk.isEmpty {
+                    template.append(chunk)
                 }
+                guard template.count == 40 else { throw ResourceError.rejected("save_header_verification_bounds") }
+                saveHeaderTemplate = template
+            } else if saveDirectoryPath != nil, let game, let executable = researchSystemExecutable {
                 let gameDirectory = try SafeDirectory(URL(fileURLWithPath: game, isDirectory: true))
-                let template = try SaveSystemData.headerTemplate(from: gameDirectory, executable: executable)
-                researchSystemData = try SaveSystemData(data: saveDirectory.read(name, limit: SaveEnvelope.maxFileBytes),
-                                                        headerTemplate: template)
+                saveHeaderTemplate = try SaveEnvelope.slotHeaderTemplate(from: gameDirectory, executable: executable)
+            }
+            func readSaveInputs() throws -> (writeback: (name: String, header: Data, sha256: String?)?,
+                                             system: SaveSystemData?, slots: [SaveSlotInventory.Entry]?,
+                                             systemIssue: ScriptBatchReport.SaveInventoryIssue?) {
+                var systemIssue: ScriptBatchReport.SaveInventoryIssue?
+                var systemWriteback: (name: String, header: Data, sha256: String?)?
+                func readSystemFile(_ name: String, in directory: SafeDirectory,
+                                    header: Data) throws -> SaveSystemData? {
+                    let canContinue = inspectLoadTask && (!dispatchWindowSave || researchWindowSaveAfterClicks) &&
+                        !inspectLabelHistory && researchSystemOutput == nil && researchSettingsOutput == nil &&
+                        (try? SafeDirectory.components(name).count) == 1
+                    do {
+                        let bytes = try directory.read(name, limit: SaveEnvelope.maxFileBytes)
+                        if systemWriteback != nil { systemWriteback?.sha256 = bytes.sha256Hex }
+                        let source = try SaveSystemData(data: bytes, headerTemplate: header)
+                        if canContinue { _ = try source.validateScalarBindings() }
+                        return source
+                    } catch let error as ResourceError {
+                        // A playback load can restore a storyline slot on its
+                        // own. Keep strict import and export probes fail-fast.
+                        guard canContinue else { throw error }
+                        systemIssue = .init(name: name, status: .unsupported, issue: String(describing: error))
+                        return nil
+                    }
+                }
+                if researchSystemWriteback {
+                    let drivesPrimarySaves = execute && source != nil && catalogPath != nil && observeLiveAudio
+                    guard inspectLoadTask || drivesPrimarySaves, let saveDirectory, let game,
+                          let executable = researchSystemExecutable ?? saveHeaderExecutable else {
+                        throw ResourceError.rejected("system_writeback_requires_save_replay_context")
+                    }
+                    let directory = try SafeDirectory(URL(fileURLWithPath: game, isDirectory: true))
+                    let name = try ScriptMachine.resolveSaveSlotName(researchSystemFile ?? "SystemData.dat",
+                                                                     entries: saveDirectory.entries())
+                    systemWriteback = (name, try SaveSystemData.headerTemplate(from: directory, executable: executable), nil)
+                } else {
+                    systemWriteback = nil
+                }
+                let researchSystemData: SaveSystemData?
+                if let bundle = settingsBundleInput {
+                    guard let game, let executable = researchSystemExecutable else {
+                        throw ResourceError.rejected("research_settings_bundle_requires_game_exe")
+                    }
+                    let gameDirectory = try SafeDirectory(URL(fileURLWithPath: game, isDirectory: true))
+                    let template = try SaveSystemData.headerTemplate(from: gameDirectory, executable: executable)
+                    researchSystemData = try SaveSystemData(data: bundle.systemData, headerTemplate: template)
+                } else if let name = researchSystemFile {
+                    guard execute, let saveDirectory, let game, let executable = researchSystemExecutable else {
+                        throw ResourceError.rejected("research_system_file_requires_execution_save_directory_and_game_exe")
+                    }
+                    let gameDirectory = try SafeDirectory(URL(fileURLWithPath: game, isDirectory: true))
+                    let template = try SaveSystemData.headerTemplate(from: gameDirectory, executable: executable)
+                    researchSystemData = try readSystemFile(name, in: saveDirectory, header: template)
+                } else if let systemWriteback, let saveDirectory,
+                          try saveDirectory.entries().contains(where: { $0.name == systemWriteback.name }) {
+                    researchSystemData = try readSystemFile(systemWriteback.name, in: saveDirectory,
+                                                            header: systemWriteback.header)
+                } else {
+                    guard researchSystemExecutable == nil else { throw ResourceError.rejected("research_system_exe_requires_system_file") }
+                    researchSystemData = nil
+                }
+                let saveSlots = try saveDirectory.map { directory in
+                    try SaveSlotInventory.scanForPlayback(directory, headerTemplate: saveHeaderTemplate,
+                        inferStateSeed: inferSaveStateSeed) { payload in
+                        _ = try ResourceImage.decode(payload)
+                    }
+                }
+                return (systemWriteback, researchSystemData, saveSlots, systemIssue)
+            }
+            let saveInputs: (writeback: (name: String, header: Data, sha256: String?)?,
+                             system: SaveSystemData?, slots: [SaveSlotInventory.Entry]?,
+                             systemIssue: ScriptBatchReport.SaveInventoryIssue?)
+            if let saveDirectory {
+                saveInputs = try SaveTransaction.withRecoveredDirectory(saveDirectory, allowRecovery: game != nil) { _ in
+                    try readSaveInputs()
+                }
             } else {
-                guard researchSystemExecutable == nil else { throw ResourceError.rejected("research_system_exe_requires_system_file") }
-                researchSystemData = nil
+                saveInputs = try readSaveInputs()
+            }
+            let (systemWriteback, researchSystemData, saveSlots, systemImportIssue) = saveInputs
+            if let name = recoverAutosaveSlot, saveSlots?.contains(where: {
+                $0.status == .verified && $0.envelope?.slot != nil && $0.name.lowercased() == name.lowercased()
+            }) != true {
+                throw ResourceError.rejected("autosave_slot_unavailable")
             }
             guard !inspectLabelHistory || (execute && source != nil) else {
                 throw ResourceError.rejected("label_history_probe_requires_single_script_execution")
@@ -1568,31 +2053,20 @@ struct HeadlessResourceReceipts: Decodable {
             guard !researchAudioFileLog || (execute && researchSystemData != nil && source != nil && catalogPath != nil) else {
                 throw ResourceError.rejected("audio_file_log_candidate_requires_system_data_and_catalog")
             }
-            var saveHeaderTemplate: Data?
-            if let executable = saveHeaderExecutable {
-                guard let game else { throw ResourceError.rejected("save_header_exe_requires_game_directory") }
-                let gameDirectory = try SafeDirectory(URL(fileURLWithPath: game, isDirectory: true))
-                saveHeaderTemplate = try SaveEnvelope.slotHeaderTemplate(from: gameDirectory, executable: executable)
-            } else if saveHeaderTemplateFromStdin {
-                var template = Data()
-                while template.count < 41,
-                      let chunk = try FileHandle.standardInput.read(upToCount: 41 - template.count),
-                      !chunk.isEmpty {
-                    template.append(chunk)
+            var saveInventoryIssues = saveSlots?.flatMap { slot -> [ScriptBatchReport.SaveInventoryIssue] in
+                var issues: [ScriptBatchReport.SaveInventoryIssue] = []
+                if let issue = slot.issue { issues.append(.init(name: slot.name, status: slot.status, issue: issue)) }
+                if let issue = slot.stateValidationIssue {
+                    issues.append(.init(name: slot.name, status: .notTested, issue: issue))
                 }
-                guard template.count == 40 else { throw ResourceError.rejected("save_header_verification_bounds") }
-                saveHeaderTemplate = template
+                return issues
             }
-            let saveSlots = try saveDirectory.map { directory in
-                try SaveSlotInventory.scan(directory, includeMetadata: true) { payload in
-                    _ = try ResourceImage.decode(payload)
-                }
-            }
-            guard saveSlots?.contains(where: { $0.status == .unsupported }) != true else {
-                throw ResourceError.rejected("save_directory_contains_unsupported_entries")
+            if let issue = systemImportIssue,
+               saveInventoryIssues?.contains(where: { $0.name == issue.name && $0.issue == issue.issue }) != true {
+                saveInventoryIssues = (saveInventoryIssues ?? []) + [issue]
             }
             for slot in saveSlots ?? [] {
-                if let issue = slot.issue {
+                if slot.status == .verified, let issue = slot.issue {
                     FileHandle.standardError.write(Data("save_thumbnail_issue=\(issue)\n".utf8))
                 }
             }
@@ -1605,6 +2079,20 @@ struct HeadlessResourceReceipts: Decodable {
             guard movieToolsPath == nil || execute else { throw ResourceError.rejected("movie_tools_require_execution") }
             var movieHost = movieToolsPath.map {
                 HeadlessMovieHost(tools: URL(fileURLWithPath: $0,isDirectory: true), assets: directory)
+            }
+            if let host = movieHost {
+              for sourcePath in researchVideoClockSources {
+                let bytes = try directory.read(sourcePath, limit: 16 * 1024 * 1024)
+                let digest = bytes.sha256Hex
+                guard researchVideoClocks[digest] == nil else {
+                    throw ResourceError.rejected("duplicate_research_video_clock_identity")
+                }
+                let source = ScriptLocation(sourceFile: sourcePath, sourceSHA256: digest,
+                    byteOffset: 0, byteLength: bytes.count, rangeSHA256: digest, lineNumber: 1)
+                let duration = try host.researchStandaloneVideoDuration(source)
+                researchVideoClocks[digest] = duration
+                FileHandle.standardError.write(Data("research_video_clock_source_sha256=\(digest) duration=\(duration) status=inferred\n".utf8))
+              }
             }
             let configuration = try game.map { root in
                 let directory = try SafeDirectory(URL(fileURLWithPath: root,isDirectory: true))
@@ -1662,7 +2150,7 @@ struct HeadlessResourceReceipts: Decodable {
                 throw ResourceError.rejected("entry_arguments_require_single_experimental_entry")
             }
             guard !observeLiveAudio || (execute && source != nil && items.count == 1 && movieToolsPath != nil &&
-                  researchStreamPositions.isEmpty && !adoptSaveCandidate) else {
+                  researchStreamPositions.isEmpty) else {
                 throw ResourceError.rejected("live_audio_observer_requires_single_script_and_decoder")
             }
             guard !researchAudibleVolumeFilter || (observeLiveAudio && researchSlotDonor == nil &&
@@ -1682,13 +2170,15 @@ struct HeadlessResourceReceipts: Decodable {
             guard researchAudioRate == nil || researchAudibleVolumeFilter else {
                 throw ResourceError.rejected("research_audio_rate_requires_volume_candidate")
             }
-            guard !startFromTitle || (execute && source != nil && items.count == 1 && !openTitleLoad &&
-                  !inspectLoadTask && !startAfterLoadEscape) else {
+            guard !startFromTitle || (execute && source != nil && items.count == 1 &&
+                  (!inspectLoadTask || dispatchWindowSave || dispatchWindowLoad || dispatchQuickLoad || researchOpenDialogueLog ||
+                   (openTitleLoad && loadTaskSlot != nil && loadTaskConfirmation == true)) &&
+                  !startAfterLoadEscape) else {
                 throw ResourceError.rejected("start_from_title_requires_single_direct_replay")
             }
             guard titleMenuTarget == nil || (execute && source != nil && items.count == 1 && dispatchStop &&
                   !startFromTitle && buttonIndex == nil && researchSlotDonor == nil &&
-                  (requireRouteReturn || (!inspectLoadTask && (pointer == nil || syntheticBarPointerInput) &&
+                  (requireRouteReturn || ((!inspectLoadTask || inspectDialogueLogInGallery) && (pointer == nil || syntheticBarPointerInput) &&
                       (storyChoices.isEmpty || titleMenuTarget == "memory")))) else {
                 throw ResourceError.rejected("title_menu_target_requires_single_direct_replay")
             }
@@ -1806,6 +2296,7 @@ struct HeadlessResourceReceipts: Decodable {
                     var candidates: [ScriptModuleReference]?
                     var replayBudget: HeadlessReplayBudget?
                     var loadTask: HeadlessLoadTask?
+                    var followupSystemTask: HeadlessLoadTask?
                     var routeIssue: String?
                     var saveResumeBoundary: ScriptMachine.SaveResumeBoundary?
                     var scenePreview: LoadThumbnailPass?
@@ -1815,17 +2306,48 @@ struct HeadlessResourceReceipts: Decodable {
                     var liveAudioObservationIssue: String?
                     var researchHostIssue: String?
                     if execute {
-                        let liveAudioObserver = observeLiveAudio ? LiveAudioObserver(maximumSeconds: liveAudioMaximumSeconds ?? 120,
+                        let clockCandidates = researchVideoClocks
+                        var liveAudioObserver = observeLiveAudio ? LiveAudioObserver(maximumSeconds: liveAudioMaximumSeconds ?? 120,
                             maximumStarts: liveAudioMaximumStarts ?? 512, allowVolumeFilter: researchAudibleVolumeFilter,
                             forceMuteOutput: researchMutedVolumeOutput, candidateSampleRate: researchAudioRate ?? 22050,
                             allowFilterChain: researchMutedFilterChain, allowTimeScale: researchMutedTimeScale) : nil
                         var machine = try ScriptMachine(program: ScriptProgram(document),allowExperimental: true,entryLabel: entry,entryArguments: entryArguments,maximumSteps: maximumSteps ?? 10_000,repository: repository,configuration: configuration, imageLoader: imageRecipe.dimensions,
                             imageMemberLookup: imageRecipe.member, imageExtendedValues: imageRecipe.extendedValues,
-                            imageMotionNames: imageRecipe.motionNames, retainFullTrace: !compactTrace)
+                            imageMotionNames: imageRecipe.motionNames, imageLayerFlags: imageRecipe.motionLayerFlags,
+                            imageLayerClockAdvance: { location, member, times, auxiliary, delta in
+                                if let duration = clockCandidates[location.sourceSHA256],
+                                   location.byteOffset == 0, location.rangeSHA256 == location.sourceSHA256,
+                                   location.sourceFile.lowercased().hasSuffix(".ogv"),
+                                   member == 0, delta.isFinite, delta.rounded(.towardZero) == delta,
+                                   let step = Int32(exactly: delta) {
+                                    return StandaloneVideoClockCandidate.advance(times: times, auxiliary: auxiliary,
+                                                                                 delta: step, duration: duration)
+                                }
+                                guard let advanced = imageRecipe.advanceSavedLayerClockCandidate(location,
+                                    selectedMember: member, layerTimes: times, auxiliary: auxiliary, delta: delta)
+                                else { return nil }
+                                return advanced
+                            },
+                            saveTextureJPEGEncoder: ResourceImage.jpegRepresentation,
+                            retainFullTrace: !compactTrace)
+                        machine.saveImageFilterValidator = { source, descriptor in
+                            let data = try directory.read(source.sourceFile, limit: 16 * 1024 * 1024)
+                            _ = try ResourceImage.savedBlurRaster(data, source: source, descriptor: descriptor)
+                        }
+                        if let filterSHA = researchVideoFilterSHA256 {
+                            for (sha, duration) in clockCandidates {
+                                machine.researchVideoSaveProfiles[sha] = .init(sourceSHA256: sha,
+                                    filterSHA256: filterSHA, duration: duration)
+                            }
+                        }
                         if let researchConfigInputData { try machine.applyResearchConfigurationOverlay(researchConfigInputData) }
                         if let researchSystemData {
                             let count = try machine.stageSystemDataScalars(researchSystemData)
                             FileHandle.standardError.write(Data("research_system_scalars=inferred count=\(count) file_log_entries=\(researchSystemData.summary.fileLogEntries) label_log_entries=\(researchSystemData.summary.labelLogEntries) automatic_read_tracking=unsupported\n".utf8))
+                        }
+                        if let systemWriteback {
+                            try machine.configureSystemDataSave(name: systemWriteback.name, headerTemplate: systemWriteback.header,
+                                                                expectedSHA256: systemWriteback.sha256)
                         }
                         machine.inspectUnrenderedBars = inspectUnrenderedBars
                         machine.allowLabelHistoryCandidate = researchLabelReadStatus
@@ -1840,6 +2362,8 @@ struct HeadlessResourceReceipts: Decodable {
                         machine.allowAudioFileLogCandidate = researchAudioFileLog
                         machine.allowLiveSoundPositionQuery = observeLiveAudio
                         machine.allowLiveSoundSwapHandoff = observeLiveAudio
+                        machine.allowPrimarySave = observeLiveAudio && saveHeaderTemplate != nil
+                        machine.allowTitleQuit = titleQuitResponse != nil
                         machine.allowLiveSoundFilterHandoff = researchAudibleVolumeFilter
                         machine.allowLiveSoundFilterChainHandoff = researchMutedFilterChain
                         if let directSoundCount, let directSoundLock {
@@ -1850,8 +2374,11 @@ struct HeadlessResourceReceipts: Decodable {
                                                              inferStateSeed: inferSaveStateSeed,
                                                              headerTemplate: saveHeaderTemplate)
                         }
+                        if let initialPointerSample {
+                            try machine.supplyInitialPointerSample(initialPointerSample)
+                        }
                         machine.savedMotionUpdateThreshold = imageRecipe.motionUpdateThreshold
-                        machine.retainExperimentalSaveCandidate = adoptSaveCandidate
+                        machine.retainExperimentalSaveCandidate = adoptSaveCandidate || startupBackupResponse == true
                         machine.captureSourceVisits = captureSourceVisits
                         machine.coverageSourceFile = coverageSourceFile
                         try machine.run(stepQuota: maximumSteps ?? 10_000)
@@ -1868,8 +2395,28 @@ struct HeadlessResourceReceipts: Decodable {
                         var researchCenterTextStopReached = false
                         var researchRubyStopReached = false
                         var hostIterations = 0
+                        var hostExitReason: String?
                         var choiceCursor = 0
                         var openedTitleLoad = false
+                        var windowSaveDispatched = false
+                        var windowLoadDispatched = false
+                        var dialogueLogDiskRestoreCommitted = false
+                        var dialogueLogOrigin: HeadlessLoadTask.DialogueOrigin?
+                        func saveActionIsAvailable() -> Bool {
+                            dispatchQuickSave ? machine.canDispatchQuickSave : machine.windowSaveButton != nil
+                        }
+                        func dispatchSaveAction() throws {
+                            if dispatchQuickSave {
+                                try machine.dispatchQuickSave()
+                            } else if let handle = machine.windowSaveButton {
+                                if researchWindowQuickSave { try machine.dispatchResearchQuickSave(handle) }
+                                else { try machine.dispatchWindowSaveButton(handle) }
+                            } else {
+                                throw ResourceError.rejected("window_save_button_not_selectable")
+                            }
+                            windowSaveDispatched = true
+                        }
+                        var timedWaitSaveDiagnosticLocations = Set<String>()
                         var startedFromTitle = false
                         var researchWindowSkipDispatched = false
                         var researchWindowAutoDispatched = false
@@ -2006,6 +2553,7 @@ struct HeadlessResourceReceipts: Decodable {
                         var researchSkipPendingScriptSteps = 0
                         var researchZeroPendingScriptSteps = 0
                         var titleMenuActions: [String] = []
+                        var titleQuitDispatched = false
                         var titleMenuIssue: String?
                         var routeStartedForMenu = false
                         var routeTitleReachedBeforeMenu = false
@@ -2102,15 +2650,72 @@ struct HeadlessResourceReceipts: Decodable {
                             else { hostContinuationStart = machine.playbackStatus.steps }
                             hostContinuationVisualTicks = machine.researchVisualTicks
                         }
-                        func runHost() throws {
-                            while hostIterations < 50_000 {
+                        func runHost(stopAtRestoredWait: Bool = false) throws {
+                            while hostIterations < maximumHostIterations {
                                 if let limit = researchStopAfterSubsequentButtonEvents,
                                    subsequentButtonCursor >= limit, machine.phase == .waitingForEvent {
                                     researchStopAfterSubsequentButtonReached = true
+                                    hostExitReason = "subsequent_button_limit"
                                     break
                                 }
                                 hostIterations += 1
                                 var resumedSoundPlayback = false
+                                if !stopAtRestoredWait, machine.stoppedAtMemoryCheckpointLoad {
+                                    try attemptInPlaceSaveRestore(startupBackup: false)
+                                    continue
+                                }
+                                if !stopAtRestoredWait, machine.isWaitingForStartupBackupConfirmation {
+                                    guard let accept = startupBackupResponse else {
+                                        hostExitReason = "startup_backup_confirmation_pending"
+                                        break
+                                    }
+                                    guard try machine.dispatchLoadConfirmation(accept: accept) else {
+                                        throw ResourceError.rejected("startup_backup_confirmation_unavailable")
+                                    }
+                                    FileHandle.standardError.write(Data("startup_backup_answer=\(accept ? "yes" : "no")\n".utf8))
+                                    setHostContinuationStart()
+                                    try machine.run(stepQuota: maximumSteps ?? 10_000)
+                                    continue
+                                }
+                                if let request = machine.primarySaveRequest, let observer = liveAudioObserver {
+                                    // Finish the playback transaction before a restored script can publish a save.
+                                    if stopAtRestoredWait { break }
+                                    do {
+                                        let thumbnail: Data
+                                        if request.needsThumbnail {
+                                            let capture = try HeadlessSystemCapture(scene: machine, priority: request.priority,
+                                                assets: directory, recipe: imageRecipe, saveDirectory: saveDirectory, movieHost: movieHost)
+                                            thumbnail = try ResourceImage.encodeSaveThumbnailJPEG(ResourceImage.decode(capture.bytes).image)
+                                        } else {
+                                            thumbnail = Data()
+                                        }
+                                        try observer.synchronizeControls(machine: &machine)
+                                        guard observer.directPlaybackIdentitiesMatch(machine.activeDirectPlaybackSnapshots) else {
+                                            throw ResourceError.rejected("live_direct_audio_save_identity_mismatch")
+                                        }
+                                        let snapshots = machine.activeStreamPlaybackSnapshots
+                                        let positions = try observer.positions(for: snapshots)
+                                        try machine.publishPrimarySave(streamPositions: positions,
+                                            streamPans: observer.panSamplesForSave(snapshots),
+                                            streamVolumes: observer.volumeSamplesForSave(snapshots),
+                                            streamRepeats: observer.repeatSamplesForSave(snapshots), thumbnail: thumbnail)
+                                        if request.needsThumbnail {
+                                            FileHandle.standardError.write(Data("primary_disk_save_published=\(request.name)\n".utf8))
+                                        } else {
+                                            FileHandle.standardError.write(Data("memory_checkpoint_captured=\(request.name) streams=\(positions.count)\n".utf8))
+                                        }
+                                    } catch {
+                                        if request.needsThumbnail {
+                                            FileHandle.standardError.write(Data("primary_disk_save_issue=\(request.name) \(error)\n".utf8))
+                                        } else {
+                                            FileHandle.standardError.write(Data("memory_checkpoint_capture_issue=\(error)\n".utf8))
+                                        }
+                                        try machine.failPrimarySave(error)
+                                    }
+                                    setHostContinuationStart()
+                                    try machine.run(stepQuota: maximumSteps ?? 10_000)
+                                    continue
+                                }
                                 if let request = machine.soundFilterRequest {
                                     guard let observer = liveAudioObserver, let host = movieHost,
                                           ScriptMachine.streamSaveChannelIndex(request.channel) != nil,
@@ -2191,7 +2796,7 @@ struct HeadlessResourceReceipts: Decodable {
                                                 throw ResourceError.rejected("draw_frame_realtime_audio_identity_unsupported")
                                             }
                                             let previous = DispatchTime.now().uptimeNanoseconds
-                                            Thread.sleep(forTimeInterval: Double(ticks) / 1000)
+                                            LiveAudioObserver.waitForPlayback(milliseconds: ticks)
                                             let now = DispatchTime.now().uptimeNanoseconds
                                             let measured = (now - previous) / 1_000_000
                                             guard (1...1000).contains(measured), measured <= UInt64(available) else {
@@ -2511,6 +3116,9 @@ struct HeadlessResourceReceipts: Decodable {
                                     researchHostIssue = issue
                                     break
                                 }
+                                if stopAtRestoredWait && (machine.phase == .waiting || machine.phase == .waitingForEvent) {
+                                    break
+                                }
                                 if titleMenuTarget != nil && requireRouteReturn && routeStartedForMenu &&
                                     choiceCursor == storyChoices.count && machine.canStartFromTitle {
                                     routeTitleReachedBeforeMenu = true
@@ -2538,29 +3146,41 @@ struct HeadlessResourceReceipts: Decodable {
                                 } else if let request = machine.moviePlaybackRequest, let movieHost {
                                     try machine.acknowledgeMoviePlayback(durationTicks: movieHost.decode(request))
                                 } else if let request = machine.soundPlaybackRequest, movieHost != nil {
+                                    let seekSeconds = (adoptSaveCandidate || observeLiveAudio) ? machine.takePendingPlaybackSeekSeconds() : nil
                                     let seek = (adoptSaveCandidate || observeLiveAudio) ? machine.takePendingPlaybackSeek() : nil
                                     let reuseLiveDecode = liveAudioObserver != nil && machine.soundPlaybackIsStream &&
-                                        !machine.soundPlaybackPreservesPosition && seek == nil &&
+                                        !machine.soundPlaybackPreservesPosition && seek == nil && seekSeconds == nil &&
                                         machine.soundPlaybackChannel.flatMap(ScriptMachine.streamSaveChannelIndex) != nil
-                                    let observedDirectRequest = researchObserveDirectSound && !machine.soundPlaybackIsStream &&
+                                    let observedDirectRequest = liveAudioObserver != nil && !machine.soundPlaybackIsStream &&
                                         machine.soundPlaybackChannel.flatMap(ScriptMachine.directSoundChannelIndex) != nil
                                     if !reuseLiveDecode && !observedDirectRequest { try movieHost!.decodeSound(request, seekMilliseconds: seek) }
+                                    if let seekSeconds, liveAudioObserver == nil {
+                                        let duration = try movieHost!.probeSoundDuration(request)
+                                        guard seekSeconds.isFinite, seekSeconds >= 0, seekSeconds < duration.seconds else {
+                                            throw ResourceError.rejected("saved_stream_seek_at_or_past_end")
+                                        }
+                                    }
                                     var soundDuration: Int32?
                                     if let liveAudioObserver, let channel = machine.soundPlaybackChannel {
                                         do {
                                             if observedDirectRequest {
-                                                guard seek == nil, let snapshot = machine.activeDirectPlaybackSnapshots[channel],
+                                                guard seek == nil, seekSeconds == nil,
+                                                      let snapshot = machine.activeDirectPlaybackSnapshots[channel],
                                                       snapshot.source == request, let step = snapshot.step else {
                                                     throw ResourceError.rejected("live_direct_audio_request_identity_mismatch")
                                                 }
                                                 soundDuration = try liveAudioObserver.startDirect(channel: channel, source: request,
-                                                    playbackStep: step, decoder: movieHost!)
+                                                    playbackStep: step, repeats: machine.soundPlaybackRepeatCount,
+                                                    decoder: movieHost!)
                                             } else {
                                                 soundDuration = try liveAudioObserver.start(channel: channel, source: request,
                                                     playbackStep: machine.activeStreamPlaybackSnapshots[channel]?.step,
                                                     repeats: machine.soundPlaybackRepeatCount,
                                                     preservePosition: machine.soundPlaybackPreservesPosition,
-                                                    seek: seek, volumeFilter: researchAudibleVolumeFilter
+                                                    seek: seek, seekSeconds: seekSeconds,
+                                                    initialVolume: machine.soundPlaybackInitialVolume ?? machine.immediateSoundVolumes[channel] ?? 256,
+                                                    initialPan: machine.immediateSoundPans[channel] ?? 0,
+                                                    volumeFilter: researchAudibleVolumeFilter
                                                         ? machine.researchActiveStreamVolumeFilters[channel] : nil,
                                                     filterChainText: researchMutedFilterChain
                                                         ? machine.researchActiveStreamFilterChains[channel] : nil,
@@ -2573,7 +3193,7 @@ struct HeadlessResourceReceipts: Decodable {
                                         }
                                     }
                                     if soundDuration == nil && (inspectUnrenderedBars || observeLiveAudio) && machine.soundPlaybackIsStream {
-                                        soundDuration = try movieHost!.probeSoundDuration(request)
+                                        soundDuration = try movieHost!.probeSoundDuration(request).scriptMilliseconds
                                     }
                                     if let seek {
                                         FileHandle.standardError.write(Data("experimental_saved_stream_playback seek_ms=\(seek)\n".utf8))
@@ -2593,8 +3213,31 @@ struct HeadlessResourceReceipts: Decodable {
                                         researchSkipMediaHandoffs += 1
                                     }
                                     if machine.phase != .ready { continue }
+                                } else if dispatchQuickLoad, !windowLoadDispatched, (!startFromTitle || startedFromTitle),
+                                          machine.canDispatchQuickLoad {
+                                    try machine.dispatchQuickLoad()
+                                    windowLoadDispatched = true
+                                    let action = recoverAutosaveSlot == nil ? "quick_load_dispatched" : "autosave_recovery_dispatched"
+                                    FileHandle.standardError.write(Data("\(action)=1\n".utf8))
+                                    continue
                                 } else if machine.phase == .waiting, let remaining = machine.clickWaitRemaining,
                                           remaining >= 0, let available = budget {
+                                    if dispatchWindowSaveAtTimedWait, startedFromTitle, !windowSaveDispatched,
+                                       (!researchWindowSaveAfterClicks || pendingMessageClicks == 0) {
+                                        let location = machine.playbackStatus.currentLocation
+                                        let key = "\(location?.sourceFile ?? "-"):\(location?.lineNumber ?? 0)"
+                                        if saveActionIsAvailable() {
+                                            try dispatchSaveAction()
+                                            let receipt = "window_save_dispatched=1 phase=\(machine.phase.rawValue) timed_wait_remaining=\(remaining) source=\(location?.sourceFile ?? "-") line=\(location?.lineNumber ?? 0)\n"
+                                            FileHandle.standardError.write(Data(receipt.utf8))
+                                            continue
+                                        } else if timedWaitSaveDiagnosticLocations.insert(key).inserted {
+                                            let reason = dispatchQuickSave ? "quick_save_unavailable" :
+                                                (machine.researchWindowSaveUnavailableReason ?? "eligible_button_not_dispatched")
+                                            let receipt = "window_save_ineligible=1 reason=\(reason) timed_wait_remaining=\(remaining) source=\(location?.sourceFile ?? "-") line=\(location?.lineNumber ?? 0)\n"
+                                            FileHandle.standardError.write(Data(receipt.utf8))
+                                        }
+                                    }
                                     let zeroLiveFramesBefore = researchZeroLiveAudioFrames
                                     let pendingSkipBeforeZero = machine.pendingResearchSkipTime
                                     var delta = min(available, remaining, machine.ticksUntilTimer ?? remaining)
@@ -2645,7 +3288,7 @@ struct HeadlessResourceReceipts: Decodable {
                                                 throw ResourceError.rejected("realtime_ordinary_wait_audio_identity_unsupported")
                                             }
                                             let previous = DispatchTime.now().uptimeNanoseconds
-                                            Thread.sleep(forTimeInterval: Double(min(quantum, remaining)) / 1000)
+                                            LiveAudioObserver.waitForPlayback(milliseconds: min(quantum, remaining))
                                             let now = DispatchTime.now().uptimeNanoseconds
                                             let measured = (now - previous) / 1_000_000
                                             guard (1...1000).contains(measured), measured <= UInt64(available) else {
@@ -2752,7 +3395,7 @@ struct HeadlessResourceReceipts: Decodable {
                                                 try observer.synchronizeControls(machine: &machine)
                                                 positions = try checkedRealtimeStreamPositions(observer)
                                                 let previous = DispatchTime.now().uptimeNanoseconds
-                                                Thread.sleep(forTimeInterval: Double(quantum) / 1000)
+                                                LiveAudioObserver.waitForPlayback(milliseconds: quantum)
                                                 let now = DispatchTime.now().uptimeNanoseconds
                                                 let measured = (now - previous) / 1_000_000
                                                 guard (1...1000).contains(measured), measured <= UInt64(available) else {
@@ -4320,7 +4963,17 @@ struct HeadlessResourceReceipts: Decodable {
                                     titleMenuActions.append(requested)
                                     pendingDispatch = false
                                     pendingScopedDispatch = false
-                                } else if startFromTitle, !startedFromTitle, machine.canStartFromTitle {
+                                } else if titleQuitResponse != nil, !titleQuitDispatched, machine.canStartFromTitle {
+                                    let matches = machine.titleButtons.filter { machine.titleButtonTarget($0.key) == "@@!quit" }
+                                    guard matches.count == 1, let button = matches.first,
+                                          let layer = machine.staticImageLayers.first(where: { $0.id == button.key }) else {
+                                        throw ResourceError.rejected("title_quit_button_unavailable")
+                                    }
+                                    try machine.dispatchStopCallback(pointer: (layer.x, layer.y), buttonIndex: button.value, click: true)
+                                    titleQuitDispatched = true
+                                    pendingDispatch = false
+                                    pendingScopedDispatch = false
+                                } else if startFromTitle, !openTitleLoad, !startedFromTitle, machine.canStartFromTitle {
                                     guard let handle = machine.titleStartButton, let index = machine.titleButtons[handle],
                                           let layer = machine.staticImageLayers.first(where: { $0.id == handle }) else {
                                         throw ResourceError.rejected("title_start_button_unavailable")
@@ -4328,13 +4981,41 @@ struct HeadlessResourceReceipts: Decodable {
                                     try machine.dispatchStopCallback(pointer: (layer.x, layer.y), buttonIndex: index, click: true)
                                     startedFromTitle = true
                                     routeStartedForMenu = requireRouteReturn
-                                } else if openTitleLoad, !openedTitleLoad, machine.canStartFromTitle {
-                                    let matches = machine.titleButtons.filter { machine.titleButtonTarget($0.key) == "@@!load" }
+                                } else if openTitleLoad, !openedTitleLoad, !machine.titleButtons.isEmpty {
+                                    let target = openTitleQuickLoad ? "@@!quickload" : "@@!load"
+                                    let matches = machine.titleButtons.filter { machine.titleButtonTarget($0.key) == target }
                                     guard matches.count == 1, let button = matches.first else {
                                         throw ResourceError.rejected("title_load_button_not_unique")
                                     }
                                     try machine.dispatchStopCallback(pointer: pointer, buttonIndex: button.value, click: true)
                                     openedTitleLoad = true
+                                } else if dispatchWindowLoad, !windowLoadDispatched,
+                                          let handle = machine.windowLoadButton {
+                                    try machine.dispatchWindowLoadButton(handle)
+                                    windowLoadDispatched = true
+                                } else if researchOpenDialogueLog, startedFromTitle || dialogueLogDiskRestoreCommitted ||
+                                          (inspectDialogueLogInGallery && subsequentButtonCursor > 0),
+                                          pendingMessageClicks == 0,
+                                          machine.researchMessageWaitPendingCount == 0,
+                                          dialogueLogOrigin == nil, machine.canDispatchDialogueLogShortcut(keyCode: 0x10009),
+                                          let location = machine.playbackStatus.currentLocation {
+                                    dialogueLogOrigin = .init(location: location, steps: machine.playbackStatus.steps,
+                                        textSHA256: try JSONEncoder().encode(machine.committedMessageText).sha256Hex)
+                                    try machine.dispatchDialogueLogShortcut(keyCode: 0x10009)
+                                } else if dispatchWindowSave, !windowSaveDispatched,
+                                          (!researchWindowSaveAfterClicks || pendingMessageClicks == 0),
+                                          (!dispatchWindowSaveAtTimedWait ||
+                                            (startedFromTitle && machine.phase == .waiting &&
+                                             (machine.clickWaitRemaining ?? -1) >= 0)),
+                                          saveActionIsAvailable() {
+                                    if let ticks = researchSaveVisualTicks {
+                                        machine.advanceVisualClock(ticks: ticks)
+                                        FileHandle.standardError.write(Data("research_save_visual_ticks=\(ticks)\n".utf8))
+                                    }
+                                    try dispatchSaveAction()
+                                    let current = machine.playbackStatus.currentLocation
+                                    let receipt = "window_save_dispatched=1 phase=\(machine.phase.rawValue) timed_wait_remaining=\(machine.clickWaitRemaining ?? -1) source=\(current?.sourceFile ?? "-") line=\(current?.lineNumber ?? 0)\n"
+                                    FileHandle.standardError.write(Data(receipt.utf8))
                                 } else if researchWindowAuto, startedFromTitle, !researchWindowAutoDispatched,
                                           let handle = machine.researchWindowAutoButton {
                                     researchWindowAutoModeBefore = machine.researchMessageWaitPlayMode
@@ -4443,6 +5124,12 @@ struct HeadlessResourceReceipts: Decodable {
                                         objectUpdates: researchBarObjectUpdates ?? 0)
                                     syntheticBarAxisValue = value
                                     syntheticBarEventConsumed = true
+                                } else if machine.phase == .waiting, machine.clickWaitRemaining == -1,
+                                          pendingMessageClicks > 0 {
+                                    // --message-clicks models the host input for
+                                    // ordinary indefinite \clk waits too.
+                                    try machine.completeIndefiniteClickWait()
+                                    pendingMessageClicks -= 1
                                 } else if machine.hasScopedStop, pendingScopedDispatch {
                                     try machine.dispatchStopCallback(pointer: pointer)
                                     pendingScopedDispatch = false
@@ -4459,12 +5146,109 @@ struct HeadlessResourceReceipts: Decodable {
                                     if stopAfterStoryChoices && choiceCursor == storyChoices.count { break }
                                     try machine.dispatchStopCallback(pointer: pointer, click: true)
                                     pendingMessageClicks -= 1
-                                } else { break }
-                                guard machine.phase == .ready else { break }
+                                } else {
+                                    hostExitReason = "no_host_action"
+                                    break
+                                }
+                                guard machine.phase == .ready else {
+                                    hostExitReason = "phase_after_host_input_\(machine.phase.rawValue)"
+                                    break
+                                }
                                 setHostContinuationStart(preservingAudioHandoff: resumedSoundPlayback); try machine.run(stepQuota: maximumSteps ?? 10_000)
                             }
                         }
+                        func prepareRestoredPlayback(_ audio: ScriptMachine.ExperimentalSaveAudio,
+                                                     replacing suspendedAudio: LiveAudioObserver?) throws {
+                            guard audio.gaps.isEmpty else {
+                                throw ResourceError.rejected("saved_audio_restore_incomplete")
+                            }
+                            guard movieHost != nil || (audio.scheduledStreams == 0 && audio.scheduledDirectSounds == 0) else {
+                                throw ResourceError.rejected("saved_audio_host_unavailable")
+                            }
+                            // Validate every queued saved stream before the observer is
+                            // mutated, so a later invalid seek leaves the suspended host intact.
+                            var preflight = machine
+                            while let source = preflight.soundPlaybackRequest {
+                                if let seconds = preflight.takePendingPlaybackSeekSeconds() {
+                                    guard let host = movieHost else {
+                                        throw ResourceError.rejected("saved_audio_host_unavailable")
+                                    }
+                                    let duration = try host.probeSoundDuration(source)
+                                    guard seconds.isFinite, seconds >= 0, seconds < duration.seconds else {
+                                        throw ResourceError.rejected("saved_stream_seek_at_or_past_end")
+                                    }
+                                }
+                                try preflight.acknowledgeSoundPlayback()
+                            }
+                            liveAudioObserver = suspendedAudio?.stageSaveRestore()
+                            try machine.run(stepQuota: maximumSteps ?? 10_000)
+                            try runHost(stopAtRestoredWait: true)
+                            if let researchHostIssue {
+                                throw ResourceError.rejected(researchHostIssue)
+                            }
+                            guard machine.phase == .waiting || machine.phase == .waitingForEvent ||
+                                  machine.primarySaveRequest != nil else {
+                                throw ResourceError.rejected("save_adopted_execution_stopped:\(machine.stopReason ?? machine.phase.rawValue)")
+                            }
+                            _ = try liveAudioObserver?.positions(for: machine.activeStreamPlaybackSnapshots)
+                            suspendedAudio?.retainActiveChannels([])
+                            liveAudioObserver?.commitSaveRestore()
+                        }
+                        func completeCleanShutdown() throws {
+                            try machine.run(stepQuota: 100)
+                            guard machine.phase == .finished else {
+                                throw ResourceError.rejected(machine.stopReason ?? "clean_shutdown_did_not_finish")
+                            }
+                            liveAudioObserver?.retainActiveChannels([])
+                            researchHostIssue = machine.summary.saveWriteIssue
+                        }
+                        func attemptInPlaceSaveRestore(startupBackup: Bool) throws {
+                            let suspended = machine
+                            let suspendedHost = movieHost
+                            let suspendedAudio = liveAudioObserver
+                            let suspendedIssue = researchHostIssue
+                            let suspendedExit = hostExitReason
+                            let suspendedBudget = budget
+                            let suspendedIterations = hostIterations
+                            let directBufferBytes: ((ScriptLocation) throws -> Int)? = movieHost.map { host in
+                                { try host.savedSoundPCMBytes($0) }
+                            }
+                            let receipt = startupBackup ? "startup_backup" : "memory_checkpoint"
+                            do {
+                                let audio = startupBackup
+                                    ? try machine.adoptStartupBackupCandidate(directBufferBytes: directBufferBytes)
+                                    : try machine.adoptMemoryCheckpointCandidate(directBufferBytes: directBufferBytes)
+                                try prepareRestoredPlayback(audio, replacing: suspendedAudio)
+                                if let issue = machine.synchronizeSystemDataAfterRestore(from: suspended) {
+                                    FileHandle.standardError.write(Data("\(receipt)_system_writeback_issue=\(issue)\n".utf8))
+                                }
+                                if startupBackup { pendingDispatch = false }
+                                FileHandle.standardError.write(Data("\(receipt)_restored=1 audio_gaps=0\n".utf8))
+                            } catch {
+                                machine = suspended
+                                movieHost = suspendedHost
+                                liveAudioObserver = suspendedAudio
+                                researchHostIssue = suspendedIssue
+                                hostExitReason = suspendedExit
+                                budget = suspendedBudget
+                                hostIterations = suspendedIterations
+                                let reason = suspended.saveResumeBoundary?.isolatedCallFrameIssue ??
+                                    suspended.stopReason.flatMap { $0 == "save_restore_candidate_ready" ? nil : $0 } ??
+                                    String(describing: error)
+                                FileHandle.standardError.write(Data("\(receipt)_restore_issue=\(reason)\n".utf8))
+                                if startupBackup {
+                                    try machine.continueStartupAfterBackupFailure()
+                                } else {
+                                    try machine.continueAfterMemoryCheckpointFailure()
+                                }
+                                try machine.run(stepQuota: maximumSteps ?? 10_000)
+                            }
+                        }
                         try runHost()
+                        if startupBackupResponse == true, machine.stoppedAtStartupBackupLoad {
+                            try attemptInPlaceSaveRestore(startupBackup: true)
+                            try runHost()
+                        }
                         var autoFrameCount: Int?
                         var autoFrameIssue: String?
                         var autoFrameInitialSteps: Int?
@@ -4524,7 +5308,7 @@ struct HeadlessResourceReceipts: Decodable {
                                     }
                                     var elapsedTicks = ticks
                                     if researchAutoRealtime {
-                                        Thread.sleep(forTimeInterval: Double(ticks) / 1000)
+                                        LiveAudioObserver.waitForPlayback(milliseconds: ticks)
                                         let now = DispatchTime.now().uptimeNanoseconds
                                         let elapsed = (now - previousFrameTime) / 1_000_000
                                         guard (1...1000).contains(elapsed) else {
@@ -4592,7 +5376,7 @@ struct HeadlessResourceReceipts: Decodable {
                                         line.issue = "auto_wait_or_host_state_changed"
                                         break
                                     }
-                                    Thread.sleep(forTimeInterval: Double(ticks) / 1000)
+                                    LiveAudioObserver.waitForPlayback(milliseconds: ticks)
                                     let now = DispatchTime.now().uptimeNanoseconds
                                     let elapsed = (now - previousFrameTime) / 1_000_000
                                     guard (1...1000).contains(elapsed) else {
@@ -4715,7 +5499,7 @@ struct HeadlessResourceReceipts: Decodable {
                                         sample.issue = "timed_wait_or_host_state_changed"
                                         break
                                     }
-                                    Thread.sleep(forTimeInterval: Double(ticks) / 1000)
+                                    LiveAudioObserver.waitForPlayback(milliseconds: ticks)
                                     let now = DispatchTime.now().uptimeNanoseconds
                                     let elapsed = (now - previousFrameTime) / 1_000_000
                                     guard (1...1000).contains(elapsed), let available = budget, available >= Int32(elapsed) else {
@@ -4879,13 +5663,145 @@ struct HeadlessResourceReceipts: Decodable {
                             }
                             audioCompletionCyclesDispatched = dispatched
                         }
-                        if openTitleLoad || loadTaskEscape || !loadTaskPages.isEmpty || loadTaskSlot != nil {
-                            guard machine.systemTaskRequest != nil else {
-                                throw ResourceError.rejected("requested_load_task_not_reached")
+                        if openTitleLoad || dispatchWindowSave || dispatchWindowLoad || researchOpenDialogueLog ||
+                           loadTaskEscape || !loadTaskPages.isEmpty ||
+                           loadTaskSlot != nil || titleQuitResponse != nil {
+                            guard let request = machine.systemTaskRequest,
+                                  !researchOpenDialogueLog || inspectDialogueLogAfterLoad ||
+                                      (dialogueLogOrigin != nil && request.entryLabel == "@@!Log") else {
+                                let loadTargets = machine.titleButtons.keys.filter {
+                                    machine.titleButtonTarget($0) == "@@!load"
+                                }.count
+                                let stoppedAt = machine.playbackStatus.currentLocation
+                                throw ResourceError.rejected(
+                                    "requested_system_task_not_reached:phase=\(machine.phase.rawValue):stop=\(machine.stopReason ?? "none"):at=\(stoppedAt?.sourceFile ?? "-"):\(stoppedAt?.lineNumber ?? 0):\(stoppedAt?.byteOffset ?? 0):title_buttons=\(machine.titleButtons.count):load_targets=\(loadTargets):save_button=\(machine.windowSaveButton == nil ? 0 : 1):save_dispatched=\(windowSaveDispatched ? 1 : 0):load_dispatched=\(windowLoadDispatched ? 1 : 0):steps=\(machine.playbackStatus.steps):host_iterations=\(hostIterations)/\(maximumHostIterations):host_exit=\(hostExitReason ?? "handler_or_limit_break"):host_issue=\(researchHostIssue ?? "none"):click_wait=\(machine.clickWaitRemaining ?? -2):timed_stop=\(machine.timedStopRequest?.duration ?? -1):scoped_stop=\(machine.hasScopedStop ? 1 : 0):story_choice=\(machine.isWaitingForStoryChoice ? 1 : 0):dialogue_hidden=\(machine.isDialogueWindowHidden ? 1 : 0):pending_clicks=\(pendingMessageClicks):ticks_left=\(budget ?? -1):choice_cursor=\(choiceCursor)/\(storyChoices.count):started_from_title=\(startedFromTitle ? 1 : 0)")
                             }
                         }
-                        if inspectLoadTask, machine.systemTaskRequest != nil {
-                            var task = try machine.startSystemLoadTask()
+                        let hasSecondTask = inspectDialogueLogAfterLoad || saveAfterLoadRecoverySlot != nil
+                        for taskIndex in 0..<(hasSecondTask ? 2 : 1) {
+                            guard inspectLoadTask else { break }
+                            let isRecoverySave = taskIndex == 1 && saveAfterLoadRecoverySlot != nil
+                            if isRecoverySave {
+                                guard let load = loadTask, load.resumedDialogueAfterUnsupportedSave == true,
+                                      load.experimentalAdoptionIssue != nil, load.experimentalAdoptionRecoveryIssue == nil,
+                                      let recoverySteps = load.dialogueRecoveryStartSteps else {
+                                    throw ResourceError.rejected("save_after_load_recovery_requires_resumed_dialogue")
+                                }
+                                // A rejected quick load normally leaves all requested inputs pending.
+                                if dispatchQuickLoad { try runHost() }
+                                guard pendingMessageClicks == 0, researchHostIssue == nil,
+                                      machine.playbackStatus.steps > recoverySteps,
+                                      let handle = machine.windowSaveButton else {
+                                    throw ResourceError.rejected("save_after_load_recovery_dialogue_not_continued")
+                                }
+                                try machine.dispatchWindowSaveButton(handle)
+                            } else if taskIndex == 1 {
+                                guard loadTask?.experimentalAdoption != nil,
+                                      loadTask?.experimentalAdoptionIssue == nil, loadTask?.captureIssue == nil else { break }
+                                guard dialogueLogOrigin != nil, machine.systemTaskRequest?.entryLabel == "@@!Log" else {
+                                    throw ResourceError.rejected("dialogue_log_after_title_load_not_reached:phase=\(machine.phase.rawValue):pending_clicks=\(pendingMessageClicks):key_bound=\(machine.canDispatchDialogueLogShortcut(keyCode: 0x10009))")
+                                }
+                            }
+                            guard machine.systemTaskRequest != nil else { break }
+                            var task: ScriptMachine
+                            if taskIndex == 0, let recoverAutosaveSlot {
+                                task = try machine.startAutosaveLoadTask(slot: recoverAutosaveSlot)
+                            } else {
+                                task = try machine.startSystemLoadTask()
+                            }
+                            let taskSlot = taskIndex == 1 ? (saveAfterLoadRecoverySlot ?? researchDialogueLogSlot) : loadTaskSlot
+                            let recoveryDestination = isRecoverySave ? taskSlot : nil
+                            let priorRecoverySlotSHA256 = recoveryDestination.flatMap { task.registeredSaveSlotSHA256(named: $0) }
+                            let taskLogNavigation = task.isLinkedLogTask ? logNavigation : []
+                            let externalCapturePath = taskIndex == 0 ? loadTaskCapturePath : nil
+                            var streamPositionsAtLastSystemTaskChunk: [Int32: Int32] = [:]
+                            var pendingControlsAtLastSystemTaskChunk: Int?
+                            var pendingControlObservationsAtLastSystemTaskChunk: [LiveAudioObserver.PendingControlObservation]?
+                            var activeAudioAtLastSystemTaskChunk: [ScriptMachine.ResearchActiveAudioSnapshot]?
+                            var suppliedCaptures: [String: Data] = [:]
+                            var captures: [HeadlessLoadTask.Capture] = []
+                            var suppliedThumbnail: Data?
+                            var captureIssue: String?
+                            let automaticallyCapture = dispatchWindowSave || dispatchWindowLoad || dispatchQuickLoad ||
+                                loadTaskConfirmation != nil || titleQuitDispatched || researchOpenDialogueLog
+                            var visibleLogCheckpoints: [String]?
+                            func runSystemTaskChunk(_ task: inout ScriptMachine) throws {
+                                if let liveAudioObserver {
+                                    try liveAudioObserver.synchronizeControls(machine: &machine)
+                                    guard liveAudioObserver.directPlaybackIdentitiesMatch(machine.activeDirectPlaybackSnapshots) else {
+                                        throw ResourceError.rejected("live_direct_audio_save_identity_mismatch")
+                                    }
+                                }
+                                let snapshots = machine.activeStreamPlaybackSnapshots
+                                let positions: [Int32: Int32]
+                                if snapshots.isEmpty {
+                                    positions = [:]
+                                } else if let liveAudioObserver {
+                                    do {
+                                        positions = try liveAudioObserver.positions(for: snapshots)
+                                    } catch ResourceError.rejected(let issue) {
+                                        let detail = liveAudioObserver.positionFailure(for: snapshots)
+                                        throw ResourceError.rejected("\(issue):\(detail)")
+                                    }
+                                } else {
+                                    positions = [:]
+                                }
+                                streamPositionsAtLastSystemTaskChunk = positions
+                                pendingControlsAtLastSystemTaskChunk = liveAudioObserver?.pendingControlCount
+                                pendingControlObservationsAtLastSystemTaskChunk = liveAudioObserver?.pendingControlObservations
+                                activeAudioAtLastSystemTaskChunk = machine.researchActiveAudioSnapshots
+                                try machine.runSystemLoadTask(&task, streamPositions: positions,
+                                                              streamPans: liveAudioObserver?.panSamplesForSave(snapshots) ?? [:],
+                                                              streamVolumes: liveAudioObserver?.volumeSamplesForSave(snapshots) ?? [:],
+                                                              streamRepeats: liveAudioObserver?.repeatSamplesForSave(snapshots) ?? [:],
+                                                              thumbnail: suppliedThumbnail)
+                            }
+                            func runSystemTaskThroughCapture(_ target: inout ScriptMachine,
+                                                             includeExternalThumbnail: Bool = true,
+                                                             settleAfterCapture: Int32? = nil) throws {
+                                while true {
+                                    guard captureIssue == nil else { return }
+                                    try runSystemTaskChunk(&target)
+                                    guard let request = target.screenCaptureRequest,
+                                          externalCapturePath != nil || automaticallyCapture else { return }
+                                    guard captures.count < 8 else { break }
+                                    do {
+                                        let bytes: Data
+                                        var canvasSHA256: String?
+                                        if let path = externalCapturePath {
+                                            let url = URL(fileURLWithPath: path)
+                                            let captureDirectory = try SafeDirectory(url.deletingLastPathComponent())
+                                            bytes = try captureDirectory.read(url.lastPathComponent, limit: 8 * 1024 * 1024)
+                                        } else {
+                                            let scene = try machine.systemTaskCaptureScene(for: target)
+                                            let capture = try HeadlessSystemCapture(scene: scene, priority: request.priority,
+                                                assets: directory, recipe: imageRecipe, saveDirectory: saveDirectory,
+                                                movieHost: movieHost)
+                                            bytes = capture.bytes
+                                            canvasSHA256 = capture.canvasSHA256
+                                        }
+                                        let image = try ResourceImage.decode(bytes).image
+                                        if includeExternalThumbnail || externalCapturePath == nil {
+                                            suppliedThumbnail = try ResourceImage.encodeSaveThumbnailJPEG(image)
+                                        }
+                                        let reference = ScriptModuleReference(logicalPath: "system-capture.png",
+                                            sourceFile: "system-capture.png", sourceSHA256: bytes.sha256Hex)
+                                        try target.supplyScreenCapture(reference.wholeFileLocation(byteLength: bytes.count),
+                                            width: image.width, height: image.height)
+                                        suppliedCaptures[reference.sourceSHA256] = bytes
+                                        captures.append(.init(scene: request.scene, request: request.location, priority: request.priority,
+                                                              imageSHA256: reference.sourceSHA256, canvasSHA256: canvasSHA256))
+                                    } catch {
+                                        captureIssue = String(describing: error)
+                                        return
+                                    }
+                                    if let settleAfterCapture, let liveAudioObserver {
+                                        LiveAudioObserver.waitForPlayback(milliseconds: settleAfterCapture)
+                                        try liveAudioObserver.synchronizeControls(machine: &machine)
+                                    }
+                                }
+                                captureIssue = "game_thread_capture_request_limit"
+                            }
                             task.savedAutoWaitClicks = savedAutoWaitClicks
                             task.savedDialogueClicks = savedDialogueClicks
                             task.clickAfterSavedMovie = clickAfterSavedMovie
@@ -4936,10 +5852,11 @@ struct HeadlessResourceReceipts: Decodable {
                                     }
                                     var surface: Data?
                                     let scene = try LoadThumbnailPass(task: probe, assets: directory,
-                                        recipe: imageRecipe, backgroundPath: background, suppliedCapture: nil,
+                                        recipe: imageRecipe, backgroundPath: background,
                                         saveDirectory: saveDirectory, atDrawRequest: true, capturePriority: priority,
                                         overlapProgress: overlapProgress, canvasSize: sceneCanvas,
                                         sceneVideoFrame: videoHost.map { host in { source, ticks in try host.standaloneSceneFrame(source, ticks: ticks) } },
+                                        researchVideoLayerSourceSHA256s: Set(clockCandidates.keys),
                                         useSavedLayerTimesCandidate: savedLayerTimes && isFrozenLayerScene,
                                         savedLayerAdvanceDelta: isFrozenLayerScene ? savedLayerDelta : nil,
                                         exportPNG: isCapture ? { surface = $0 } : nil)
@@ -4972,29 +5889,65 @@ struct HeadlessResourceReceipts: Decodable {
                                     return (receipt, incomplete ? nil : surface)
                                 }
                             }
-                            try machine.runSystemLoadTask(&task)
-                            var suppliedCapture: Data?
-                            if let path = loadTaskCapturePath, task.screenCaptureRequest != nil {
-                                let url = URL(fileURLWithPath: path)
-                                let captureDirectory = try SafeDirectory(url.deletingLastPathComponent())
-                                let bytes = try captureDirectory.read(url.lastPathComponent, limit: 8 * 1024 * 1024)
-                                let image = try ResourceImage.decode(bytes).image
-                                let reference = ScriptModuleReference(logicalPath: "system-capture.png",
-                                    sourceFile: "system-capture.png", sourceSHA256: bytes.sha256Hex)
-                                try task.supplyScreenCapture(reference.wholeFileLocation(byteLength: bytes.count),
-                                    width: image.width, height: image.height)
-                                suppliedCapture = bytes
-                                try machine.runSystemLoadTask(&task)
-                            }
+                            try runSystemTaskThroughCapture(&task, settleAfterCapture:
+                                (researchWindowQuickSave || dispatchQuickSave) ? loadTaskControlSettleMilliseconds : nil)
                             var taskTicks = loadTaskTicks ?? 0
                             var escaped = false
                             var verifiedPages: [Int32] = []
+                            var dispatchedLogInputs: [String] = []
+                            var logTargetCanvasY: [Int32] = []
+                            var logScrollbarSamples: [ScriptMachine.DialogueLogScrollbar] = []
                             var pendingPage: Int32?
-                            var clickedSlot = false
+                            // Quick load addresses the engine's selected slot directly.
+                            let directlyAddressedSlot = taskIndex == 0 && (openTitleQuickLoad || titleQuitDispatched)
+                            var clickedSlot = directlyAddressedSlot
+                            func recoveryPublicationSHA256() -> String? {
+                                guard clickedSlot, let recoveryDestination, task.lastSaveWriteIssue == nil,
+                                      let digest = task.registeredSaveSlotSHA256(named: recoveryDestination),
+                                      digest != priorRecoverySlotSHA256 else { return nil }
+                                return digest
+                            }
+                            let taskConfirmation: Bool?
+                            if isRecoverySave {
+                                taskConfirmation = true
+                            } else if taskIndex == 1 {
+                                taskConfirmation = researchDialogueLogSlot.map { _ in true }
+                            } else {
+                                taskConfirmation = loadTaskConfirmation ?? titleQuitResponse
+                            }
                             var answeredConfirmation = false
                             for _ in 0..<1024 {
-                                if let page = pendingPage, !task.loadMenuButtons.isEmpty {
-                                    let checked = task.loadMenuButtons.filter(task.isLoadPageChecked)
+                                guard captureIssue == nil else { break }
+                                if task.isWaitingInDialogueLog {
+                                    if let endpoint = task.ticksUntilPlacementEndpoint, endpoint > 0 {
+                                        let delta = min(taskTicks, endpoint)
+                                        guard delta > 0 else { break }
+                                        task.advanceVisualClock(ticks: delta)
+                                        taskTicks -= delta
+                                        continue
+                                    }
+                                    if let slot = taskSlot, !taskLogNavigation.isEmpty, !clickedSlot,
+                                       let handle = try task.logJumpButton(named: slot),
+                                       let layer = task.staticImageLayers.first(where: { $0.id == handle }) {
+                                        logTargetCanvasY.append(layer.y)
+                                    }
+                                    if !taskLogNavigation.isEmpty, !clickedSlot, let bar = task.dialogueLogScrollbar {
+                                        logScrollbarSamples.append(bar)
+                                    }
+                                    if dispatchedLogInputs.count < taskLogNavigation.count {
+                                        let input = taskLogNavigation[dispatchedLogInputs.count]
+                                        switch input {
+                                        case .key(let key): try task.dispatchDialogueLogNavigation(key)
+                                        case .wheel(let delta): try task.dispatchDialogueLogWheel(delta)
+                                        case .drag(let y): try task.dispatchDialogueLogScrollbar(y: y)
+                                        }
+                                        dispatchedLogInputs.append(input.description)
+                                        try runSystemTaskThroughCapture(&task)
+                                        continue
+                                    }
+                                }
+                                if let page = pendingPage, !task.systemTaskMenuButtons.isEmpty {
+                                    let checked = task.systemTaskMenuButtons.filter(task.isLoadPageChecked)
                                         .compactMap(task.loadPageIndex)
                                     guard checked == [page] else {
                                         throw ResourceError.rejected("load_task_page_did_not_change")
@@ -5003,38 +5956,66 @@ struct HeadlessResourceReceipts: Decodable {
                                     pendingPage = nil
                                 }
                                 if verifiedPages.count < loadTaskPages.count, pendingPage == nil,
-                                   !task.loadMenuButtons.isEmpty {
+                                   !task.systemTaskMenuButtons.isEmpty {
                                     let page = loadTaskPages[verifiedPages.count]
-                                    let buttons = task.loadMenuButtons.filter { task.loadPageIndex($0) == page }
+                                    let buttons = task.systemTaskMenuButtons.filter { task.loadPageIndex($0) == page }
                                     guard buttons.count == 1, let handle = buttons.first,
                                           let layer = task.staticImageLayers.first(where: { $0.id == handle }) else {
                                         throw ResourceError.rejected("load_task_page_button_unavailable")
                                     }
-                                    try task.dispatchLoadMenuButton(handle, x: layer.x, y: layer.y)
+                                    try task.dispatchSystemTaskMenuButton(handle, x: layer.x, y: layer.y)
                                     pendingPage = page
-                                    try machine.runSystemLoadTask(&task)
+                                    try runSystemTaskThroughCapture(&task)
                                     continue
                                 }
-                                if loadTaskEscape, !escaped, task.phase == .waitingForEvent, !task.loadMenuButtons.isEmpty {
+                                if loadTaskEscape, !escaped, task.phase == .waitingForEvent, !task.systemTaskMenuButtons.isEmpty {
                                     try task.dispatchLoadMenuEscape()
                                     escaped = true
-                                    try machine.runSystemLoadTask(&task)
+                                    try runSystemTaskThroughCapture(&task)
                                     continue
                                 }
-                                if let slot = loadTaskSlot, !clickedSlot, !task.loadMenuButtons.isEmpty {
-                                    guard let handle = try task.loadSlotButton(named: slot),
+                                if let slot = taskSlot, !clickedSlot, !task.systemTaskMenuButtons.isEmpty {
+                                    let button: UInt64?
+                                    if loadTaskDelete {
+                                        button = try task.deleteSlotButton(named: slot)
+                                    } else if task.isLinkedLogTask {
+                                        visibleLogCheckpoints = task.visibleLogJumpCheckpoints
+                                        button = try task.logJumpButton(named: slot)
+                                    } else {
+                                        button = try task.loadSlotButton(named: slot) ?? task.saveSlotButton(named: slot)
+                                    }
+                                    guard let handle = button,
                                           let layer = task.staticImageLayers.first(where: { $0.id == handle }) else {
                                         throw ResourceError.rejected("load_slot_button_unavailable")
                                     }
-                                    try task.dispatchLoadMenuButton(handle, x: layer.x, y: layer.y)
+                                    if task.isLinkedLogTask, !logNavigation.isEmpty,
+                                       !(0..<1280).contains(layer.x) || !(0..<720).contains(layer.y) {
+                                        throw ResourceError.rejected("dialogue_log_target_off_canvas")
+                                    }
+                                    if let milliseconds = loadTaskControlSettleMilliseconds {
+                                        guard let liveAudioObserver else {
+                                            throw ResourceError.rejected("load_task_control_settle_observer_unavailable")
+                                        }
+                                        LiveAudioObserver.waitForPlayback(milliseconds: milliseconds)
+                                        try liveAudioObserver.synchronizeControls(machine: &machine)
+                                    }
+                                    try task.dispatchSystemTaskMenuButton(handle, x: layer.x, y: layer.y)
                                     clickedSlot = true
-                                    try machine.runSystemLoadTask(&task)
+                                    try runSystemTaskThroughCapture(&task)
                                     continue
                                 }
-                                if clickedSlot, !answeredConfirmation, let accept = loadTaskConfirmation,
+                                if clickedSlot, !answeredConfirmation, let accept = taskConfirmation,
                                    try task.dispatchLoadConfirmation(accept: accept) {
                                     answeredConfirmation = true
-                                    try machine.runSystemLoadTask(&task)
+                                    try runSystemTaskThroughCapture(&task)
+                                    continue
+                                }
+                                if isRecoverySave, !escaped, task.phase == .waitingForEvent,
+                                   !task.systemTaskMenuButtons.isEmpty, recoveryPublicationSHA256() != nil {
+                                    // Empty slots publish directly; only overwrites use a confirmation.
+                                    try task.dispatchLoadMenuEscape()
+                                    escaped = true
+                                    try runSystemTaskThroughCapture(&task)
                                     continue
                                 }
                                 guard task.phase == .waiting, let wait = task.clickWaitRemaining,
@@ -5045,21 +6026,26 @@ struct HeadlessResourceReceipts: Decodable {
                                 try task.advancePlacementClock(ticks: delta)
                                 taskTicks -= delta
                                 guard task.phase == .ready else { break }
-                                try machine.runSystemLoadTask(&task)
+                                try runSystemTaskThroughCapture(&task)
                             }
-                            guard verifiedPages == loadTaskPages else {
+                            guard captureIssue != nil || verifiedPages == loadTaskPages else {
                                 throw ResourceError.rejected("load_task_page_did_not_change")
                             }
-                            guard loadTaskSlot == nil || clickedSlot else {
+                            guard captureIssue != nil || dispatchedLogInputs.count == taskLogNavigation.count else {
+                                throw ResourceError.rejected(task.stopReason ?? "dialogue_log_navigation_not_consumed")
+                            }
+                            guard captureIssue != nil || taskSlot == nil || clickedSlot else {
                                 let status = task.playbackStatus
                                 let cause = status.stopReason ?? status.phase.rawValue
                                 throw ResourceError.rejected("load_slot_button_not_reached: \(cause)")
                             }
-                            guard loadTaskConfirmation == nil || answeredConfirmation else {
-                                throw ResourceError.rejected("load_confirmation_not_reached")
+                            guard isRecoverySave || titleQuitDispatched || captureIssue != nil || taskConfirmation == nil || answeredConfirmation else {
+                                let status = task.playbackStatus
+                                let cause = status.stopReason ?? status.phase.rawValue
+                                throw ResourceError.rejected("load_confirmation_not_reached: \(cause)")
                             }
                             var visibleDialogueAfterRestart: Int?
-                            if loadTaskEscape {
+                            if loadTaskEscape && captureIssue == nil {
                                 guard escaped, task.systemTaskExitRequested else {
                                     throw ResourceError.rejected("load_task_escape_did_not_exit")
                                 }
@@ -5081,13 +6067,90 @@ struct HeadlessResourceReceipts: Decodable {
 
                                 }
                             }
-                            var report = HeadlessLoadTask(task, suppliedCaptureSHA256: suppliedCapture?.sha256Hex)
-                            if adoptSaveCandidate {
+                            var report = HeadlessLoadTask(task, suppliedCaptureSHA256: captures.last?.imageSHA256)
+                            report.recoverySavedSlotSHA256 = recoveryPublicationSHA256()
+                            report.capturedSceneSHA256 = captures.last?.canvasSHA256
+                            report.captures = captures.isEmpty ? nil : captures
+                            if task.isLinkedLogTask { report.dialogueOrigin = dialogueLogOrigin }
+                            report.logNavigation = dispatchedLogInputs.isEmpty ? nil : dispatchedLogInputs
+                            report.logTargetCanvasY = logTargetCanvasY.isEmpty ? nil : logTargetCanvasY
+                            report.logScrollbarSamples = logScrollbarSamples.isEmpty ? nil : logScrollbarSamples
+                            if task.isLinkedLogTask {
+                                report.visibleLogCheckpoints = visibleLogCheckpoints ?? task.visibleLogJumpCheckpoints
+                            }
+                            report.captureIssue = captureIssue
+                            if captureIssue != nil, machine.abortSystemLoad() {
+                                report.captureFailureResumedPhase = machine.phase.rawValue
+                                if task.isLinkedLogTask, machine.phase == .ready {
+                                    try machine.run(stepQuota: 10_000)
+                                    try runHost()
+                                }
+                            }
+                            if task.phase == .stopped && (windowSaveDispatched || (isRecoverySave && captureIssue == nil)) {
+                                guard machine.abortSystemLoad() else {
+                                    throw ResourceError.rejected("save_failure_recovery_unavailable")
+                                }
+                                report.saveFailureResumedPhase = machine.phase.rawValue
+                                report.saveFailureRemainingWait = machine.clickWaitRemaining
+                                if researchContinueAfterQuickFailure { try runHost() }
+                            }
+                            if openTitleQuickLoad && loadTaskConfirmation != true && task.systemTaskExitRequested {
+                                try machine.finishSystemLoadTask(task)
+                            }
+                            if (dispatchQuickSave || isRecoverySave) && task.systemTaskExitRequested {
+                                try machine.finishSystemLoadTask(task)
+                            }
+                            if titleQuitDispatched, captureIssue == nil {
+                                do {
+                                    guard answeredConfirmation, task.phase != .stopped else {
+                                        throw ResourceError.rejected(task.stopReason ?? "title_quit_confirmation_not_reached")
+                                    }
+                                    if titleQuitResponse == true {
+                                        try machine.beginCleanShutdown(afterQuit: task)
+                                        try completeCleanShutdown()
+                                    } else {
+                                        try machine.finishSystemLoadTask(task)
+                                        try machine.run(stepQuota: maximumSteps ?? 10_000)
+                                        try runHost()
+                                        guard machine.phase == .waitingForEvent, machine.canStartFromTitle else {
+                                            throw ResourceError.rejected("title_quit_cancel_did_not_resume")
+                                        }
+                                    }
+                                } catch {
+                                    if machine.abortSystemLoad() {
+                                        try machine.run(stepQuota: maximumSteps ?? 10_000)
+                                        try runHost()
+                                    }
+                                    researchHostIssue = String(describing: error)
+                                }
+                            }
+                            report.liveControlSettleDelayMilliseconds = loadTaskControlSettleMilliseconds
+                            report.streamPositionsAtLastSystemTaskChunk = streamPositionsAtLastSystemTaskChunk
+                            report.systemNameSlotUTF16Lengths = Array(task.nativeSaveMetadata.dropLast().map(\.utf16.count))
+                            let linkedLogJump = task.completedLinkedLogJump
+                            if task.isLinkedLogTask, !linkedLogJump, !escaped, captureIssue == nil,
+                               task.systemTaskExitRequested || task.phase == .stopped {
+                                if task.systemTaskExitRequested {
+                                    try machine.finishSystemLoadTask(task)
+                                } else {
+                                    guard machine.abortSystemLoad() else {
+                                        throw ResourceError.rejected("linked_log_jump_rollback_unavailable")
+                                    }
+                                    report.experimentalAdoptionIssue = task.stopReason
+                                }
+                                try machine.run(stepQuota: 10_000)
+                                try runHost()
+                            }
+                            if (linkedLogJump || (adoptSaveCandidate && !task.isLinkedLogTask && !isRecoverySave)) && captureIssue == nil {
                                 let directBufferBytes: ((ScriptLocation) throws -> Int)? = movieHost.map { host in
                                     { try host.savedSoundPCMBytes($0) }
                                 }
                                 let suspendedMachine = machine
                                 let suspendedHost = movieHost
+                                let suspendedAudio = liveAudioObserver
+                                let suspendedHostIssue = researchHostIssue
+                                let suspendedHostExitReason = hostExitReason
+                                var adoptionCommitted = false
                                 let suspendedInputs = (budget, pendingDispatch, pendingScopedDispatch,
                                                        pendingMessageClicks, hostIterations, choiceCursor,
                                                        openedTitleLoad, lastRouteProgressSteps)
@@ -5101,9 +6164,28 @@ struct HeadlessResourceReceipts: Decodable {
                                     openedTitleLoad = suspendedInputs.6
                                     lastRouteProgressSteps = suspendedInputs.7
                                     movieHost = suspendedHost
+                                    researchHostIssue = suspendedHostIssue
+                                    hostExitReason = suspendedHostExitReason
                                 }
                                 do {
-                                    let audio = try machine.adoptExperimentalSaveCandidate(from: task, directBufferBytes: directBufferBytes)
+                                    var audio = linkedLogJump
+                                        ? try machine.adoptLinkedLogJump(from: task, directBufferBytes: directBufferBytes)
+                                        : try machine.adoptExperimentalSaveCandidate(from: task, directBufferBytes: directBufferBytes)
+                                    // Probe the loaded container before the next selection can replace its record.
+                                    if researchRestoreSelectionCheckpoint, taskIndex == 0, audio.gaps.isEmpty {
+                                        let checkpoint = try machine.stageResearchSelectionCheckpointRestore()
+                                        report.selectionCheckpointFound = checkpoint != nil
+                                        if let checkpoint {
+                                            report.selectionCheckpointBoundary = checkpoint.boundary
+                                            report.selectionCheckpointSHA256 = checkpoint.sha256
+                                            machine = checkpoint.machine
+                                            audio = try machine.adoptMemoryCheckpointCandidate(directBufferBytes: directBufferBytes)
+                                        }
+                                    }
+                                    report.experimentalAdoptionValidatedImageFilters = audio.validatedImageFilterCount
+                                    if researchSavedBlur {
+                                        FileHandle.standardError.write(Data("saved_blur_research_validated=\(audio.validatedImageFilterCount) status=inferred\n".utf8))
+                                    }
                                     report.experimentalAdoptionStagedStreams = audio.stagedStreams
                                     report.experimentalAdoptionRestoredStreamNames = audio.restoredStreamNames
                                     report.experimentalAdoptionUnrestoredSavedStreamNames = audio.unrestoredSavedStreamNames
@@ -5112,38 +6194,187 @@ struct HeadlessResourceReceipts: Decodable {
                                     report.experimentalAdoptionScheduledStreams = audio.scheduledStreams
                                     report.experimentalAdoptionScheduledDirectSounds = audio.scheduledDirectSounds
                                     report.experimentalAdoptionAudioGaps = audio.gaps
-                                    guard audio.gaps.isEmpty else {
-                                        throw ResourceError.rejected("saved_audio_restore_incomplete")
+                                    try prepareRestoredPlayback(audio, replacing: suspendedAudio)
+                                    report.systemDataWritebackIssue = machine.synchronizeSystemDataAfterRestore(from: suspendedMachine)
+                                    adoptionCommitted = true
+                                    report.experimentalAdoption = machine.summary
+                                    if inspectDialogueLogAfterLoad && taskIndex == 0 {
+                                        dialogueLogDiskRestoreCommitted = true
                                     }
-                                    guard movieHost != nil || (audio.scheduledStreams == 0 && audio.scheduledDirectSounds == 0) else {
-                                        throw ResourceError.rejected("saved_audio_host_unavailable")
+                                    if linkedLogJump, let clicks = researchDialogueLogResumeClicks {
+                                        pendingMessageClicks = clicks
                                     }
-                                    try machine.run(stepQuota: maximumSteps ?? 10_000)
                                     try runHost()
+                                    if let researchHostIssue {
+                                        throw ResourceError.rejected(researchHostIssue)
+                                    }
                                     guard machine.phase != .stopped else {
                                         throw ResourceError.rejected("save_adopted_execution_stopped:\(machine.stopReason ?? "unknown")")
                                     }
                                     report.experimentalAdoption = machine.summary
-                                } catch {
-                                    machine = suspendedMachine
-                                    restoreSuspendedInputs()
-                                    report.experimentalAdoptionIssue = String(describing: error)
-                                    do {
-                                        try machine.discardFailedSaveLoadTask(task)
-                                        try machine.run(stepQuota: 10_000)
-                                        try runHost()
-                                        guard machine.phase == .waitingForEvent, machine.canStartFromTitle else {
-                                            throw ResourceError.rejected("save_recovery_title_did_not_resume:\(machine.phase.rawValue):\(machine.stopReason ?? "none")")
+                                    if linkedLogJump {
+                                        report.resumedDialogueSHA256 = try JSONEncoder().encode(machine.committedMessageText).sha256Hex
+                                        if let clicks = researchDialogueLogResumeClicks {
+                                            report.resumedDialogueClicks = clicks - pendingMessageClicks
+                                            guard pendingMessageClicks == 0 else {
+                                                throw ResourceError.rejected("dialogue_log_resume_clicks_not_consumed")
+                                            }
                                         }
-                                        report.resumedTitleAfterUnsupportedSave = true
-                                    } catch {
+                                    }
+                                    if inspectFollowupSystemTask, machine.phase == .waitingForSystemTask,
+                                       machine.systemTaskRequest != nil {
+                                        let initialCapture = (suppliedCaptures, captures, suppliedThumbnail, captureIssue)
+                                        (suppliedCaptures, captures, suppliedThumbnail, captureIssue) = ([:], [], nil, nil)
+                                        defer {
+                                            (suppliedCaptures, captures, suppliedThumbnail, captureIssue) = initialCapture
+                                        }
+                                        var followup = try machine.startSystemLoadTask()
+                                        func runFollowupChunk(_ target: inout ScriptMachine) throws {
+                                            try runSystemTaskThroughCapture(&target, includeExternalThumbnail: false)
+                                        }
+                                        try runFollowupChunk(&followup)
+                                        var followupTicks = loadTaskTicks ?? 0
+                                        var clickedFollowupSlot = false
+                                        var answeredFollowupConfirmation = false
+                                        var pendingControlsBeforeConfirmationChunk: Int?
+                                        for _ in 0..<1024 {
+                                            guard captureIssue == nil else { break }
+                                            if followup.phase == .ready {
+                                                try runFollowupChunk(&followup)
+                                                continue
+                                            }
+                                            if let slot = loadTaskSlot, !clickedFollowupSlot,
+                                               !followup.systemTaskMenuButtons.isEmpty {
+                                                guard let handle = try followup.loadSlotButton(named: slot) ??
+                                                        followup.saveSlotButton(named: slot),
+                                                      let layer = followup.staticImageLayers.first(where: { $0.id == handle }) else {
+                                                    throw ResourceError.rejected("followup_save_slot_button_unavailable")
+                                                }
+                                                if let milliseconds = followupTaskControlSettleMilliseconds {
+                                                    guard let liveAudioObserver else {
+                                                        throw ResourceError.rejected("followup_control_settle_observer_unavailable")
+                                                    }
+                                                    LiveAudioObserver.waitForPlayback(milliseconds: milliseconds)
+                                                    try liveAudioObserver.synchronizeControls(machine: &machine)
+                                                }
+                                                try followup.dispatchSystemTaskMenuButton(handle, x: layer.x, y: layer.y)
+                                                clickedFollowupSlot = true
+                                                try runFollowupChunk(&followup)
+                                                continue
+                                            }
+                                            if clickedFollowupSlot, !answeredFollowupConfirmation,
+                                               let accept = loadTaskConfirmation,
+                                               try followup.dispatchLoadConfirmation(accept: accept) {
+                                                answeredFollowupConfirmation = true
+                                                pendingControlsBeforeConfirmationChunk = liveAudioObserver?.pendingControlCount
+                                                try runFollowupChunk(&followup)
+                                                continue
+                                            }
+                                            if followup.systemTaskExitRequested || followup.phase == .stopped { break }
+                                            guard followup.phase == .waiting,
+                                                  let wait = followup.clickWaitRemaining, wait >= 0 else { break }
+                                            let delta = min(wait, followupTicks)
+                                            guard delta > 0 || wait == 0 else { break }
+                                            try followup.advanceClickWait(ticks: delta)
+                                            try followup.advancePlacementClock(ticks: delta)
+                                            followupTicks -= delta
+                                            if followup.phase == .ready { try runFollowupChunk(&followup) }
+                                        }
+                                        var followupReport = HeadlessLoadTask(followup,
+                                            suppliedCaptureSHA256: captures.last?.imageSHA256)
+                                        followupReport.capturedSceneSHA256 = captures.last?.canvasSHA256
+                                        followupReport.captures = captures.isEmpty ? nil : captures
+                                        followupReport.captureIssue = captureIssue
+                                        followupReport.clickedSaveSlot = clickedFollowupSlot
+                                        followupReport.answeredSaveConfirmation = answeredFollowupConfirmation
+                                        followupReport.pendingControlsBeforeConfirmationChunk = pendingControlsBeforeConfirmationChunk
+                                        followupReport.pendingControlsAtLastSystemTaskChunk = pendingControlsAtLastSystemTaskChunk
+                                        followupReport.pendingControlObservationsAtLastSystemTaskChunk = pendingControlObservationsAtLastSystemTaskChunk
+                                        followupReport.activeAudioAtLastSystemTaskChunk = activeAudioAtLastSystemTaskChunk
+                                        followupReport.moduleCandidates = followup.pendingModuleCandidates
+                                        if captureIssue != nil, machine.abortSystemLoad() {
+                                            followupReport.captureFailureResumedPhase = machine.phase.rawValue
+                                        } else if followup.systemTaskExitRequested {
+                                            try machine.finishSystemLoadTask(followup)
+                                        } else if researchAbortFailedFollowup, followup.phase == .stopped,
+                                                  followup.summary.saveWriteIssue != nil {
+                                            guard pendingMessageClicks == 0, machine.abortSystemLoad() else {
+                                                throw ResourceError.rejected("followup_failure_abort_unavailable")
+                                            }
+                                            followupReport.researchFailedFollowupAborted = true
+                                            followupReport.researchFailedFollowupResumePhase = machine.phase.rawValue
+                                            followupReport.researchFailedFollowupStartSteps = machine.playbackStatus.steps
+                                            pendingMessageClicks = 1
+                                            try runHost()
+                                            followupReport.researchFailedFollowupEndSteps = machine.playbackStatus.steps
+                                            followupReport.researchFailedFollowupRemainingClicks = pendingMessageClicks
+                                        }
+                                        followupSystemTask = followupReport
+                                    }
+                                } catch {
+                                    let failedPlayback = machine.playbackStatus
+                                    report.experimentalAdoptionFailureLocation = failedPlayback.currentLocation
+                                    report.experimentalAdoptionFailureCallDepth = failedPlayback.callDepth
+                                    report.experimentalAdoptionFailureScope = machine.experimentalScopeSnapshot
+                                    let adoptionIssue = String(describing: error)
+                                    if adoptionIssue == "saved_execution_candidate_unavailable",
+                                       let boundaryIssue = task.saveResumeBoundary?.isolatedCallFrameIssue {
+                                        report.experimentalAdoptionIssue = "\(adoptionIssue): \(boundaryIssue)"
+                                    } else {
+                                        report.experimentalAdoptionIssue = adoptionIssue
+                                    }
+                                    if !adoptionCommitted {
+                                        if let trial = liveAudioObserver, trial !== suspendedAudio {
+                                            report.experimentalAdoptionTrialAudioStarts = trial.starts + trial.directStarts
+                                        }
+                                        liveAudioObserver = suspendedAudio
                                         machine = suspendedMachine
                                         restoreSuspendedInputs()
-                                        report.experimentalAdoptionRecoveryIssue = String(describing: error)
+                                        do {
+                                            if linkedLogJump {
+                                                guard machine.abortSystemLoad() else {
+                                                    throw ResourceError.rejected("linked_log_jump_rollback_unavailable")
+                                                }
+                                            } else {
+                                                try machine.discardFailedSaveLoadTask(task)
+                                            }
+                                            if dispatchWindowLoad || dispatchQuickLoad {
+                                                let loadAvailable = dispatchQuickLoad
+                                                    ? machine.canDispatchQuickLoad : machine.windowLoadButton != nil
+                                                guard loadAvailable,
+                                                      machine.playbackStatus.steps == suspendedMachine.playbackStatus.steps else {
+                                                    throw ResourceError.rejected("save_recovery_dialogue_did_not_resume")
+                                                }
+                                                _ = try liveAudioObserver?.positions(for: machine.activeStreamPlaybackSnapshots)
+                                                report.resumedDialogueAfterUnsupportedSave = true
+                                                report.dialogueRecoveryStartSteps = machine.playbackStatus.steps
+                                            }
+                                            // Retain the quick-load caller's wait after rejection.
+                                            // Replay inputs for the requested slot remain pending.
+                                            if !dispatchQuickLoad {
+                                                try machine.run(stepQuota: 10_000)
+                                                try runHost()
+                                                if let researchHostIssue {
+                                                    throw ResourceError.rejected(researchHostIssue)
+                                                }
+                                                if !linkedLogJump && !dispatchWindowLoad {
+                                                    guard machine.phase == .waitingForEvent, machine.canStartFromTitle else {
+                                                        throw ResourceError.rejected("save_recovery_title_did_not_resume:\(machine.phase.rawValue):\(machine.stopReason ?? "none")")
+                                                    }
+                                                    report.resumedTitleAfterUnsupportedSave = true
+                                                }
+                                            }
+                                        } catch {
+                                            if report.resumedDialogueAfterUnsupportedSave != true {
+                                                machine = suspendedMachine
+                                                restoreSuspendedInputs()
+                                            }
+                                            report.experimentalAdoptionRecoveryIssue = String(describing: error)
+                                        }
                                     }
                                 }
                             }
-                            if recoverUnsupportedSave {
+                            if recoverUnsupportedSave && captureIssue == nil {
                                 try machine.discardFailedSaveLoadTask(task)
                                 try machine.run(stepQuota: 10_000)
                                 try runHost()
@@ -5152,7 +6383,8 @@ struct HeadlessResourceReceipts: Decodable {
                                 }
                                 report.resumedTitleAfterUnsupportedSave = true
                             }
-                            if startAfterLoadEscape || (startAfterSaveRecovery && report.resumedTitleAfterUnsupportedSave == true) {
+                            if captureIssue == nil && (startAfterLoadEscape ||
+                                (startAfterSaveRecovery && report.resumedTitleAfterUnsupportedSave == true)) {
                                 guard let handle = machine.titleStartButton, let index = machine.titleButtons[handle],
                                       let layer = machine.staticImageLayers.first(where: { $0.id == handle }) else {
                                     throw ResourceError.rejected("title_start_button_unavailable")
@@ -5198,29 +6430,34 @@ struct HeadlessResourceReceipts: Decodable {
                             }
                             if let seeks = task.saveResumeBoundary?.stagedStreamSeeks, !seeks.isEmpty {
                                 report.streamSeekChecks = seeks.enumerated().map { index, seek in
+                                    guard let milliseconds = seek.milliseconds else {
+                                        return .init(recordOffset: seek.recordOffset, milliseconds: nil,
+                                                     decodedBytes: nil, status: .unsupported,
+                                                     issue: "saved_stream_seek_millisecond_projection_unavailable")
+                                    }
                                     guard let host = movieHost, index < 4 else {
-                                        return .init(recordOffset: seek.recordOffset, milliseconds: seek.milliseconds,
+                                        return .init(recordOffset: seek.recordOffset, milliseconds: milliseconds,
                                                      decodedBytes: nil, status: .notTested, issue: "saved_stream_decoder_unavailable_or_limit")
                                     }
                                     do {
-                                        let bytes = try host.savedSoundPCMBytes(seek.source, seekMilliseconds: seek.milliseconds)
-                                        return .init(recordOffset: seek.recordOffset, milliseconds: seek.milliseconds,
+                                        let bytes = try host.savedSoundPCMBytes(seek.source, seekMilliseconds: milliseconds)
+                                        return .init(recordOffset: seek.recordOffset, milliseconds: milliseconds,
                                                      decodedBytes: bytes, status: bytes > 0 ? seek.status : .unsupported,
                                                      issue: bytes > 0 ? seek.issue : "saved_stream_seek_no_samples")
                                     } catch {
-                                        return .init(recordOffset: seek.recordOffset, milliseconds: seek.milliseconds,
+                                        return .init(recordOffset: seek.recordOffset, milliseconds: milliseconds,
                                                      decodedBytes: nil, status: .unsupported, issue: String(describing: error))
                                     }
                                 }
                             }
                             report.verifiedPageSelections = verifiedPages
-                            if loadTaskSlot != nil { report.clickedSaveSlot = clickedSlot }
-                            if answeredConfirmation { report.answeredSaveConfirmation = loadTaskConfirmation }
+                            if taskSlot != nil && !directlyAddressedSlot { report.clickedSaveSlot = clickedSlot }
+                            if answeredConfirmation { report.answeredSaveConfirmation = taskConfirmation }
                             report.visibleDialogueAfterRestart = visibleDialogueAfterRestart
                             if let background = loadThumbnailBackground, !task.systemTaskExitRequested {
                                 do {
                                     let preview = try LoadThumbnailPass(task: task, assets: directory,
-                                        recipe: imageRecipe, backgroundPath: background, suppliedCapture: suppliedCapture,
+                                        recipe: imageRecipe, backgroundPath: background, suppliedCaptures: suppliedCaptures,
                                         saveDirectory: saveDirectory)
                                     report.thumbnailPass = preview
                                     if requireCompleteScenePreview,
@@ -5233,7 +6470,8 @@ struct HeadlessResourceReceipts: Decodable {
                             } else if requireCompleteScenePreview, loadThumbnailBackground != nil {
                                 report.thumbnailIssue = "complete_load_thumbnail_preview_requires_open_menu"
                             }
-                            loadTask = report
+                            if taskIndex == 1 { followupSystemTask = report }
+                            else { loadTask = report }
                         }
                         var observedPositions: [Int32: Int32]?
                         var positionsBeforeDelay: [Int32: Int32]?
@@ -5254,7 +6492,7 @@ struct HeadlessResourceReceipts: Decodable {
                                 try liveAudioObserver.synchronizeControls(machine: &machine)
                                 if liveAudioObservationDelay > 0 {
                                     positionsBeforeDelay = try sampleObservedPositions()
-                                    Thread.sleep(forTimeInterval: Double(liveAudioObservationDelay) / 1000)
+                                    LiveAudioObserver.waitForPlayback(milliseconds: liveAudioObservationDelay)
                                     try liveAudioObserver.synchronizeControls(machine: &machine)
                                 }
                                 observedPositions = try sampleObservedPositions()
@@ -5273,6 +6511,7 @@ struct HeadlessResourceReceipts: Decodable {
                             machine.advanceVisualClock(ticks: ticks)
                         }
                         replayBudget = HeadlessReplayBudget(hostIterations: hostIterations,
+                            maximumHostIterations: maximumHostIterations,
                             remainingMessageClicks: pendingMessageClicks, remainingTicks: budget,
                             consumedStoryChoices: choiceCursor, remainingStoryChoices: storyChoices.count - choiceCursor,
                             routeTitleReady: requireRouteReturn ? (machine.phase == .waitingForEvent && machine.canStartFromTitle) : nil,
@@ -5286,6 +6525,7 @@ struct HeadlessResourceReceipts: Decodable {
                                 pendingControlCount: liveAudioObserver?.pendingControlCount ?? 0,
                                 rejectedControlCount: liveAudioObserver?.rejectedControlCount ?? 0,
                                 completedPlaybackCount: liveAudioObserver?.completedPlaybackCount ?? 0,
+                                completedPlaybackChannels: liveAudioObserver?.completedPlaybackEvents.map(\.channel),
                                 playbackStartCount: liveAudioObserver?.starts ?? 0,
                                 finiteRepeatStarts: liveAudioObserver?.finiteRepeatStarts ?? 0,
                                 finiteRepeatReassertions: liveAudioObserver?.finiteRepeatReassertions ?? 0,
@@ -5293,6 +6533,7 @@ struct HeadlessResourceReceipts: Decodable {
                                 deferredSupersededSyncs: liveAudioObserver?.deferredSupersededSyncs ?? 0,
                                 streamSwapHandoffs: liveAudioObserver?.streamSwapHandoffs ?? 0,
                                 streamSwapCancelledControls: liveAudioObserver?.streamSwapCancelledControls ?? 0,
+                                streamSwapTransferredControls: liveAudioObserver?.streamSwapTransferredControls ?? 0,
                                 positionObservationRecoveries: positionObservationRecoveries,
                                 completionIdentityIssue: liveAudioObserver?.completionIdentityIssue,
                                 completionIdentityChannel: liveAudioObserver?.completionIdentityChannel,
@@ -5301,6 +6542,7 @@ struct HeadlessResourceReceipts: Decodable {
                                 recentLifecycleOnFailure: observedAudioIssue == nil ? nil : liveAudioObserver?.recentLifecycle,
                                 categoryGains: liveAudioObserver?.observedCategoryGains,
                                 playerVolumes: liveAudioObserver?.observedPlayerVolumes,
+                                playerPans: liveAudioObserver?.observedPlayerPans,
                                 clock: researchMutedVolumeOutput ? "muted_volume_candidate_av_audio_player" :
                                     (researchAudibleVolumeFilter ? "audible_volume_candidate_av_audio_player" : "silent_pcm_realtime_av_audio_player"),
                                 volumeFilterStarts: liveAudioObserver?.volumeFilterStarts ?? 0,
@@ -5796,7 +7038,7 @@ struct HeadlessResourceReceipts: Decodable {
                                 var previewMachine = machine
                                 previewMachine.advanceVisualClock(ticks: scenePreviewTicks ?? 0)
                                 let preview = try LoadThumbnailPass(task: previewMachine, assets: directory,
-                                    recipe: imageRecipe, backgroundPath: background, suppliedCapture: nil,
+                                    recipe: imageRecipe, backgroundPath: background,
                                     saveDirectory: saveDirectory,
                                     choicePointer: pointer.map { CGPoint(x: Int($0.x), y: Int($0.y)) },
                                     canvasSize: scenePreviewCanvas,
@@ -5807,6 +7049,7 @@ struct HeadlessResourceReceipts: Decodable {
                                     sceneVideoFrame: scenePreviewVideoFrames ? movieHost.map { host in
                                         { source, ticks in try host.standaloneSceneFrame(source, ticks: ticks) }
                                     } : nil,
+                                    researchVideoLayerSourceSHA256s: Set(clockCandidates.keys),
                                     frozenVideoFirstFrame: scenePreviewFrozenVideoFirstFrame,
                                     unclockedVideoSampleTicks: researchSceneVideoSampleTicks,
                                     filterOutputMaskCandidate: researchSceneOutputMask,
@@ -5872,32 +7115,66 @@ struct HeadlessResourceReceipts: Decodable {
                                     throw ResourceError.rejected(observedAudioIssue ?? "live_audio_positions_unavailable")
                                 }
                                 var positionsForWrite = researchStreamPositions
+                                var pansForWrite: [Int32: ScriptMachine.SavedStreamPanSample] = [:]
+                                var volumesForWrite: [Int32: ScriptMachine.SavedDelayedVolumeSample] = [:]
+                                var repeatsForWrite: [Int32: ScriptMachine.SavedFiniteRepeatSample] = [:]
                                 if let liveAudioObserver {
                                     try liveAudioObserver.synchronizeControls(machine: &machine)
-                                    positionsForWrite = try liveAudioObserver.positions(for: machine.activeStreamPlaybackSnapshots)
+                                    let snapshots = machine.activeStreamPlaybackSnapshots
+                                    do {
+                                        positionsForWrite = try liveAudioObserver.positions(for: snapshots)
+                                    } catch ResourceError.rejected(let issue) {
+                                        let expected = snapshots.keys.sorted().compactMap { handle -> String? in
+                                            guard let index = ScriptMachine.streamSaveChannelIndex(handle),
+                                                  let snapshot = snapshots[handle] else { return nil }
+                                            return "\(index):\(snapshot.source?.sourceSHA256.prefix(12) ?? "none"):step=\(snapshot.step.map(String.init) ?? "none")"
+                                        }.joined(separator: ",")
+                                        throw ResourceError.rejected(
+                                            "\(issue):\(liveAudioObserver.positionFailure(for: snapshots)):active=\(expected):observed=\(liveAudioObserver.observedStreamIndices)")
+                                    }
+                                    pansForWrite = liveAudioObserver.panSamplesForSave(snapshots)
+                                    volumesForWrite = liveAudioObserver.volumeSamplesForSave(snapshots)
+                                    repeatsForWrite = liveAudioObserver.repeatSamplesForSave(snapshots)
                                     replayBudget?.liveAudio?.positionsAtWriteRequest = positionsForWrite
                                     replayBudget?.liveAudio?.completedControlCount = liveAudioObserver.completedControlCount
                                     replayBudget?.liveAudio?.pendingControlCount = liveAudioObserver.pendingControlCount
                                     replayBudget?.liveAudio?.rejectedControlCount = liveAudioObserver.rejectedControlCount
                                     replayBudget?.liveAudio?.completedPlaybackCount = liveAudioObserver.completedPlaybackCount
+                                    replayBudget?.liveAudio?.completedPlaybackChannels = liveAudioObserver.completedPlaybackEvents.map(\.channel)
                                     if liveAudioObserver.rejectedControlCount > 0 {
                                         throw ResourceError.rejected("live_audio_control_unacknowledged")
                                     }
                                     // Diagnose audio independently of global-object
                                     // preflight; never use this copy as a slot.
                                     do {
-                                        _ = try machine.encodeTimedWaitStreams(template: template, positions: positionsForWrite)
+                                        _ = try machine.encodeTimedWaitStreams(
+                                            template: template, positions: positionsForWrite,
+                                            streamPans: pansForWrite, streamVolumes: volumesForWrite,
+                                            streamRepeats: repeatsForWrite,
+                                            channelCount: ScriptMachine.streamSaveChannelCount)
                                         replayBudget?.liveAudio?.saveAudioPreflightStatus = .inferred
                                     } catch {
                                         replayBudget?.liveAudio?.saveAudioPreflightStatus = .unsupported
                                         replayBudget?.liveAudio?.saveAudioPreflightIssue = String(describing: error)
                                     }
                                 }
+                                let slotClearHeaderTemplate: Data? = try {
+                                    if let saveHeaderTemplate { return saveHeaderTemplate }
+                                    guard let game, let executable = researchSystemExecutable else { return nil }
+                                    let gameRoot = try SafeDirectory(URL(fileURLWithPath: game, isDirectory: true))
+                                    return try SaveEnvelope.slotHeaderTemplate(from: gameRoot, executable: executable)
+                                }()
+                                let slotSeed = slotClearHeaderTemplate == nil ? nil :
+                                    UInt32(truncatingIfNeeded: Int64((localSeconds * 1000).rounded()))
                                 researchSlot = try machine.encodeTimedWaitResearchSlot(template: template,
-                                    positions: positionsForWrite,
+                                    positions: positionsForWrite, streamPans: pansForWrite, streamVolumes: volumesForWrite,
+                                    streamRepeats: repeatsForWrite,
                                     displaySurfaces: displaySurfaces,
                                     metadata: SaveEnvelope.readSlotMetadata(donor), thumbnail: thumbnail,
-                                    savedDays: localSeconds / 86_400 + 25_569)
+                                    savedDays: localSeconds / 86_400 + 25_569,
+                                    seed: slotSeed, packedCodec: slotSeed == nil ? nil : 1,
+                                    clearHeaderTemplate: slotClearHeaderTemplate,
+                                    channelCount: ScriptMachine.streamSaveChannelCount)
                             } catch {
                                 researchSlotIssue = String(describing: error)
                             }
@@ -5934,10 +7211,22 @@ struct HeadlessResourceReceipts: Decodable {
                         if titleMenuTarget == "memory", !requireRouteReturn, choiceCursor != storyChoices.count {
                             routeIssue = "memory_story_choices_not_consumed"
                         }
-                        if startFromTitle && !startedFromTitle { routeIssue = "title_start_not_reached" }
+                        if startFromTitle && !openTitleLoad && !startedFromTitle {
+                            routeIssue = "title_start_not_reached"
+                        }
                         if titleMenuTarget != nil && titleMenuActions.count != 2 {
                             routeIssue = titleMenuIssue ?? (machine.phase == .stopped ? machine.stopReason : nil) ??
                                 "title_menu_target_not_reached"
+                        }
+                        if cleanExit, routeIssue == nil, researchHostIssue == nil,
+                           loadTask?.experimentalAdoptionIssue == nil, loadTask?.captureIssue == nil {
+                            do {
+                                try machine.beginCleanShutdown()
+                                try completeCleanShutdown()
+                            } catch {
+                                researchHostIssue = String(describing: error)
+                            }
+                            result = machine.summary
                         }
                         if inspectLabelHistory, ["label_read_status_unsupported", "label_read_status_context_unsupported"]
                             .contains(machine.stopReason ?? "") {
@@ -5950,15 +7239,23 @@ struct HeadlessResourceReceipts: Decodable {
                     }
                     guard try directory.read(item.source_file).sha256Hex == sha else { throw ResourceError.rejected("script_source_changed") }
                     let adoptedFromRestoreBoundary = loadTask?.experimentalAdoption != nil &&
-                        loadTask?.machine.stopReason == "save_restore_execution_state_unsupported"
+                        loadTask?.machine.stopReason == "save_restore_candidate_ready"
                     let loadFailure = loadTask?.machine.status == .unsupported && !adoptedFromRestoreBoundary
-                    let issue = researchHostIssue ?? researchSlotIssue ?? loadTask?.experimentalAdoptionIssue ?? routeIssue ?? liveAudioObservationIssue ?? scenePreviewIssue ?? loadTask?.thumbnailIssue ??
-                        (loadFailure ? loadTask?.machine.stopReason : nil) ??
+                    let followupIssue = followupSystemTask?.captureIssue ?? followupSystemTask?.experimentalAdoptionIssue ??
+                        followupSystemTask?.machine.saveWriteIssue ??
+                        (followupSystemTask?.machine.status == .unsupported
+                            ? (followupSystemTask?.machine.stopReason ?? "followup_system_task_unsupported") : nil)
+                    let loadIssue = loadTask?.captureIssue ??
+                        (loadFailure ? (loadTask?.machine.saveWriteIssue ?? loadTask?.machine.stopReason) : nil)
+                    let replayIssue = researchHostIssue ?? researchSlotIssue ?? loadTask?.experimentalAdoptionIssue ?? routeIssue
+                    let previewIssue = liveAudioObservationIssue ?? scenePreviewIssue ?? loadTask?.thumbnailIssue
+                    let issue = replayIssue ?? previewIssue ?? followupIssue ?? loadIssue ??
                         (result?.status == .unsupported ? result?.stopReason : nil)
                     reports.append(ScriptRunReport(
                         status: issue != nil || loadFailure ? .unsupported : (result?.status ?? .inferred),
                         lexical: lexical, machine: result, issue: issue,sourceFile: item.source_file,sourceSHA256: sha,moduleCandidates: candidates,
-                        replayBudget: replayBudget,loadTask: loadTask,saveResumeBoundary: saveResumeBoundary,
+                        replayBudget: replayBudget,loadTask: loadTask,followupSystemTask: followupSystemTask,
+                        saveResumeBoundary: saveResumeBoundary,
                         scenePreview: scenePreview, scenePreviewIssue: scenePreviewIssue,
                         pendingMovieVolume: pendingMovieVolume))
                 } catch {
@@ -5967,7 +7264,8 @@ struct HeadlessResourceReceipts: Decodable {
                 }
             }
             let report = ScriptBatchReport(status: reports.contains { $0.status == .unsupported } ? .unsupported : .inferred,
-                mode: execute ? (repository == nil ? "experimental_single_file" : "experimental_pinned_modules") : "lexical_metadata_only",reports: reports)
+                mode: execute ? (repository == nil ? "experimental_single_file" : "experimental_pinned_modules") : "lexical_metadata_only",
+                reports: reports, saveInventoryIssues: saveInventoryIssues)
             let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys,.withoutEscapingSlashes]
             let json = try encoder.encode(report) + Data([10])
             if researchConfigOutput != nil {

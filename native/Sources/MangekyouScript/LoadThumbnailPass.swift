@@ -24,6 +24,7 @@ struct LoadThumbnailPass: Encodable {
         var boundTextureSlots: [Int32]? = nil
         var videoScalePercent: [Double]? = nil
         var videoTransformUnsupported: Bool? = nil
+        var directNestedMotions: [ScriptImageRecipe.DirectNestedMotionSample]? = nil
         let status: EvidenceStatus = .unsupported
     }
 
@@ -40,6 +41,7 @@ struct LoadThumbnailPass: Encodable {
         let motionElapsedTicks: Int32
         let drawKeyOffsets: [Int]
         let boundSlotZero: ScriptLocation?
+        var directNestedMotions: [ScriptImageRecipe.DirectNestedMotionSample]? = nil
     }
 
     struct StaticRasterLayer: Encodable {
@@ -48,8 +50,17 @@ struct LoadThumbnailPass: Encodable {
         let priority: Int32
         let bounds: [Double]
     }
+    struct FilteredRasterCandidate: Encodable {
+        let id: UInt64
+        let resource: ScriptLocation
+        let horizontal: Int
+        let vertical: Int
+        let status: EvidenceStatus = .inferred
+    }
 
     let staticRasterCount: Int
+    let filteredRasterCount: Int
+    let filteredRasterCandidates: [FilteredRasterCandidate]
     let staticRasterLayers: [StaticRasterLayer]
     let fractionalScalePreviewCount: Int
     let embeddedAlignmentCandidateCount: Int
@@ -113,20 +124,22 @@ struct LoadThumbnailPass: Encodable {
     let captureDrawChangedPixels: Int?
     let omittedLayers: [OmittedLayer]
     var isIncomplete: Bool {
-        barPreviewCandidate || sceneOutputMaskCandidate || sceneDepthOrderCandidate != nil || !omittedLayers.isEmpty || !textPreviewIssues.isEmpty || interfaceBackgroundPreviewCount > 0 || fractionalScalePreviewCount > 0 || embeddedAlignmentCandidateCount > 0 || dynamicMessageSurfaceCount > 0 || sampling2CandidateCount > 0 || inactiveMessageSurfaceCount > 0 || dualTextureCandidateCount > 0 || cutinFrameCandidateCount > 0 || !sceneVideoCandidateTicks.isEmpty || savedLayerTimeCandidateCount > 0
+        barPreviewCandidate || sceneOutputMaskCandidate || sceneDepthOrderCandidate != nil || !omittedLayers.isEmpty || !textPreviewIssues.isEmpty || interfaceBackgroundPreviewCount > 0 || filteredRasterCount > 0 || fractionalScalePreviewCount > 0 || embeddedAlignmentCandidateCount > 0 || dynamicMessageSurfaceCount > 0 || sampling2CandidateCount > 0 || inactiveMessageSurfaceCount > 0 || dualTextureCandidateCount > 0 || cutinFrameCandidateCount > 0 || !sceneVideoCandidateTicks.isEmpty || savedLayerTimeCandidateCount > 0
     }
     let changedPixels: Int
     let canvasSHA256: String
     let transitionMidpointSHA256: String?
     let originalRendererEquivalence: EvidenceStatus = .notTested
 
-    init(task: ScriptMachine, assets: SafeDirectory, recipe: ScriptImageRecipe, backgroundPath: String,
-         suppliedCapture: Data?, saveDirectory: SafeDirectory?, choicePointer: CGPoint? = nil,
+    init(task: ScriptMachine, assets: SafeDirectory, recipe: ScriptImageRecipe, backgroundPath: String?,
+         suppliedCaptures: [String: Data] = [:], saveDirectory: SafeDirectory?, choicePointer: CGPoint? = nil,
          atDrawRequest: Bool = false, capturePriority: Int32? = nil, overlapProgress: (elapsed: UInt32, duration: UInt32)? = nil,
          canvasSize: SIMD2<Int>? = nil,
+         forSystemCapture: Bool = false,
          cutinFrameTicks: Int32? = nil,
          cutinFrame: ((ScriptLocation, (offset: Int, length: Int, sha256: String)) throws -> Data)? = nil,
          sceneVideoFrame: ((ScriptLocation, Int32) throws -> Data)? = nil,
+         researchVideoLayerSourceSHA256s: Set<String> = [],
          frozenVideoFirstFrame: Bool = false,
          unclockedVideoSampleTicks: Int32? = nil,
          filterOutputMaskCandidate: Bool = false,
@@ -140,7 +153,8 @@ struct LoadThumbnailPass: Encodable {
             overlapProgress != nil || (capturePriority.map { layer.priority <= $0 } ?? true)
         }
         let rawMessages = task.messageTextLayers.filter { message in
-            message.isVisible && (overlapProgress != nil || (capturePriority.map { (message.priority ?? .max) <= $0 } ?? true))
+            message.isVisible && (!forSystemCapture || !task.isDialogueWindowHidden) &&
+                (overlapProgress != nil || (capturePriority.map { (message.priority ?? .max) <= $0 } ?? true))
         }.sorted {
             ($0.priority ?? .max, $0.id) < ($1.priority ?? .max, $1.id)
         }
@@ -163,7 +177,8 @@ struct LoadThumbnailPass: Encodable {
             layer.resource.sourceFile.lowercased().hasSuffix("/saveload/thumimage.b")
         }
         let thumbnails = sceneLayers.count(where: isThumbnail)
-        guard (task.phase == .waiting || task.phase == .waitingForEvent || (atDrawRequest && task.phase == .ready)),
+        let canCapture = forSystemCapture && task.phase == .waitingForPrimarySave
+        guard (task.phase == .waiting || task.phase == .waitingForEvent || canCapture || (atDrawRequest && task.phase == .ready)),
               !sceneLayers.isEmpty || !messages.isEmpty,
               thumbnails <= 32, sceneLayers.count <= 128 else {
             throw ResourceError.rejected("load_thumbnail_layers_unavailable")
@@ -174,7 +189,7 @@ struct LoadThumbnailPass: Encodable {
             let data: Data
             if let embedded = task.savedTextureBytes(source) {
                 data = embedded
-            } else if source.sourceFile == "system-capture.png", let suppliedCapture {
+            } else if source.sourceFile == "system-capture.png", let suppliedCapture = suppliedCaptures[source.sourceSHA256] {
                 data = suppliedCapture
             } else if source.sourceFile.hasPrefix("save-slot/") {
                 guard let saveDirectory else { throw ResourceError.rejected("save_thumbnail_directory_unavailable") }
@@ -195,7 +210,9 @@ struct LoadThumbnailPass: Encodable {
             verifiedPayloads[source] = payload
             return payload
         }
-        let decodedBackground = try ResourceImage.decode(assets.read(backgroundPath)).opaqueCanvas(over: CGColor(gray: 0, alpha: 1))
+        let decodedBackground = try backgroundPath.map {
+            try ResourceImage.decode(assets.read($0)).opaqueCanvas(over: CGColor(gray: 0, alpha: 1))
+        }
         let background: [[SIMD4<UInt8>]]
         if let size = canvasSize {
             guard (1...4096).contains(size.x), (1...4096).contains(size.y), size.x * size.y <= 4_194_304 else {
@@ -203,12 +220,15 @@ struct LoadThumbnailPass: Encodable {
             }
             let black = SIMD4<UInt8>(0, 0, 0, 255)
             var padded = Array(repeating: Array(repeating: black, count: size.x), count: size.y)
-            for y in 0..<min(size.y, decodedBackground.count) {
-                let row = decodedBackground[y]
-                for x in 0..<min(size.x, row.count) { padded[y][x] = row[x] }
+            if let decodedBackground {
+                for y in 0..<min(size.y, decodedBackground.count) {
+                    let row = decodedBackground[y]
+                    for x in 0..<min(size.x, row.count) { padded[y][x] = row[x] }
+                }
             }
             background = padded
         } else {
+            guard let decodedBackground else { throw ResourceError.rejected("scene_preview_canvas_size_required") }
             background = decodedBackground
         }
         canvasWidth = background.first?.count ?? 0
@@ -219,6 +239,8 @@ struct LoadThumbnailPass: Encodable {
         var canvas = Array(repeating: blankRow, count: background.count)
         var omitted: [OmittedLayer] = []
         var rasters = 0
+        var filteredRasters = 0
+        var filteredCandidates: [FilteredRasterCandidate] = []
         var cutinFrames = 0
         var sceneVideoTicks: [Int32] = []
         var sceneVideoFrozenCount = 0
@@ -228,6 +250,8 @@ struct LoadThumbnailPass: Encodable {
         var embeddedAlignmentCandidates = 0
         var savedLayerTimeCandidates = 0
         var savedLayerSamples: [ScriptMachine.SavedDisplayDraw.SavedLayerTimeSample] = []
+        let titleButtonSHA256 = "0f49b2d5f24def184da0c66b5facc9c4ee743e284fb4ef616d2fee6083ebdc77"
+        let titleCursorSHA256 = "f27fe5e672a0e94c68bf0f43c33e60657570e89795e251b310706f11db7c8bc6"
         func motionKeysForPreview(_ layer: ScriptMachine.StaticImageLayer, member: Int32, time: Int32) throws -> [ScriptImageRecipe.MotionKey]? {
             if useSavedLayerTimesCandidate, let times = layer.savedLayerTimeCandidate {
                 let keys: [ScriptImageRecipe.MotionKey]
@@ -259,6 +283,19 @@ struct LoadThumbnailPass: Encodable {
                     advancedTimeSHA256: advancedTimeHash, advancedAuxiliarySHA256: advancedAuxiliaryHash))
                 return keys
             }
+            if layer.resource.sourceSHA256 == titleButtonSHA256, member == 0,
+               let keys = recipe.samplePartialMotion(layer.resource, selectedMember: member, time: time) {
+                // The entering key scales from 90% to 100%. At the verified
+                // 500–999 tick loop the settled draw key has fixed geometry.
+                guard keys.contains(where: { $0.type == 4 && $0.offset == 833 }),
+                      keys.allSatisfy({ $0.type == 0 || $0.type == 6 || ($0.type == 4 && $0.offset == 833) }) else {
+                    throw ResourceError.rejected("title_button_animation_outside_settled_profile")
+                }
+                return keys
+            }
+            if layer.resource.sourceSHA256 == titleCursorSHA256, member == 0 {
+                return recipe.samplePartialMotion(layer.resource, selectedMember: member, time: time)
+            }
             return recipe.motionKeys(layer.resource, selectedMember: member, time: time)
         }
         var boundMessageSurfaceIDs: Set<UInt64> = []
@@ -282,6 +319,20 @@ struct LoadThumbnailPass: Encodable {
                 if !old.components(separatedBy: ";").contains(issue) { textIssues[id] = old + ";" + issue }
             } else { textIssues[id] = issue }
         }
+        func recordTextRasterIssues(_ message: ScriptMachine.MessageTextLayer, _ raster: ResourceImage) {
+            let supported = raster.notes.contains("plain_line_layout_applied")
+                ? Set(["kwb", "kwe", "kwl", "nsw", "ns"]) : []
+            let unresolved = message.unhandledDirectives.filter { !supported.contains($0) }
+            if !unresolved.isEmpty {
+                recordTextIssue(message.id, "text_preview_unhandled_directives:" + unresolved.joined(separator: ","))
+            }
+            for note in raster.notes where note == "text_truncated" ||
+                (note.hasPrefix("missing_glyphs:") && note != "missing_glyphs:0") ||
+                note.hasPrefix("line_break_candidate:") || note.hasPrefix("line_break_candidate_ruby:") ||
+                note.hasPrefix("line_break_candidate_indent:") {
+                recordTextIssue(message.id, "text_preview_" + note)
+            }
+        }
         func messageSurface(_ message: ScriptMachine.MessageTextLayer, leadingVerticalOffset: Int = 0) throws -> Data {
             guard let bounds = message.canvasBounds, bounds.count == 4,
                   message.surfaceMargins.count == 2,
@@ -303,19 +354,7 @@ struct LoadThumbnailPass: Encodable {
                 throw ResourceError.rejected("message_surface_allocation_outside_profile")
             }
             let raster = try ResourceImage.textPreview(message.unscaledSurface, width: width, height: height)
-            if !message.unhandledDirectives.isEmpty {
-                recordTextIssue(message.id, "text_preview_unhandled_directives:" + message.unhandledDirectives.joined(separator: ","))
-            }
-            if let note = raster.notes.first(where: { $0.hasPrefix("missing_glyphs:") && $0 != "missing_glyphs:0" }) {
-                recordTextIssue(message.id, "text_preview_" + note)
-            }
-            if raster.notes.contains("text_truncated") { recordTextIssue(message.id, "text_preview_truncated") }
-            if let note = raster.notes.first(where: { $0.hasPrefix("line_break_candidate:") }) {
-                recordTextIssue(message.id, "text_preview_" + note)
-            }
-            for note in raster.notes where note.hasPrefix("line_break_candidate_ruby:") || note.hasPrefix("line_break_candidate_indent:") {
-                recordTextIssue(message.id, "text_preview_" + note)
-            }
+            recordTextRasterIssues(message, raster)
             surface.clear(CGRect(x: 0, y: 0, width: surfaceWidth, height: surfaceHeight))
             surface.draw(raster.image, in: CGRect(x: mx, y: surfaceHeight - my - height - leadingVerticalOffset,
                                                    width: width, height: height))
@@ -367,9 +406,6 @@ struct LoadThumbnailPass: Encodable {
                     count + run.text.unicodeScalars.count { [0x25a0, 0x25a1, 0x3013, 0xfffc, 0xfffd].contains($0.value) }
                 }
                 if placeholders > 0 { placeholderScalars[message.id] = placeholders }
-                if !message.unhandledDirectives.isEmpty {
-                    recordTextIssue(message.id, "text_preview_unhandled_directives:" + message.unhandledDirectives.joined(separator: ","))
-                }
                 do {
                     guard let bounds = message.canvasBounds else {
                         throw ResourceError.rejected("missing_text_preview_bounds")
@@ -389,16 +425,7 @@ struct LoadThumbnailPass: Encodable {
                     }
                     let raster = try ResourceImage.textPreview(message,
                         width: Int(bounds[2] - bounds[0]), height: Int(bounds[3] - bounds[1]))
-                    if let note = raster.notes.first(where: { $0.hasPrefix("missing_glyphs:") && $0 != "missing_glyphs:0" }) {
-                        recordTextIssue(message.id, "text_preview_" + note)
-                    }
-                    if raster.notes.contains("text_truncated") { recordTextIssue(message.id, "text_preview_truncated") }
-                    if let note = raster.notes.first(where: { $0.hasPrefix("line_break_candidate:") }) {
-                        recordTextIssue(message.id, "text_preview_" + note)
-                    }
-                    for note in raster.notes where note.hasPrefix("line_break_candidate_ruby:") || note.hasPrefix("line_break_candidate_indent:") {
-                        recordTextIssue(message.id, "text_preview_" + note)
-                    }
+                    recordTextRasterIssues(message, raster)
                     let x = position(bounds[0], bounds[2], placement: message.x,
                                      near: background.minX, far: background.maxX, percent: message.scaleXPercent)
                     let y = position(bounds[1], bounds[3], placement: message.y,
@@ -580,12 +607,30 @@ struct LoadThumbnailPass: Encodable {
                         continue
                     }
                     guard !layer.unappliedTransform || layer.fractionalScalePercent != nil else { throw ResourceError.rejected("unsupported_static_layer_3d_transform") }
+                    if forSystemCapture, layer.isTheoraResource, layer.standaloneVideoLayerTicks == nil {
+                        throw ResourceError.rejected("game_thread_capture_video_clock_unavailable")
+                    }
+                    if forSystemCapture, cutinFrame == nil,
+                       layer.resource.sourceSHA256 == "06e44e46d8ba357eb49f61bfca45c320aa0f281f3ec3656e1717f648edc13050" {
+                        throw ResourceError.rejected("game_thread_capture_cutin_frame_unavailable")
+                    }
                     if layer.isTheoraResource, let sceneVideoFrame {
                         let frozen = frozenVideoFirstFrame && layer.selectedMember == nil && layer.motionElapsedTicks == nil
                         let explicitTicks = layer.selectedMember == nil && layer.motionElapsedTicks == nil ? unclockedVideoSampleTicks : nil
+                        let videoTicks: Int32?
+                        if let ticks = layer.standaloneVideoLayerTicks {
+                            videoTicks = ticks
+                        } else if researchVideoLayerSourceSHA256s.contains(layer.resource.sourceSHA256) {
+                            guard let ticks = layer.researchVideoLayerTicks else {
+                                throw ResourceError.rejected("research_video_layer_clock_unavailable")
+                            }
+                            videoTicks = ticks
+                        } else {
+                            videoTicks = explicitTicks ?? (frozen ? Int32(0) : layer.motionElapsedTicks)
+                        }
                         guard sceneVideoTicks.count < 4,
                               (layer.selectedMember == 0 || frozen || explicitTicks != nil),
-                              let ticks = explicitTicks ?? (frozen ? Int32(0) : layer.motionElapsedTicks), ticks >= 0,
+                              let ticks = videoTicks, ticks >= 0,
                               !layer.unappliedTransform, scaleX == 100, scaleY == 100,
                               layer.fractionalScalePercent == nil else {
                             throw ResourceError.rejected("scene_video_frame_layer_outside_profile")
@@ -750,13 +795,51 @@ struct LoadThumbnailPass: Encodable {
                         "cd20f60e0984abd828a5f8c8567335a385339372dd99c2731def35ac4b4e972b" &&
                         layer.selectedMember == 0 && layer.boundRasterPreview == nil &&
                         (0..<1000).contains(layer.motionElapsedTicks ?? -1)
+                    if choice == nil, let member = layer.selectedMember, let time = layer.motionElapsedTicks,
+                       layer.boundRasterPreview == nil, layer.boundTextureLocations.isEmpty,
+                       recipe.hasDirectNestedMotion(layer.resource) {
+                        let nested = try recipe.drawDirectNestedMotionPreview(layer, data: read(layer.resource),
+                                                                                particleTable: task.particleRandomTable,
+                                                                                canvas: &canvas)
+                        if nested.hasCoverage { rasters += 1 }
+                        if !nested.isComplete {
+                            omitted.append(.init(id: layer.id, resource: layer.resource, priority: layer.priority,
+                                reason: "direct_nested_motion_draw_unresolved", selectedMember: member,
+                                motionElapsedTicks: time, sampledKeys: nil, directNestedMotions: nested.children))
+                        } else if nested.hasCoverage {
+                            compositedMotions.append(.init(id: layer.id, resource: layer.resource,
+                                selectedMember: member, motionElapsedTicks: time, drawKeyOffsets: [],
+                                boundSlotZero: nil, directNestedMotions: nested.children))
+                        } else {
+                            nonDrawing["direct_nested_motion_no_coverage", default: 0] += 1
+                        }
+                        continue
+                    }
                     if choice == nil, !staticTextEffect, let member = layer.selectedMember, let time = layer.motionElapsedTicks,
-                       let keys = try motionKeysForPreview(layer, member: member, time: time) {
-                        let draws = keys.filter { $0.type != 0 }
-                        var drawnOffsets = draws.map(\.offset)
+                       let sampledKeys = try motionKeysForPreview(layer, member: member, time: time) {
+                        let keys = sampledKeys.filter { !recipe.isEmptyFlashTexture($0, layer: layer) }
                         let payload = try read(layer.resource)
+                        if keys.allSatisfy({ $0.type == 0 }), keys.count < sampledKeys.count {
+                            nonDrawing["empty_flash_texture", default: 0] += 1
+                            continue
+                        }
                         let origin = SIMD2(Int(layer.x), Int(layer.y))
-                        if let scoped = recipe.scopedTextureKeys(keys), !scoped.isEmpty {
+                        let buttonHashes: Set<String> = [
+                            "fbdc9326ec004de7c81fe0e38724ab16ec1564349a01543444d8773bddd35e7a",
+                            "63215beb5843f6cf52577c8202e350e80baaa8fc6b808255e093e125084383fa",
+                            "fb2b39825a60370717f447cba91a1c08289c94f2d395cdf04f76020d552e3352",
+                            titleButtonSHA256
+                        ]
+                        let activeTypes = keys.filter { $0.type != 0 }.map(\.type).sorted()
+                        let isSelectionButton = layer.resource.rangeSHA256 ==
+                            "7cbf1ca856c1e8718daed56cebd044adf3e3b132b440130a638462565510d401"
+                        // Type 6 registers a hit polygon (0x584dd0 -> 0x59ac54).
+                        let hasButtonHitRegion = (buttonHashes.contains(layer.resource.sourceSHA256) && activeTypes == [4, 6]) ||
+                            (isSelectionButton && activeTypes == [4, 4, 6])
+                        let renderKeys = hasButtonHitRegion ? keys.filter { $0.type != 6 } : keys
+                        let draws = renderKeys.filter { $0.type != 0 }
+                        var drawnOffsets = draws.map(\.offset)
+                        if let scoped = recipe.scopedTextureKeys(renderKeys), !scoped.isEmpty {
                             let embeddedAlignmentCandidate = layer.resource.rangeSHA256 ==
                                 "5b0f2bc31cc6b14311642df53590c1efd3edec3b6a032e13b90424ce70e99b03" &&
                                 layer.boundRasterPreview == nil && layer.boundTextureLocations.isEmpty &&
@@ -780,6 +863,13 @@ struct LoadThumbnailPass: Encodable {
                             var usedMessageSlot: Int32?
                             let messageSlots = referencedSlots.filter { slot in
                                 recipe.embeddedTexture(layer.resource, slot: slot)?.name.lowercased().hasPrefix("*messurface") == true
+                            }
+                            if isSelectionButton, activeTypes == [4, 4, 6], messageSlots == [2], boundTextures[2] == nil {
+                                guard let label = task.researchButtonTextLayer(layer.id) else {
+                                    throw ResourceError.rejected("choice_button_text_surface_unobserved")
+                                }
+                                boundTextures[2] = try messageSurface(label.layer,
+                                    leadingVerticalOffset: Int(label.leadingVerticalOffset))
                             }
                             if let message = messages.first(where: { $0.id == layer.id }),
                                recipe.hasNamedMessageSurface(layer.resource),
@@ -931,7 +1021,8 @@ struct LoadThumbnailPass: Encodable {
                         continue
                     }
                     let source = try read(layer.resource)
-                    let plainRaster = ["PNG", "JPEG", "BMP", "DPNG", "ARGB"].contains(InventoryScanner.signature(source))
+                    let signature = InventoryScanner.signature(source)
+                    let plainRaster = ["PNG", "JPEG", "BMP", "DPNG", "ARGB"].contains(signature)
                     if layer.fractionalScalePercent != nil {
                         guard choice == nil, plainRaster, layer.selectedMember == nil,
                               layer.motionElapsedTicks == nil, layer.boundRasterPreview == nil else {
@@ -949,8 +1040,9 @@ struct LoadThumbnailPass: Encodable {
                         ? try recipe.interfaceBackgroundPreview(source, sourceFile: layer.resource.sourceFile)
                         : nil
                     let staticClick = path.hasSuffix("/avg/window/click.b") && layer.selectedMember != nil
-                    guard choice != nil || preview != nil || staticClick || staticTextEffect || (layer.motionElapsedTicks == nil &&
-                          (layer.selectedMember == nil || (layer.selectedMember == 0 && plainRaster))) else {
+                    let standaloneRaster = plainRaster && layer.selectedMember == 0 && layer.boundTextureLocations.isEmpty
+                    guard choice != nil || preview != nil || staticClick || staticTextEffect || standaloneRaster ||
+                          (layer.motionElapsedTicks == nil && layer.selectedMember == nil) else {
                         if layer.selectedMember != nil, layer.motionElapsedTicks != nil {
                             throw ResourceError.rejected("scene_motion_timeline_unavailable")
                         }
@@ -963,7 +1055,19 @@ struct LoadThumbnailPass: Encodable {
                         payload = try preview ?? recipe.staticRasterPayload(source,
                             sourceFile: layer.resource.sourceFile, selectedMember: layer.selectedMember)
                     }
-                    let raster = try ResourceImage.decode(payload)
+                    let raster: ResourceImage
+                    var candidateBlur: (horizontal: Int, vertical: Int)?
+                    if layer.filterOverrides.isEmpty {
+                        raster = try ResourceImage.decode(payload)
+                    } else {
+                        guard layer.filterOverrides.count == 1, let descriptor = layer.filterOverrides[0],
+                              plainRaster, layer.boundTextureLocations.isEmpty else {
+                            throw ResourceError.rejected("scene_image_filter_outside_candidate")
+                        }
+                        let blur = try ResourceImage.savedBlurRaster(payload, source: layer.resource, descriptor: descriptor)
+                        raster = blur.raster
+                        candidateBlur = (blur.horizontal, blur.vertical)
+                    }
                     let width = CGFloat(raster.image.width) * abs(scaleX) / 100
                     let height = CGFloat(raster.image.height) * abs(scaleY) / 100
                     guard width <= 65_536, height <= 65_536 else {
@@ -1003,6 +1107,11 @@ struct LoadThumbnailPass: Encodable {
                     }
                     if covered {
                         rasters += 1
+                        if let blur = candidateBlur {
+                            filteredRasters += 1
+                            filteredCandidates.append(.init(id: layer.id, resource: layer.resource,
+                                horizontal: blur.horizontal, vertical: blur.vertical))
+                        }
                         drawnStaticRasters.append(.init(id: layer.id, resource: layer.resource,
                             priority: layer.priority,
                             bounds: [Double(bounds.minX), Double(bounds.minY), Double(bounds.width), Double(bounds.height)]))
@@ -1097,6 +1206,8 @@ struct LoadThumbnailPass: Encodable {
         layerCount = thumbnails
         sceneLayerCount = sceneLayers.count
         staticRasterCount = rasters
+        filteredRasterCount = filteredRasters
+        filteredRasterCandidates = filteredCandidates
         cutinFrameCandidateCount = cutinFrames
         cutinFrameCandidateTicks = cutinFrames > 0 ? cutinFrameTicks : nil
         cutinFrameCandidateIndex = cutinFrames > 0 ? cutinFrameTicks.map { $0 * 24 / 1000 } : nil

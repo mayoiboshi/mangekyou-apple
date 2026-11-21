@@ -43,21 +43,16 @@ struct SaveStateCheck: Encodable {
     var engineState: SaveEngineState?
     var engineStateIssue: String?
     var calValArrays: SaveVariableArrays.Summary?
-    let restoreStatus: EvidenceStatus = .notTested
+    let restoreStatus: EvidenceStatus
 
     init(_ data: Data) throws {
-        guard data.count >= 16, data.starts(with: "thread\0\0".utf8) else {
-            throw ResourceError.rejected("thread_prefix_missing")
-        }
         decodedLength = data.count
-        (threadVersion, routineCount) = data.withUnsafeBytes { bytes in
-            (Int32(littleEndian: bytes.loadUnaligned(fromByteOffset: 8, as: Int32.self)),
-             Int32(littleEndian: bytes.loadUnaligned(fromByteOffset: 12, as: Int32.self)))
+        readerCursor = try SaveReaderCursor(threadState: data, inspectLegacyThread: true)
+        threadVersion = data.withUnsafeBytes {
+            Int32(littleEndian: $0.loadUnaligned(fromByteOffset: 8, as: Int32.self))
         }
-        guard threadVersion == 10, (0...1024).contains(routineCount) else {
-            throw ResourceError.rejected("unsupported_thread_header")
-        }
-        readerCursor = try SaveReaderCursor(state: data, routineCount: routineCount)
+        routineCount = Int32(readerCursor.routines.count)
+        restoreStatus = threadVersion < 10 ? .unsupported : .notTested
         decodedResultIntegerSnapshotCount = try readerCursor.validateRoutinePayloads(in: data)
         routineTextAndIntegerStatus = readerCursor.routines.isEmpty ? .notTested : .verified
     }
@@ -908,7 +903,7 @@ struct TwoTextureCheck: Encodable {
                             check.resolvedLabel = resolved.location
                             let position = try resolved.program.sourcePosition(for: check.readerCursor, anchor: resolved.location)
                             check.resolvedSourcePosition = position
-                            if let mode = check.readerCursor.routines.last?.rawState, mode == 3 || mode == 4 {
+                            if let mode = check.readerCursor.routines.last?.rawState, mode == 2 || mode == 3 || mode == 4 {
                                 let index = try resolved.program.savedResumeIndex(position, reader: check.readerCursor)
                                 let record = resolved.program.document.records[index]
                                 check.resolvedResumeRecord = record.location

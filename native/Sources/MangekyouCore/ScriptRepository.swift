@@ -114,6 +114,8 @@ public struct ScriptModuleCatalog: Sendable {
         indexedResourceKeys?.contains(try Self.key(logical)) == true
     }
 
+    package var hasResourceIndex: Bool { indexedResourceKeys != nil }
+
     public func reference(forPhysical relative: String) -> ScriptModuleReference? { physical[Data(relative.utf8)] }
 
     /// Reviewed self-directory candidate, then the literal logical name. Configured

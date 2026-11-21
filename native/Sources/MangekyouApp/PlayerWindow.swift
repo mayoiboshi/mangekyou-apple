@@ -37,21 +37,36 @@ private struct PlayerVideoView: NSViewRepresentable {
 }
 
 private final class PlayerAudioCompletion: NSObject, AVAudioPlayerDelegate {
-    let finish: @MainActor @Sendable (ObjectIdentifier, String?) -> Void
+    let repeats = StreamRepeatCounter()
+    let playbackID = UUID()
+    @MainActor var channel: UInt64?
+    private var finish: (@MainActor @Sendable (ObjectIdentifier, String?) -> Void)?
 
-    init(finish: @escaping @MainActor @Sendable (ObjectIdentifier, String?) -> Void) {
+    override init() { super.init() }
+
+    convenience init(finish: @escaping @MainActor @Sendable (ObjectIdentifier, String?) -> Void) {
+        self.init()
+        self.finish = finish
+    }
+
+    func update(finish: @escaping @MainActor @Sendable (ObjectIdentifier, String?) -> Void) {
         self.finish = finish
     }
 
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        complete(player, error: flag ? nil : "音频未能播放完毕")
+        if let outcome = repeats.finished(player, succeeded: flag) {
+            complete(player, error: outcome ? nil : "音频未能播放完毕")
+        }
     }
 
     func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: (any Error)?) {
-        complete(player, error: error?.localizedDescription ?? "音频解码失败")
+        if repeats.finished(player, succeeded: false) != nil {
+            complete(player, error: error?.localizedDescription ?? "音频解码失败")
+        }
     }
 
     private func complete(_ player: AVAudioPlayer, error: String?) {
+        guard let finish else { return }
         let identity = ObjectIdentifier(player)
         Task { @MainActor [finish] in finish(identity, error) }
     }
@@ -94,6 +109,107 @@ private struct PlayerCanvasClip: Shape {
     }
 }
 
+private struct PlayerLogPointerInput: NSViewRepresentable {
+    struct DragTarget {
+        let track: CGRect
+        let thumb: CGRect
+    }
+    let dragTarget: DragTarget?
+    let onWheel: (Int32) -> Void
+    let onDrag: (Int32) -> Void
+
+    func makeNSView(context: Context) -> PointerView { PointerView(frame: .zero) }
+
+    func updateNSView(_ view: PointerView, context: Context) {
+        view.dragTarget = dragTarget
+        view.onWheel = onWheel
+        view.onDrag = onDrag
+    }
+
+    static func dismantleNSView(_ view: PointerView, coordinator: ()) { view.detach() }
+
+    final class PointerView: NSView {
+        override var isFlipped: Bool { true }
+        var onWheel: ((Int32) -> Void)?
+        var onDrag: ((Int32) -> Void)?
+        var dragTarget: DragTarget?
+        private var monitor: Any?
+        private var remainder: CGFloat = 0
+        private var dragging = false
+        private var grabOffset: CGFloat = 0
+        private var lastDragY: Int32?
+
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            detach()
+            guard window != nil else { return }
+            monitor = NSEvent.addLocalMonitorForEvents(matching: [.scrollWheel, .leftMouseDown, .leftMouseDragged, .leftMouseUp]) { [weak self] event in
+                let handled = MainActor.assumeIsolated { self?.handle(event) ?? false }
+                return handled ? nil : event
+            }
+        }
+
+        func detach() {
+            if let monitor { NSEvent.removeMonitor(monitor) }
+            monitor = nil
+            remainder = 0
+            dragging = false
+            grabOffset = 0
+            lastDragY = nil
+        }
+
+        private func handle(_ event: NSEvent) -> Bool {
+            guard let window, event.window === window else {
+                if event.type == .leftMouseUp { dragging = false; lastDragY = nil }
+                return false
+            }
+            let position = convert(event.locationInWindow, from: nil)
+            let viewport = PlayerViewport(bounds.size)
+            if event.type != .scrollWheel {
+                if event.type == .leftMouseDown {
+                    guard let dragTarget, visibleRect.contains(position), let point = viewport.canvasPoint(position),
+                          dragTarget.track.contains(point) else { return false }
+                    dragging = true
+                    // Preserve the point grabbed on the thumb (native vertical path 0x67e142–0x67e16d).
+                    if dragTarget.thumb.contains(point) {
+                        grabOffset = point.y - dragTarget.thumb.midY
+                        lastDragY = Int32(dragTarget.thumb.midY.rounded(.toNearestOrEven))
+                        return true
+                    }
+                    grabOffset = 0
+                    lastDragY = nil
+                }
+                guard dragging else { return false }
+                if let dragTarget, viewport.scale > 0 {
+                    let y = (position.y - viewport.origin.y) / viewport.scale - grabOffset
+                    let axis = Int32(max(dragTarget.track.minY, min(dragTarget.track.maxY, y)).rounded(.toNearestOrEven))
+                    if axis != lastDragY {
+                        lastDragY = axis
+                        onDrag?(axis)
+                    }
+                }
+                if event.type == .leftMouseUp {
+                    dragging = false
+                    lastDragY = nil
+                }
+                return true
+            }
+            if dragging { return true }
+            let delta = event.scrollingDeltaY
+            guard let onWheel, delta.isFinite, delta != 0, visibleRect.contains(position),
+                  viewport.canvasPoint(position) != nil else { return false }
+            // A wheel event supplies one Windows-style notch. Precise scrolling follows the canvas scale.
+            let movement: CGFloat = event.hasPreciseScrollingDeltas ? delta / viewport.scale : (delta > 0 ? 120 : -120)
+            let limit = CGFloat(ScriptMachine.maximumDialogueLogWheelDelta)
+            let accumulated = max(-limit, min(limit, movement + remainder))
+            let rounded = accumulated.rounded(.towardZero)
+            remainder = accumulated - rounded
+            if rounded != 0 { onWheel(Int32(rounded)) }
+            return true
+        }
+    }
+}
+
 private struct DialogueFrameTexture: Sendable {
     let image: CGImage
     let bounds: CGRect
@@ -103,6 +219,7 @@ private struct DialogueFrameTexture: Sendable {
 
 private struct PlayerLayer: Sendable, Identifiable {
     static let savedCaptureID = UInt64.max
+    static let logScrollbarThumbID = UInt64.max - 3
     let id: UInt64
     var image: CGImage
     let hoverImage: CGImage?
@@ -158,7 +275,7 @@ private struct PlayerState: Sendable {
     let playbackIdentity: UUID
     let cutinSource: PlayerCutinSource?
     var cutin: PlayerCutin?
-    let status: (phase: ScriptMachinePhase, steps: Int, stopReason: String?, currentLocation: ScriptLocation?)
+    let status: (phase: ScriptMachinePhase, steps: Int, stopReason: String?, currentLocation: ScriptLocation?, callDepth: Int, callDepthMinimum: Int)
     var isTerminal: Bool { status.phase == .stopped || status.phase == .finished }
     let buttonSounds: [UInt64: [Int32: ScriptLocation]]
     let choiceButtons: [UInt64: Int32]
@@ -170,20 +287,40 @@ private struct PlayerState: Sendable {
     let waitingForChoice: Bool
     let windowViewButton: UInt64?
     let windowLoadButton: UInt64?
+    let windowSaveButton: UInt64?
     let dialogueWindowHidden: Bool
     let isSystemLoadFrame: Bool
+    let isSystemSaveTask: Bool
     let loadConfirmationButtons: [UInt64: Bool]
     let isWaitingForLoadConfirmation: Bool
+    let isWaitingForStartupBackupConfirmation: Bool
+    let isWaitingForTitleQuitConfirmation: Bool
+    let titleQuitCompleted: Bool
+    let titleQuitCleanupIssue: String?
+    let isWaitingForSaveDeletionConfirmation: Bool
     let visibleSaveThumbnails: Int
     let loadMenuButtons: Set<UInt64>
-    var acceptsLoadEscape: Bool { isWaitingForLoadConfirmation || !loadMenuButtons.isEmpty }
+    let saveMenuButtons: Set<UInt64>
+    let dialogueLogButtons: Set<UInt64>
+    let isDialogueLogFrame: Bool
+    let dialogueLogScrollbar: ScriptMachine.DialogueLogScrollbar?
+    let canOpenDialogueLog: Bool
+    let systemTaskSlotAccessibilityLabels: [UInt64: String]
+    let saveWriteWarning: String?
+    var systemTaskMenuButtons: Set<UInt64> { loadMenuButtons.union(saveMenuButtons).union(dialogueLogButtons) }
+    var acceptsLoadEscape: Bool { isWaitingForLoadConfirmation || isDialogueLogFrame || !systemTaskMenuButtons.isEmpty }
     let loadCancelButton: UInt64?
     let loadPageIndices: [UInt64: Int32]
+    let loadPageButtonPoints: [UInt64: CGPoint]
     let checkedLoadPageButtons: Set<UInt64>
     let titleButtons: [UInt64: Int32]
     let titleButtonLabels: [UInt64: String]
     let titleStartButton: UInt64?
     let waitingForClick: Bool
+    let timedWaitRemaining: Int32?
+    func windowTaskInput(_ task: PlayerSession.WindowTask, handle: UInt64) -> PlayerSession.Input {
+        .windowTask(task, handle: handle, playback: playbackIdentity, steps: status.steps, phase: status.phase)
+    }
     var canStartFromTitle: Bool { titleStartButton != nil }
     var fullTextAlphas: [UInt64: UInt8]
     let messageLayers: [ScriptMachine.MessageTextLayer]
@@ -198,6 +335,9 @@ private struct PlayerState: Sendable {
     let movie: PlayerMovie?
     let movieRequest: ScriptMachine.MoviePlaybackRequest?
     let systemTaskRequest: ScriptMachine.SystemTaskRequest?
+    let primarySavePriority: Int32?
+    let primarySaveNeedsThumbnail: Bool
+    let canDispatchQuickLoad: Bool
     let soundChannel: UInt64?
     let soundSource: ScriptLocation?
     let soundPreservesPosition: Bool
@@ -209,6 +349,7 @@ private struct PlayerState: Sendable {
     let immediateSoundPans: [UInt64: Int32]
     let soundPanChanges: [UInt64: ScriptMachine.SoundControlChange]
     let soundSeeks: [UInt64: Int32]
+    let soundSeekSeconds: [UInt64: Double]
     let audioCacheHits: Int
     let audioConversions: Int
 }
@@ -249,6 +390,10 @@ private struct PlaybackCache<Key: Hashable, Value> {
 }
 
 private actor PlayerSession {
+    static let dialogueLogKey: Int32 = 0x10009
+
+    enum WindowTask: Sendable { case save, load }
+
     enum Input: Sendable {
         case soundStarted
         case movieFinished(Int32)
@@ -260,17 +405,39 @@ private actor PlayerSession {
         case loadMenuButton(UInt64, x: Int32, y: Int32)
         case loadConfirmation(Bool)
         case loadMenuEscape
+        case navigateDialogueLog(ScriptMachine.DialogueLogNavigation)
+        case scrollDialogueLog(Int32)
+        case dragDialogueLogScrollbar(Int32)
         case choice(Int32)
         case windowViewButton(UInt64)
-        case windowLoadButton(UInt64)
+        case openDialogueLog(playback: UUID, steps: Int)
+        case windowTask(WindowTask, handle: UInt64, playback: UUID, steps: Int, phase: ScriptMachinePhase)
+        case quickSave
+        case quickLoad
+        case recoverAutosave(String)
     }
     private var machine: ScriptMachine
+    private var lastSafeMacExceptionBackupMachine: ScriptMachine?
     private var tracedComposedSaveThumbnail = false
     private var playbackIdentity = UUID()
+    private var hostedAudioIDs: [UInt64: UUID] = [:]
     private var systemLoadTask: ScriptMachine?
+    private var systemLoadTaskEntryLabel: String?
+    private var requestedAutosaveSlot: String?
+    private(set) var startupBackupAnswer: Bool?
+    private var startupBackupRecoveryIssue: String?
+    private var startupBackupRecoveryFailed = false
+    private var titleQuitCompleted = false
+    private var titleQuitCleanupIssue: String?
+    private var streamPositionsForSave: [Int32: Int32] = [:]
+    private var streamPansForSave: [Int32: ScriptMachine.SavedStreamPanSample] = [:]
+    private var streamVolumesForSave: [Int32: ScriptMachine.SavedDelayedVolumeSample] = [:]
+    private var streamRepeatsForSave: [Int32: ScriptMachine.SavedFiniteRepeatSample] = [:]
     private let saveDirectory: SafeDirectory?
+    private var saveWriteWarning: String?
     private var restoredDisplay: CGImage?
-    private var systemCapture: (source: ScriptLocation, image: CGImage)?
+    private var systemCaptures: [ScriptLocation: CGImage] = [:]
+    private var systemCaptureThumbnail: Data?
     private let assets: SafeDirectory
     private let recipe: ScriptImageRecipe
     private let cutinSource: PlayerCutinSource?
@@ -284,6 +451,9 @@ private actor PlayerSession {
         let channel: UInt64
         let source: ScriptLocation
         let player: AVAudioPlayer
+        let completion: PlayerAudioCompletion
+
+        func stop() { completion.repeats.stop(player) }
     }
 
     private var preparedSaveAudio: [PreparedSaveAudio] = []
@@ -299,6 +469,7 @@ private actor PlayerSession {
         let source: ScriptLocation
         let selectedMember: Int32?
         let choiceHover: Bool?
+        let blur: String?
     }
     private struct Raster {
         let image: CGImage
@@ -310,6 +481,25 @@ private actor PlayerSession {
         let frames: Int64
         var lastIndex: Int64? = nil
         var lastImage: CGImage? = nil
+
+        mutating func frame(at index: Int64) async throws -> CGImage {
+            guard (0..<frames).contains(index) else {
+                throw ResourceError.rejected("scene_video_frame_index_out_of_bounds")
+            }
+            if lastIndex == index, let lastImage { return lastImage }
+            let requested = CMTime(value: index, timescale: 30)
+            let generator = AVAssetImageGenerator(asset: asset)
+            generator.requestedTimeToleranceBefore = .zero
+            generator.requestedTimeToleranceAfter = .zero
+            let (decoded, actual) = try await generator.image(at: requested)
+            try Task.checkCancellation()
+            guard CMTimeCompare(requested, actual) == 0 else {
+                throw ResourceError.rejected("scene_video_frame_time_mismatch")
+            }
+            lastIndex = index
+            lastImage = decoded
+            return decoded
+        }
     }
     private var sceneVideos: [ScriptLocation: SceneVideo] = [:]
     private var sceneVideoOrder: [ScriptLocation] = []
@@ -348,7 +538,9 @@ private actor PlayerSession {
         let wave_resources: [ScriptModuleReference]?
     }
 
-    init(assets: SafeDirectory, replayDirectory: URL, gameDirectory: URL, ffmpeg: URL, saveURL: URL?, accelerated: Bool, skipAudioForChoiceProbe: Bool, allowSaveAdoption: Bool) throws {
+    init(assets: SafeDirectory, replayDirectory: URL, gameDirectory: URL, ffmpeg: URL, saveURL: URL?, accelerated: Bool,
+         skipAudioForChoiceProbe: Bool, allowSaveAdoption: Bool, allowLabelHistoryCandidate: Bool = false,
+         recoverAutosaveSlot: String? = nil) throws {
         self.assets = assets
         saveDirectory = try saveURL.map { try SafeDirectory($0) }
         self.ffmpeg = ffmpeg
@@ -438,24 +630,72 @@ private actor PlayerSession {
             maximumSteps: ScriptMachine.maximumSupportedSteps, repository: repository, configuration: configuration,
             imageLoader: recipe.dimensions, imageMemberLookup: recipe.member,
             imageExtendedValues: recipe.extendedValues, imageMotionNames: recipe.motionNames,
+            imageLayerFlags: recipe.motionLayerFlags,
+            imageLayerClockAdvance: { resource, member, times, auxiliary, delta in
+                guard let advanced = imageRecipe.advanceSavedLayerClockCandidate(resource, selectedMember: member,
+                    layerTimes: times, auxiliary: auxiliary, delta: delta) else { return nil }
+                return advanced
+            },
+            saveTextureJPEGEncoder: ResourceImage.jpegRepresentation,
             retainFullTrace: false)
         machine.savedMotionUpdateThreshold = recipe.motionUpdateThreshold
+        machine.allowLiveSoundSwapHandoff = !skipAudioForChoiceProbe
+        machine.allowTitleQuit = true
         machine.inspectSaveRestoreBoundary = allowSaveAdoption
         machine.retainExperimentalSaveCandidate = allowSaveAdoption
+        machine.allowLabelHistoryCandidate = allowLabelHistoryCandidate
+        machine.saveImageFilterValidator = { source, descriptor in
+            let data = try assets.read(source.sourceFile, limit: 16 * 1024 * 1024)
+            _ = try ResourceImage.savedBlurRaster(data, source: source, descriptor: descriptor)
+        }
         if let directory = saveDirectory {
+            // Acquire the existing verification template before slot admission.
+            // A failed lookup still permits the established clear-slot path.
+            try Task.checkCancellation()
+            let headerResult: Result<Data, Error> = Result {
+                try SaveEnvelope.slotHeaderTemplate(from: game, executable: "美少女万華鏡４.exe")
+            }
+            let headerTemplate = try? headerResult.get()
             let inspected: [SaveSlotInventory.Entry]
+            let importedSystem: Result<Data, Error>?
             do {
-                inspected = try SaveSlotInventory.scan(directory, includeMetadata: true) { payload in
-                    _ = try ResourceImage.decode(payload)
+                (inspected, importedSystem) = try SaveTransaction.withRecoveredDirectory(directory) { _ in
+                    let entries = try SaveSlotInventory.scanForPlayback(directory, headerTemplate: headerTemplate,
+                                                                        verifyUntransformedHeaders: false) { payload in
+                        _ = try ResourceImage.decode(payload)
+                    }
+                    let system = entries.filter { $0.status == .verified && $0.envelope?.kind == "system" }
+                    let bytes: Result<Data, Error>? = system.count == 1
+                        ? Result { try directory.read(system[0].name, limit: SaveEnvelope.maxFileBytes) }
+                        : nil
+                    return (entries, bytes)
                 }
             } catch let error as ResourceError {
+                if recoverAutosaveSlot != nil { throw error }
                 saveImportIssues = ["无法读取存档目录 · \(error)"]
                 return
             }
             var issues = inspected.filter { $0.status != .verified }.map {
                 "\($0.name) · \(PlayerWindow.playbackMessage($0.issue ?? $0.status.rawValue))"
             }
+            let systemDataEntries = inspected.filter { $0.status == .verified && $0.envelope?.kind == "system" }
+            let systemDataNames = Set(systemDataEntries.map(\.name))
+            if systemDataEntries.count > 1 {
+                issues.append("多个系统数据文件，无法确定应导入哪一个")
+            } else if let systemDataEntry = systemDataEntries.first, let importedSystem {
+                do {
+                    let bytes = try importedSystem.get()
+                    let template = try SaveSystemData.headerTemplate(from: game, executable: "美少女万華鏡４.exe")
+                    let source = try SaveSystemData(data: bytes, headerTemplate: template)
+                    _ = try machine.stageSystemDataScalars(source)
+                    try machine.configureSystemDataSave(name: systemDataEntry.name, headerTemplate: template,
+                                                        expectedSHA256: bytes.sha256Hex)
+                } catch {
+                    issues.append("\(systemDataEntry.name) · 系统数据标量无法导入 · \(PlayerWindow.playbackMessage(String(describing: error)))")
+                }
+            }
             var entries = inspected.filter { entry in
+                if systemDataNames.contains(entry.name) { return false }
                 guard entry.status == .verified else { return false }
                 guard let slot = entry.envelope?.slot else {
                     issues.append("\(entry.name) · 系统数据，无法作为剧情存档读取")
@@ -468,27 +708,37 @@ private actor PlayerSession {
                 if let issue = entry.issue {
                     issues.append("\(entry.name) · 使用占位缩略图 · \(issue)")
                 }
+                if headerTemplate != nil, let issue = entry.stateValidationIssue {
+                    issues.append("\(entry.name) · 状态预检尚未完成 · \(issue)")
+                }
                 return true
             }
-            var headerTemplate: Data?
-            if entries.contains(where: { $0.envelope?.slot?.transformed == true }) {
-                try Task.checkCancellation()
+            if case .failure(let error) = headerResult {
+                entries.removeAll { entry in
+                    guard entry.envelope?.slot?.transformed == true else { return false }
+                    issues.append("\(entry.name) · 无法取得原版存档校验模板 · \(error)")
+                    return true
+                }
+                issues.append("无法取得新建或覆盖存档所需的原版存档头模板 · \(error)")
+            }
+            if headerTemplate != nil, systemDataEntries.isEmpty,
+               !inspected.contains(where: { $0.name.lowercased() == "systemdata.dat" }) {
                 do {
-                    headerTemplate = try SaveEnvelope.slotHeaderTemplate(from: game, executable: "美少女万華鏡４.exe")
-                } catch let error as ResourceError {
-                    entries.removeAll { entry in
-                        guard entry.envelope?.slot?.transformed == true else { return false }
-                        issues.append("\(entry.name) · 无法取得原版存档校验模板 · \(error)")
-                        return true
-                    }
+                    let template = try SaveSystemData.headerTemplate(from: game, executable: "美少女万華鏡４.exe")
+                    try machine.configureSystemDataSave(name: "SystemData.dat", headerTemplate: template, expectedSHA256: nil)
+                } catch {
+                    issues.append("无法取得新建系统数据所需的校验模板 · \(PlayerWindow.playbackMessage(String(describing: error)))")
                 }
             }
-            if entries.isEmpty && issues.isEmpty {
-                issues.append("所选目录没有找到剧情存档。请选择包含 .svd 槽位的目录。")
-            }
             saveImportIssues = issues
+            if let slot = recoverAutosaveSlot {
+                guard entries.contains(where: { $0.name.lowercased() == slot.lowercased() }) else {
+                    throw ResourceError.rejected("autosave_slot_unavailable")
+                }
+            }
             try machine.setReadOnlySaveSlots(entries, directory: directory, headerTemplate: headerTemplate,
                                              verifyUntransformedHeaders: false)
+            machine.allowPrimarySave = headerTemplate != nil && !skipAudioForChoiceProbe
         } else {
             saveImportIssues = []
         }
@@ -527,14 +777,37 @@ private actor PlayerSession {
         return receipts
     }
 
-    func run(input: Input? = nil, presentTimedFrame: @MainActor @Sendable (PlayerState) -> Void) async throws -> PlayerState {
+    func run(input: Input? = nil, streamPositions: [Int32: Int32] = [:],
+             streamPans: [Int32: ScriptMachine.SavedStreamPanSample] = [:],
+             streamVolumes: [Int32: ScriptMachine.SavedDelayedVolumeSample] = [:],
+             streamRepeats: [Int32: ScriptMachine.SavedFiniteRepeatSample] = [:],
+             presentTimedFrame: @MainActor @Sendable (PlayerState) -> Void,
+             captureScene: @MainActor @Sendable (PlayerState, Int32) throws -> Data,
+             exchangeStreams: @MainActor @Sendable (ScriptMachine.SoundSwapRequest, [UInt64: UUID], StreamChannelTransition?) throws -> Void) async throws -> PlayerState {
+        streamPositionsForSave = streamPositions
+        streamPansForSave = streamPans
+        streamVolumesForSave = streamVolumes
+        streamRepeatsForSave = streamRepeats
+        machine.beginCallDepthProbe()
         switch input {
-        case .loadMenuButton, .loadMenuEscape, .loadConfirmation:
+        case .loadConfirmation(let accept) where machine.isWaitingForStartupBackupConfirmation:
+            guard try machine.dispatchLoadConfirmation(accept: accept) else {
+                throw ResourceError.rejected("startup_backup_confirmation_unavailable")
+            }
+            startupBackupAnswer = accept
+            FileHandle.standardError.write(Data("player_startup_backup_answer=\(accept ? "yes" : "no")\n".utf8))
+        case .loadMenuButton, .loadMenuEscape, .loadConfirmation, .navigateDialogueLog, .scrollDialogueLog, .dragDialogueLogScrollbar:
             guard var task = systemLoadTask else {
                 throw ResourceError.rejected("system_load_task_required")
             }
             if case .loadMenuButton(let handle, let x, let y) = input {
-                try task.dispatchLoadMenuButton(handle, x: x, y: y)
+                try task.dispatchSystemTaskMenuButton(handle, x: x, y: y)
+            } else if case .navigateDialogueLog(let navigation) = input {
+                try task.dispatchDialogueLogNavigation(navigation)
+            } else if case .scrollDialogueLog(let delta) = input {
+                try task.dispatchDialogueLogWheel(delta)
+            } else if case .dragDialogueLogScrollbar(let y) = input {
+                try task.dispatchDialogueLogScrollbar(y: y)
             } else if case .loadConfirmation(let accept) = input {
                 guard try task.dispatchLoadConfirmation(accept: accept) else {
                     throw ResourceError.rejected("load_confirmation_not_waiting")
@@ -543,65 +816,21 @@ private actor PlayerSession {
                 try task.dispatchLoadMenuEscape()
             }
             let initial = try advanceSystemLoadTask(task)
-            let status = try await runSystemLoadWaits(initial, presentTimedFrame: presentTimedFrame)
+            let status = try await runSystemLoadWaits(initial, presentTimedFrame: presentTimedFrame, captureScene: captureScene)
             if machine.retainExperimentalSaveCandidate,
                case .loadConfirmation(true) = input,
-               let task = systemLoadTask, task.stopReason == "save_restore_execution_state_unsupported" {
+               let task = systemLoadTask, task.stopReason == "save_restore_candidate_ready" {
                 let assets = assets, decoder = ffmpeg
                 var restored = machine
                 let audio = try restored.adoptExperimentalSaveCandidate(from: task) {
                     try PlayerMovie.savedDirectBufferBytes($0, assets: assets, ffmpeg: decoder)
                 }
-                guard audio.gaps.isEmpty else {
-                    throw ResourceError.rejected("saved_audio_restore_incomplete")
-                }
-                // Validate queued playback before releasing the previous session.
-                var preflight = restored
-                var prepared: [PreparedSaveAudio] = []
-                while let source = preflight.soundPlaybackRequest, let channel = preflight.soundPlaybackChannel {
-                    try Task.checkCancellation()
-                    let player = try AVAudioPlayer(data: convertedAudio(source))
-                    try PlayerMovie.validateDuration(player.duration)
-                    if let position = preflight.takePendingPlaybackSeek() {
-                        let seconds = Double(position) / 1000
-                        guard seconds < player.duration else {
-                            throw ResourceError.rejected("saved_stream_seek_at_or_past_end")
-                        }
-                        player.currentTime = seconds
-                    }
-                    player.numberOfLoops = Int(preflight.soundPlaybackRepeatCount)
-                    player.volume = 0
-                    guard player.prepareToPlay() else {
-                        throw ResourceError.rejected("saved_audio_prepare_failed")
-                    }
-                    prepared.append(.init(channel: channel, source: source, player: player))
-                    try preflight.acknowledgeSoundPlayback()
-                }
-                try validateRestoredLayers(restored)
-                let capturedDisplay = try task.savedCapturedDisplay.map { try ResourceImage.decode($0).image }
-                try Task.checkCancellation()
-                for candidate in prepared {
-                    guard candidate.player.play() else {
-                        for item in prepared { item.player.stop() }
-                        throw ResourceError.rejected("player_audio_start_failed")
-                    }
-                }
-                preparedSaveAudio = prepared
-                machine = restored
-                restoredDisplay = capturedDisplay
-                playbackIdentity = UUID()
-                activeSceneVideos.removeAll()
-                systemLoadTask = nil
-                systemCapture = nil
-                FileHandle.standardError.write(Data("player_experimental_save_adopted=1 staged_streams=\(audio.stagedStreams) scheduled_streams=\(audio.scheduledStreams) scheduled_direct=\(audio.scheduledDirectSounds) audio_gaps=\(audio.gaps.count)\n".utf8))
+                try await adoptPlayback(restored, audio: audio, capturedDisplay: task.savedCapturedDisplay)
+                let emptyImages = task.verifiedEmptyImageResourceCounts
+                FileHandle.standardError.write(Data("player_experimental_save_adopted=1 staged_streams=\(audio.stagedStreams) scheduled_streams=\(audio.scheduledStreams) scheduled_direct=\(audio.scheduledDirectSounds) audio_gaps=\(audio.gaps.count) dialogue_history_count=\(restored.recentDialogueHistory.count) verified_empty_image_resources=\(emptyImages.total) active_empty_image_resources=\(emptyImages.active)\n".utf8))
                 break
             }
-            if let task = systemLoadTask, task.systemTaskExitRequested {
-                try machine.finishSystemLoadTask(task)
-                systemLoadTask = nil
-                systemCapture = nil
-                break
-            }
+            if try await finishCompletedSystemLoadTask() { break }
             guard let frame = systemLoadFrame() else {
                 throw ResourceError.rejected(status.reason ?? "system_task_bootstrap_waiting")
             }
@@ -645,12 +874,99 @@ private actor PlayerSession {
             }
         case .choice(let index): try machine.dispatchStoryChoice(index)
         case .windowViewButton(let handle): try machine.dispatchWindowViewButton(handle)
-        case .windowLoadButton(let handle): try machine.dispatchWindowLoadButton(handle)
+        case .openDialogueLog(let playback, let steps):
+            if playback == playbackIdentity, steps == machine.playbackStatus.steps,
+               machine.canDispatchDialogueLogShortcut(keyCode: Self.dialogueLogKey) {
+                try machine.dispatchDialogueLogShortcut(keyCode: Self.dialogueLogKey)
+            }
+        case .quickSave: try machine.dispatchQuickSave()
+        case .quickLoad: try machine.dispatchQuickLoad()
+        case .recoverAutosave(let slot):
+            try machine.dispatchQuickLoad()
+            requestedAutosaveSlot = slot
+        case .windowTask(let action, let handle, let playback, let steps, let phase):
+            // A displayed frame can outlive the wait it represents.
+            if playback == playbackIdentity, machine.phase == phase,
+               machine.playbackStatus.steps == steps {
+                switch action {
+                case .save where machine.windowSaveButton == handle:
+                    try machine.dispatchWindowSaveButton(handle)
+                case .load where machine.windowLoadButton == handle:
+                    try machine.dispatchWindowLoadButton(handle)
+                default: break
+                }
+            }
         case .timerTick, nil: break
         }
         var sampledPreviousWait = false
         while true {
+            if machine.phase == .stopped, machine.scriptStepFailure != nil {
+                if let failure = machine.scriptStepFailure,
+                   var safe = lastSafeMacExceptionBackupMachine {
+                    do {
+                        if try safe.beginMacExceptionBackup(fromSafeWait: failure) {
+                            FileHandle.standardError.write(Data(
+                            "player_mac_exception_backup_started=1 failure=\(failure.programSourceFile):\(failure.location.lineNumber) source_sha256=\(failure.programSourceSHA256) pc=\(failure.programCounter) safe_steps=\(safe.playbackStatus.steps)\n".utf8))
+                            machine = safe
+                            continue
+                        }
+                        FileHandle.standardError.write(Data(
+                        "player_mac_exception_backup_unavailable=last_safe_wait_not_writable failure=\(failure.programSourceFile):\(failure.location.lineNumber) source_sha256=\(failure.programSourceSHA256) pc=\(failure.programCounter) safe_phase=\(safe.phase.rawValue)\n".utf8))
+                    } catch {
+                        FileHandle.standardError.write(Data(
+                            "player_mac_exception_backup_start_failed=\(error)\n".utf8))
+                    }
+                }
+            }
+            if let request = machine.soundSwapRequest {
+                let previousIDs = hostedAudioIDs
+                if request.first != request.second {
+                    hostedAudioIDs[request.first] = previousIDs[request.second]
+                    hostedAudioIDs[request.second] = previousIDs[request.first]
+                }
+                // The script has already exchanged its channels. Finish the host
+                // handoff before cancellation can return control to a timed action.
+                // Completions during the hop resolve the instance at its new channel.
+                try await exchangeStreams(request, previousIDs, machine.streamChannelTransitions.last)
+                try machine.acknowledgeSoundSwap(request)
+                continue
+            }
             try Task.checkCancellation()
+            if machine.stoppedAtStartupBackupLoad || machine.stoppedAtMemoryCheckpointLoad {
+                let startupBackup = machine.stoppedAtStartupBackupLoad
+                let receipt = startupBackup ? "startup_backup" : "memory_checkpoint"
+                do {
+                    guard !startupBackup || startupBackupAnswer == true else {
+                        throw ResourceError.rejected("startup_backup_confirmation_required")
+                    }
+                    let assets = assets, decoder = ffmpeg
+                    var restored = machine
+                    let directBufferBytes: (ScriptLocation) throws -> Int = {
+                        try PlayerMovie.savedDirectBufferBytes($0, assets: assets, ffmpeg: decoder)
+                    }
+                    let audio = startupBackup
+                        ? try restored.adoptStartupBackupCandidate(directBufferBytes: directBufferBytes)
+                        : try restored.adoptMemoryCheckpointCandidate(directBufferBytes: directBufferBytes)
+                    try await adoptPlayback(restored, audio: audio, capturedDisplay: machine.savedCapturedDisplay)
+                    if startupBackup { startupBackupRecoveryFailed = false }
+                    FileHandle.standardError.write(Data("player_\(receipt)_adopted=1 scheduled_streams=\(audio.scheduledStreams) scheduled_direct=\(audio.scheduledDirectSounds) audio_gaps=\(audio.gaps.count)\n".utf8))
+                } catch is CancellationError {
+                    throw CancellationError()
+                } catch {
+                    let reason = machine.saveResumeBoundary?.isolatedCallFrameIssue ??
+                        machine.stopReason.flatMap { $0 == "save_restore_candidate_ready" ? nil : $0 } ??
+                        String(describing: error)
+                    if startupBackup {
+                        try machine.continueStartupAfterBackupFailure()
+                        startupBackupRecoveryFailed = true
+                        startupBackupRecoveryIssue = reason
+                    } else {
+                        try machine.continueAfterMemoryCheckpointFailure()
+                    }
+                    FileHandle.standardError.write(Data("player_\(receipt)_restore_issue=\(reason)\n".utf8))
+                }
+                continue
+            }
             if try machine.dispatchDueTimer() { continue }
             if machine.phase == .ready {
                 try machine.run(stepQuota: 10_000)
@@ -712,8 +1028,99 @@ private actor PlayerSession {
                 movie?.remove()
                 throw CancellationError()
             }
-            return await playbackSnapshot(movie: movie)
+            let frame = await playbackSnapshot(movie: movie)
+            if machine.phase == .waitingForEvent, systemLoadTask == nil,
+               machine.systemTaskRequest == nil, !machine.isWaitingForStartupBackupConfirmation,
+               !machine.researchStopCallbackRunning, machine.primarySaveRequest == nil {
+                lastSafeMacExceptionBackupMachine = machine
+            }
+            return frame
         }
+    }
+
+    private func adoptPlayback(_ restored: ScriptMachine, audio: ScriptMachine.ExperimentalSaveAudio,
+                               capturedDisplay: Data?) async throws {
+        guard audio.gaps.isEmpty else {
+            throw ResourceError.rejected("saved_audio_restore_incomplete")
+        }
+        // Validate queued playback before releasing the previous session.
+        var preflight = restored
+        var prepared: [PreparedSaveAudio] = []
+        while let source = preflight.soundPlaybackRequest, let channel = preflight.soundPlaybackChannel {
+            try Task.checkCancellation()
+            let data = try convertedAudio(source)
+            let seek = preflight.takePendingPlaybackSeekSeconds() ??
+                preflight.takePendingPlaybackSeek().map { Double($0) / 1_000 }
+            let repeats = preflight.soundPlaybackRepeatCount
+            prepared.append(try await MainActor.run {
+                let player = try AVAudioPlayer(data: data)
+                try PlayerMovie.validateDuration(player.duration)
+                if let seek {
+                    guard seek < player.duration else {
+                        throw ResourceError.rejected("saved_stream_seek_at_or_past_end")
+                    }
+                    player.currentTime = seek
+                }
+                let completion = PlayerAudioCompletion()
+                completion.repeats.configure(repeats, player: player)
+                player.delegate = completion
+                player.volume = 0
+                guard player.prepareToPlay() else {
+                    throw ResourceError.rejected("saved_audio_prepare_failed")
+                }
+                return .init(channel: channel, source: source, player: player, completion: completion)
+            })
+            try preflight.acknowledgeSoundPlayback()
+        }
+        let restoredVideos = try await prepareRestoredScene(restored).videos
+        var adoptedVideos = false
+        defer {
+            if !adoptedVideos {
+                for video in restoredVideos.values { video.movie.remove() }
+            }
+        }
+        let display = try capturedDisplay.map { try ResourceImage.decode($0).image }
+        try Task.checkCancellation()
+        let preparedPlayers = prepared
+        do {
+            try await MainActor.run {
+                try Task.checkCancellation()
+                for candidate in preparedPlayers {
+                    guard candidate.player.play() else {
+                        throw ResourceError.rejected("player_audio_start_failed")
+                    }
+                }
+            }
+            try Task.checkCancellation()
+        } catch {
+            await MainActor.run { for candidate in preparedPlayers { candidate.stop() } }
+            throw error
+        }
+        var committed = restored
+        if let issue = committed.synchronizeSystemDataAfterRestore(from: machine) {
+            FileHandle.standardError.write(Data("player_restore_system_writeback_issue=\(issue)\n".utf8))
+        }
+        preparedSaveAudio = prepared
+        machine = committed
+        hostedAudioIDs.removeAll()
+        restoredDisplay = display
+        playbackIdentity = UUID()
+        for video in sceneVideos.values { video.movie.remove() }
+        sceneVideos = restoredVideos
+        adoptedVideos = true
+        sceneVideoOrder = Array(restoredVideos.keys)
+        activeSceneVideos.removeAll()
+        sceneVideoCycles.removeAll()
+        sceneVideoFailures.removeAll()
+        systemLoadTask = nil
+        systemLoadTaskEntryLabel = nil
+        systemCaptures.removeAll()
+        systemCaptureThumbnail = nil
+    }
+
+    func takeStartupBackupRecoveryIssue() -> String? {
+        defer { startupBackupRecoveryIssue = nil }
+        return startupBackupRecoveryIssue
     }
 
     func convertedAudio(_ source: ScriptLocation) throws -> Data {
@@ -748,10 +1155,11 @@ private actor PlayerSession {
     }
 
     private func playbackSnapshot(movie: PlayerMovie? = nil) async -> PlayerState {
-        let layers = movie == nil ? machine.staticImageLayers.filter {
+        let candidates = movie == nil ? machine.staticImageLayers.filter {
             $0.isTheoraResource && $0.selectedMember == 0 && $0.motionElapsedTicks != nil &&
                 !$0.unappliedTransform && $0.boundRasterPreview == nil
         } : []
+        let layers = candidates.filter { $0.opacity > 0 } + candidates.filter { $0.opacity == 0 }
         let admittedLayers = layers.prefix(2)
         let nextSceneVideos = Dictionary(uniqueKeysWithValues: admittedLayers.map { ($0.id, $0.resource) })
         sceneVideoCycles = sceneVideoCycles.filter { id, _ in
@@ -790,56 +1198,44 @@ private actor PlayerSession {
         return snapshot(movie: movie, sceneFrames: frames, sceneIssues: issues)
     }
 
+    private func prepareSceneVideo(_ source: ScriptLocation) async throws -> SceneVideo {
+        let movie = try PlayerMovie.prepareSceneVideo(source, assets: assets, ffmpeg: ffmpeg)
+        do {
+            let asset = AVURLAsset(url: movie.url)
+            guard let track = try await asset.loadTracks(withMediaType: .video).first else {
+                throw ResourceError.rejected("scene_video_track_missing")
+            }
+            let cadence = try await track.load(.minFrameDuration)
+            let duration = try await asset.load(.duration).seconds
+            guard CMTimeCompare(cadence, CMTime(value: 1, timescale: 30)) == 0,
+                  duration.isFinite, (1...PlayerMovie.maximumSceneDuration).contains(duration) else {
+                throw ResourceError.rejected("scene_video_timing_outside_profile")
+            }
+            try Task.checkCancellation()
+            FileHandle.standardError.write(Data("player_scene_video_prepared=\(source.sourceSHA256)\n".utf8))
+            return SceneVideo(movie: movie, asset: asset, frames: Int64((duration * 30).rounded()))
+        } catch {
+            movie.remove()
+            throw error
+        }
+    }
+
     private func sceneFrame(_ layer: ScriptMachine.StaticImageLayer) async throws -> CGImage {
         let source = layer.resource
         if sceneVideos[source] == nil {
-            let movie = try PlayerMovie.prepareSceneVideo(source, assets: assets, ffmpeg: ffmpeg)
-            do {
-                let asset = AVURLAsset(url: movie.url)
-                guard let track = try await asset.loadTracks(withMediaType: .video).first else {
-                    throw ResourceError.rejected("scene_video_track_missing")
-                }
-                let cadence = try await track.load(.minFrameDuration)
-                let duration = try await asset.load(.duration).seconds
-                guard CMTimeCompare(cadence, CMTime(value: 1, timescale: 30)) == 0,
-                      duration.isFinite, (1...PlayerMovie.maximumSceneDuration).contains(duration) else {
-                    throw ResourceError.rejected("scene_video_timing_outside_profile")
-                }
-                try Task.checkCancellation()
-                sceneVideos[source] = SceneVideo(movie: movie, asset: asset, frames: Int64((duration * 30).rounded()))
-                FileHandle.standardError.write(Data("player_scene_video_prepared=\(source.sourceSHA256)\n".utf8))
-            } catch {
-                movie.remove()
-                throw error
-            }
+            sceneVideos[source] = try await prepareSceneVideo(source)
         }
         sceneVideoOrder.removeAll { $0 == source }
         sceneVideoOrder.append(source)
-        guard var video = sceneVideos[source], let ticks = layer.motionElapsedTicks, ticks >= 0 else {
+        guard var video = sceneVideos[source], let elapsed = layer.motionElapsedTicks, elapsed >= 0 else {
             throw ResourceError.rejected("scene_video_clock_missing")
         }
-        // Default zero-based loop for the audited 30 fps scene profile.
-        let frame = Int64(ticks) * 30 / 1000
-        let index = frame % video.frames
-        let cycle = frame / video.frames
-        let image: CGImage
-        if video.lastIndex == index, let cached = video.lastImage {
-            image = cached
-        } else {
-            let requested = CMTime(value: index, timescale: 30)
-            let generator = AVAssetImageGenerator(asset: video.asset)
-            generator.requestedTimeToleranceBefore = .zero
-            generator.requestedTimeToleranceAfter = .zero
-            let (decoded, actual) = try await generator.image(at: requested)
-            try Task.checkCancellation()
-            guard CMTimeCompare(requested, actual) == 0 else {
-                throw ResourceError.rejected("scene_video_frame_time_mismatch")
-            }
-            image = decoded
-            video.lastIndex = index
-            video.lastImage = image
-            sceneVideos[source] = video
-        }
+        let absoluteFrame = Int64(elapsed) * 30 / 1000
+        let cycle = absoluteFrame / video.frames
+        let ticks = layer.standaloneVideoLayerTicks ?? elapsed
+        let index = (Int64(ticks) * 30 / 1000) % video.frames
+        let image = try await video.frame(at: index)
+        sceneVideos[source] = video
         if let previous = sceneVideoCycles.updateValue(cycle, forKey: layer.id) {
             if previous < cycle {
                 FileHandle.standardError.write(Data("player_scene_video_wrap=\(source.sourceSHA256) ticks=\(ticks) frame=\(index) layer=\(layer.id)\n".utf8))
@@ -851,16 +1247,24 @@ private actor PlayerSession {
     }
 
     private static let dialogueFrameDigest = "4cc07581ee78126b0bbbafb7dfd9dbbcdb78d025ec687f0d910e22f79fea9b5b"
+    private static let selectionTransitionDigest = "fb5447fa373ecc9aef1718d2cb2ff5f4b44f77c5e302bf88ac526cadb38208bb"
 
-    private func dialogueFrameTextures(_ layer: ScriptMachine.StaticImageLayer) throws -> [DialogueFrameTexture]? {
-        guard layer.resource.sourceSHA256 == Self.dialogueFrameDigest,
+    private func dialogueFrameTextures(_ layer: ScriptMachine.StaticImageLayer,
+                                      replacingMessageSurface: Bool = false) throws -> [DialogueFrameTexture]? {
+        let selectionTransition = layer.resource.rangeSHA256 == Self.selectionTransitionDigest
+        guard layer.resource.sourceSHA256 == Self.dialogueFrameDigest || selectionTransition,
               !layer.unappliedTransform,
               layer.alignmentXPercent == 0, layer.alignmentYPercent == 0,
               layer.scaleXPercent == 100, layer.scaleYPercent == 100,
               let member = layer.selectedMember, let ticks = layer.motionElapsedTicks,
               let keys = recipe.motionKeys(layer.resource, selectedMember: member, time: ticks),
-              let entries = recipe.scopedTextureKeys(keys),
-              entries.allSatisfy({ $0.states.isEmpty }) else { return nil }
+              let entries = recipe.scopedTextureKeys(keys) else { return nil }
+        if selectionTransition {
+            guard layer.boundTextureLocations.isEmpty, entries.count == 1,
+                  entries[0].texture.texture_numbers?.first == 0, entries[0].states.count <= 1 else { return nil }
+        } else {
+            guard entries.allSatisfy({ $0.states.isEmpty }) else { return nil }
+        }
         let host = CGAffineTransform(translationX: CGFloat(layer.x), y: CGFloat(layer.y))
         let ordered = entries.enumerated().sorted {
             ($0.element.texture.transform_fields?["0xa8"] ?? 0, $0.offset) <
@@ -869,28 +1273,73 @@ private actor PlayerSession {
         var result: [DialogueFrameTexture] = []
         for entry in ordered.map(\.element) {
             let key = entry.texture
-            guard let modes = recipe.composedRasterModes(texture: key, states: []),
+            guard let modes = recipe.composedRasterModes(texture: key, states: entry.states),
                   modes.blend == 1, modes.sampling == 0,
-                  let alpha = recipe.composedOpacity(texture: key, states: []),
+                  let alpha = recipe.composedOpacity(texture: key, states: entry.states),
                   let slot = key.texture_numbers?.first,
                   let texture = recipe.embeddedTexture(layer.resource, slot: slot),
                   texture.hasZeroAnchorOffset else { return nil }
+            if replacingMessageSurface && texture.name.localizedCaseInsensitiveContains("mesSurface") { continue }
             let source = layer.boundTextureLocations[slot] ?? texture.location
             let image = try staticRaster(source, selectedMember: nil).image
-            guard let bounds = recipe.fullTextureRectangle(key, size: CGSize(width: image.width, height: image.height),
-                                                           host: host) else { return nil }
+            guard let rawBounds = recipe.fullTextureRectangle(key, size: CGSize(width: image.width, height: image.height),
+                                                              host: host) else { return nil }
+            let bounds: CGRect
+            if entry.states.isEmpty {
+                bounds = rawBounds
+            } else {
+                let viewport = CGSize(width: PlayerViewport.width, height: PlayerViewport.height)
+                guard let scopedBounds = recipe.applyingAxisAlignedState(entry.states, to: rawBounds, target: viewport) else { return nil }
+                bounds = scopedBounds
+            }
             let pixelBounds = CGRect(x: bounds.minX.rounded(), y: bounds.minY.rounded(),
                                      width: bounds.width.rounded(), height: bounds.height.rounded())
             result.append(.init(image: image, bounds: pixelBounds, alpha: alpha,
                                 usesBoundSource: layer.boundTextureLocations[slot] != nil))
         }
-        return result
+        return result.isEmpty ? nil : result
     }
 
-    private func validateRestoredLayers(_ restored: ScriptMachine) throws {
+    private func prepareRestoredScene(_ restored: ScriptMachine, through priority: Int32 = .max) async throws
+        -> (videos: [ScriptLocation: SceneVideo], frame: PlayerState) {
         try Task.checkCancellation()
-        let visible = restored.staticImageLayers.filter { $0.opacity > 0 }
-        guard !visible.isEmpty else { return }
+        let visible = restored.staticImageLayers.filter { $0.opacity > 0 && $0.priority <= priority }
+        let videoLayers = visible.filter(\.isTheoraResource)
+        guard videoLayers.count <= 2 else { throw ResourceError.rejected("scene_video_layer_budget_exceeded") }
+        var prepared: [ScriptLocation: SceneVideo] = [:]
+        var frames: [UInt64: CGImage] = [:]
+        var validated = false
+        defer {
+            if !validated {
+                for video in prepared.values { video.movie.remove() }
+            }
+        }
+        for layer in videoLayers {
+            let source = layer.resource
+            guard layer.selectedMember == 0, !layer.unappliedTransform, layer.boundRasterPreview == nil,
+                  let ticks = layer.standaloneVideoLayerTicks else {
+                throw ResourceError.rejected("saved_scene_video_layer_outside_profile")
+            }
+            if prepared[source] == nil {
+                let bytes = try assets.read(source.sourceFile, limit: 16 * 1024 * 1024)
+                guard source.byteOffset == 0, bytes.count == source.byteLength,
+                      source.rangeSHA256 == source.sourceSHA256, bytes.sha256Hex == source.sourceSHA256 else {
+                    throw ResourceError.rejected("saved_scene_video_source_changed")
+                }
+                let period = try ScriptMovieHeader.standaloneTheoraDuration(bytes)
+                let video = try await prepareSceneVideo(source)
+                prepared[source] = video
+                guard video.frames == Int64(period) * 30 / 1000 else {
+                    throw ResourceError.rejected("saved_scene_video_period_mismatch")
+                }
+            }
+            guard var video = prepared[source] else { throw ResourceError.rejected("saved_scene_video_missing") }
+            let index = Int64(ticks) * 30 / 1000
+            frames[layer.id] = try await video.frame(at: index)
+            prepared[source] = video
+            FileHandle.standardError.write(Data("player_saved_scene_video_prepared=\(source.sourceSHA256) ticks=\(ticks) frame=\(index) advancing=\(layer.motionIsAdvancing)\n".utf8))
+        }
+        try Task.checkCancellation()
         // Snapshot consumes pending sound changes. Render a disposable copy
         // so the adopted machine can still deliver them to the playback host.
         var previous = restored
@@ -901,12 +1350,14 @@ private actor PlayerSession {
             swap(&machine, &previous)
             restoredDisplay = previousDisplay
         }
-        let frame = snapshot()
+        let frame = snapshot(sceneFrames: frames)
         for layer in visible {
             if let detail = frame.unavailableLayerFailures[layer.id] {
                 throw ResourceError.rejected("saved_initial_layer_unavailable: \(detail)")
             }
         }
+        validated = true
+        return (prepared, frame)
     }
 
     private func loadThumbnailBounds(_ layer: ScriptMachine.StaticImageLayer) -> CGRect {
@@ -983,12 +1434,21 @@ private actor PlayerSession {
     }
 
     private func snapshot(movie: PlayerMovie? = nil, isSystemLoadFrame: Bool = false,
+                          isSystemSaveTask: Bool = false,
                           sceneFrames: [UInt64: CGImage] = [:], sceneIssues: [UInt64: String] = [:]) -> PlayerState {
         let choiceButtons = machine.storyChoiceButtons
         let visibleChoiceButtons = machine.visibleStoryChoiceButtons
         let loadMenuButtons = machine.loadMenuButtons
+        let systemTaskMenuButtons = machine.systemTaskMenuButtons
         let confirmationButtons = machine.loadConfirmationButtons
         let layers = machine.staticImageLayers
+        let loadPageButtonPoints: [UInt64: CGPoint] = loadMenuButtons.reduce(into: [:]) { points, handle in
+            guard machine.loadPageIndex(handle) != nil,
+                  let layer = layers.first(where: { $0.id == handle }) else { return }
+            let x = layer.alignmentXPercent == 100 ? layer.x - 1 : layer.x + (layer.alignmentXPercent == 0 ? 1 : 0)
+            let y = layer.alignmentYPercent == 100 ? layer.y - 1 : layer.y + (layer.alignmentYPercent == 0 ? 1 : 0)
+            points[handle] = CGPoint(x: CGFloat(x), y: CGFloat(y))
+        }
         let messages = machine.messageTextLayers
         let windowAnimation = windowControlState
         var unavailableLayers: [String] = []
@@ -1000,6 +1460,16 @@ private actor PlayerSession {
         var rendered: [PlayerLayer] = []
         func resolveLayer(_ layer: ScriptMachine.StaticImageLayer) -> PlayerLayer? {
             if portraitExitIsFinished(layer) { return nil }
+            if isSystemLoadFrame, layer.resource.sourceSHA256 == "2b51a5003ff1e0663da31d3e0ccd2ec43f4baa2d0b88ffe67c35a257746cf9c7",
+               layer.selectedMember == 0 {
+                // Both active layers of the original log input mask are type-6 hit regions.
+                return nil
+            }
+            if isSystemLoadFrame, layer.resource.sourceSHA256 == "3df2eb1319b962fc497540d79d8f476f14925e191cb51ddcfaf549cd8ff1f376",
+               messages.contains(where: { $0.id == layer.id }) {
+                // The sole texture is the live message surface, drawn by sceneCanvas.
+                return nil
+            }
             if recipe.isNonDrawingMotion(layer.resource, selectedMember: layer.selectedMember) {
                 return nil
             }
@@ -1118,11 +1588,15 @@ private actor PlayerSession {
                     alignmentXPercent: 50, alignmentYPercent: 50, textureFilter: nil,
                     usesVolumeButtonOffsets: false, isWindowControl: false, isWhiteFlash: true)
             }
-            if unboundFlash, let time = layer.motionElapsedTicks,
-               recipe.motionKeys(layer.resource, selectedMember: 0, time: time) == nil {
-                unavailableLayers.append(layerIssue(layer.resource, "当前时钟 \(time) 缺少动作采样，原版时间控制尚未复现"))
-                unimplementedAnimationCount += 1
-                return nil
+            if unboundFlash, let time = layer.motionElapsedTicks {
+                guard let keys = recipe.motionKeys(layer.resource, selectedMember: 0, time: time) else {
+                    unavailableLayers.append(layerIssue(layer.resource, "当前时钟 \(time) 缺少动作采样，原版时间控制尚未复现"))
+                    unimplementedAnimationCount += 1
+                    return nil
+                }
+                if keys.allSatisfy({ $0.type == 0 || recipe.isEmptyFlashTexture($0, layer: layer) }) {
+                    return nil
+                }
             }
             if layer.resource.sourceSHA256 == "97bb05fa8aaaff094f9ef12978d6fca0c7af6bd3081a01bbedd7ae5c02902a68",
                let action = layer.selectedMember, (0...4).contains(action),
@@ -1178,7 +1652,8 @@ private actor PlayerSession {
                         unavailableLayers.append(layerIssue(layer.resource, String(describing: error)))
                     }
                 }
-                if let textures = try dialogueFrameTextures(layer) {
+                let hasLiveMessageSurface = messages.contains { $0.id == layer.id && $0.canvasBounds != nil }
+                if let textures = try dialogueFrameTextures(layer, replacingMessageSurface: hasLiveMessageSurface) {
                     guard let image = textures.first?.image ?? Self.whitePixel else { return nil }
                     return PlayerLayer(id: layer.id, image: image, hoverImage: nil, x: layer.x, y: layer.y,
                         priority: layer.priority, opacity: layer.opacity, scaleXPercent: 100, scaleYPercent: 100,
@@ -1193,9 +1668,18 @@ private actor PlayerSession {
                 let raster: Raster
                 var usesBoundRaster = false
                 var boundMotion: (offset: CGPoint, sampling: Int32?)?
+                let blur: String?
+                if !layer.isTheoraResource,
+                   (layer.selectedMember == nil && layer.motionElapsedTicks == nil) || layer.selectedMember == 0,
+                   layer.boundTextureLocations.isEmpty, layer.filterOverrides.count == 1,
+                   let descriptor = layer.filterOverrides[0], BlurFilterCandidate.parameters(descriptor) != nil {
+                    blur = descriptor
+                } else {
+                    blur = nil
+                }
                 do {
                     raster = try staticRaster(layer.resource, selectedMember: layer.selectedMember,
-                                              choiceHover: isChoiceRaster ? false : nil)
+                                              choiceHover: isChoiceRaster ? false : nil, blur: blur)
                 } catch ResourceError.rejected(let reason) where [
                     "abmp_raster_requires_motion", "abmp_raster_requires_composition", "abmp_raster_recipe_missing"
                 ].contains(reason) && !isChoiceRaster {
@@ -1257,7 +1741,7 @@ private actor PlayerSession {
                 } else if let hover = layer.hoverResource {
                     do { hoverImage = try staticRaster(hover, selectedMember: nil).image }
                     catch { unavailableLayers.append(layerIssue(hover, "悬停图层 · \(error)")) }
-                } else if let hoverMember = loadButtonHoverMember(layer, menuButtons: loadMenuButtons,
+                } else if let hoverMember = loadButtonHoverMember(layer, menuButtons: systemTaskMenuButtons,
                                                                confirmationButtons: confirmationButtons) {
                     do {
                         if let member = try recipe.member(layer.resource, hoverMember) {
@@ -1294,6 +1778,14 @@ private actor PlayerSession {
                     "fbdc9326ec004de7c81fe0e38724ab16ec1564349a01543444d8773bddd35e7a"
                 if systemButton || volumeButton {
                     // The slot-0 and slot-1 texture keys both anchor at their center.
+                    alignmentX = 50
+                    alignmentY = 50
+                }
+                if isSystemLoadFrame, layer.selectedMember == 0, [
+                    "338cadc3ac13bb4910489793357c54a1c5ad49a49c3ebb70097984b33e89869c",
+                    "bf883fe2270eec13464517816f8c93b5606c457db1c08b97033a9ae5dc97e5d1",
+                    "b6d56d4bcac78361763b872a01d8b58fbc7b32e068545a6f7be03184ae918652"
+                ].contains(layer.resource.sourceSHA256) {
                     alignmentX = 50
                     alignmentY = 50
                 }
@@ -1360,6 +1852,37 @@ private actor PlayerSession {
         for layer in layers {
             if let resolved = resolveLayer(layer) { rendered.append(resolved) }
         }
+        var scrollbar: ScriptMachine.DialogueLogScrollbar?
+        if isSystemLoadFrame, let bar = machine.dialogueLogScrollbar {
+            do {
+                let barLayers = try dialogueLogScrollbarLayers(bar)
+                rendered.append(contentsOf: barLayers)
+                rendered.sort { ($0.priority, $0.id) < ($1.priority, $1.id) }
+                scrollbar = bar
+            } catch {
+                unavailableLayers.append("日志滚动条 · \(error)")
+            }
+        }
+        let upperMenuIDs = Set(layers.filter {
+            $0.priority == 3010 && $0.resource.sourceFile.lowercased().contains("/avg/uppermenu/")
+        }.map(\.id))
+        if let upperRight = rendered.filter({ upperMenuIDs.contains($0.id) }).map({ $0.bounds.maxX }).max(),
+           upperRight > PlayerViewport.width, upperRight - PlayerViewport.width <= 128 {
+            let offset = PlayerViewport.width - upperRight
+            for index in rendered.indices where upperMenuIDs.contains(rendered[index].id) {
+                rendered[index].motionOffset.x += offset
+            }
+        }
+        let bottomWindowIDs = Set(layers.filter {
+            $0.priority == 1550 && $0.resource.sourceFile.lowercased().contains("/avg/window/")
+        }.map(\.id))
+        if let bottomEdge = rendered.filter({ bottomWindowIDs.contains($0.id) }).map({ $0.bounds.maxY }).max(),
+           bottomEdge > PlayerViewport.height, bottomEdge - PlayerViewport.height <= 80 {
+            let offset = PlayerViewport.height - bottomEdge
+            for index in rendered.indices where bottomWindowIDs.contains(rendered[index].id) {
+                rendered[index].motionOffset.y += offset
+            }
+        }
         if !isSystemLoadFrame, machine.executedSteps > 0, !machine.savedCaptureIsBound {
             restoredDisplay = nil
         }
@@ -1395,7 +1918,7 @@ private actor PlayerSession {
         }
         var buttonSounds: [UInt64: [Int32: ScriptLocation]] = [:]
         let hoverableLayers = rendered.filter { $0.hoverImage != nil }.map(\.id)
-        for handle in Set(choiceButtons.keys).union(titleButtons.keys).union(loadMenuButtons).union(machine.loadConfirmationButtons.keys).union(hoverableLayers) {
+        for handle in Set(choiceButtons.keys).union(titleButtons.keys).union(systemTaskMenuButtons).union(machine.loadConfirmationButtons.keys).union(hoverableLayers) {
             let sounds = [Int32(0), 1].reduce(into: [Int32: ScriptLocation]()) { sounds, slot in
                 sounds[slot] = machine.buttonSound(handle, slot: slot)
             }
@@ -1413,21 +1936,42 @@ private actor PlayerSession {
                            choiceTextStyles: visibleChoiceButtons.keys.reduce(into: [:]) { $0[$1] = machine.storyChoiceTextStyle($1) },
                            waitingForChoice: machine.isWaitingForStoryChoice, windowViewButton: machine.windowViewButton,
                            windowLoadButton: machine.windowLoadButton,
+                           windowSaveButton: machine.windowSaveButton,
                            dialogueWindowHidden: machine.isDialogueWindowHidden,
                            isSystemLoadFrame: isSystemLoadFrame,
-                           loadConfirmationButtons: isSystemLoadFrame ? machine.loadConfirmationButtons : [:],
-                           isWaitingForLoadConfirmation: isSystemLoadFrame && machine.isWaitingForLoadConfirmation, visibleSaveThumbnails: visibleSaveThumbnails, loadMenuButtons: loadMenuButtons,
+                           isSystemSaveTask: isSystemLoadFrame && isSystemSaveTask,
+                           loadConfirmationButtons: (isSystemLoadFrame || machine.isWaitingForStartupBackupConfirmation)
+                                ? machine.loadConfirmationButtons : [:],
+                           isWaitingForLoadConfirmation: machine.isWaitingForStartupBackupConfirmation ||
+                                (isSystemLoadFrame && machine.isWaitingForLoadConfirmation),
+                           isWaitingForStartupBackupConfirmation: machine.isWaitingForStartupBackupConfirmation,
+                           isWaitingForTitleQuitConfirmation: isSystemLoadFrame && isTitleQuitTask &&
+                                machine.isWaitingForLoadConfirmation,
+                           titleQuitCompleted: titleQuitCompleted,
+                           titleQuitCleanupIssue: titleQuitCleanupIssue,
+                           isWaitingForSaveDeletionConfirmation: isSystemLoadFrame && machine.isWaitingForSaveDeletionConfirmation,
+                           visibleSaveThumbnails: visibleSaveThumbnails, loadMenuButtons: loadMenuButtons, saveMenuButtons: machine.saveMenuButtons,
+                           dialogueLogButtons: machine.dialogueLogButtons, isDialogueLogFrame: machine.isWaitingInDialogueLog,
+                           dialogueLogScrollbar: scrollbar,
+                           canOpenDialogueLog: !isSystemLoadFrame && machine.canDispatchDialogueLogShortcut(keyCode: Self.dialogueLogKey),
+                           systemTaskSlotAccessibilityLabels: machine.systemTaskSlotAccessibilityLabels,
+                           saveWriteWarning: saveWriteWarning,
                            loadCancelButton: loadMenuButtons.sorted().first(where: machine.isLoadMenuCancelButton),
                            loadPageIndices: loadMenuButtons.reduce(into: [:]) { $0[$1] = machine.loadPageIndex($1) },
+                           loadPageButtonPoints: loadPageButtonPoints,
                            checkedLoadPageButtons: Set(loadMenuButtons.filter(machine.isLoadPageChecked)),
                            titleButtons: titleButtons, titleButtonLabels: titleButtonLabels, titleStartButton: machine.titleStartButton,
                            waitingForClick: machine.phase == .waiting && machine.clickWaitRemaining == -1,
+                           timedWaitRemaining: machine.phase == .waiting ? machine.clickWaitRemaining : nil,
                            fullTextAlphas: fullTextAlphas, messageLayers: messages, layers: rendered,
                            pendingOpacityImages: machine.pendingOpacityImages,
                            unavailableLayers: unavailableLayers, unavailableLayerFailures: unavailableLayerFailures,
                            unimplementedAnimationCount: unimplementedAnimationCount,
                            maxMotionTicks: layers.compactMap(\.motionElapsedTicks).max() ?? 0, movie: movie, movieRequest: machine.moviePlaybackRequest,
                            systemTaskRequest: machine.systemTaskRequest,
+                           primarySavePriority: machine.primarySaveRequest?.priority,
+                           primarySaveNeedsThumbnail: machine.primarySaveRequest?.needsThumbnail ?? false,
+                           canDispatchQuickLoad: machine.canDispatchQuickLoad,
                            soundChannel: machine.soundPlaybackChannel,
                            soundSource: machine.soundPlaybackRequest,
                            soundPreservesPosition: machine.soundPlaybackPreservesPosition,
@@ -1437,7 +1981,31 @@ private actor PlayerSession {
                            immediateSoundPans: machine.immediateSoundPans,
                            soundPanChanges: machine.takeSoundPanChanges(),
                            soundSeeks: machine.takeActiveSoundSeeks(),
+                           soundSeekSeconds: machine.takeActiveSoundSeekSeconds(),
                            audioCacheHits: audioCacheHits, audioConversions: audioConversions)
+    }
+
+    private func dialogueLogScrollbarLayers(_ bar: ScriptMachine.DialogueLogScrollbar) throws -> [PlayerLayer] {
+        func raster(_ container: ScriptLocation, slot: Int32) throws -> CGImage {
+            guard let texture = recipe.embeddedTexture(container, slot: slot), texture.hasZeroAnchorOffset else {
+                throw ResourceError.rejected("dialogue_log_scrollbar_texture_unavailable")
+            }
+            return try staticRaster(texture.location, selectedMember: nil).image
+        }
+        func layer(_ id: UInt64, _ image: CGImage, x: Int32, y: Int32, priority: Int32, alpha: UInt8 = 255) -> PlayerLayer {
+            PlayerLayer(id: id, image: image, hoverImage: nil, x: x, y: y, priority: priority, opacity: alpha,
+                        scaleXPercent: 100, scaleYPercent: 100, alignmentXPercent: 0, alignmentYPercent: 0,
+                        usesVolumeButtonOffsets: false, isWindowControl: false)
+        }
+        typealias Bar = ScriptMachine.DialogueLogScrollbar
+        let knobX = bar.x + (Bar.trackWidth - Bar.knobWidth) / 2
+        // The time-zero keys of the pinned resources supply these texture offsets and alpha.
+        return try [
+            layer(UInt64.max - 5, raster(bar.track, slot: 1), x: bar.x, y: bar.y - 10, priority: bar.priority - 1, alpha: 191),
+            layer(UInt64.max - 4, raster(bar.track, slot: 0), x: bar.x - 8, y: bar.y - 16, priority: bar.priority),
+            layer(PlayerLayer.logScrollbarThumbID, raster(bar.knob, slot: 0), x: knobX - 4,
+                  y: bar.y + bar.knobOffset - 9, priority: bar.priority + 10)
+        ]
     }
 
     private static let portraitMotionDigest = "5b0f2bc31cc6b14311642df53590c1efd3edec3b6a032e13b90424ce70e99b03"
@@ -1570,7 +2138,7 @@ private actor PlayerSession {
               layer.alignmentXPercent == 50, layer.alignmentYPercent == 50,
               let time = layer.motionElapsedTicks,
               let keys = recipe.motionKeys(layer.resource, selectedMember: 0, time: time) else { return nil }
-        let draws = keys.filter { $0.type != 0 }
+        let draws = keys.filter { $0.type != 0 && !recipe.isEmptyFlashTexture($0, layer: layer) }
         guard let key = draws.last, let flash = recipe.whiteFlashPreview(key, container: layer.resource) else { return nil }
         if draws.count == 1 { return (flash.size, flash.alpha, false) }
         guard draws.count == 2, draws[0].type == 4, draws[0].texture_numbers?.first == 0 else { return nil }
@@ -1628,9 +2196,12 @@ private actor PlayerSession {
             }
         }
         var dialogueFrames: [UInt64: [DialogueFrameTexture]] = [:]
-        for layer in layers where layer.resource.sourceSHA256 == Self.dialogueFrameDigest {
+        let liveMessageIDs = Set(machine.messageTextLayers.filter { $0.canvasBounds != nil }.map(\.id))
+        for layer in layers where layer.resource.sourceSHA256 == Self.dialogueFrameDigest ||
+            layer.resource.rangeSHA256 == Self.selectionTransitionDigest {
             do {
-                dialogueFrames[layer.id] = try dialogueFrameTextures(layer)
+                dialogueFrames[layer.id] = try dialogueFrameTextures(layer,
+                    replacingMessageSurface: liveMessageIDs.contains(layer.id))
             } catch {
                 sceneIssues.append("对白边框无法采样 · \(layer.resource.sourceFile) · \(error)")
             }
@@ -1652,6 +2223,10 @@ private actor PlayerSession {
         return ticks
     }
 
+    func injectMacExceptionBackupFailureForTesting() throws {
+        try machine.injectMacExceptionBackupFailureForTesting(reason: "controlled_mac_exception_backup_probe")
+    }
+
     func dialogueHistory() -> [ScriptMachine.DialogueHistoryLine] {
         machine.recentDialogueHistory
     }
@@ -1664,13 +2239,51 @@ private actor PlayerSession {
         let waitTicks: Int32?
     }
 
+    struct SaveSlotWriteReceipt: Sendable {
+        let sha256: String
+        let byteCount: Int
+        let metadataLengths: [Int]
+        let thumbnailSize: [Int]?
+        let routineCount: Int
+        let decodedStateLength: Int
+    }
+
     func runSystemLoadWaits(_ initial: SystemLoadStatus,
-                            presentTimedFrame: @MainActor @Sendable (PlayerState) -> Void) async throws -> SystemLoadStatus {
+                            presentTimedFrame: @MainActor @Sendable (PlayerState) -> Void,
+                            captureScene: @MainActor @Sendable (PlayerState, Int32) throws -> Data) async throws -> SystemLoadStatus {
         var status = initial
+        var remainingCaptures = 8 - systemCaptures.count
         let clock = ContinuousClock()
         var deadline = clock.now
-        while let remaining = status.waitTicks, remaining >= 0 {
+        while true {
             try Task.checkCancellation()
+            if let task = systemLoadTask, let request = task.screenCaptureRequest,
+               request.scene == .restoredCheckpoint {
+                guard remainingCaptures > 0 else { throw ResourceError.rejected("game_thread_capture_request_limit") }
+                let restored = try machine.systemTaskCaptureScene(for: task)
+                let scene = try await prepareRestoredScene(restored, through: request.priority)
+                defer { for video in scene.videos.values { video.movie.remove() } }
+                if let cutin = scene.frame.cutin, cutin.priority <= request.priority {
+                    throw ResourceError.rejected("game_thread_cutin_frame_unavailable")
+                }
+                let data = try await captureScene(scene.frame, request.priority)
+                status = try supplySystemCapture(data)
+                remainingCaptures -= 1
+                deadline = clock.now
+                continue
+            }
+            if let task = systemLoadTask, task.isWaitingInDialogueLog,
+               let remaining = task.ticksUntilPlacementEndpoint, remaining > 0 {
+                let ticks = accelerated ? remaining : min(16, remaining)
+                if !accelerated {
+                    if let frame = systemLoadFrame() { await presentTimedFrame(frame) }
+                    deadline = deadline.advanced(by: .milliseconds(Int64(ticks)))
+                    try await clock.sleep(until: deadline)
+                }
+                systemLoadTask?.advanceVisualClock(ticks: ticks)
+                continue
+            }
+            guard let remaining = status.waitTicks, remaining >= 0 else { return status }
             var ticks = remaining
             if !accelerated, ticks > 0 {
                 if let task = systemLoadTask, task.staticImageLayers.contains(where: {
@@ -1685,7 +2298,6 @@ private actor PlayerSession {
             status = try advanceSystemLoadWait(ticks: ticks)
             if ticks == remaining { deadline = clock.now }
         }
-        return status
     }
 
     private func advanceSystemLoadWait(ticks: Int32) throws -> SystemLoadStatus {
@@ -1698,31 +2310,77 @@ private actor PlayerSession {
         return try advanceSystemLoadTask(task)
     }
 
-    func startSystemLoadTask() throws -> SystemLoadStatus {
+    func startSystemLoadTask(streamPositions: [Int32: Int32],
+                             streamPans: [Int32: ScriptMachine.SavedStreamPanSample],
+                             streamVolumes: [Int32: ScriptMachine.SavedDelayedVolumeSample],
+                             streamRepeats: [Int32: ScriptMachine.SavedFiniteRepeatSample]) throws -> SystemLoadStatus {
         guard systemLoadTask == nil else { throw ResourceError.rejected("system_load_task_already_started") }
-        return try advanceSystemLoadTask(machine.startSystemLoadTask())
+        streamPositionsForSave = streamPositions
+        streamPansForSave = streamPans
+        streamVolumesForSave = streamVolumes
+        streamRepeatsForSave = streamRepeats
+        systemCaptures.removeAll()
+        systemCaptureThumbnail = nil
+        let entryLabel = machine.systemTaskRequest?.entryLabel
+        let slot = requestedAutosaveSlot
+        requestedAutosaveSlot = nil
+        let task: ScriptMachine
+        if let slot {
+            task = try machine.startAutosaveLoadTask(slot: slot)
+            FileHandle.standardError.write(Data("player_named_autosave_requested=\(slot)\n".utf8))
+        } else {
+            task = try machine.startSystemLoadTask()
+        }
+        systemLoadTaskEntryLabel = entryLabel
+        do {
+            return try advanceSystemLoadTask(task)
+        } catch {
+            systemLoadTaskEntryLabel = nil
+            throw error
+        }
     }
 
     func supplySystemCapture(_ data: Data) throws -> SystemLoadStatus {
-        guard var task = systemLoadTask, systemCapture == nil, (1...8 * 1024 * 1024).contains(data.count) else {
+        guard var task = systemLoadTask, let request = task.screenCaptureRequest,
+              systemCaptures.count < 8, (1...8 * 1024 * 1024).contains(data.count) else {
             throw ResourceError.rejected("invalid_game_thread_image_capture")
         }
         let image = try ResourceImage.decode(data).image
         let source = ScriptModuleReference(logicalPath: "system-capture.png", sourceFile: "system-capture.png",
                                            sourceSHA256: data.sha256Hex).wholeFileLocation(byteLength: data.count)
         try task.supplyScreenCapture(source, width: image.width, height: image.height)
-        systemCapture = (source, image)
+        if request.scene == .suspendedPrimary {
+            systemCaptureThumbnail = try ResourceImage.encodeSaveThumbnailJPEG(image)
+        }
+        systemCaptures[source] = image
+        if task.isLinkedLogTask {
+            FileHandle.standardError.write(Data("player_log_capture=\(request.scene.rawValue) sha256=\(source.sourceSHA256)\n".utf8))
+        }
         return try advanceSystemLoadTask(task)
     }
 
     private func advanceSystemLoadTask(_ initial: ScriptMachine) throws
         -> SystemLoadStatus {
         var task = initial
-        try machine.runSystemLoadTask(&task)
+        try machine.runSystemLoadTask(&task, streamPositions: streamPositionsForSave,
+                                     streamPans: streamPansForSave,
+                                     streamVolumes: streamVolumesForSave,
+                                     streamRepeats: streamRepeatsForSave,
+                                     thumbnail: systemCaptureThumbnail)
+        if let warning = task.summary.saveWriteIssue,
+           warning.hasPrefix("save_committed_directory_sync_unconfirmed_errno_") ||
+            warning.hasPrefix("save_committed_transaction_cleanup_unconfirmed") {
+            saveWriteWarning = warning
+            FileHandle.standardError.write(Data("player_save_durability_unconfirmed=\(warning)\n".utf8))
+        } else {
+            saveWriteWarning = nil
+        }
         systemLoadTask = task
         let status = task.playbackStatus
         let wait = status.phase == .waiting ? task.clickWaitRemaining : nil
-        return SystemLoadStatus(steps: status.steps, reason: status.stopReason, location: status.currentLocation,
+        let reason = status.phase == .stopped && task.lastSaveWriteIssue == "system_data_changed_since_session_load"
+            ? task.lastSaveWriteIssue : status.stopReason
+        return SystemLoadStatus(steps: status.steps, reason: reason, location: status.currentLocation,
                                 capturePriority: task.screenCaptureRequest?.priority, waitTicks: wait)
     }
 
@@ -1741,13 +2399,119 @@ private actor PlayerSession {
 
     func recoverFailedSaveLoad() -> Bool {
         guard machine.abortSystemLoad() else { return false }
+        requestedAutosaveSlot = nil
         systemLoadTask = nil
-        systemCapture = nil
+        systemLoadTaskEntryLabel = nil
+        systemCaptures.removeAll()
+        systemCaptureThumbnail = nil
         return true
+    }
+
+    var isTitleQuitTask: Bool { systemLoadTaskEntryLabel?.lowercased() == "@@!quit" }
+    var isDialogueLogTask: Bool { systemLoadTask?.isLinkedLogTask == true }
+
+    func cleanShutdownForWindowClose(identity: UUID, steps: Int) throws -> String? {
+        try Task.checkCancellation()
+        guard identity == playbackIdentity, steps == machine.playbackStatus.steps, systemLoadTask == nil else {
+            throw ResourceError.rejected("player_window_close_session_changed")
+        }
+        guard !startupBackupRecoveryFailed else {
+            throw ResourceError.rejected("player_window_close_preserving_failed_backup")
+        }
+        try machine.beginCleanShutdown()
+        try machine.run(stepQuota: 100)
+        guard machine.phase == .finished else {
+            throw ResourceError.rejected(machine.stopReason ?? "clean_shutdown_did_not_finish")
+        }
+        return machine.lastSaveWriteIssue
+    }
+
+    func finishCompletedSystemLoadTask() async throws -> Bool {
+        guard let task = systemLoadTask, task.systemTaskExitRequested else { return false }
+        if task.completedLinkedLogJump {
+            let assets = assets, decoder = ffmpeg
+            var restored = machine
+            let audio = try restored.adoptLinkedLogJump(from: task) {
+                try PlayerMovie.savedDirectBufferBytes($0, assets: assets, ffmpeg: decoder)
+            }
+            try await adoptPlayback(restored, audio: audio, capturedDisplay: task.savedCapturedDisplay)
+            FileHandle.standardError.write(Data("player_log_jump_adopted=1 scheduled_streams=\(audio.scheduledStreams) audio_gaps=\(audio.gaps.count)\n".utf8))
+            return true
+        } else if task.titleQuitShutdownRequested {
+            try machine.beginCleanShutdown(afterQuit: task)
+            try machine.run(stepQuota: 100)
+            guard machine.phase == .finished else {
+                throw ResourceError.rejected(machine.stopReason ?? "clean_shutdown_did_not_finish")
+            }
+            titleQuitCleanupIssue = machine.lastSaveWriteIssue
+            titleQuitCompleted = true
+            FileHandle.standardError.write(Data("player_title_quit_finished=1 cleanup_issue=\(titleQuitCleanupIssue ?? "-")\n".utf8))
+        } else {
+            try machine.finishSystemLoadTask(task)
+        }
+        systemLoadTask = nil
+        systemLoadTaskEntryLabel = nil
+        systemCaptures.removeAll()
+        systemCaptureThumbnail = nil
+        return true
+    }
+
+    func failedSystemLoadLocation() -> ScriptLocation? {
+        systemLoadTask?.playbackStatus.currentLocation
+    }
+
+    func failedSystemLoadSaveWriteIssue() -> String? {
+        systemLoadTask?.summary.saveWriteIssue
+    }
+
+    func failedSystemLoadModuleCandidates() -> [ScriptModuleReference] {
+        Array((systemLoadTask?.pendingModuleCandidates ?? []).prefix(8))
     }
 
     func loadSlotButton(named name: String) throws -> UInt64? {
         try systemLoadTask?.loadSlotButton(named: name)
+    }
+
+    func logJumpButton(named name: String) throws -> UInt64? {
+        try systemLoadTask?.logJumpButton(named: name)
+    }
+
+    func saveSlotButton(named name: String) throws -> UInt64? {
+        try systemLoadTask?.saveSlotButton(named: name)
+    }
+
+    func requireSaveSlotAbsent(named name: String) throws {
+        guard let saveDirectory, try SafeDirectory.components(name).count == 1 else {
+            throw ResourceError.rejected("save_write_probe_directory_unavailable")
+        }
+        guard !(try saveDirectory.entries()).contains(where: { $0.name == name }) else {
+            throw ResourceError.rejected("save_write_probe_slot_already_exists")
+        }
+    }
+
+    func saveSlotWriteReceipt(named name: String) throws -> SaveSlotWriteReceipt {
+        guard let saveDirectory, try SafeDirectory.components(name).count == 1 else {
+            throw ResourceError.rejected("save_write_receipt_directory_unavailable")
+        }
+        let bytes = try saveDirectory.read(name, limit: SaveEnvelope.maxFileBytes)
+        guard let slot = try SaveEnvelope(bytes).slot else {
+            throw ResourceError.rejected("save_write_receipt_slot_missing")
+        }
+        let state = try SaveEnvelope.decodeSlotState(bytes, inferSeed: true)
+        let reader = try SaveReaderCursor(threadState: state)
+        let prefix = try SaveStatePrefix(state: state, after: reader)
+        let calVal = try prefix.locateCalVal(in: state)
+        let arrays = try SaveVariableArrays.inspectCalVal(state: state, at: calVal)
+        let engineOffset = arrays.indexed.nextDecodedOffset ?? arrays.nextDecodedOffset
+        let engine = try SaveEngineState(state: state, at: engineOffset)
+        guard engine.status == .verified else {
+            throw ResourceError.rejected("save_write_receipt_state_unverified")
+        }
+        let thumbnail = try ResourceImage.decodeSaveThumbnail(bytes)?.image
+        return .init(sha256: bytes.sha256Hex, byteCount: bytes.count,
+            metadataLengths: slot.metadata.map(\.length),
+            thumbnailSize: thumbnail.map { [$0.width, $0.height] },
+            routineCount: reader.routines.count, decodedStateLength: state.count)
     }
 
     func systemLoadFrame() -> PlayerState? {
@@ -1760,12 +2524,80 @@ private actor PlayerSession {
             swap(&machine, &task)
             systemLoadTask = task
         }
-        return snapshot(isSystemLoadFrame: true)
+        return snapshot(isSystemLoadFrame: true,
+                        isSystemSaveTask: systemLoadTaskEntryLabel == "@@!Save")
     }
 
-    func soundCompleted(channel: UInt64, playbackStartStep: Int, identity: UUID) {
-        guard identity == playbackIdentity else { return }
+    func takeSaveStreamChannelTransitions() -> ([StreamChannelTransition], Int) {
+        machine.takeStreamChannelTransitions()
+    }
+
+    func activeSavePlayback(for identity: UUID, includingDirect: Bool) throws -> [UInt64: (source: ScriptLocation?, step: Int?)] {
+        guard identity == playbackIdentity else { throw ResourceError.rejected("player_save_audio_session_changed") }
+        let streams = machine.activeStreamPlaybackSnapshots
+        return includingDirect ? streams.merging(machine.activeDirectPlaybackSnapshots) { stream, _ in stream } : streams
+    }
+
+    struct PrimarySaveSample: Sendable {
+        let thumbnail: Data
+        let streamPositions: [Int32: Int32]
+        let streamPans: [Int32: ScriptMachine.SavedStreamPanSample]
+        let streamVolumes: [Int32: ScriptMachine.SavedDelayedVolumeSample]
+        let streamRepeats: [Int32: ScriptMachine.SavedFiniteRepeatSample]
+    }
+
+    func completePrimarySave(identity: UUID, steps: Int,
+                             capture: Result<PrimarySaveSample, ResourceError>) throws -> String? {
+        try Task.checkCancellation()
+        guard identity == playbackIdentity, steps == machine.playbackStatus.steps,
+              let request = machine.primarySaveRequest else {
+            throw ResourceError.rejected("player_primary_save_request_changed")
+        }
+        do {
+            let sample = try capture.get()
+            try machine.publishPrimarySave(streamPositions: sample.streamPositions, streamPans: sample.streamPans,
+                                           streamVolumes: sample.streamVolumes, streamRepeats: sample.streamRepeats,
+                                           thumbnail: sample.thumbnail)
+        } catch {
+            try machine.failPrimarySave(error)
+        }
+        let writeIssue = machine.lastSaveWriteIssue
+        if let writeIssue,
+           writeIssue.hasPrefix("save_committed_directory_sync_unconfirmed_errno_") ||
+            writeIssue.hasPrefix("save_committed_transaction_cleanup_unconfirmed") {
+            saveWriteWarning = writeIssue
+        } else {
+            saveWriteWarning = nil
+        }
+        if let writeIssue {
+            FileHandle.standardError.write(Data("player_primary_save_issue=\(writeIssue) slot=\(request.name)\n".utf8))
+        } else {
+            let kind = request.needsThumbnail ? "player_primary_save_written" : "player_memory_checkpoint_captured"
+            FileHandle.standardError.write(Data("\(kind)=\(request.name) steps=\(steps)\n".utf8))
+        }
+        return writeIssue
+    }
+
+    func registerSoundPlayback(_ id: UUID, channel: UInt64, source: ScriptLocation, identity: UUID) throws {
+        guard identity == playbackIdentity, machine.soundPlaybackChannel == channel,
+              machine.soundPlaybackRequest == source else {
+            throw ResourceError.rejected("player_audio_registration_mismatch")
+        }
+        hostedAudioIDs[channel] = id
+    }
+
+    func soundCompleted(_ id: UUID, playbackStartStep: Int, identity: UUID) {
+        guard identity == playbackIdentity,
+              let channel = hostedAudioIDs.first(where: { $0.value == id })?.key else { return }
+        hostedAudioIDs.removeValue(forKey: channel)
         machine.acknowledgeSoundCompletion(channel: channel, playbackStartStep: playbackStartStep)
+    }
+
+    func soundControlCompleted(_ change: ScriptMachine.SoundControlChange, playbackID: UUID,
+                               control: ScriptMachine.SoundControlKind, identity: UUID) {
+        guard identity == playbackIdentity,
+              let channel = hostedAudioIDs.first(where: { $0.value == playbackID })?.key else { return }
+        _ = machine.acknowledgeSoundControlChange(change, channel: channel, kind: control)
     }
 
     func buttonAudio(_ source: ScriptLocation) throws -> Data {
@@ -1820,17 +2652,22 @@ private actor PlayerSession {
         }
     }
 
-    private func staticRaster(_ source: ScriptLocation, selectedMember: Int32?, choiceHover: Bool? = nil) throws -> Raster {
-        if let capture = systemCapture, source == capture.source {
-            return Raster(image: capture.image, isInterfaceBackgroundPreview: false)
+    private func staticRaster(_ source: ScriptLocation, selectedMember: Int32?, choiceHover: Bool? = nil,
+                              blur: String? = nil) throws -> Raster {
+        if let capture = systemCaptures[source] {
+            return Raster(image: capture, isInterfaceBackgroundPreview: false)
         }
-        let key = RasterKey(source: source, selectedMember: selectedMember, choiceHover: choiceHover)
+        let key = RasterKey(source: source, selectedMember: selectedMember, choiceHover: choiceHover, blur: blur)
         if let cached = rasterCache.value(for: key) { return try cached.get() }
         let payload = try rasterPayload(source)
         // Memoize unsupported recipes only after verifying the resource bytes.
         // Read, identity and decoder failures remain retryable.
         let result = Result {
-            try decodeRaster(payload, sourceFile: source.sourceFile, selectedMember: selectedMember, choiceHover: choiceHover)
+            if let blur, InventoryScanner.signature(payload) == "DPNG" {
+                let filtered = try ResourceImage.savedBlurRaster(payload, source: source, descriptor: blur)
+                return Raster(image: filtered.raster.image, isInterfaceBackgroundPreview: false)
+            }
+            return try decodeRaster(payload, sourceFile: source.sourceFile, selectedMember: selectedMember, choiceHover: choiceHover)
         }
         let cost: Int
         switch result {
@@ -1908,8 +2745,36 @@ struct PlayerLaunch: Sendable {
     let startAtTitle: Bool
     let advanceToDialogue: Bool
     let checkWindowView: Bool
+    struct DialogueLogProbe: Sendable {
+        enum Action: String, Sendable { case confirm, cancel, close }
+        enum Navigation: Sendable { case pages(Int), wheel(Int32), drag(Int32) }
+        let clicks: Int
+        let checkpoint: String
+        let action: Action
+        let navigation: Navigation?
+    }
+    let dialogueLogProbe: DialogueLogProbe?
     let checkDialogueLoad: Bool
     let checkDialogueLoadStartupFailure: Bool
+    let checkDialogueSaveWrite: Bool
+    let checkMacExceptionBackup: Bool
+    let checkQuickSave: Bool
+    let checkQuickLoadConfirmation: Bool?
+    let checkStartupBackupResponse: Bool?
+    let checkTitleQuitResponse: Bool?
+    enum WindowCloseProbe: String, Sendable {
+        case title
+        case prompt
+        case failedRecovery = "failed-recovery"
+    }
+    let checkWindowClose: WindowCloseProbe?
+    let checkApplicationQuit: WindowCloseProbe?
+    let recoverAutosaveSlot: String?
+    let checkAutosaveRecoveryResponse: Bool?
+    let checkDialogueSaveOverwrite: Bool
+    let checkTimedWaitSaveWrite: Bool
+    let timedWaitSourceSlot: String?
+    let checkDialogueSaveWriteClickCount: Int
     let checkCutinLoad: Bool
     let advanceToOpacity: Bool
     let checkAudioResume: Bool
@@ -1921,25 +2786,166 @@ struct PlayerLaunch: Sendable {
     let checkLoadCancel: Bool
     let checkLoadEscape: Bool
     let checkLoadConfirmationSlot: String?
+    let checkDialogueLoadUnavailableSlot: Bool
     let checkExperimentalSaveAdoption: Bool
     let checkDialogueSaveAdoption: Bool
+    let researchLabelReadStatus: Bool
+    let continueAfterSaveAdoptionClicks: Int
     let expectedLoadRecoveryCause: String?
     var checkLoadRecovery: Bool { expectedLoadRecoveryCause != nil }
     let replayRoute: Bool
     let realtimeRoute: Bool
 
-    init?(arguments: [String]) {
+    init?(arguments launchArguments: [String]) {
+        var arguments = launchArguments
+        let autosaveOptions = arguments.indices.filter { arguments[$0] == "--recover-autosave" }
+        guard autosaveOptions.count <= 1 else { return nil }
+        if let index = autosaveOptions.first {
+            guard index + 1 < arguments.count, ScriptMachine.isPrimaryAutosaveSlotName(arguments[index + 1]) else { return nil }
+            recoverAutosaveSlot = arguments[index + 1]
+            arguments.removeSubrange(index...index + 1)
+        } else {
+            recoverAutosaveSlot = nil
+        }
+        let autosaveCheckPrefix = "--check-autosave-recovery="
+        if let option = arguments.last, option.hasPrefix(autosaveCheckPrefix) {
+            let answer = String(option.dropFirst(autosaveCheckPrefix.count))
+            guard recoverAutosaveSlot != nil, ["yes", "no"].contains(answer) else { return nil }
+            checkAutosaveRecoveryResponse = answer == "yes"
+            arguments.removeLast()
+        } else {
+            checkAutosaveRecoveryResponse = nil
+        }
+        let labelReadOptions = arguments.filter { $0 == "--research-label-read-status" }
+        guard labelReadOptions.count <= 1 else { return nil }
+        researchLabelReadStatus = !labelReadOptions.isEmpty
+        let macExceptionBackupOptions = arguments.filter { $0 == "--check-mac-exception-backup" }
+        guard macExceptionBackupOptions.count <= 1 else { return nil }
+        checkMacExceptionBackup = !macExceptionBackupOptions.isEmpty
+        let saveWriteClickPrefix = "--check-dialogue-save-write-clicks="
+        let saveWriteClickOptions = arguments.filter { $0.hasPrefix(saveWriteClickPrefix) }
+        guard saveWriteClickOptions.count <= 1 else { return nil }
+        let saveWriteClickCount: Int
+        if let option = saveWriteClickOptions.first {
+            guard let value = Int(option.dropFirst(saveWriteClickPrefix.count)), (0...64).contains(value) else {
+                return nil
+            }
+            saveWriteClickCount = value
+        } else {
+            saveWriteClickCount = 0
+        }
         let rejectDialogueSave = arguments.last?.hasPrefix("--check-dialogue-save-rejection=") == true
+        let checkDialogueLoadFormalRestore =
+            arguments.last?.hasPrefix("--check-dialogue-load-formal-restore=") == true
+        checkDialogueLoadUnavailableSlot =
+            arguments.last?.hasPrefix("--check-dialogue-load-unavailable-slot=") == true
+        checkDialogueSaveOverwrite = arguments.last?.hasPrefix("--check-dialogue-save-overwrite=") == true
+        checkDialogueSaveWrite = arguments.last?.hasPrefix("--check-dialogue-save-write=") == true ||
+            checkDialogueSaveOverwrite
+        checkQuickSave = arguments.last == "--check-quick-save"
+        switch arguments.last {
+        case "--check-quick-load": checkQuickLoadConfirmation = true
+        case "--check-quick-load-cancel": checkQuickLoadConfirmation = false
+        default: checkQuickLoadConfirmation = nil
+        }
+        checkTimedWaitSaveWrite = arguments.contains("--check-dialogue-save-at-timed-wait")
+        guard !checkTimedWaitSaveWrite || checkDialogueSaveWrite else { return nil }
+        let timedWaitSourcePrefix = "--check-timed-wait-source-slot="
+        let timedWaitSources = arguments.filter { $0.hasPrefix(timedWaitSourcePrefix) }
+        guard timedWaitSources.count <= 1 else { return nil }
+        if let option = timedWaitSources.first {
+            let slot = String(option.dropFirst(timedWaitSourcePrefix.count))
+            guard checkTimedWaitSaveWrite, (try? SafeDirectory.components(slot))?.count == 1 else { return nil }
+            timedWaitSourceSlot = slot
+        } else {
+            timedWaitSourceSlot = nil
+        }
+        guard saveWriteClickOptions.isEmpty || checkDialogueSaveWrite else { return nil }
+        checkDialogueSaveWriteClickCount = saveWriteClickCount
         checkDialogueSaveAdoption = rejectDialogueSave ||
             arguments.last?.hasPrefix("--check-dialogue-save-adoption=") == true
+        let startupBackupPrefix = "--check-startup-backup="
+        if let option = arguments.last, option.hasPrefix(startupBackupPrefix) {
+            let answer = String(option.dropFirst(startupBackupPrefix.count))
+            guard ["yes", "no"].contains(answer) else { return nil }
+            checkStartupBackupResponse = answer == "yes"
+        } else {
+            checkStartupBackupResponse = nil
+        }
+        let titleQuitPrefix = "--check-title-quit="
+        if let option = arguments.last, option.hasPrefix(titleQuitPrefix) {
+            let answer = String(option.dropFirst(titleQuitPrefix.count))
+            guard ["yes", "no"].contains(answer) else { return nil }
+            checkTitleQuitResponse = answer == "yes"
+        } else {
+            checkTitleQuitResponse = nil
+        }
+        let windowClosePrefix = "--check-window-close="
+        if let option = arguments.last, option.hasPrefix(windowClosePrefix) {
+            let stage = String(option.dropFirst(windowClosePrefix.count))
+            guard let probe = WindowCloseProbe(rawValue: stage) else { return nil }
+            checkWindowClose = probe
+        } else {
+            checkWindowClose = nil
+        }
+        let applicationQuitPrefix = "--check-application-quit="
+        if let option = arguments.last, option.hasPrefix(applicationQuitPrefix) {
+            guard let probe = WindowCloseProbe(rawValue: String(option.dropFirst(applicationQuitPrefix.count))) else { return nil }
+            checkApplicationQuit = probe
+        } else {
+            checkApplicationQuit = nil
+        }
+        let continueClicksPrefix = "--continue-after-save-adoption-clicks="
+        let continueClicksOptions = arguments.filter { $0.hasPrefix(continueClicksPrefix) }
+        guard continueClicksOptions.count <= 1 else { return nil }
+        if arguments.contains("--continue-after-save-adoption") && !continueClicksOptions.isEmpty { return nil }
+        if arguments.contains("--continue-after-save-adoption") {
+            continueAfterSaveAdoptionClicks = 1
+        } else if let option = continueClicksOptions.first {
+            guard let value = Int(option.dropFirst(continueClicksPrefix.count)), (1...16).contains(value) else {
+                return nil
+            }
+            continueAfterSaveAdoptionClicks = value
+        } else {
+            continueAfterSaveAdoptionClicks = 0
+        }
+        guard continueAfterSaveAdoptionClicks == 0 || checkDialogueSaveAdoption ||
+              checkStartupBackupResponse == true || checkAutosaveRecoveryResponse == true else { return nil }
         checkExperimentalSaveAdoption = checkDialogueSaveAdoption ||
             arguments.last?.hasPrefix("--check-experimental-save-adoption=") == true
         checkWindowView = arguments.last == "--check-window-view"
+        let logProbePrefix = "--check-dialogue-log="
+        if let option = arguments.last, option.hasPrefix(logProbePrefix) {
+            let fields = option.dropFirst(logProbePrefix.count).split(separator: ",", omittingEmptySubsequences: false)
+            guard (3...4).contains(fields.count), let clicks = Int(fields[0]), (1...64).contains(clicks),
+                  (try? SafeDirectory.components(String(fields[1])))?.count == 1,
+                  let action = DialogueLogProbe.Action(rawValue: String(fields[2])) else { return nil }
+            let navigation: DialogueLogProbe.Navigation?
+            let navigationField = fields.count == 4 ? fields[3] : "0"
+            if navigationField.hasPrefix("wheel:") {
+                let limit = ScriptMachine.maximumDialogueLogWheelDelta
+                guard let delta = Int32(navigationField.dropFirst("wheel:".count)),
+                      delta != 0, (-limit...limit).contains(delta) else { return nil }
+                navigation = .wheel(delta)
+            } else if navigationField.hasPrefix("drag:") {
+                guard let y = Int32(navigationField.dropFirst("drag:".count)), (0..<720).contains(y) else { return nil }
+                navigation = .drag(y)
+            } else {
+                guard let pages = Int(navigationField), (0...32).contains(pages) else { return nil }
+                navigation = pages > 0 ? .pages(pages) : nil
+            }
+            dialogueLogProbe = .init(clicks: clicks, checkpoint: String(fields[1]), action: action, navigation: navigation)
+        } else {
+            dialogueLogProbe = nil
+        }
         checkDialogueLoadStartupFailure = arguments.last == "--check-dialogue-load-startup-failure"
         checkCutinLoad = arguments.last == "--check-cutin-load"
-        checkDialogueLoad = checkDialogueSaveAdoption || checkCutinLoad || checkDialogueLoadStartupFailure || arguments.last == "--check-dialogue-load" ||
+        checkDialogueLoad = checkDialogueSaveAdoption || checkCutinLoad || checkDialogueLoadStartupFailure ||
+            checkDialogueLoadFormalRestore || checkDialogueLoadUnavailableSlot ||
+            arguments.last == "--check-dialogue-load" ||
             arguments.last?.hasPrefix("--check-dialogue-load-recovery=") == true
-        advanceToDialogue = checkDialogueLoad || checkWindowView || arguments.last == "--advance-to-dialogue"
+        advanceToDialogue = checkMacExceptionBackup || checkDialogueLoad || checkDialogueSaveWrite || checkQuickSave ||
+            checkQuickLoadConfirmation != nil || checkWindowView || dialogueLogProbe != nil || arguments.last == "--advance-to-dialogue"
         advanceToOpacity = arguments.last == "--advance-to-opacity"
         checkAudioResume = arguments.last == "--check-audio-resume"
         switch arguments.last {
@@ -1961,6 +2967,10 @@ struct PlayerLaunch: Sendable {
         if rejectDialogueSave {
             confirmationPrefix = "--check-dialogue-save-rejection="
             expectedLoadRecoveryCause = "saved_stream_seek_at_or_past_end"
+        } else if checkDialogueSaveWrite {
+            confirmationPrefix = checkDialogueSaveOverwrite
+                ? "--check-dialogue-save-overwrite=" : "--check-dialogue-save-write="
+            expectedLoadRecoveryCause = nil
         } else if checkExperimentalSaveAdoption {
             confirmationPrefix = checkDialogueSaveAdoption ? "--check-dialogue-save-adoption=" : "--check-experimental-save-adoption="
             expectedLoadRecoveryCause = nil
@@ -1970,6 +2980,12 @@ struct PlayerLaunch: Sendable {
         } else if arguments.last?.hasPrefix("--check-load-recovery=") == true {
             confirmationPrefix = "--check-load-recovery="
             expectedLoadRecoveryCause = "save_restore_execution_state_unsupported"
+        } else if checkDialogueLoadFormalRestore {
+            confirmationPrefix = "--check-dialogue-load-formal-restore="
+            expectedLoadRecoveryCause = "save_restore_execution_state_unsupported"
+        } else if checkDialogueLoadUnavailableSlot {
+            confirmationPrefix = "--check-dialogue-load-unavailable-slot="
+            expectedLoadRecoveryCause = nil
         } else {
             confirmationPrefix = checkDialogueLoad ? "--check-dialogue-load-recovery=" : "--check-load-confirmation="
             expectedLoadRecoveryCause = nil
@@ -1981,21 +2997,34 @@ struct PlayerLaunch: Sendable {
         } else {
             checkLoadConfirmationSlot = nil
         }
-        openLoadMenu = checkLoadCancel || checkLoadPage || (!checkDialogueLoad && checkLoadConfirmationSlot != nil) ||
+        openLoadMenu = timedWaitSourceSlot != nil || checkLoadCancel || checkLoadPage ||
+            (!checkDialogueLoad && !checkDialogueSaveWrite && checkLoadConfirmationSlot != nil) ||
             arguments.last == "--open-load-menu"
         realtimeRoute = arguments.last == "--replay-route-realtime"
         replayRoute = realtimeRoute || arguments.last == "--replay-route"
-        startAtTitle = replayRoute || advanceToChoice || advanceToDialogue || advanceToOpacity ||
-            checkAudioResume || arguments.last == "--start-at-title"
-        let arguments = startAtTitle || openLoadMenu ? Array(arguments.dropLast()) : arguments
-        guard (6...10).contains(arguments.count), arguments.count.isMultiple(of: 2) else { return nil }
+        let startAtTitleOption = replayRoute || advanceToChoice || advanceToDialogue || advanceToOpacity ||
+            checkAudioResume || checkDialogueLoad || checkMacExceptionBackup || arguments.last == "--start-at-title"
+        guard recoverAutosaveSlot == nil || (!startAtTitleOption && !openLoadMenu &&
+              checkStartupBackupResponse == nil && checkTitleQuitResponse == nil) else { return nil }
+        startAtTitle = startAtTitleOption || recoverAutosaveSlot != nil
+        let pathArguments = arguments.filter {
+            $0 != "--continue-after-save-adoption" && !$0.hasPrefix(continueClicksPrefix) &&
+                !$0.hasPrefix(saveWriteClickPrefix) && $0 != "--check-dialogue-save-at-timed-wait" &&
+                !$0.hasPrefix(timedWaitSourcePrefix) && $0 != "--research-label-read-status" &&
+                !$0.hasPrefix(startupBackupPrefix) && !$0.hasPrefix(titleQuitPrefix) && !$0.hasPrefix(windowClosePrefix) &&
+                !$0.hasPrefix(applicationQuitPrefix)
+        }
+        let pathPairs = startAtTitleOption || openLoadMenu ? Array(pathArguments.dropLast()) : pathArguments
+        guard (6...10).contains(pathPairs.count), pathPairs.count.isMultiple(of: 2) else { return nil }
         let supportedPaths = Set(["--assets-dir", "--replay-dir", "--game-dir", "--ffmpeg", "--save-dir"])
         var paths: [String: URL] = [:]
-        for index in stride(from: 0, to: arguments.count, by: 2) {
-            guard supportedPaths.contains(arguments[index]), arguments[index + 1].hasPrefix("/"),
-                  paths[arguments[index]] == nil else { return nil }
-            paths[arguments[index]] = URL(fileURLWithPath: arguments[index + 1])
+        for index in stride(from: 0, to: pathPairs.count, by: 2) {
+            guard supportedPaths.contains(pathPairs[index]), pathPairs[index + 1].hasPrefix("/"),
+                  paths[pathPairs[index]] == nil else { return nil }
+            paths[pathPairs[index]] = URL(fileURLWithPath: pathPairs[index + 1])
         }
+        guard !(checkDialogueSaveWrite || checkQuickSave || checkQuickLoadConfirmation != nil || checkMacExceptionBackup ||
+                checkStartupBackupResponse != nil || recoverAutosaveSlot != nil) || paths["--save-dir"] != nil else { return nil }
         let ffmpeg = paths["--ffmpeg"] ?? Self.homebrewDecoder
         guard let assets = paths["--assets-dir"], let replay = paths["--replay-dir"],
               let game = paths["--game-dir"], Self.isDecoder(ffmpeg) else { return nil }
@@ -2010,8 +3039,14 @@ struct PlayerLaunch: Sendable {
 struct PlayerWindow: View {
     @ObservedObject var library: LibraryModel
     var launch: PlayerLaunch? = nil
+    let applicationExit: PlayerApplicationExit
+    @Environment(\.displayScale) private var displayScale
     @AppStorage("player.masterVolume") private var masterVolume: Double = 1
     @AppStorage("player.isMuted") private var isMuted = false
+    private var nativeCanvasDisplaySize: CGSize {
+        let scale = max(displayScale, 1)
+        return CGSize(width: PlayerViewport.width / scale, height: PlayerViewport.height / scale)
+    }
     private struct ReplayConfiguration {
         let assets: SafeDirectory
         let replay: URL
@@ -2026,8 +3061,12 @@ struct PlayerWindow: View {
     @AppStorage("player.lastLaunchPaths") private var lastLaunchPaths: Data = Data()
     @State private var launched = false
     @State private var startedFromLaunch = false
+    @State private var requestedLaunchAutosave = false
     @State private var reportedRouteReturn = false
     @State private var startedDialogueLoadProbe = false
+    @State private var startedDialogueLogProbe = false
+    @State private var pendingLogWheel: Int32 = 0
+    @State private var pendingLogDrag: Int32?
     @State private var titlePointerOnRight: Bool?
     @State private var launchClicks = 0
     @State private var observedOpacity = false
@@ -2041,6 +3080,10 @@ struct PlayerWindow: View {
     @State private var workID: UUID?
     @State private var runningIdleTimer = false
     @State private var choiceDuringTimer: (handle: UInt64, index: Int32)?
+    @State private var acceptsTimedWindowControl = false
+    @State private var pendingWindowControlDuringTimedWait: PlayerSession.Input?
+    @State private var timedWaitSaveProbeTriggered = false
+    @State private var dialogueSaveProbeCompleted = false
     @State private var state: PlayerState?
     @State private var issue: String?
     @State private var hoveredButton: UInt64?
@@ -2071,10 +3114,18 @@ struct PlayerWindow: View {
         let channel: UInt64
         let control: SoundControl
     }
-    @State private var soundFades: [SoundFade: Task<Void, Never>] = [:]
+    private struct RunningSoundFade {
+        let change: ScriptMachine.SoundControlChange
+        let playbackStep: Int?
+        let task: Task<Void, Never>
+        let issuedAt: ContinuousClock.Instant
+        let delayedVolumeBaselineGain: Float?
+        var delayedControlStarted = false
+    }
+    @State private var soundFades: [SoundFade: RunningSoundFade] = [:]
 
     var body: some View {
-        VStack(spacing: 18) {
+        VStack(spacing: 12) {
             Text("万華鏡").font(.largeTitle)
             Text("原生试玩 · 开发中").foregroundStyle(.secondary)
             if launch == nil, !lastLaunchPaths.isEmpty {
@@ -2083,7 +3134,7 @@ struct PlayerWindow: View {
             }
             Menu("载入本地回放配置") {
                 Button("选择回放配置…") { chooseReplay() }
-                Button("选择回放配置及只读存档…") { chooseReplay(includeSaves: true) }
+                Button("选择回放配置及存档读写目录…") { chooseReplay(includeSaves: true) }
             }
             .disabled(work != nil)
             HStack(spacing: 10) {
@@ -2096,6 +3147,13 @@ struct PlayerWindow: View {
             .opacity(work == nil ? 0 : 1)
             .accessibilityHidden(work == nil)
             HStack {
+                if let frame = state, let handle = frame.windowSaveButton {
+                    Button("保存存档") {
+                        sendWindowTask(.save, handle: handle, from: frame)
+                    }
+                    .accessibilityIdentifier("player.windowSaveButton")
+                    .disabled(work != nil)
+                }
                 Button("对话记录", action: openHistory)
                     .disabled(work != nil || session == nil || video != nil)
                 Button("停止试玩", action: stopSession)
@@ -2131,8 +3189,25 @@ struct PlayerWindow: View {
                         movieOrder.map { (priority, id) < $0 } ?? true
                     }
                     .aspectRatio(PlayerViewport.width / PlayerViewport.height, contentMode: .fit)
+                    .frame(width: nativeCanvasDisplaySize.width, height: nativeCanvasDisplaySize.height)
                     .layoutPriority(1)
                     .background(.black)
+                    .background {
+                        if state.isDialogueLogFrame {
+                            let dragTarget = state.dialogueLogScrollbar.flatMap { bar -> PlayerLogPointerInput.DragTarget? in
+                                guard !bar.locked, bar.maximum > 0 else { return nil }
+                                let track = CGRect(x: Int(bar.x), y: Int(bar.y),
+                                    width: Int(ScriptMachine.DialogueLogScrollbar.trackWidth),
+                                    height: Int(ScriptMachine.DialogueLogScrollbar.trackHeight))
+                                guard let thumb = state.layers.first(where: { $0.id == PlayerLayer.logScrollbarThumbID }) else { return nil }
+                                return .init(track: track, thumb: thumb.bounds)
+                            }
+                            PlayerLogPointerInput(dragTarget: dragTarget,
+                                onWheel: { send(.scrollDialogueLog($0)) },
+                                onDrag: { send(.dragDialogueLogScrollbar($0)) })
+                                    .allowsHitTesting(false)
+                        }
+                    }
                     .overlay(alignment: .topLeading) {
                         if let video, let request = state.movieRequest, request.size.0 > 0, request.size.1 > 0 {
                             canvasVideo(video, bounds: CGRect(
@@ -2154,6 +3229,39 @@ struct PlayerWindow: View {
                            work == nil || (runningIdleTimer && state.waitingForChoice) {
                             GeometryReader { geometry in
                                 Color.clear.contentShape(Rectangle())
+                                    .accessibilityRepresentation {
+                                        let menuHandles = state.systemTaskSlotAccessibilityLabels.keys.sorted()
+                                        GeometryReader { accessibilityGeometry in
+                                            ZStack {
+                                                if let handle = state.windowLoadButton {
+                                                    Button("读取存档") {
+                                                        sendWindowTask(.load, handle: handle, from: state)
+                                                    }
+                                                    .accessibilityLabel(Text("读取存档"))
+                                                    .accessibilityIdentifier("player.windowLoadButton")
+                                                }
+                                                ForEach(Array(menuHandles.enumerated()), id: \.element) { item in
+                                                    let handle = item.element
+                                                    let label = state.systemTaskSlotAccessibilityLabels[handle] ??
+                                                        "\(state.saveMenuButtons.contains(handle) ? "保存" : "读取")存档槽 \(item.offset + 1)"
+                                                    if let layer = state.layers.last(where: { $0.id == handle }) {
+                                                        let bounds = PlayerViewport(accessibilityGeometry.size).displayRect(layer.bounds)
+                                                        Button(label) {
+                                                            guard layer.containsInteractivePoint(CGPoint(x: layer.bounds.midX,
+                                                                                                        y: layer.bounds.midY)) else { return }
+                                                            playButtonAudio(state.buttonSounds[handle]?[1])
+                                                            send(.loadMenuButton(handle, x: Int32(layer.bounds.midX),
+                                                                                 y: Int32(layer.bounds.midY)))
+                                                        }
+                                                        .accessibilityLabel(Text(label))
+                                                        .accessibilityIdentifier("player.systemTaskMenuButton.\(handle)")
+                                                        .frame(width: bounds.width, height: bounds.height)
+                                                        .position(x: bounds.midX, y: bounds.midY)
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
                                     .onContinuousHover { phase in
                                         switch phase {
                                         case .active(let point):
@@ -2166,10 +3274,28 @@ struct PlayerWindow: View {
                                         canvasPointer = nil
                                         hoveredButton = nil
                                     }
-                                    .focusable(state.acceptsLoadEscape)
+                                    .focusable(state.acceptsLoadEscape || state.canOpenDialogueLog)
                                     .focused($loadMenuFocused)
-                                    .onChange(of: state.acceptsLoadEscape, initial: true) { _, active in
+                                    .onChange(of: state.acceptsLoadEscape || state.canOpenDialogueLog, initial: true) { _, active in
                                         loadMenuFocused = active
+                                    }
+                                    .onKeyPress(.tab) {
+                                        guard state.canOpenDialogueLog else { return .ignored }
+                                        send(.openDialogueLog(playback: state.playbackIdentity, steps: state.status.steps))
+                                        return .handled
+                                    }
+                                    .onKeyPress(keys: [.upArrow, .downArrow, .pageUp, .pageDown]) { press in
+                                        guard state.isDialogueLogFrame else { return .ignored }
+                                        let navigation: ScriptMachine.DialogueLogNavigation
+                                        switch press.key {
+                                        case .upArrow: navigation = .up
+                                        case .downArrow: navigation = .down
+                                        case .pageUp: navigation = .pageUp
+                                        case .pageDown: navigation = .pageDown
+                                        default: return .ignored
+                                        }
+                                        send(.navigateDialogueLog(navigation))
+                                        return .handled
                                     }
                                     .onKeyPress(.escape) {
                                         guard state.acceptsLoadEscape else { return .ignored }
@@ -2189,7 +3315,7 @@ struct PlayerWindow: View {
                                         }
                                         if state.isSystemLoadFrame {
                                             if let button = state.layers.last(where: {
-                                                state.loadMenuButtons.contains($0.id) && $0.containsInteractivePoint(point)
+                                                state.systemTaskMenuButtons.contains($0.id) && $0.containsInteractivePoint(point)
                                             }) {
                                                 playButtonAudio(state.buttonSounds[button.id]?[1])
                                                 send(.loadMenuButton(button.id, x: Int32(point.x), y: Int32(point.y)))
@@ -2215,8 +3341,9 @@ struct PlayerWindow: View {
                                                 playButtonAudio(state.buttonSounds[control.id]?[1])
                                                 send(.windowViewButton(control.id))
                                             } else if control.id == state.windowLoadButton {
-                                                playButtonAudio(state.buttonSounds[control.id]?[1])
-                                                send(.windowLoadButton(control.id))
+                                                sendWindowTask(.load, handle: control.id, from: state)
+                                            } else if control.id == state.windowSaveButton {
+                                                sendWindowTask(.save, handle: control.id, from: state)
                                             }
                                             return
                                         }
@@ -2255,8 +3382,16 @@ struct PlayerWindow: View {
                 }
                 if state.isWaitingForLoadConfirmation {
                     HStack {
-                        Button("读取此存档") { send(.loadConfirmation(true)) }
-                        Button("取消读取") { send(.loadConfirmation(false)) }
+                        Button(state.isWaitingForTitleQuitConfirmation ? "退出" :
+                            (state.isWaitingForSaveDeletionConfirmation ? "删除此存档" :
+                                (state.isSystemSaveTask ? "覆盖此存档" : "读取此存档"))) {
+                            send(.loadConfirmation(true))
+                        }
+                        Button(state.isWaitingForTitleQuitConfirmation ? "取消退出" :
+                            (state.isWaitingForSaveDeletionConfirmation ? "取消删除" :
+                                (state.isSystemSaveTask ? "取消保存" : "取消读取"))) {
+                            send(.loadConfirmation(false))
+                        }
                     }
                     .disabled(work != nil)
                 }
@@ -2273,11 +3408,14 @@ struct PlayerWindow: View {
                             let pages = state.loadPageIndices.sorted { ($0.value, $0.key) < ($1.value, $1.key) }
                             Menu("读档页码") {
                                 ForEach(pages, id: \.key) { page in
-                                    if let button = state.layers.first(where: { $0.id == page.key }) {
+                                    let point = state.layers.first(where: { $0.id == page.key }).map {
+                                        CGPoint(x: $0.bounds.midX, y: $0.bounds.midY)
+                                    } ?? state.loadPageButtonPoints[page.key]
+                                    if let point {
                                         let selected = state.checkedLoadPageButtons.contains(page.key)
                                         Button {
-                                            playButtonAudio(state.buttonSounds[button.id]?[1])
-                                            send(.loadMenuButton(button.id, x: Int32(button.bounds.midX), y: Int32(button.bounds.midY)))
+                                            playButtonAudio(state.buttonSounds[page.key]?[1])
+                                            send(.loadMenuButton(page.key, x: Int32(point.x), y: Int32(point.y)))
                                         } label: {
                                             let name = "第 \(Int64(page.value) + 1) 页"
                                             if selected { Label(name, systemImage: "checkmark") }
@@ -2361,7 +3499,7 @@ struct PlayerWindow: View {
                 }
             }
         }
-        .padding(36)
+        .padding(24)
         .frame(minWidth: 640, minHeight: 400)
         .task {
             guard let launch, !launched else { return }
@@ -2397,6 +3535,16 @@ struct PlayerWindow: View {
             }
             .padding(20)
             .frame(minWidth: 480, minHeight: 380)
+        }
+        .background {
+            PlayerWindowCloseHook(applicationExit: applicationExit,
+                                  managedSaveRoot: currentReplay?.saveURL?.resolvingSymlinksInPath().standardizedFileURL.path.lowercased(),
+                                  probeClose: shouldProbeExit(launch?.checkWindowClose),
+                                  probeApplicationQuit: shouldProbeExit(launch?.checkApplicationQuit),
+                                  prepareClose: prepareWindowClose)
+                .frame(width: 0, height: 0)
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
         }
         .onDisappear { stopSession() }
         .onChange(of: masterVolume) { _, _ in applyMasterVolume() }
@@ -2436,7 +3584,7 @@ struct PlayerWindow: View {
         let hovered = (state.dialogueWindowHidden ? nil : point).flatMap { location in
             state.layers.last {
                 (!state.isSystemLoadFrame || (state.isWaitingForLoadConfirmation
-                    ? state.loadConfirmationButtons[$0.id] != nil : state.loadMenuButtons.contains($0.id))) &&
+                    ? state.loadConfirmationButtons[$0.id] != nil : state.systemTaskMenuButtons.contains($0.id))) &&
                     ($0.hoverImage != nil || state.buttonSounds[$0.id] != nil) && $0.containsInteractivePoint(location)
             }?.id
         }
@@ -2490,9 +3638,33 @@ struct PlayerWindow: View {
         }
     }
 
+    private func sendWindowTask(_ task: PlayerSession.WindowTask, handle: UInt64, from frame: PlayerState) {
+        guard let state, !state.isSystemLoadFrame, state.playbackIdentity == frame.playbackIdentity,
+              state.status.steps == frame.status.steps, state.status.phase == frame.status.phase else { return }
+        switch task {
+        case .save: guard state.windowSaveButton == handle else { return }
+        case .load: guard state.windowLoadButton == handle else { return }
+        }
+        playButtonAudio(state.buttonSounds[handle]?[1])
+        send(frame.windowTaskInput(task, handle: handle))
+    }
+
     private func send(_ input: PlayerSession.Input) {
         guard let session, !showingHistory else { return }
-        if work != nil {
+        if let work {
+            if case .scrollDialogueLog(let delta) = input, state?.isDialogueLogFrame == true {
+                let limit = ScriptMachine.maximumDialogueLogWheelDelta
+                pendingLogWheel = max(-limit, min(limit, pendingLogWheel + delta))
+            }
+            if case .dragDialogueLogScrollbar(let y) = input, state?.isDialogueLogFrame == true {
+                pendingLogDrag = y
+            }
+            if acceptsTimedWindowControl, case .windowTask(_, _, let playback, let steps, .waiting) = input,
+               state?.playbackIdentity == playback, state?.status.steps == steps {
+                pendingWindowControlDuringTimedWait = input
+                acceptsTimedWindowControl = false
+                work.cancel()
+            }
             if runningIdleTimer, choiceDuringTimer == nil, case .choice(let index) = input,
                state?.waitingForChoice == true,
                let handle = state?.choiceButtons.first(where: { $0.value == index })?.key {
@@ -2501,10 +3673,14 @@ struct PlayerWindow: View {
             return
         }
         switch input {
-        case .loadMenuButton, .loadMenuEscape, .loadConfirmation:
+        case .loadConfirmation:
+            guard state?.isWaitingForLoadConfirmation == true else { return }
+        case .loadMenuButton, .loadMenuEscape:
             guard state?.isSystemLoadFrame == true else { return }
+        case .navigateDialogueLog, .scrollDialogueLog, .dragDialogueLogScrollbar:
+            guard state?.isDialogueLogFrame == true else { return }
         default:
-            guard state?.isSystemLoadFrame != true else { return }
+            guard state?.isSystemLoadFrame != true, state?.isWaitingForStartupBackupConfirmation != true else { return }
         }
         idleVisuals?.cancel()
         if case .timerTick = input {
@@ -2519,7 +3695,7 @@ struct PlayerWindow: View {
             do {
                 try await driveWithSaveRecovery(session, input: input)
             } catch is CancellationError {
-                if workID == id { stopSession() }
+                if workID == id, case nil = pendingWindowControlDuringTimedWait { stopSession() }
             } catch {
                 guard workID == id else { return }
                 failPlayback(String(describing: error))
@@ -2532,8 +3708,11 @@ struct PlayerWindow: View {
             try await drive(session, input: input)
         } catch {
             try Task.checkCancellation()
+            let titleQuit = await session.isTitleQuitTask
+            let dialogueLog = await session.isDialogueLogTask
             guard await session.recoverFailedSaveLoad() else { throw error }
-            if launch?.checkLoadRecovery == true || launch?.checkExperimentalSaveAdoption == true {
+            if launch?.checkLoadRecovery == true || launch?.checkExperimentalSaveAdoption == true ||
+                launch?.timedWaitSourceSlot != nil || launch?.checkQuickLoadConfirmation != nil || (launch != nil && dialogueLog) {
                 FileHandle.standardError.write(Data("player_load_recovery_cause=\(error)\n".utf8))
             }
             try Task.checkCancellation()
@@ -2541,7 +3720,12 @@ struct PlayerWindow: View {
             try Task.checkCancellation()
             let reason = Self.playbackMessage(String(describing: error))
             if state?.isTerminal == false {
-                issue = "读取存档失败，已返回游戏。\n\(reason)"
+                let message = titleQuit ? "退出失败，已返回标题。" :
+                    (dialogueLog ? "回跳失败，已返回游戏。" : "读取存档失败，已返回游戏。")
+                issue = "\(message)\n\(reason)"
+                if titleQuit {
+                    FileHandle.standardError.write(Data("player_title_quit_recovered=1 cause=\(error)\n".utf8))
+                }
             } else if issue == nil {
                 issue = reason
             }
@@ -2553,12 +3737,31 @@ struct PlayerWindow: View {
         work = nil
         workID = nil
         runningIdleTimer = false
+        acceptsTimedWindowControl = false
         let queuedChoice = choiceDuringTimer
         choiceDuringTimer = nil
+        let queuedWindowControl = pendingWindowControlDuringTimedWait
+        pendingWindowControlDuringTimedWait = nil
+        let wheel = pendingLogWheel
+        let drag = pendingLogDrag
+        pendingLogWheel = 0
+        pendingLogDrag = nil
         guard state?.isTerminal != true else { return }
+        if let queuedWindowControl, state?.isSystemLoadFrame != true {
+            send(queuedWindowControl)
+            return
+        }
         if let queuedChoice, !showingHistory, state?.waitingForChoice == true,
            state?.choiceButtons[queuedChoice.handle] == queuedChoice.index {
             send(.choice(queuedChoice.index))
+            return
+        }
+        if let drag, state?.isDialogueLogFrame == true {
+            send(.dragDialogueLogScrollbar(drag))
+            return
+        }
+        if wheel != 0, state?.isDialogueLogFrame == true {
+            send(.scrollDialogueLog(wheel))
             return
         }
         if let duration = pendingMovieCompletion {
@@ -2796,6 +3999,7 @@ struct PlayerWindow: View {
     }
 
     nonisolated private static let playbackErrorMessages: [String: String] = [
+        "system_data_changed_since_session_load": "系统数据在本次会话读取后发生了变化。重新载入回放配置后再保存。",
         "player_media_source_changed": "媒体文件和资源清单不一致，请检查导入的资源副本。",
         "player_media_converter_launch_failed": "无法启动 ffmpeg，请检查选择的程序是否可执行。",
         "player_media_conversion_failed": "音轨转码失败。",
@@ -2848,7 +4052,7 @@ struct PlayerWindow: View {
         return "\(explanation)\n\(reason)"
     }
 
-    private var masterGain: Float { isMuted ? 0 : Float(min(1, max(0, masterVolume))) }
+    private var masterGain: Float { isMuted || launch?.dialogueLogProbe != nil ? 0 : Float(min(1, max(0, masterVolume))) }
 
     private func applyMasterVolume() {
         let master = masterGain
@@ -2895,6 +4099,12 @@ struct PlayerWindow: View {
         workID = nil
         runningIdleTimer = false
         choiceDuringTimer = nil
+        acceptsTimedWindowControl = false
+        pendingWindowControlDuringTimedWait = nil
+        pendingLogWheel = 0
+        pendingLogDrag = nil
+        timedWaitSaveProbeTriggered = false
+        dialogueSaveProbeCompleted = false
         pendingMovieCompletion = nil
         work?.cancel()
         work = nil
@@ -2907,6 +4117,38 @@ struct PlayerWindow: View {
         session = nil
     }
 
+    private func shouldProbeExit(_ probe: PlayerLaunch.WindowCloseProbe?) -> Bool {
+        guard work == nil, let state, let probe else { return false }
+        return probe == .prompt ? state.isWaitingForStartupBackupConfirmation : state.canStartFromTitle
+    }
+
+    private func prepareWindowClose(_ origin: PlayerWindowCloseHook.Origin) -> Task<Void, Never>? {
+        let label = "player_\(origin.rawValue)_cleanup"
+        guard let session, let state, currentReplay?.saveURL != nil,
+              work == nil, !state.isSystemLoadFrame, !state.isWaitingForLoadConfirmation,
+              state.status.phase == .waiting || state.status.phase == .waitingForEvent else {
+            if launch?.checkWindowClose != nil || launch?.checkApplicationQuit != nil {
+                FileHandle.standardError.write(Data("\(label)_skipped=1\n".utf8))
+            }
+            return nil
+        }
+        idleVisuals?.cancel()
+        idleVisuals = nil
+        workID = UUID()
+        let identity = state.playbackIdentity
+        let steps = state.status.steps
+        let cleanup = Task.detached(priority: .userInitiated) {
+            do {
+                let warning = try await session.cleanShutdownForWindowClose(identity: identity, steps: steps)
+                FileHandle.standardError.write(Data("\(label)_finished=1 issue=\(warning ?? "-")\n".utf8))
+            } catch {
+                FileHandle.standardError.write(Data("\(label)_failed=\(error)\n".utf8))
+            }
+        }
+        work = cleanup
+        return cleanup
+    }
+
     private func stopAudio() {
         buttonAudioTask?.cancel()
         buttonAudioTask = nil
@@ -2914,24 +4156,77 @@ struct PlayerWindow: View {
         buttonAudioPlayer = nil
         buttonAudioCompletion = nil
         hoveredButton = nil
-        for player in audio.values { player.stop() }
+        for (channel, player) in audio {
+            if let completion = audioCompletions[channel] { completion.repeats.stop(player) }
+            else { player.stop() }
+        }
         audio.removeAll()
         audioSources.removeAll()
         audioPlaybackSteps.removeAll()
         audioCompletions.removeAll()
         audioGains.removeAll()
-        for task in soundFades.values { task.cancel() }
+        for fade in soundFades.values { fade.task.cancel() }
         soundFades.removeAll()
     }
 
-    private func verifySaveAdoptionPlayback() throws {
+    private func verifySaveAdoptionPlayback(in session: PlayerSession) async throws {
         guard let restored = state, !restored.isSystemLoadFrame, !restored.canStartFromTitle,
-              !restored.isTerminal, restored.status.steps > 0, issue == nil else {
+              !restored.isTerminal, restored.status.currentLocation != nil, issue == nil else {
             throw ResourceError.rejected("player_experimental_save_adoption_probe_failed")
         }
-        let positions = try sampledStreamPositions(for: restored.activeSoundChannels)
+        let positions = try await sampledLiveStreamPositions(in: session, identity: restored.playbackIdentity)
         FileHandle.standardError.write(Data("player_save_stream_samples=\(positions.count)\n".utf8))
-        FileHandle.standardError.write(Data("player_experimental_save_playback phase=\(restored.status.phase) steps=\(restored.status.steps) layers=\(restored.layers.count)\n".utf8))
+        FileHandle.standardError.write(Data("player_experimental_save_playback phase=\(restored.status.phase) steps=\(restored.status.steps) call_depth=\(restored.status.callDepth) call_depth_minimum=\(restored.status.callDepthMinimum) source=\(restored.status.currentLocation?.sourceFile ?? "-") line=\(restored.status.currentLocation?.lineNumber ?? 0) layers=\(restored.layers.count)\n".utf8))
+    }
+
+    private func verifySaveAdoptionContinuation(in session: PlayerSession, clicks clickCount: Int) async throws {
+        guard clickCount > 0 else { return }
+        for clickIndex in 1...clickCount {
+            guard let before = state else {
+                throw ResourceError.rejected("player_save_adoption_continuation_state_missing")
+            }
+            try await drive(session, input: .click)
+            guard let after = state, !after.isTerminal,
+                  after.status.phase == .waitingForEvent,
+                  after.status.steps > before.status.steps else {
+                throw ResourceError.rejected("player_save_adoption_continuation_failed:click=\(clickIndex)")
+            }
+            let beforeText = Data(before.messages.joined(separator: "\n").utf8).sha256Hex
+            let afterText = Data(after.messages.joined(separator: "\n").utf8).sha256Hex
+            let changed = before.messages != after.messages ||
+                before.status.currentLocation != after.status.currentLocation ||
+                before.choices != after.choices
+            FileHandle.standardError.write(Data(
+                "player_experimental_save_continuation=1 click=\(clickIndex)/\(clickCount) steps_delta=\(after.status.steps - before.status.steps) call_depth_before=\(before.status.callDepth) call_depth_minimum=\(after.status.callDepthMinimum) call_depth_after=\(after.status.callDepth) source=\(after.status.currentLocation?.sourceFile ?? "-") line=\(after.status.currentLocation?.lineNumber ?? 0) message_sha256_before=\(beforeText) message_sha256_after=\(afterText) event_state_changed=\(changed)\n".utf8))
+            try await verifySaveAdoptionPlayback(in: session)
+        }
+    }
+
+    private func sampledLiveStreamPositions(in session: PlayerSession, identity: UUID,
+                                            includingDirect: Bool = false) async throws -> [Int32: Int32] {
+        let clock = ContinuousClock()
+        let deadline = clock.now.advanced(by: .milliseconds(50))
+        var attempts = 0
+        while true {
+            let streams = try await session.activeSavePlayback(for: identity, includingDirect: includingDirect)
+            do {
+                guard streams.allSatisfy({ audioSources[$0.key] == $0.value.source && audioPlaybackSteps[$0.key] == $0.value.step }) else {
+                    throw ResourceError.rejected("player_stream_sample_identity_mismatch")
+                }
+                let positions = try sampledStreamPositions(for: Set(streams.keys))
+                if attempts > 0, launch != nil {
+                    FileHandle.standardError.write(Data("player_save_stream_samples_retried=\(attempts) live=\(positions.count)\n".utf8))
+                }
+                return positions
+            } catch ResourceError.rejected(let reason) where ["player_stream_sample_identity_mismatch",
+                "player_stream_sample_channel_unavailable", "player_stream_sample_outside_profile"].contains(reason) {
+                guard clock.now < deadline else { throw ResourceError.rejected(reason) }
+                // The main actor can remove a finished player before its
+                // completion receipt reaches the session actor.
+                attempts += 1
+                try await Task.sleep(for: .milliseconds(5))
+            }
+        }
     }
 
     private func sampledStreamPositions(for handles: Set<UInt64>) throws -> [Int32: Int32] {
@@ -2946,18 +4241,73 @@ struct PlayerWindow: View {
         return positions
     }
 
+    private func sampledStreamPansForSave() -> [Int32: ScriptMachine.SavedStreamPanSample] {
+        let now = ContinuousClock().now
+        var samples: [Int32: ScriptMachine.SavedStreamPanSample] = [:]
+        for (key, fade) in soundFades where key.control == .pan {
+            guard let index = ScriptMachine.streamSaveChannelIndex(key.channel), let step = fade.playbackStep,
+                  audioPlaybackSteps[key.channel] == step, let player = audio[key.channel], player.isPlaying else { continue }
+            samples[index] = .init(playbackStep: step, controlToken: fade.change.token,
+                normalizedPan: player.pan, delay: fade.change.delay,
+                elapsedMilliseconds: fade.issuedAt.duration(to: now) / .milliseconds(1), started: fade.delayedControlStarted)
+        }
+        return samples
+    }
+
+    private func sampledStreamVolumesForSave() -> [Int32: ScriptMachine.SavedDelayedVolumeSample] {
+        let now = ContinuousClock().now
+        var samples: [Int32: ScriptMachine.SavedDelayedVolumeSample] = [:]
+        for (key, fade) in soundFades where key.control == .volume && fade.change.delay > 0 {
+            guard let index = ScriptMachine.streamSaveChannelIndex(key.channel), let step = fade.playbackStep,
+                  audioPlaybackSteps[key.channel] == step, audio[key.channel]?.isPlaying == true else { continue }
+            samples[index] = .init(playbackStep: step, change: fade.change,
+                elapsedMilliseconds: fade.issuedAt.duration(to: now) / .milliseconds(1),
+                baselineGain: fade.delayedVolumeBaselineGain, started: fade.delayedControlStarted)
+        }
+        return samples
+    }
+
+    private func sampledStreamRepeatsForSave() -> [Int32: ScriptMachine.SavedFiniteRepeatSample] {
+        var samples: [Int32: ScriptMachine.SavedFiniteRepeatSample] = [:]
+        for (channel, player) in audio {
+            guard let index = ScriptMachine.streamSaveChannelIndex(channel), let step = audioPlaybackSteps[channel],
+                  let checkpoint = audioCompletions[channel]?.repeats.checkpoint(player) else { continue }
+            samples[index] = .init(playbackStep: step, requested: checkpoint.requested,
+                remaining: checkpoint.remaining, positionSeconds: checkpoint.seconds)
+        }
+        return samples
+    }
+
     private func sampledStreamPosition(_ player: AVAudioPlayer) throws -> (seconds: Double, milliseconds: Int32) {
         let position = player.currentTime
-        guard player.isPlaying, position >= 0, position < player.duration,
-              let milliseconds = Int32(exactly: (position * 1000).rounded(.down)) else {
+        let duration = player.duration
+        // AVAudioPlayer can report the exact endpoint while it is still
+        // playing. The stored millisecond must remain a valid seek on load.
+        let lastMillisecond = (duration * 1000).rounded(.up) - 1
+        guard player.isPlaying, duration.isFinite, position >= 0, position <= duration,
+              let milliseconds = Int32(exactly: min((position * 1000).rounded(.down), lastMillisecond)),
+              milliseconds >= 0 else {
             throw ResourceError.rejected("player_stream_sample_outside_profile")
         }
         return (position, milliseconds)
     }
 
     private func drive(_ session: PlayerSession, input: PlayerSession.Input? = nil) async throws {
+        if launch?.checkDialogueSaveWrite == true, !dialogueSaveProbeCompleted,
+           launch?.checkDialogueSaveOverwrite != true,
+           let slot = launch?.checkLoadConfirmationSlot {
+            try await session.requireSaveSlotAbsent(named: slot)
+        }
         var pending = input
         var beforeDialogueLoad: PlayerState?
+        var beforeQuickSave: PlayerState?
+        var beforeQuickLoad: PlayerState?
+        let quickLoadConfirmation: Bool?
+        if case .loadConfirmation = input { quickLoadConfirmation = nil }
+        else { quickLoadConfirmation = launch?.checkQuickLoadConfirmation ?? launch?.checkAutosaveRecoveryResponse }
+        var saveWriteProbeStarted = false
+        var saveWriteDialogueClicksRemaining = launch?.checkDialogueSaveWriteClickCount ?? 0
+        var timedWaitSaveProbeAdvanceCount = 0
         var visibleCutinWaits = 0
         var readyCutinWaits = 0
         var selectableCutinWaits = 0
@@ -2965,36 +4315,115 @@ struct PlayerWindow: View {
         var checkedAudioResume = false
         var reopeningLoadMenu = false
         var adoptedMovieClickStep: Int?
+        var startupBackupProbeChoiceUsed = false
+        var startupBackupProbeClicks = 0
+        var startupBackupProbePriorStep: Int?
+        var macExceptionBackupProbeTriggered = false
+        var saveCheckStreamTransitions: [StreamChannelTransition] = []
+        var saveCheckStreamTransitionsOmitted = 0
+        func recordSaveStreamState(_ state: PlayerState) {
+            if launch?.checkDialogueSaveWrite == true {
+                let live = state.activeSoundChannels.compactMap(ScriptMachine.streamSaveChannelIndex).sorted()
+                let hosted = audio.keys.compactMap(ScriptMachine.streamSaveChannelIndex).sorted()
+                FileHandle.standardError.write(Data(
+                    "player_save_stream_state phase=\(state.status.phase) steps=\(state.status.steps) depth=\(state.status.callDepth) line=\(state.status.currentLocation?.lineNumber ?? 0) live=\(live) host=\(hosted) request_channel=\(state.soundChannel.flatMap(ScriptMachine.streamSaveChannelIndex).map(String.init) ?? "-")\n".utf8))
+            }
+        }
+        func recordStreamTransitions() async throws {
+            let (transitions, omitted) = await session.takeSaveStreamChannelTransitions()
+            guard omitted == 0 else {
+                throw ResourceError.rejected("player_stream_transition_history_incomplete")
+            }
+            if launch?.checkDialogueSaveWrite == true {
+                let remaining = max(0, 4096 - saveCheckStreamTransitions.count)
+                if remaining > 0 {
+                    saveCheckStreamTransitions.append(contentsOf: transitions.prefix(remaining))
+                }
+                saveCheckStreamTransitionsOmitted += max(0, transitions.count - remaining)
+            }
+        }
+        let captureCheckpointScene: @MainActor @Sendable (PlayerState, Int32) throws -> Data = { scene, priority in
+            try captureScenePNG(scene, through: priority, showPointerHover: false)
+        }
+        func run(input: PlayerSession.Input? = nil, streamPositions: [Int32: Int32] = [:],
+                 streamPans: [Int32: ScriptMachine.SavedStreamPanSample] = [:],
+                 streamVolumes: [Int32: ScriptMachine.SavedDelayedVolumeSample] = [:],
+                 streamRepeats: [Int32: ScriptMachine.SavedFiniteRepeatSample] = [:]) async throws -> PlayerState {
+            defer {
+                if self.session === session { acceptsTimedWindowControl = false }
+            }
+            return try await session.run(input: input, streamPositions: streamPositions, streamPans: streamPans,
+                streamVolumes: streamVolumes, streamRepeats: streamRepeats,
+                presentTimedFrame: presentTimedFrame, captureScene: captureCheckpointScene, exchangeStreams: exchangeStreams)
+        }
         while true {
-            var next = try await session.run(input: pending, presentTimedFrame: presentTimedFrame)
+            let positions: [Int32: Int32]
+            if let current = state, current.isSystemSaveTask {
+                positions = (try? await sampledLiveStreamPositions(in: session, identity: current.playbackIdentity)) ?? [:]
+            } else {
+                positions = (try? sampledStreamPositions(for: Set(audio.keys))) ?? [:]
+            }
+            try Task.checkCancellation()
+            var next = try await run(input: pending,
+                streamPositions: positions,
+                streamPans: sampledStreamPansForSave(), streamVolumes: sampledStreamVolumesForSave(),
+                streamRepeats: sampledStreamRepeatsForSave())
+            try await recordStreamTransitions()
+            recordSaveStreamState(next)
             if Task.isCancelled {
                 next.movie?.remove()
                 throw CancellationError()
             }
             if next.isSystemLoadFrame {
+                if launch != nil {
+                    func hitRegions(_ handles: Set<UInt64>) -> String {
+                        next.layers.filter { handles.contains($0.id) }.map { layer in
+                            "\(layer.id):\(Int(layer.bounds.minX)),\(Int(layer.bounds.minY)),\(Int(layer.bounds.maxX)),\(Int(layer.bounds.maxY))"
+                        }.joined(separator: ";")
+                    }
+                    FileHandle.standardError.write(Data(
+                        "player_system_task_hit_regions load=[\(hitRegions(next.loadMenuButtons))] save=[\(hitRegions(next.saveMenuButtons))] log=[\(hitRegions(next.dialogueLogButtons))]\n".utf8))
+                    FileHandle.standardError.write(Data(
+                        "player_system_task_navigation page_indices=\(next.loadPageIndices.values.sorted()) accessible_slots=\(next.systemTaskSlotAccessibilityLabels.count)\n".utf8))
+                }
                 show(next)
                 return
             }
             synchronizePlaybackIdentity(next)
             while let source = next.soundSource, let channel = next.soundChannel {
+                if launch?.checkDialogueSaveWrite == true {
+                    FileHandle.standardError.write(Data(
+                        "player_save_audio_request channel=\(ScriptMachine.streamSaveChannelIndex(channel) ?? -1) kind=\(ScriptMachine.streamSaveChannelIndex(channel) == nil ? "direct" : "stream") source_sha256=\(source.rangeSHA256) preserve=\(next.soundPreservesPosition)\n".utf8))
+                }
                 let current = audio[channel]
                 let reuse = next.soundPreservesPosition && current?.isPlaying == true &&
                     audioSources[channel] == source
                 let prepared = await session.takePreparedSaveAudio(channel: channel, source: source,
                                                                    identity: next.playbackIdentity)
                 if Task.isCancelled {
-                    prepared?.player.stop()
+                    prepared?.stop()
                     throw CancellationError()
                 }
                 let player: AVAudioPlayer
+                let completion: PlayerAudioCompletion
                 if let prepared {
                     player = prepared.player
-                } else if reuse, let current {
+                    completion = prepared.completion
+                } else if reuse, let current, let currentCompletion = audioCompletions[channel] {
                     player = current
+                    completion = currentCompletion
                 } else {
+                    guard !reuse else { throw ResourceError.rejected("player_stream_completion_unavailable") }
                     let sound = try await session.convertedAudio(source)
                     try Task.checkCancellation()
                     player = try AVAudioPlayer(data: sound)
+                    completion = PlayerAudioCompletion()
+                }
+                let playbackIdentity = next.playbackIdentity
+                let playbackID = completion.playbackID
+                if !reuse {
+                    try await session.registerSoundPlayback(playbackID, channel: channel, source: source, identity: playbackIdentity)
+                    try Task.checkCancellation()
                 }
                 applySoundState(next, excludingSeekFor: channel)
                 let previousTime = player.currentTime
@@ -3004,50 +4433,70 @@ struct PlayerWindow: View {
                 } else {
                     try PlayerMovie.validateDuration(player.duration)
                     player.pan = normalizedPan(next.immediateSoundPans[channel] ?? 0)
-                    player.numberOfLoops = Int(next.soundRepeatCount)
                     gain = normalizedVolume(next.soundInitialVolume ?? next.immediateSoundVolumes[channel] ?? 256)
                     player.volume = gain * masterGain
                 }
-                if prepared == nil, let position = next.soundSeeks[channel] { seek(player, to: position) }
-                let playbackStartStep = next.status.steps
-                let playbackIdentity = next.playbackIdentity
-                let completion = PlayerAudioCompletion { identity, error in
-                    guard let current = audio[channel], ObjectIdentifier(current) == identity,
+                if prepared == nil, let seconds = next.soundSeekSeconds[channel] {
+                    seek(player, toSeconds: seconds)
+                } else if prepared == nil, let position = next.soundSeeks[channel] {
+                    seek(player, to: position)
+                }
+                let playbackStartStep = (reuse ? audioPlaybackSteps[channel] : nil) ?? next.status.steps
+                completion.channel = channel
+                completion.update { [weak completion] identity, error in
+                    guard let channel = completion?.channel,
+                          let current = audio[channel], ObjectIdentifier(current) == identity,
                           audioPlaybackSteps[channel] == playbackStartStep else { return }
                     removeAudio(channel: channel)
                     if let error { issue = "音频播放 · \(error)" }
-                    Task { await session.soundCompleted(channel: channel, playbackStartStep: playbackStartStep, identity: playbackIdentity) }
+                    Task { await session.soundCompleted(playbackID, playbackStartStep: playbackStartStep, identity: playbackIdentity) }
                 }
                 player.delegate = completion
+                if prepared == nil { completion.repeats.configure(next.soundRepeatCount, player: player) }
                 guard prepared != nil || reuse || player.play() else { throw ResourceError.rejected("player_audio_start_failed") }
-                if launch?.checkExperimentalSaveAdoption == true, let position = next.soundSeeks[channel] {
+                if launch?.checkExperimentalSaveAdoption == true,
+                   let position = next.soundSeeks[channel] ?? next.soundSeekSeconds[channel].map({
+                       Int32(($0 * 1000).rounded(.toNearestOrEven))
+                   }) {
+                    let requestedSeconds = next.soundSeekSeconds[channel] ?? Double(position) / 1000
                     guard let sampled = try? sampledStreamPosition(player),
                           let savedChannel = ScriptMachine.streamSaveChannelIndex(channel),
                           abs(Int64(sampled.milliseconds) - Int64(position)) <= 100 else {
-                        if !reuse { player.stop() }
+                        if !reuse { completion.repeats.stop(player) }
                         throw ResourceError.rejected("player_save_stream_position_probe_failed")
                     }
-                    FileHandle.standardError.write(Data("player_save_stream_started seek_ms=\(position) actual_seconds=\(sampled.seconds) sampled_ms=\(sampled.milliseconds) save_channel=\(savedChannel) playing=true initial_gain=\(gain) target=\(next.soundVolumeChanges[channel]?.target ?? -1) fade_ms=\(next.soundVolumeChanges[channel]?.duration ?? 0) pan=\(player.pan)\n".utf8))
+                    FileHandle.standardError.write(Data("player_save_stream_started seek_seconds=\(requestedSeconds) seek_ms=\(position) actual_seconds=\(sampled.seconds) sampled_ms=\(sampled.milliseconds) save_channel=\(savedChannel) playing=true initial_gain=\(gain) target=\(next.soundVolumeChanges[channel]?.target ?? -1) fade_ms=\(next.soundVolumeChanges[channel]?.duration ?? 0) pan=\(player.pan)\n".utf8))
                 }
                 if launch?.checkExperimentalSaveAdoption == true, next.status.steps == 0,
-                   next.soundSeeks[channel] == nil {
-                    FileHandle.standardError.write(Data("player_save_direct_started loops=\(player.numberOfLoops) playing=\(player.isPlaying) gain=\(gain)\n".utf8))
+                   next.soundSeeks[channel] == nil, next.soundSeekSeconds[channel] == nil {
+                    FileHandle.standardError.write(Data("player_save_direct_started loops=\(completion.repeats.configuredRepeats) playing=\(player.isPlaying) gain=\(gain)\n".utf8))
                 }
                 if !reuse {
                     cancelSoundFades(channel: channel)
-                    current?.stop()
+                    if let current, let oldCompletion = audioCompletions[channel] {
+                        oldCompletion.channel = nil
+                        oldCompletion.repeats.stop(current)
+                    } else { current?.stop() }
                 }
                 audio[channel] = player
                 audioSources[channel] = source
                 audioPlaybackSteps[channel] = playbackStartStep
                 audioCompletions[channel] = completion
                 audioGains[channel] = gain
+                if launch?.checkDialogueSaveWrite == true {
+                    FileHandle.standardError.write(Data(
+                        "player_save_audio_host_started channel=\(ScriptMachine.streamSaveChannelIndex(channel) ?? -1) playing=\(player.isPlaying) audio_key_count=\(audio.count)\n".utf8))
+                }
                 if launch?.replayRoute == true, !reuse {
                     FileHandle.standardError.write(Data(
-                        "player_route_audio_started channel=\(channel) sha256=\(source.rangeSHA256) loops=\(player.numberOfLoops) steps=\(playbackStartStep) preserve_requested=\(next.soundPreservesPosition)\n".utf8))
+                        "player_route_audio_started channel=\(channel) sha256=\(source.rangeSHA256) loops=\(completion.repeats.configuredRepeats) steps=\(playbackStartStep) preserve_requested=\(next.soundPreservesPosition)\n".utf8))
                 }
-                if let change = next.soundVolumeChanges[channel] { applySoundChange(change, channel: channel, control: .volume) }
-                if let change = next.soundPanChanges[channel] { applySoundChange(change, channel: channel, control: .pan) }
+                if let change = next.soundVolumeChanges[channel] {
+                    applySoundChange(change, channel: channel, control: .volume, identity: playbackIdentity)
+                }
+                if let change = next.soundPanChanges[channel] {
+                    applySoundChange(change, channel: channel, control: .pan, identity: playbackIdentity)
+                }
                 if launch?.checkAudioResume == true, reuse, previousTime > 0.02,
                    next.soundSeeks[channel] == nil, player.currentTime >= previousTime {
                     checkedAudioResume = true
@@ -3056,17 +4505,158 @@ struct PlayerWindow: View {
                 if prepared != nil, !player.isPlaying {
                     // A short sound may finish while still muted, before its delegate is attached.
                     removeAudio(channel: channel)
-                    await session.soundCompleted(channel: channel, playbackStartStep: playbackStartStep,
+                    await session.soundCompleted(playbackID, playbackStartStep: playbackStartStep,
                                                  identity: playbackIdentity)
                 }
-                next = try await session.run(input: .soundStarted, presentTimedFrame: presentTimedFrame)
+                next = try await run(input: .soundStarted,
+                    streamPositions: (try? sampledStreamPositions(for: Set(audio.keys))) ?? [:])
+                try await recordStreamTransitions()
+                recordSaveStreamState(next)
                 if Task.isCancelled {
                     next.movie?.remove()
                     throw CancellationError()
                 }
             }
             applySoundState(next)
+            if launch?.checkMacExceptionBackup == true, !macExceptionBackupProbeTriggered,
+               startedFromLaunch, next.status.phase == .waitingForEvent, !next.canStartFromTitle,
+               !next.isTerminal, !next.waitingForChoice, !next.messages.isEmpty {
+                macExceptionBackupProbeTriggered = true
+                try await session.injectMacExceptionBackupFailureForTesting()
+                FileHandle.standardError.write(Data(
+                    "player_mac_exception_backup_probe_injected=1 steps=\(next.status.steps)\n".utf8))
+                pending = nil
+                continue
+            }
             show(next)
+            if next.titleQuitCompleted {
+                if let reason = next.titleQuitCleanupIssue {
+                    issue = "退出清理报告了问题。\n\(Self.playbackMessage(reason))"
+                }
+                return
+            }
+            let exitProbe = launch?.checkWindowClose ?? launch?.checkApplicationQuit
+            if (launch?.checkTitleQuitResponse != nil || launch?.recoverAutosaveSlot != nil ||
+                (exitProbe != nil && exitProbe != .prompt)),
+               next.isWaitingForStartupBackupConfirmation {
+                pending = .loadConfirmation(exitProbe == .failedRecovery)
+                continue
+            }
+            if next.canStartFromTitle, let reason = await session.takeStartupBackupRecoveryIssue() {
+                issue = "无法恢复异常备份，已继续启动。\n\(Self.playbackMessage(reason))"
+            }
+            if let launch, let accept = launch.checkStartupBackupResponse {
+                // Startup can finish a movie in a separate drive invocation.
+                let answered = await session.startupBackupAnswer == accept
+                if next.isWaitingForStartupBackupConfirmation, !answered {
+                    guard Set(next.loadConfirmationButtons.values) == [true, false] else {
+                        throw ResourceError.rejected("player_startup_backup_dialog_unavailable")
+                    }
+                    pending = .loadConfirmation(accept)
+                    continue
+                }
+                if next.canStartFromTitle {
+                    guard answered, !accept || issue != nil else {
+                        throw ResourceError.rejected("player_startup_backup_confirmation_not_reached")
+                    }
+                    FileHandle.standardError.write(Data("player_startup_backup_probe=title answer=\(accept) steps=\(next.status.steps)\n".utf8))
+                    return
+                }
+                if answered, accept, next.waitingForChoice, !startupBackupProbeChoiceUsed,
+                   let choice = session.replayChoices.first, next.choices.contains(choice) {
+                    startupBackupProbeChoiceUsed = true
+                    pending = .choice(choice)
+                    continue
+                }
+                if answered, accept, !next.isTerminal, !next.waitingForChoice, !next.messages.isEmpty,
+                   (next.waitingForClick || next.status.phase == .waitingForEvent) {
+                    if let previous = startupBackupProbePriorStep, next.status.steps <= previous {
+                        throw ResourceError.rejected("player_startup_backup_dialogue_did_not_advance")
+                    }
+                    if startupBackupProbeClicks < launch.continueAfterSaveAdoptionClicks {
+                        startupBackupProbeClicks += 1
+                        startupBackupProbePriorStep = next.status.steps
+                        pending = .click
+                        continue
+                    }
+                    try await verifySaveAdoptionPlayback(in: session)
+                    FileHandle.standardError.write(Data("player_startup_backup_probe=story clicks=\(startupBackupProbeClicks) steps=\(next.status.steps)\n".utf8))
+                    return
+                }
+            }
+            if let priority = next.primarySavePriority {
+                let capture: Result<PlayerSession.PrimarySaveSample, ResourceError>
+                do {
+                    let thumbnail: Data
+                    if next.primarySaveNeedsThumbnail {
+                        guard next.unavailableLayerCount == 0 else {
+                            throw ResourceError.rejected("game_thread_scene_capture_incomplete")
+                        }
+                        let scene = try await saveCaptureScene(next, through: priority, holdCutin: false)
+                        let png = try captureScenePNG(scene, through: priority)
+                        thumbnail = try ResourceImage.encodeSaveThumbnailJPEG(ResourceImage.decode(png).image)
+                    } else {
+                        thumbnail = Data()
+                    }
+                    let positions = try await sampledLiveStreamPositions(in: session, identity: next.playbackIdentity,
+                                                                         includingDirect: true)
+                    capture = .success(.init(thumbnail: thumbnail, streamPositions: positions,
+                                             streamPans: sampledStreamPansForSave(), streamVolumes: sampledStreamVolumesForSave(),
+                                             streamRepeats: sampledStreamRepeatsForSave()))
+                } catch is CancellationError {
+                    throw CancellationError()
+                } catch {
+                    capture = .failure(.rejected(String(describing: error)))
+                }
+                let saveIssue = try await session.completePrimarySave(identity: next.playbackIdentity,
+                                                                       steps: next.status.steps, capture: capture)
+                if let saveIssue, !saveIssue.hasPrefix("save_committed_") {
+                    issue = "自动保存失败。\n\(Self.playbackMessage(saveIssue))"
+                } else if issue?.hasPrefix("自动保存失败。") == true {
+                    issue = nil
+                }
+                pending = nil
+                continue
+            }
+            if launch?.checkQuickSave == true, next.systemTaskRequest == nil {
+                if let before = beforeQuickSave {
+                    let receipt = try await session.saveSlotWriteReceipt(named: "SelectSaveData.svd")
+                    guard next.playbackIdentity == before.playbackIdentity, !next.isTerminal,
+                          next.status.phase == before.status.phase, next.status.steps == before.status.steps,
+                          receipt.thumbnailSize == [160, 90] else {
+                        throw ResourceError.rejected("player_quick_save_probe_failed")
+                    }
+                    FileHandle.standardError.write(Data("player_quick_save_resumed=1 steps=\(next.status.steps) sha256=\(receipt.sha256)\n".utf8))
+                    return
+                }
+                if next.windowSaveButton != nil, next.status.phase == .waitingForEvent, !next.messages.isEmpty {
+                    beforeQuickSave = next
+                    pending = .quickSave
+                    continue
+                }
+            }
+            if let slot = launch?.recoverAutosaveSlot, startedFromLaunch, !requestedLaunchAutosave,
+               !next.canStartFromTitle, next.canDispatchQuickLoad {
+                requestedLaunchAutosave = true
+                beforeQuickLoad = next
+                pending = .recoverAutosave(slot)
+                continue
+            }
+            if launch?.checkQuickLoadConfirmation != nil, quickLoadConfirmation != nil, next.systemTaskRequest == nil {
+                if let before = beforeQuickLoad {
+                    guard next.playbackIdentity == before.playbackIdentity, !next.isTerminal,
+                          next.status.phase == before.status.phase, next.status.steps == before.status.steps else {
+                        throw ResourceError.rejected("player_quick_load_return_failed")
+                    }
+                    FileHandle.standardError.write(Data("player_quick_load_returned_without_confirmation=1 steps=\(next.status.steps)\n".utf8))
+                    return
+                }
+                if next.windowLoadButton != nil, next.status.phase == .waitingForEvent, !next.messages.isEmpty {
+                    beforeQuickLoad = next
+                    pending = .quickLoad
+                    continue
+                }
+            }
             if let before = adoptedMovieClickStep {
                 guard next.status.steps > before, !next.isTerminal else {
                     throw ResourceError.rejected("player_experimental_save_movie_click_failed")
@@ -3086,39 +4676,17 @@ struct PlayerWindow: View {
                     FileHandle.standardError.write(Data("player_system_task_requested=\(task.entryLabel) line=\(task.source.lineNumber)\n".utf8))
                 }
                 do {
-                    var status = try await session.startSystemLoadTask()
+                    let saveTask = ["@@!save", "@@!quicksave"].contains(task.entryLabel.lowercased())
+                    let positions = saveTask
+                        ? ((try? await sampledLiveStreamPositions(in: session, identity: next.playbackIdentity)) ?? [:])
+                        : ((try? sampledStreamPositions(for: Set(audio.keys))) ?? [:])
+                    try Task.checkCancellation()
+                    var status = try await session.startSystemLoadTask(
+                        streamPositions: positions,
+                        streamPans: sampledStreamPansForSave(), streamVolumes: sampledStreamVolumesForSave(),
+                        streamRepeats: sampledStreamRepeatsForSave())
                     if let priority = status.capturePriority {
-                        try Task.checkCancellation()
-                        let canvasBounds = CGRect(x: 0, y: 0, width: PlayerViewport.width, height: PlayerViewport.height)
-                        guard next.movie == nil else {
-                            throw ResourceError.rejected("game_thread_video_capture_unsupported")
-                        }
-                        var capturedState = next
-                        if let cutin = next.cutin, cutin.priority <= priority, cutin.opacity > 0,
-                           cutin.bounds.intersects(canvasBounds) {
-                            guard let player = cutinVideo, let item = player.currentItem, item.status == .readyToPlay,
-                                  player.currentTime().seconds.isFinite else {
-                                throw ResourceError.rejected("game_thread_cutin_frame_unavailable")
-                            }
-                            pauseCutinForLoad(player)
-                            let requested = player.currentTime()
-                            let (frame, actual) = try await PlayerMovie.captureFrame(in: item.asset, at: requested)
-                            guard cutinVideo === player, player.currentItem === item else {
-                                throw ResourceError.rejected("game_thread_cutin_frame_source_changed")
-                            }
-                            guard frame.width == Int(cutin.bounds.width), frame.height == Int(cutin.bounds.height) else {
-                                throw ResourceError.rejected("game_thread_cutin_frame_size_mismatch")
-                            }
-                            capturedState.layers.append(PlayerLayer(id: cutin.id, image: frame, hoverImage: nil,
-                                x: Int32(cutin.bounds.minX), y: Int32(cutin.bounds.minY), priority: cutin.priority,
-                                opacity: cutin.opacity, scaleXPercent: 100, scaleYPercent: 100,
-                                alignmentXPercent: 0, alignmentYPercent: 0, textureFilter: nil,
-                                usesVolumeButtonOffsets: false, isWindowControl: false))
-                            capturedState.layers.sort { ($0.priority, $0.id) < ($1.priority, $1.id) }
-                            if launch?.checkCutinLoad == true {
-                                FileHandle.standardError.write(Data("player_cutin_capture_frame=\(actual.seconds) requested=\(requested.seconds)\n".utf8))
-                            }
-                        }
+                        let capturedState = try await saveCaptureScene(next, through: priority, holdCutin: true)
                         let data = try captureScenePNG(capturedState, through: priority)
                         if launch?.checkDialogueSaveAdoption == true, let slot = launch?.checkLoadConfirmationSlot {
                             let thumbnail = try encodeCaptureThumbnail(data, width: 160, height: 90)
@@ -3140,16 +4708,238 @@ struct PlayerWindow: View {
                                 "player_system_capture_supplied=1 priority=\(priority) dialogue_frame_textures=\(frameTextures)\n".utf8))
                         }
                     }
-                    status = try await session.runSystemLoadWaits(status, presentTimedFrame: presentTimedFrame)
+                    status = try await session.runSystemLoadWaits(status, presentTimedFrame: presentTimedFrame,
+                                                                 captureScene: captureCheckpointScene)
                     try Task.checkCancellation()
+                    if try await session.finishCompletedSystemLoadTask() {
+                        pending = nil
+                        continue
+                    }
                     let reason = status.reason ?? "system_task_bootstrap_waiting"
                     if let frame = await session.systemLoadFrame() {
                         try Task.checkCancellation()
                         show(frame)
                         issue = nil
-                        if let before = beforeDialogueLoad {
+                        if let probe = launch?.dialogueLogProbe, frame.isDialogueLogFrame, !startedDialogueLogProbe {
+                            startedDialogueLogProbe = true
+                            if probe.action != .close {
+                                let canvas = CGRect(x: 0, y: 0, width: PlayerViewport.width, height: PlayerViewport.height)
+                                guard let initialHandle = try await session.logJumpButton(named: probe.checkpoint),
+                                      let initialLayer = frame.layers.last(where: { $0.id == initialHandle }) else {
+                                    throw ResourceError.rejected("player_log_probe_checkpoint_unavailable")
+                                }
+                                switch probe.navigation {
+                                case .pages(let count):
+                                    for _ in 0..<count { try await drive(session, input: .navigateDialogueLog(.pageUp)) }
+                                case .wheel(let delta):
+                                    try await drive(session, input: .scrollDialogueLog(delta))
+                                case .drag(let y):
+                                    guard let previous = frame.dialogueLogScrollbar else {
+                                        throw ResourceError.rejected("player_log_probe_scrollbar_not_drawn")
+                                    }
+                                    try await drive(session, input: .dragDialogueLogScrollbar(y))
+                                    guard let moved = state?.dialogueLogScrollbar, moved.value != previous.value,
+                                          moved.knobOffset != previous.knobOffset else {
+                                        throw ResourceError.rejected("player_log_probe_scrollbar_not_moved")
+                                    }
+                                    FileHandle.standardError.write(Data("player_log_scrollbar values=\(previous.value),\(moved.value) knobs=\(previous.knobOffset),\(moved.knobOffset)\n".utf8))
+                                case nil:
+                                    break
+                                }
+                                guard let handle = try await session.logJumpButton(named: probe.checkpoint),
+                                      let layer = state?.layers.last(where: { $0.id == handle && $0.opacity > 0 }),
+                                      canvas.contains(CGPoint(x: layer.bounds.midX, y: layer.bounds.midY)),
+                                      layer.containsInteractivePoint(CGPoint(x: layer.bounds.midX, y: layer.bounds.midY)) else {
+                                    throw ResourceError.rejected("player_log_probe_checkpoint_unavailable")
+                                }
+                                if let navigation = probe.navigation {
+                                    guard !canvas.contains(CGPoint(x: initialLayer.bounds.midX, y: initialLayer.bounds.midY)) else {
+                                        throw ResourceError.rejected("player_log_probe_checkpoint_already_visible")
+                                    }
+                                    let event: String
+                                    switch navigation {
+                                    case .pages(let count): event = "player_log_navigation=\(count)"
+                                    case .wheel(let delta): event = "player_log_wheel=\(delta)"
+                                    case .drag(let y): event = "player_log_drag=\(y)"
+                                    }
+                                    FileHandle.standardError.write(Data("\(event) before_y=\(Int(initialLayer.bounds.midY)) after_y=\(Int(layer.bounds.midY))\n".utf8))
+                                }
+                                try await drive(session, input: .loadMenuButton(handle, x: Int32(layer.bounds.midX), y: Int32(layer.bounds.midY)))
+                                guard state?.isWaitingForLoadConfirmation == true else {
+                                    throw ResourceError.rejected("player_log_probe_confirmation_unavailable")
+                                }
+                                try await drive(session, input: .loadConfirmation(probe.action == .confirm))
+                            }
+                            if probe.action == .confirm {
+                                guard let resumed = state, !resumed.isSystemLoadFrame, !resumed.isTerminal,
+                                      resumed.playbackIdentity != next.playbackIdentity else {
+                                    throw ResourceError.rejected("player_log_probe_resume_failed")
+                                }
+                                try await drive(session, input: .click)
+                                try await drive(session, input: .click)
+                                guard let continued = state, !continued.isTerminal, continued.status.steps > resumed.status.steps,
+                                      continued.canOpenDialogueLog else {
+                                    throw ResourceError.rejected("player_log_probe_continue_failed")
+                                }
+                                try await drive(session, input: .openDialogueLog(playback: continued.playbackIdentity,
+                                                                                 steps: continued.status.steps))
+                                guard state?.isDialogueLogFrame == true else {
+                                    throw ResourceError.rejected("player_log_probe_reopen_failed")
+                                }
+                                try await drive(session, input: .loadMenuEscape)
+                                guard let returned = state, !returned.isSystemLoadFrame, !returned.isTerminal,
+                                      returned.playbackIdentity == continued.playbackIdentity else {
+                                    throw ResourceError.rejected("player_log_probe_reopen_close_failed")
+                                }
+                                FileHandle.standardError.write(Data("player_log_probe=confirm checkpoint=\(probe.checkpoint) resumed=\(resumed.status.steps) continued=\(continued.status.steps) reopened=1\n".utf8))
+                            } else {
+                                guard state?.isDialogueLogFrame == true else {
+                                    throw ResourceError.rejected("player_log_probe_cancel_failed")
+                                }
+                                try await drive(session, input: .loadMenuEscape)
+                                guard let resumed = state, !resumed.isSystemLoadFrame, !resumed.isTerminal,
+                                      resumed.playbackIdentity == next.playbackIdentity else {
+                                    throw ResourceError.rejected("player_log_probe_close_failed")
+                                }
+                                FileHandle.standardError.write(Data("player_log_probe=\(probe.action.rawValue) resumed=\(resumed.status.steps)\n".utf8))
+                            }
+                            return
+                        }
+                        if let slot = launch?.recoverAutosaveSlot, frame.isWaitingForLoadConfirmation {
+                            FileHandle.standardError.write(Data("player_named_autosave_confirmation=\(slot)\n".utf8))
+                        }
+                        if let accept = launch?.checkTitleQuitResponse, frame.isWaitingForTitleQuitConfirmation {
+                            guard Set(frame.loadConfirmationButtons.values) == [true, false] else {
+                                throw ResourceError.rejected("player_title_quit_confirmation_unavailable")
+                            }
+                            try await driveWithSaveRecovery(session, input: .loadConfirmation(accept))
+                            guard let returned = state, returned.titleQuitCompleted || returned.canStartFromTitle else {
+                                throw ResourceError.rejected("player_title_quit_probe_incomplete")
+                            }
+                            let outcome = returned.titleQuitCompleted ? "finished" : "title"
+                            FileHandle.standardError.write(Data("player_title_quit_probe=\(outcome) answer=\(accept) steps=\(returned.status.steps)\n".utf8))
+                            return
+                        }
+                        if let accept = quickLoadConfirmation, let before = beforeQuickLoad {
+                            guard frame.isWaitingForLoadConfirmation else {
+                                throw ResourceError.rejected("player_quick_load_confirmation_unavailable")
+                            }
+                            if accept {
+                                try await driveWithSaveRecovery(session, input: .loadConfirmation(true))
+                                try await verifySaveAdoptionPlayback(in: session)
+                                guard state?.playbackIdentity != before.playbackIdentity else {
+                                    throw ResourceError.rejected("player_quick_load_adoption_failed")
+                                }
+                                if let slot = launch?.recoverAutosaveSlot {
+                                    if let restored = state, restored.waitingForChoice {
+                                        guard let choice = session.replayChoices.first, restored.choices.contains(choice) else {
+                                            throw ResourceError.rejected("player_replay_choice_unavailable")
+                                        }
+                                        try await drive(session, input: .choice(choice))
+                                        FileHandle.standardError.write(Data("player_named_autosave_choice=\(choice)\n".utf8))
+                                    }
+                                    try await verifySaveAdoptionContinuation(in: session,
+                                                                             clicks: launch?.continueAfterSaveAdoptionClicks ?? 0)
+                                    FileHandle.standardError.write(Data("player_named_autosave_adopted=\(slot)\n".utf8))
+                                } else {
+                                    FileHandle.standardError.write(Data("player_quick_load_adopted=1\n".utf8))
+                                }
+                            } else {
+                                let returned = try await run(input: .loadConfirmation(false))
+                                guard !returned.isSystemLoadFrame, returned.playbackIdentity == before.playbackIdentity,
+                                      returned.status.phase == before.status.phase, returned.status.steps == before.status.steps else {
+                                    throw ResourceError.rejected("player_quick_load_cancel_failed")
+                                }
+                                applySoundState(returned)
+                                show(returned)
+                                if let slot = launch?.recoverAutosaveSlot {
+                                    FileHandle.standardError.write(Data("player_named_autosave_cancelled=\(slot) steps=\(returned.status.steps)\n".utf8))
+                                } else {
+                                    FileHandle.standardError.write(Data("player_quick_load_cancelled=1 steps=\(returned.status.steps)\n".utf8))
+                                }
+                            }
+                            return
+                        }
+                        if launch?.checkDialogueSaveWrite == true, !dialogueSaveProbeCompleted, frame.isSystemSaveTask {
+                            guard let slot = launch?.checkLoadConfirmationSlot,
+                                  frame.isSystemLoadFrame, frame.saveMenuButtons.count > 0,
+                                  let handle = try await session.saveSlotButton(named: slot),
+                                  frame.saveMenuButtons.contains(handle),
+                                  let layer = frame.layers.first(where: { $0.id == handle }) else {
+                                throw ResourceError.rejected("dialogue_save_probe_slot_button_unavailable")
+                            }
+                            // A normal fresh-slot check waits for controls to settle. The overwrite
+                            // probe uses a quick confirmation so short looping tracks stay sampleable.
+                            let menuDwellMilliseconds = launch?.checkDialogueSaveOverwrite == true ? 100 : 2500
+                            try await Task.sleep(for: .milliseconds(menuDwellMilliseconds))
+                            let streamPositions = try await sampledLiveStreamPositions(in: session, identity: next.playbackIdentity)
+                            FileHandle.standardError.write(Data(
+                                "player_dialogue_save_stream_positions=\(streamPositions.keys.sorted())\n".utf8))
+                            var saved = try await run(input: .loadMenuButton(handle,
+                                x: Int32(layer.bounds.midX), y: Int32(layer.bounds.midY)),
+                                streamPositions: streamPositions, streamPans: sampledStreamPansForSave(),
+                                streamVolumes: sampledStreamVolumesForSave(),
+                                streamRepeats: sampledStreamRepeatsForSave())
+                            show(saved)
+                            if saved.isWaitingForLoadConfirmation {
+                                let confirmationPositions = try await sampledLiveStreamPositions(in: session, identity: next.playbackIdentity)
+                                FileHandle.standardError.write(Data(
+                                    "player_dialogue_save_confirmation_positions=\(confirmationPositions.keys.sorted())\n".utf8))
+                                saved = try await run(input: .loadConfirmation(true),
+                                    streamPositions: confirmationPositions, streamPans: sampledStreamPansForSave(),
+                                    streamVolumes: sampledStreamVolumesForSave(),
+                                    streamRepeats: sampledStreamRepeatsForSave())
+                                show(saved)
+                            }
+                            let receipt = try await session.saveSlotWriteReceipt(named: slot)
+                            guard receipt.thumbnailSize == [160, 90], receipt.metadataLengths.count == 8,
+                                  !saved.isTerminal else {
+                                throw ResourceError.rejected("dialogue_save_probe_receipt_invalid")
+                            }
+                            let dialogueHistory = await session.dialogueHistory()
+                            let dialogueHistoryCount = dialogueHistory.count
+                            let dialogueHistoryLengths = dialogueHistory.suffix(8).map {
+                                "\($0.speaker.utf16.count):\($0.text.utf16.count)"
+                            }
+                            FileHandle.standardError.write(Data(
+                                "player_dialogue_save_written=1 overwrite=\(launch?.checkDialogueSaveOverwrite == true) bytes=\(receipt.byteCount) sha256=\(receipt.sha256) thumbnail=\(receipt.thumbnailSize ?? []) metadata_lengths=\(receipt.metadataLengths) dialogue_history_count=\(dialogueHistoryCount) dialogue_history_lengths=\(dialogueHistoryLengths) routines=\(receipt.routineCount) state_bytes=\(receipt.decodedStateLength)\n".utf8))
+                            if launch?.timedWaitSourceSlot != nil {
+                                let resumed = try await run(input: .loadMenuEscape,
+                                    streamPositions: (try? sampledStreamPositions(for: Set(audio.keys))) ?? [:])
+                                guard !resumed.isSystemLoadFrame, resumed.playbackIdentity == next.playbackIdentity,
+                                      resumed.waitingForChoice, !resumed.choices.isEmpty else {
+                                    throw ResourceError.rejected("player_timed_save_menu_resume_failed")
+                                }
+                                show(resumed)
+                                FileHandle.standardError.write(Data("player_timed_save_menu_resumed=1 choices=\(resumed.choices.count)\n".utf8))
+                            }
+                            dialogueSaveProbeCompleted = true
+                            return
+                        } else if let before = beforeDialogueLoad {
                             guard launch?.checkDialogueLoadStartupFailure != true else {
                                 throw ResourceError.rejected("player_dialogue_load_probe_expected_startup_failure")
+                            }
+                            if launch?.checkDialogueLoadUnavailableSlot == true {
+                                guard let slot = launch?.checkLoadConfirmationSlot,
+                                      frame.isSystemLoadFrame, !frame.loadMenuButtons.isEmpty,
+                                      try await session.loadSlotButton(named: slot) == nil else {
+                                    throw ResourceError.rejected("player_invalid_save_slot_was_selectable")
+                                }
+                                let returned = try await run(input: .loadMenuEscape,
+                                    streamPositions: (try? sampledStreamPositions(for: Set(audio.keys))) ?? [:])
+                                applySoundState(returned)
+                                show(returned)
+                                guard !returned.isSystemLoadFrame,
+                                      returned.status.phase == .waitingForEvent,
+                                      returned.playbackIdentity == before.playbackIdentity,
+                                      returned.status.steps == before.status.steps,
+                                      returned.messages == before.messages,
+                                      dialogueLoadLoopingAudio.allSatisfy({ audio[$0.key] === $0.value }) else {
+                                    throw ResourceError.rejected("player_invalid_slot_session_not_preserved")
+                                }
+                                FileHandle.standardError.write(Data(
+                                    "player_dialogue_load_invalid_slot=1 name=\(slot) session_preserved=1 steps=\(returned.status.steps) loops=\(dialogueLoadLoopingAudio.count)\n".utf8))
+                                return
                             }
                             let suspendedCutin = cutinVideo
                             let suspendedTime = suspendedCutin?.currentTime()
@@ -3159,15 +4949,18 @@ struct PlayerWindow: View {
                                       let layer = frame.layers.first(where: { $0.id == handle }) else {
                                     throw ResourceError.rejected("load_confirmation_probe_slot_unavailable")
                                 }
-                                let dialog = try await session.run(input: .loadMenuButton(handle,
-                                    x: Int32(layer.bounds.midX), y: Int32(layer.bounds.midY)), presentTimedFrame: presentTimedFrame)
+                                let dialog = try await run(input: .loadMenuButton(handle,
+                                    x: Int32(layer.bounds.midX), y: Int32(layer.bounds.midY)),
+                                    streamPositions: (try? sampledStreamPositions(for: Set(audio.keys))) ?? [:])
                                 show(dialog)
                                 guard dialog.isWaitingForLoadConfirmation else {
                                     throw ResourceError.rejected("load_confirmation_probe_dialog_unavailable")
                                 }
                                 try await driveWithSaveRecovery(session, input: .loadConfirmation(true))
                                 if launch?.checkDialogueSaveAdoption == true, launch?.expectedLoadRecoveryCause == nil {
-                                    try verifySaveAdoptionPlayback()
+                                    try await verifySaveAdoptionPlayback(in: session)
+                                    try await verifySaveAdoptionContinuation(in: session,
+                                                                             clicks: launch?.continueAfterSaveAdoptionClicks ?? 0)
                                     return
                                 }
                                 let expected = launch?.expectedLoadRecoveryCause ?? "save_restore_execution_state_unsupported"
@@ -3177,7 +4970,8 @@ struct PlayerWindow: View {
                                 }
                                 restored = recovered
                             } else {
-                                restored = try await session.run(input: .loadMenuEscape, presentTimedFrame: presentTimedFrame)
+                                restored = try await run(input: .loadMenuEscape,
+                                    streamPositions: (try? sampledStreamPositions(for: Set(audio.keys))) ?? [:])
                                 show(restored)
                             }
                             guard frame.isSystemLoadFrame, !frame.loadMenuButtons.isEmpty,
@@ -3195,7 +4989,8 @@ struct PlayerWindow: View {
                             guard dialogueLoadLoopingAudio.allSatisfy({ audio[$0.key] === $0.value }) else {
                                 throw ResourceError.rejected("player_dialogue_load_probe_audio_replaced")
                             }
-                            let continued = try await session.run(input: .click, presentTimedFrame: presentTimedFrame)
+                            let continued = try await run(input: .click,
+                                streamPositions: (try? sampledStreamPositions(for: Set(audio.keys))) ?? [:])
                             show(continued)
                             guard continued.status.steps > restored.status.steps, !continued.isTerminal,
                                   !continued.isSystemLoadFrame else {
@@ -3208,18 +5003,23 @@ struct PlayerWindow: View {
                                 throw ResourceError.rejected("load_menu_reopen_buttons_unavailable")
                             }
                             FileHandle.standardError.write(Data("player_load_reopened steps=\(frame.status.steps) buttons=\(frame.loadMenuButtons.count)\n".utf8))
-                        } else if let slot = launch?.checkLoadConfirmationSlot {
+                        } else if let slot = launch?.timedWaitSourceSlot ?? launch?.checkLoadConfirmationSlot {
                             guard let handle = try await session.loadSlotButton(named: slot),
                                   let layer = frame.layers.first(where: { $0.id == handle }) else {
                                 throw ResourceError.rejected("load_confirmation_probe_slot_unavailable")
                             }
-                            let dialog = try await session.run(input: .loadMenuButton(handle,
-                                x: Int32(layer.bounds.midX), y: Int32(layer.bounds.midY)), presentTimedFrame: presentTimedFrame)
+                            let dialog = try await run(input: .loadMenuButton(handle,
+                                x: Int32(layer.bounds.midX), y: Int32(layer.bounds.midY)),
+                                streamPositions: (try? sampledStreamPositions(for: Set(audio.keys))) ?? [:])
                             try Task.checkCancellation()
                             show(dialog)
                             guard dialog.isWaitingForLoadConfirmation,
                                   Set(dialog.loadConfirmationButtons.values) == [true, false] else {
                                 throw ResourceError.rejected("load_confirmation_probe_dialog_unavailable")
+                            }
+                            if launch?.timedWaitSourceSlot != nil {
+                                try await driveWithSaveRecovery(session, input: .loadConfirmation(true))
+                                throw ResourceError.rejected("player_timed_wait_source_did_not_reach_save: \(issue ?? "-")")
                             }
                             if launch?.checkExperimentalSaveAdoption == true {
                                 for id in dialog.loadConfirmationButtons.keys {
@@ -3234,7 +5034,7 @@ struct PlayerWindow: View {
                                 }
                                 updateHoveredButton(nil, state: dialog)
                                 try await driveWithSaveRecovery(session, input: .loadConfirmation(true))
-                                try verifySaveAdoptionPlayback()
+                                try await verifySaveAdoptionPlayback(in: session)
                                 return
                             }
                             if let cause = launch?.expectedLoadRecoveryCause {
@@ -3248,7 +5048,8 @@ struct PlayerWindow: View {
                                 FileHandle.standardError.write(Data("player_load_recovery_verified=1 cause=\(cause)\n".utf8))
                                 return
                             }
-                            let result = try await session.run(input: .loadConfirmation(false), presentTimedFrame: presentTimedFrame)
+                            let result = try await run(input: .loadConfirmation(false),
+                                streamPositions: (try? sampledStreamPositions(for: Set(audio.keys))) ?? [:])
                             try Task.checkCancellation()
                             show(result)
                             guard result.isSystemLoadFrame, !result.isWaitingForLoadConfirmation,
@@ -3257,14 +5058,14 @@ struct PlayerWindow: View {
                                   let reopenedLayer = result.layers.first(where: { $0.id == reopenedHandle }) else {
                                 throw ResourceError.rejected("load_confirmation_probe_list_not_restored")
                             }
-                            let reopened = try await session.run(input: .loadMenuButton(reopenedHandle,
+                            let reopened = try await run(input: .loadMenuButton(reopenedHandle,
                                 x: Int32(reopenedLayer.bounds.midX), y: Int32(reopenedLayer.bounds.midY)),
-                                presentTimedFrame: presentTimedFrame)
+                                streamPositions: (try? sampledStreamPositions(for: Set(audio.keys))) ?? [:])
                             guard reopened.isWaitingForLoadConfirmation else {
                                 throw ResourceError.rejected("load_confirmation_probe_slot_not_reopened")
                             }
-                            let returned = try await session.run(input: .loadConfirmation(false),
-                                presentTimedFrame: presentTimedFrame)
+                            let returned = try await run(input: .loadConfirmation(false),
+                                streamPositions: (try? sampledStreamPositions(for: Set(audio.keys))) ?? [:])
                             try Task.checkCancellation()
                             guard returned.isSystemLoadFrame, !returned.isWaitingForLoadConfirmation else {
                                 throw ResourceError.rejected("load_confirmation_probe_list_not_restored")
@@ -3272,30 +5073,48 @@ struct PlayerWindow: View {
                             show(returned)
                             FileHandle.standardError.write(Data("player_load_confirmation_cancelled=1\n".utf8))
                         } else if let launch, launch.checkLoadPage || launch.checkLoadCancel {
-                            guard let button = frame.layers.first(where: {
-                                frame.loadMenuButtons.contains($0.id) &&
-                                    (launch.checkLoadCancel ? frame.loadCancelButton == $0.id : frame.loadPageIndices[$0.id] == 1)
-                            }) else {
+                            if launch.checkLoadPage {
+                                FileHandle.standardError.write(Data(
+                                    "player_load_page_inventory menu_buttons=\(frame.loadMenuButtons.count) page_count=\(frame.loadPageIndices.count) page_indices=\(frame.loadPageIndices.values.sorted()) checked=\(frame.checkedLoadPageButtons.count) slots=\(frame.systemTaskSlotAccessibilityLabels.count)\n".utf8))
+                            }
+                            let buttonHandle = launch.checkLoadCancel
+                                ? frame.loadCancelButton
+                                : frame.loadPageIndices.first(where: { $0.value == 1 })?.key
+                            guard let buttonHandle, frame.loadMenuButtons.contains(buttonHandle) else {
                                 throw ResourceError.rejected("load_menu_probe_button_unavailable")
                             }
-                            if launch.checkLoadCancel, !launch.checkLoadEscape, button.hoverImage == nil {
+                            let button = frame.layers.first(where: { $0.id == buttonHandle })
+                            if launch.checkLoadCancel, !launch.checkLoadEscape,
+                               button?.hoverImage == nil {
                                 throw ResourceError.rejected("load_menu_cancel_hover_raster_missing")
                             }
-                            let point = CGPoint(x: button.bounds.midX, y: button.bounds.midY)
+                            let point: CGPoint
+                            if let button {
+                                point = CGPoint(x: button.bounds.midX, y: button.bounds.midY)
+                            } else if !launch.checkLoadCancel,
+                                      let rawPoint = frame.loadPageButtonPoints[buttonHandle] {
+                                point = rawPoint
+                            } else {
+                                throw ResourceError.rejected("load_menu_probe_button_geometry_unavailable")
+                            }
                             let input: PlayerSession.Input = launch.checkLoadEscape ? .loadMenuEscape :
-                                .loadMenuButton(button.id, x: Int32(point.x), y: Int32(point.y))
-                            let result = try await session.run(input: input, presentTimedFrame: presentTimedFrame)
+                                .loadMenuButton(buttonHandle, x: Int32(point.x), y: Int32(point.y))
+                            let result = try await run(input: input,
+                                streamPositions: (try? sampledStreamPositions(for: Set(audio.keys))) ?? [:])
                             try Task.checkCancellation()
                             if launch.checkLoadPage {
                                 guard frame.checkedLoadPageButtons.count == 1,
-                                      !frame.checkedLoadPageButtons.contains(button.id),
-                                      result.checkedLoadPageButtons == [button.id],
-                                      button.hoverImage != nil,
-                                      let selected = result.layers.first(where: { $0.id == button.id }),
-                                      selected.hoverImage == nil else {
-                                    throw ResourceError.rejected("load_page_probe_checked_visual_missing")
+                                      !frame.checkedLoadPageButtons.contains(buttonHandle),
+                                      result.checkedLoadPageButtons == [buttonHandle] else {
+                                    throw ResourceError.rejected("load_page_probe_checked_state_missing")
                                 }
-                                FileHandle.standardError.write(Data("player_load_page_checked_visual=1\n".utf8))
+                                if let button, button.hoverImage != nil,
+                                   let selected = result.layers.first(where: { $0.id == buttonHandle }),
+                                   selected.hoverImage == nil {
+                                    FileHandle.standardError.write(Data("player_load_page_checked_visual=1\n".utf8))
+                                } else {
+                                    FileHandle.standardError.write(Data("player_load_page_checked_visual=not_rendered_menu_fallback=1\n".utf8))
+                                }
                             }
                             show(result)
                             let probe = launch.checkLoadEscape ? "escape" : (launch.checkLoadCancel ? "cancel" : "page")
@@ -3313,7 +5132,12 @@ struct PlayerWindow: View {
                             }
                         }
                         if launch != nil {
-                            FileHandle.standardError.write(Data("player_system_task_frame layers=\(frame.layers.count) messages=\(frame.messageLayers.count) save_thumbnails=\(frame.visibleSaveThumbnails)\n".utf8))
+                            let loadMenuHitRegions = frame.layers.filter {
+                                frame.loadMenuButtons.contains($0.id) || frame.dialogueLogButtons.contains($0.id)
+                            }.map { layer in
+                                "\(layer.id):\(Int(layer.bounds.minX)),\(Int(layer.bounds.minY)),\(Int(layer.bounds.maxX)),\(Int(layer.bounds.maxY))"
+                            }.joined(separator: ";")
+                            FileHandle.standardError.write(Data("player_system_task_frame layers=\(frame.layers.count) messages=\(frame.messageLayers.count) save_thumbnails=\(frame.visibleSaveThumbnails) load_menu_hit_regions=[\(loadMenuHitRegions)]\n".utf8))
                         }
                     } else {
                         throw ResourceError.rejected(reason)
@@ -3324,16 +5148,31 @@ struct PlayerWindow: View {
                 } catch is CancellationError {
                     throw CancellationError()
                 } catch {
+                    let failedAt = await session.failedSystemLoadLocation()
+                    let saveWriteIssue = await session.failedSystemLoadSaveWriteIssue()
+                    let moduleCandidates = await session.failedSystemLoadModuleCandidates()
                     let recovered = await session.recoverFailedSaveLoad()
                     let reason = Self.playbackMessage(String(describing: error))
                     if recovered {
                         try Task.checkCancellation()
-                        let restored = try await session.run(presentTimedFrame: presentTimedFrame)
+                        let restored = try await run(
+                            streamPositions: (try? sampledStreamPositions(for: Set(audio.keys))) ?? [:])
                         applySoundState(restored)
                         show(restored)
-                        issue = restored.isTerminal ? reason : "无法打开读档菜单，已返回游戏。\n\(reason)"
+                        let saving = ["@@!save", "@@!quicksave"].contains(task.entryLabel.lowercased())
+                        let log = task.entryLabel.lowercased() == "@@!log"
+                        let message = task.entryLabel.lowercased() == "@@!quit" ? "无法启动退出，已返回标题。" :
+                            (saving ? "保存失败，已返回游戏。" :
+                                (log ? "无法打开日志，已返回游戏。" : "无法打开读档菜单，已返回游戏。"))
+                        issue = restored.isTerminal ? reason : "\(message)\n\(reason)"
                         if launch != nil {
-                            FileHandle.standardError.write(Data("player_load_startup_recovered phase=\(restored.status.phase) steps=\(restored.status.steps) cause=\(error)\n".utf8))
+                            FileHandle.standardError.write(Data("player_load_startup_recovered phase=\(restored.status.phase) steps=\(restored.status.steps) cause=\(error) failed_at=\(failedAt?.sourceFile ?? "-"):\(failedAt?.lineNumber ?? 0):\(failedAt?.byteOffset ?? 0) save_write_issue=\(saveWriteIssue ?? "-")\n".utf8))
+                            if !moduleCandidates.isEmpty {
+                                let candidates = moduleCandidates.map {
+                                    "\($0.logicalPath)|\($0.sourceFile)|\($0.sourceSHA256)"
+                                }.joined(separator: ";")
+                                FileHandle.standardError.write(Data("player_load_module_candidates=\(candidates)\n".utf8))
+                            }
                         }
                         if launch?.checkDialogueLoadStartupFailure == true, let before = beforeDialogueLoad {
                             guard String(describing: error) == "module_not_in_catalog",
@@ -3344,7 +5183,8 @@ struct PlayerWindow: View {
                                   issue?.components(separatedBy: "\n").last == "module_not_in_catalog" else {
                                 throw ResourceError.rejected("player_dialogue_load_startup_recovery_probe_failed")
                             }
-                            let continued = try await session.run(input: .click, presentTimedFrame: presentTimedFrame)
+                            let continued = try await run(input: .click,
+                                streamPositions: (try? sampledStreamPositions(for: Set(audio.keys))) ?? [:])
                             show(continued)
                             guard continued.status.steps > restored.status.steps, !continued.isTerminal else {
                                 throw ResourceError.rejected("player_dialogue_load_probe_continuation_failed")
@@ -3357,6 +5197,7 @@ struct PlayerWindow: View {
                     if launch?.checkLoadConfirmationSlot != nil {
                         FileHandle.standardError.write(Data("player_load_confirmation_probe_error=\(error)\n".utf8))
                     }
+                    if launch?.checkQuickSave == true || quickLoadConfirmation != nil { throw error }
                     if let launch, launch.checkLoadPage || launch.checkLoadCancel {
                         let probe = launch.checkLoadEscape ? "escape" : (launch.checkLoadCancel ? "cancel" : "page")
                         FileHandle.standardError.write(Data("player_load_\(probe)_probe_error=\(error)\n".utf8))
@@ -3370,7 +5211,8 @@ struct PlayerWindow: View {
                 for _ in 0..<3 {
                     deadlines.append(try await session.reachChoiceTimerDeadline())
                     let previousSteps = updated.status.steps
-                    updated = try await session.run(input: .timerTick, presentTimedFrame: presentTimedFrame)
+                    updated = try await run(input: .timerTick,
+                        streamPositions: (try? sampledStreamPositions(for: Set(audio.keys))) ?? [:])
                     show(updated)
                     guard updated.waitingForChoice, updated.choiceButtons == next.choiceButtons,
                           updated.status.steps > previousSteps else {
@@ -3416,15 +5258,62 @@ struct PlayerWindow: View {
                 startedDialogueLoadProbe = true
                 beforeDialogueLoad = next
                 dialogueLoadLoopingAudio = audio.filter { $0.value.numberOfLoops < 0 && $0.value.isPlaying }
-                pending = .windowLoadButton(handle)
+                pending = next.windowTaskInput(.load, handle: handle)
                 continue
+            }
+            if launch?.checkDialogueSaveWrite == true, !dialogueSaveProbeCompleted, launch?.checkTimedWaitSaveWrite != true,
+               !saveWriteProbeStarted,
+               !next.messages.isEmpty, let handle = next.windowSaveButton {
+                if saveWriteDialogueClicksRemaining > 0 {
+                    saveWriteDialogueClicksRemaining -= 1
+                    pending = .click
+                    continue
+                }
+                saveWriteProbeStarted = true
+                let activeStreams = next.activeSoundChannels.compactMap(ScriptMachine.streamSaveChannelIndex).sorted()
+                let hostStreams = audio.keys.compactMap(ScriptMachine.streamSaveChannelIndex).sorted()
+                let hostState = audio.compactMap { channel, player -> String? in
+                    guard let stream = ScriptMachine.streamSaveChannelIndex(channel) else { return nil }
+                    return "\(stream):playing=\(player.isPlaying):position=\(player.currentTime):duration=\(player.duration)"
+                }.sorted()
+                let saveButtonBounds = next.layers.first(where: { $0.id == handle })?.bounds
+                let saveButtonRegion = saveButtonBounds.map {
+                    "\(Int($0.minX)),\(Int($0.minY)),\(Int($0.maxX)),\(Int($0.maxY))"
+                } ?? "unavailable"
+                FileHandle.standardError.write(Data(
+                    "player_window_save_dispatched=1 steps=\(next.status.steps) dialogue_clicks=\(launch?.checkDialogueSaveWriteClickCount ?? 0) save_button_region=\(saveButtonRegion) active_streams=\(activeStreams) host_streams=\(hostStreams) host_state=\(hostState)\n".utf8))
+                for transition in saveCheckStreamTransitions {
+                    FileHandle.standardError.write(Data(
+                        "player_save_stream_transition step=\(transition.step) source=\(transition.location.sourceFile) line=\(transition.location.lineNumber) action=\(transition.action) before=\(transition.before) after=\(transition.after)\n".utf8))
+                }
+                if saveCheckStreamTransitionsOmitted > 0 {
+                    FileHandle.standardError.write(Data("player_save_stream_transition_omitted=\(saveCheckStreamTransitionsOmitted)\n".utf8))
+                }
+                pending = next.windowTaskInput(.save, handle: handle)
+                continue
+            }
+            if launch?.checkTimedWaitSaveWrite == true, !timedWaitSaveProbeTriggered,
+               next.status.phase == .waitingForEvent, !next.waitingForChoice,
+               !next.messages.isEmpty, next.windowSaveButton != nil {
+                guard timedWaitSaveProbeAdvanceCount < 256 else {
+                    throw ResourceError.rejected("timed_wait_save_probe_click_limit")
+                }
+                timedWaitSaveProbeAdvanceCount += 1
+                pending = .click
+                continue
+            }
+            if launch?.checkTimedWaitSaveWrite == true, !timedWaitSaveProbeTriggered,
+               next.waitingForChoice {
+                throw ResourceError.rejected("timed_wait_save_probe_choice_before_timer")
             }
             if launch?.checkWindowView == true, !next.messages.isEmpty,
                let handle = next.windowViewButton,
                next.layers.contains(where: { $0.id == handle && $0.opacity > 0 }) {
-                let hidden = try await session.run(input: .windowViewButton(handle), presentTimedFrame: presentTimedFrame)
+                let hidden = try await run(input: .windowViewButton(handle),
+                    streamPositions: (try? sampledStreamPositions(for: Set(audio.keys))) ?? [:])
                 show(hidden)
-                let restored = try await session.run(input: .click, presentTimedFrame: presentTimedFrame)
+                let restored = try await run(input: .click,
+                    streamPositions: (try? sampledStreamPositions(for: Set(audio.keys))) ?? [:])
                 show(restored)
                 guard hidden.dialogueWindowHidden, !restored.dialogueWindowHidden,
                       restored.status.steps == hidden.status.steps,
@@ -3434,15 +5323,29 @@ struct PlayerWindow: View {
                 FileHandle.standardError.write(Data("player_window_view_restored=1\n".utf8))
                 return
             }
+            if let probe = launch?.dialogueLogProbe, startedFromLaunch, !startedDialogueLogProbe, launchClicks >= probe.clicks,
+               next.canOpenDialogueLog {
+                pending = .openDialogueLog(playback: next.playbackIdentity, steps: next.status.steps)
+                continue
+            }
             if launch?.advanceToDialogue == true, launch?.checkCutinLoad != true, !next.messages.isEmpty {
                 let count = await session.dialogueHistory().count
                 try Task.checkCancellation()
                 FileHandle.standardError.write(Data("player_dialogue_history_count=\(count)\n".utf8))
             }
-            if let launch, (launch.startAtTitle || launch.openLoadMenu), next.canStartFromTitle,
+            if let launch, (launch.startAtTitle || launch.openLoadMenu || launch.checkTitleQuitResponse != nil), next.canStartFromTitle,
                !startedFromLaunch, titlePointerOnRight != true {
                 titlePointerOnRight = true
                 pending = .titlePointer(x: 1100, y: 360)
+            } else if launch?.checkTitleQuitResponse != nil, next.canStartFromTitle, !startedFromLaunch {
+                guard let handle = next.titleButtonLabels.first(where: { $0.value == "退出" })?.key,
+                      let index = next.titleButtons[handle] else {
+                    throw ResourceError.rejected("player_title_quit_button_unavailable")
+                }
+                startedFromLaunch = true
+                let bounds = next.layers.first(where: { $0.id == handle })?.bounds
+                pending = .canvasClick(x: Int32(clamping: Int((bounds?.midX ?? 0).rounded())),
+                                       y: Int32(clamping: Int((bounds?.midY ?? 0).rounded())), titleButton: index)
             } else if launch?.openLoadMenu == true, next.canStartFromTitle, !startedFromLaunch {
                 guard let handle = next.titleButtonLabels.first(where: { $0.value == "读取存档" })?.key,
                       let index = next.titleButtons[handle] else {
@@ -3474,6 +5377,7 @@ struct PlayerWindow: View {
             } else if startedFromLaunch, next.status.phase == .waitingForEvent,
                       !next.canStartFromTitle, !next.waitingForChoice,
                       (launch?.replayRoute == true && launchClicks < 24000 ||
+                       launch?.dialogueLogProbe.map { launchClicks < $0.clicks } == true ||
                        launch?.advanceToChoice == true && launchClicks < ((launch?.checkChoiceCount ?? 0) > 0 ? 24000 : 4000) ||
                        launch?.checkCutinLoad == true && !startedDialogueLoadProbe && launchClicks < 300 ||
                        launch?.advanceToDialogue == true && next.messages.isEmpty && launchClicks < 24 ||
@@ -3504,6 +5408,33 @@ struct PlayerWindow: View {
             if let substitute, let font = NSFont(name: substitute, size: size) { return font }
         }
         return NSFont.systemFont(ofSize: size)
+    }
+
+    nonisolated private func dialogueFont(_ name: String?, size: CGFloat, supporting text: String) -> NSFont {
+        let base = dialogueFont(name, size: size)
+        guard !text.isEmpty else { return base }
+        let length = (text as NSString).length
+        return CTFontCreateForString(base as CTFont, text as CFString,
+                                     CFRange(location: 0, length: length)) as NSFont
+    }
+
+    nonisolated private func appendDialogueText(_ value: String, to output: NSMutableAttributedString,
+                                                baseFont: NSFont, size: CGFloat, widthScale: CGFloat,
+                                                color: NSColor) {
+        let source = value as NSString
+        var location = 0
+        while location < source.length {
+            let range = source.rangeOfComposedCharacterSequence(at: location)
+            let fallback = CTFontCreateForString(baseFont as CTFont, value as CFString,
+                CFRange(location: range.location, length: range.length))
+            var matrix = CGAffineTransform(scaleX: widthScale, y: 1)
+            let font = CTFontCreateCopyWithAttributes(fallback, size, &matrix, nil)
+            output.append(NSAttributedString(string: source.substring(with: range), attributes: [
+                .font: font,
+                .foregroundColor: color
+            ]))
+            location = NSMaxRange(range)
+        }
     }
 
     nonisolated private func dialogueColor(_ argb: UInt32) -> NSColor {
@@ -3562,8 +5493,43 @@ struct PlayerWindow: View {
         return jpeg
     }
 
-    private func captureScenePNG(_ state: PlayerState, through priority: Int32) throws -> Data {
-        let capture = ImageRenderer(content: sceneCanvas(state) { layerPriority, _ in
+    private func saveCaptureScene(_ next: PlayerState, through priority: Int32, holdCutin: Bool) async throws -> PlayerState {
+        try Task.checkCancellation()
+        let canvasBounds = CGRect(x: 0, y: 0, width: PlayerViewport.width, height: PlayerViewport.height)
+        guard next.movie == nil else {
+            throw ResourceError.rejected("game_thread_video_capture_unsupported")
+        }
+        var capturedState = next
+        if let cutin = next.cutin, cutin.priority <= priority, cutin.opacity > 0,
+           cutin.bounds.intersects(canvasBounds) {
+            guard let player = cutinVideo, let item = player.currentItem, item.status == .readyToPlay,
+                  player.currentTime().seconds.isFinite else {
+                throw ResourceError.rejected("game_thread_cutin_frame_unavailable")
+            }
+            if holdCutin { pauseCutinForLoad(player) }
+            let requested = player.currentTime()
+            let (frame, actual) = try await PlayerMovie.captureFrame(in: item.asset, at: requested)
+            guard cutinVideo === player, player.currentItem === item else {
+                throw ResourceError.rejected("game_thread_cutin_frame_source_changed")
+            }
+            guard frame.width == Int(cutin.bounds.width), frame.height == Int(cutin.bounds.height) else {
+                throw ResourceError.rejected("game_thread_cutin_frame_size_mismatch")
+            }
+            capturedState.layers.append(PlayerLayer(id: cutin.id, image: frame, hoverImage: nil,
+                x: Int32(cutin.bounds.minX), y: Int32(cutin.bounds.minY), priority: cutin.priority,
+                opacity: cutin.opacity, scaleXPercent: 100, scaleYPercent: 100,
+                alignmentXPercent: 0, alignmentYPercent: 0, textureFilter: nil,
+                usesVolumeButtonOffsets: false, isWindowControl: false))
+            capturedState.layers.sort { ($0.priority, $0.id) < ($1.priority, $1.id) }
+            if launch?.checkCutinLoad == true {
+                FileHandle.standardError.write(Data("player_cutin_capture_frame=\(actual.seconds) requested=\(requested.seconds)\n".utf8))
+            }
+        }
+        return capturedState
+    }
+
+    private func captureScenePNG(_ state: PlayerState, through priority: Int32, showPointerHover: Bool = true) throws -> Data {
+        let capture = ImageRenderer(content: sceneCanvas(state, showPointerHover: showPointerHover) { layerPriority, _ in
             layerPriority <= priority
         }
         .frame(width: PlayerViewport.width, height: PlayerViewport.height)
@@ -3576,8 +5542,9 @@ struct PlayerWindow: View {
         return data
     }
 
-    private func sceneCanvas(_ state: PlayerState, includes: @escaping (Int32, UInt64) -> Bool) -> some View {
-        let hoveredButton = self.hoveredButton
+    private func sceneCanvas(_ state: PlayerState, showPointerHover: Bool = true,
+                             includes: @escaping (Int32, UInt64) -> Bool) -> some View {
+        let hoveredButton = showPointerHover ? self.hoveredButton : nil
         return Canvas { canvas, size in
             let viewport = PlayerViewport(size)
             var context = canvas
@@ -3618,24 +5585,33 @@ struct PlayerWindow: View {
                     }
                     let fontSize = max(1, CGFloat(run.height) * viewport.scale)
                     let baseFont = dialogueFont(run.fontName, size: fontSize)
-                    var matrix = CGAffineTransform(scaleX: CGFloat(run.width) / CGFloat(run.height), y: 1)
-                    let font = CTFontCreateCopyWithAttributes(baseFont as CTFont, fontSize, &matrix, nil)
-                    var attributes: [NSAttributedString.Key: Any] = [
-                        .font: font, .foregroundColor: dialogueColor(run.colorARGB)
-                    ]
+                    let widthScale = CGFloat(run.width) / CGFloat(run.height)
+                    let color = dialogueColor(run.colorARGB)
                     if let reading = run.ruby, !reading.text.isEmpty {
                         let readingSize = reading.height.map { max(1, CGFloat($0) * viewport.scale) } ?? fontSize / 2
                         let readingBase = dialogueFont(reading.fontName ?? run.fontName, size: readingSize)
                         let ratio = reading.width.flatMap { width in reading.height.map { CGFloat(width) / CGFloat($0) } } ?? 1
                         var readingMatrix = CGAffineTransform(scaleX: ratio, y: 1)
-                        let readingFont = CTFontCreateCopyWithAttributes(readingBase as CTFont, readingSize, &readingMatrix, nil)
+                        let readingFallback = CTFontCreateForString(readingBase as CTFont, reading.text as CFString,
+                            CFRange(location: 0, length: (reading.text as NSString).length))
+                        let readingFont = CTFontCreateCopyWithAttributes(readingFallback, readingSize, &readingMatrix, nil)
                         let ruby = CTRubyAnnotationCreateWithAttributes(
                             .center, .auto, .before, reading.text as CFString,
                             [kCTFontAttributeName: readingFont,
                              kCTForegroundColorAttributeName: dialogueColor(reading.colorARGB ?? run.colorARGB).cgColor] as CFDictionary)
-                        attributes[NSAttributedString.Key(kCTRubyAnnotationAttributeName as String)] = ruby
+                        let fallback = CTFontCreateForString(baseFont as CTFont, run.text as CFString,
+                            CFRange(location: 0, length: (run.text as NSString).length))
+                        var matrix = CGAffineTransform(scaleX: widthScale, y: 1)
+                        let font = CTFontCreateCopyWithAttributes(fallback, fontSize, &matrix, nil)
+                        let attributes: [NSAttributedString.Key: Any] = [
+                            .font: font, .foregroundColor: color,
+                            NSAttributedString.Key(kCTRubyAnnotationAttributeName as String): ruby
+                        ]
+                        text.append(NSAttributedString(string: run.text, attributes: attributes))
+                    } else {
+                        appendDialogueText(run.text, to: text, baseFont: baseFont, size: fontSize,
+                                           widthScale: widthScale, color: color)
                     }
-                    text.append(NSAttributedString(string: run.text, attributes: attributes))
                 }
                 let typesetter = CTFramesetterCreateWithAttributedString(text)
                 let path = CGPath(rect: CGRect(origin: .zero, size: frame.size), transform: nil)
@@ -3721,7 +5697,8 @@ struct PlayerWindow: View {
                     labelContext.opacity = layerContext.opacity
                     labelContext.clip(to: Path(textFrame))
                     let style = state.choiceTextStyles[layer.id]
-                    let font = dialogueFont(style?.fontName, size: max(1, CGFloat(style?.height ?? 24) * viewport.scale))
+                    let font = dialogueFont(style?.fontName,
+                        size: max(1, CGFloat(style?.height ?? 24) * viewport.scale), supporting: label)
                     let color = dialogueColor(style?.colorARGB ?? 0xffff_ffff)
                     labelContext.draw(Text(label).font(Font(font)).foregroundColor(Color(nsColor: color)), in: textFrame)
                 }
@@ -3739,9 +5716,59 @@ struct PlayerWindow: View {
         }
     }
 
+    private func seek(_ player: AVAudioPlayer, toSeconds seconds: Double) {
+        player.currentTime = min(player.duration, max(0, seconds))
+        if launch?.checkAudioResume == true {
+            FileHandle.standardError.write(Data(
+                "player_audio_seek requested_seconds=\(seconds) actual_seconds=\(player.currentTime)\n".utf8))
+        }
+    }
+
     private func applySoundSeeks(_ next: PlayerState, excluding replacement: UInt64? = nil) {
+        for (channel, seconds) in next.soundSeekSeconds where channel != replacement {
+            if let player = audio[channel] { seek(player, toSeconds: seconds) }
+        }
         for (channel, position) in next.soundSeeks where channel != replacement {
-            if let player = audio[channel] { seek(player, to: position) }
+            if next.soundSeekSeconds[channel] == nil, let player = audio[channel] {
+                seek(player, to: position)
+            }
+        }
+    }
+
+    private func exchangeStreams(_ request: ScriptMachine.SoundSwapRequest, previousIDs: [UInt64: UUID],
+                                 transition: StreamChannelTransition?) throws {
+        let first = request.first, second = request.second
+        for channel in [first, second] {
+            if let completion = audioCompletions[channel], completion.playbackID != previousIDs[channel] {
+                throw ResourceError.rejected("player_stream_swap_identity_mismatch")
+            }
+        }
+        let hostBefore = audio.keys.compactMap(ScriptMachine.streamSaveChannelIndex).sorted()
+        var transferred = 0
+        if first != second {
+            func exchange<Key, Value>(_ values: inout [Key: Value], _ first: Key, _ second: Key) {
+                let formerFirst = values[first]
+                values[first] = values[second]
+                values[second] = formerFirst
+            }
+            exchange(&audio, first, second)
+            exchange(&audioSources, first, second)
+            exchange(&audioPlaybackSteps, first, second)
+            exchange(&audioCompletions, first, second)
+            exchange(&audioGains, first, second)
+            for control in [SoundControl.volume, .pan] {
+                let from = SoundFade(channel: first, control: control)
+                let to = SoundFade(channel: second, control: control)
+                transferred += [soundFades[from], soundFades[to]].compactMap { $0 }.count
+                exchange(&soundFades, from, to)
+            }
+            audioCompletions[first]?.channel = first
+            audioCompletions[second]?.channel = second
+        }
+        if launch?.checkDialogueSaveWrite == true, let transition {
+            let hostAfter = audio.keys.compactMap(ScriptMachine.streamSaveChannelIndex).sorted()
+            FileHandle.standardError.write(Data(
+                "player_save_stream_transition_applied step=\(transition.step) source=\(transition.location.sourceFile) line=\(transition.location.lineNumber) first=\(ScriptMachine.streamSaveChannelIndex(first) ?? -1) second=\(ScriptMachine.streamSaveChannelIndex(second) ?? -1) host_before=\(hostBefore) host_after=\(hostAfter) transferred_controls=\(transferred)\n".utf8))
         }
     }
 
@@ -3750,10 +5777,14 @@ struct PlayerWindow: View {
             FileHandle.standardError.write(Data(
                 "player_route_audio_removed channel=\(channel) sha256=\(source.rangeSHA256)\n".utf8))
         }
-        audio.removeValue(forKey: channel)?.stop()
+        let completion = audioCompletions.removeValue(forKey: channel)
+        completion?.channel = nil
+        if let player = audio.removeValue(forKey: channel) {
+            if let completion { completion.repeats.stop(player) }
+            else { player.stop() }
+        }
         audioSources.removeValue(forKey: channel)
         audioPlaybackSteps.removeValue(forKey: channel)
-        audioCompletions.removeValue(forKey: channel)
         audioGains.removeValue(forKey: channel)
         cancelSoundFades(channel: channel)
     }
@@ -3773,26 +5804,29 @@ struct PlayerWindow: View {
             audio[channel]?.pan = normalizedPan(pan)
         }
         for (channel, change) in next.soundVolumeChanges where channel != replacement {
-            applySoundChange(change, channel: channel, control: .volume)
+            applySoundChange(change, channel: channel, control: .volume, identity: next.playbackIdentity)
         }
         for (channel, change) in next.soundPanChanges where channel != replacement {
-            applySoundChange(change, channel: channel, control: .pan)
+            applySoundChange(change, channel: channel, control: .pan, identity: next.playbackIdentity)
         }
         applySoundSeeks(next, excluding: replacement)
         applyMasterVolume()
     }
 
     private func cancelSoundFades(channel: UInt64) {
-        soundFades.removeValue(forKey: SoundFade(channel: channel, control: .volume))?.cancel()
-        soundFades.removeValue(forKey: SoundFade(channel: channel, control: .pan))?.cancel()
+        soundFades.removeValue(forKey: SoundFade(channel: channel, control: .volume))?.task.cancel()
+        soundFades.removeValue(forKey: SoundFade(channel: channel, control: .pan))?.task.cancel()
     }
 
-    private func applySoundChange(_ change: ScriptMachine.SoundControlChange, channel: UInt64, control: SoundControl) {
+    private func applySoundChange(_ change: ScriptMachine.SoundControlChange, channel: UInt64,
+                                  control: SoundControl, identity: UUID) {
         let key = SoundFade(channel: channel, control: control)
-        soundFades.removeValue(forKey: key)?.cancel()
-        guard let player = audio[channel] else { return }
+        let previous = soundFades.removeValue(forKey: key)
+        previous?.task.cancel()
+        guard let player = audio[channel], let completion = audioCompletions[channel] else { return }
+        let playbackID = completion.playbackID
         let target = control == .volume ? normalizedVolume(change.target) : normalizedPan(change.target)
-        func apply(_ value: Float) {
+        func apply(_ value: Float, channel: UInt64) {
             switch control {
             case .volume:
                 audioGains[channel] = value
@@ -3801,30 +5835,62 @@ struct PlayerWindow: View {
                 player.pan = value
             }
         }
-        guard change.delay > 0 || change.duration > 0 else {
-            apply(target)
+        let stationaryPan = control == .pan && change.delay == 0 &&
+            (-256...256).contains(change.target) && player.pan == target
+        guard !stationaryPan && (change.delay > 0 || change.duration > 0) else {
+            apply(target, channel: channel)
+            if let session {
+                let kind: ScriptMachine.SoundControlKind = control == .volume ? .volume : .pan
+                Task { await session.soundControlCompleted(change, playbackID: playbackID, control: kind, identity: identity) }
+            }
             return
         }
-        soundFades[key] = Task { @MainActor in
+        let issuedAt = ContinuousClock().now
+        let volumeBaseline: Float? = control == .volume && change.delay > 0
+            ? (change.savedVolumeRampTarget.map { Float($0) / 256 } ?? (previous == nil ? audioGains[channel] : nil)) : nil
+        let fadeTask = Task { @MainActor in
             do {
-                try await Task.sleep(for: .milliseconds(Int64(change.delay)))
-                let start = control == .volume ? (audioGains[channel] ?? 1) : player.pan
+                let delay = Duration.milliseconds(Int64(change.delay))
+                let startsAfterDelay = change.savedVolumeRampTarget == nil
+                if startsAfterDelay { try await Task.sleep(for: delay) }
+                guard let current = completion.channel, audio[current] === player else { return }
+                let start = control == .volume ? (audioGains[current] ?? 1) : player.pan
                 let clock = ContinuousClock()
                 let startTime = clock.now
-                let duration = Duration.milliseconds(Int64(change.duration))
                 while true {
                     try Task.checkCancellation()
-                    let elapsed = startTime.duration(to: clock.now)
-                    let fraction: Float = elapsed >= duration ? 1 : Float(elapsed / duration)
-                    apply(start + (target - start) * fraction)
-                    if fraction == 1 { break }
-                    try await Task.sleep(for: .milliseconds(16))
+                    guard let current = completion.channel, audio[current] === player else { return }
+                    let currentKey = SoundFade(channel: current, control: control)
+                    guard soundFades[currentKey]?.change.token == change.token else { return }
+                    let elapsed = startTime.duration(to: clock.now) + (startsAfterDelay ? delay : .zero)
+                    let sample = change.sample(initial: start, target: target,
+                                               elapsedMilliseconds: elapsed / .milliseconds(1))
+                    apply(sample.value, channel: current)
+                    if change.delay > 0, elapsed >= delay,
+                       soundFades[currentKey]?.delayedControlStarted == false {
+                        soundFades[currentKey]?.delayedControlStarted = true
+                    }
+                    if sample.completed { break }
+                    if elapsed >= .milliseconds(2000), elapsed < delay {
+                        try await Task.sleep(for: delay - elapsed)
+                    } else {
+                        try await Task.sleep(for: .milliseconds(16))
+                    }
                 }
-                soundFades.removeValue(forKey: key)
+                if let session {
+                    let kind: ScriptMachine.SoundControlKind = control == .volume ? .volume : .pan
+                    await session.soundControlCompleted(change, playbackID: playbackID, control: kind, identity: identity)
+                }
+                if let current = completion.channel {
+                    let currentKey = SoundFade(channel: current, control: control)
+                    if soundFades[currentKey]?.change.token == change.token { soundFades.removeValue(forKey: currentKey) }
+                }
             } catch {
                 return
             }
         }
+        soundFades[key] = .init(change: change, playbackStep: audioPlaybackSteps[channel], task: fadeTask,
+                               issuedAt: issuedAt, delayedVolumeBaselineGain: volumeBaseline)
     }
 
     private func synchronizePlaybackIdentity(_ next: PlayerState) {
@@ -3847,10 +5913,33 @@ struct PlayerWindow: View {
             applySoundState(next)
         }
         show(next)
+        // Only a freshly presented finite wait can be interrupted. The
+        // same frame can stay visible as the requested system task starts.
+        acceptsTimedWindowControl = !next.isSystemLoadFrame && (next.timedWaitRemaining ?? 0) > 0
+        if launch?.checkTimedWaitSaveWrite == true, !timedWaitSaveProbeTriggered,
+           next.status.phase == .waiting, let remaining = next.timedWaitRemaining, remaining > 0,
+           let handle = next.windowSaveButton {
+            timedWaitSaveProbeTriggered = true
+            FileHandle.standardError.write(Data(
+                "player_timed_wait_save_input=1 remaining=\(remaining) source=\(next.status.currentLocation?.sourceFile ?? "-") line=\(next.status.currentLocation?.lineNumber ?? 0)\n".utf8))
+            send(next.windowTaskInput(.save, handle: handle))
+        }
     }
 
     private func show(_ next: PlayerState) {
         state = next
+        if let warning = next.saveWriteWarning {
+            issue = "存档内容已更新，但目录持久性同步未确认；断电后是否保留新档尚不确定。\n\(warning)"
+        } else if issue?.hasPrefix("存档内容已更新，但目录持久性同步未确认；") == true {
+            issue = nil
+        }
+        if let reason = next.status.stopReason, reason.hasPrefix("mac_exception_backup_written:") {
+            let cause = String(reason.dropFirst("mac_exception_backup_written:".count).drop(while: { $0 == " " }))
+            issue = "脚本运行失败，Mac 安全扩展已写入 ExceptionBackup.svd。\n\(Self.playbackMessage(cause))"
+        } else if let reason = next.status.stopReason, reason.hasPrefix("mac_exception_backup_failed:") {
+            let detail = String(reason.dropFirst("mac_exception_backup_failed:".count).drop(while: { $0 == " " }))
+            issue = "脚本运行失败，未能写入 Mac 异常恢复存档。\n\(Self.playbackMessage(detail))"
+        }
         if next.isTerminal {
             idleVisuals?.cancel()
             idleVisuals = nil
@@ -4000,7 +6089,7 @@ struct PlayerWindow: View {
         var saveURL: URL?
         if includeSaves {
             let savePanel = NSOpenPanel()
-            savePanel.title = "选择只读存档目录"
+            savePanel.title = "选择与游戏目录分开的存档读写目录"
             savePanel.directoryURL = currentReplay?.saveURL ?? saved?.saveURL
             savePanel.canChooseDirectories = true
             savePanel.canChooseFiles = false
@@ -4032,7 +6121,24 @@ struct PlayerWindow: View {
 
     private func openReplay(assets: SafeDirectory, replayURL: URL, gameURL: URL, ffmpeg: URL, saveURL: URL? = nil) {
         let decoder = ffmpeg.resolvingSymlinksInPath().standardizedFileURL
-        let inputRoots = [assets.root, replayURL, gameURL] + (saveURL.map { [$0] } ?? [])
+        let readOnlyRoots = [assets.root, replayURL, gameURL].map {
+            $0.resolvingSymlinksInPath().standardizedFileURL
+        }
+        if let saveURL {
+            let saveRoot = saveURL.resolvingSymlinksInPath().standardizedFileURL.pathComponents.map { $0.lowercased() }
+            let overlapsReadOnlyInput = readOnlyRoots.contains { root in
+                let input = root.pathComponents.map { $0.lowercased() }
+                return saveRoot.starts(with: input) || input.starts(with: saveRoot)
+            }
+            guard !overlapsReadOnlyInput else {
+                issue = "存档读写目录必须与游戏、资源副本和回放目录分开，原版输入目录保持只读。"
+                if launch != nil {
+                    FileHandle.standardError.write(Data("player_error=player_save_directory_overlaps_input\n".utf8))
+                }
+                return
+            }
+        }
+        let inputRoots = readOnlyRoots + (saveURL.map { [$0.resolvingSymlinksInPath().standardizedFileURL] } ?? [])
         guard PlayerLaunch.isDecoder(ffmpeg), !inputRoots.contains(where: { root in
             decoder.pathComponents.starts(with: root.resolvingSymlinksInPath().standardizedFileURL.pathComponents)
         }) else {
@@ -4053,7 +6159,12 @@ struct PlayerWindow: View {
             defer { finishWork(id) }
             let skipAudioForChoiceProbe = launch?.advanceToChoice == true
             let accelerated = skipAudioForChoiceProbe || launch?.checkLoadRecovery == true || launch?.checkDialogueLoad == true ||
-                launch?.checkExperimentalSaveAdoption == true ||
+                launch?.checkExperimentalSaveAdoption == true || launch?.checkQuickSave == true ||
+                launch?.checkQuickLoadConfirmation != nil || launch?.checkStartupBackupResponse != nil ||
+                launch?.checkTitleQuitResponse != nil || launch?.checkAutosaveRecoveryResponse != nil ||
+                launch?.checkWindowClose != nil ||
+                launch?.checkMacExceptionBackup == true ||
+                launch?.checkApplicationQuit != nil ||
                 (launch?.replayRoute == true && launch?.realtimeRoute != true)
             // These explicit fault probes exercise the legacy rollback boundary.
             let allowSaveAdoption = launch?.checkDialogueSaveAdoption == true || (launch?.checkLoadRecovery != true &&
@@ -4064,7 +6175,10 @@ struct PlayerWindow: View {
                     try Task.checkCancellation()
                     return try PlayerSession(assets: assets, replayDirectory: replayURL, gameDirectory: gameURL, ffmpeg: decoder, saveURL: saveURL, accelerated: accelerated,
                                              skipAudioForChoiceProbe: skipAudioForChoiceProbe,
-                                             allowSaveAdoption: allowSaveAdoption)
+                                             allowSaveAdoption: allowSaveAdoption,
+                                             allowLabelHistoryCandidate: allowSaveAdoption ||
+                                                 launch?.researchLabelReadStatus == true,
+                                             recoverAutosaveSlot: launch?.recoverAutosaveSlot)
                 }
                 let opened = try await withTaskCancellationHandler {
                     try await opening.value
@@ -4086,8 +6200,12 @@ struct PlayerWindow: View {
                 showingHistory = false
                 history = []
                 startedFromLaunch = false
+                requestedLaunchAutosave = false
                 reportedRouteReturn = false
+                timedWaitSaveProbeTriggered = false
+                dialogueSaveProbeCompleted = false
                 startedDialogueLoadProbe = false
+                startedDialogueLogProbe = false
                 titlePointerOnRight = nil
                 launchClicks = 0
                 observedOpacity = false
@@ -4109,7 +6227,7 @@ struct PlayerWindow: View {
                     if let saved = try? JSONEncoder().encode(arguments) { lastLaunchPaths = saved }
                 }
             } catch is CancellationError {
-                if workID == id { stopSession() }
+                if workID == id, pendingWindowControlDuringTimedWait == nil { stopSession() }
             } catch {
                 guard workID == id else { return }
                 let reason = String(describing: error)

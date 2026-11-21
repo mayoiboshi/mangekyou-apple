@@ -2,12 +2,38 @@ import Foundation
 
 /// Save codec zero, reconstructed from the original 0x4e1be0 reader.
 enum SaveBPE {
+    /// Identity dictionaries encode bytes without changing the native block format.
+    static func encodeLiterals(_ data: Data) throws -> Data {
+        let blockSize = 4096
+        guard data.count <= SaveEnvelope.maxFileBytes else {
+            throw ResourceError.rejected("save_bpe_output_limit")
+        }
+        let blocks = (data.count + blockSize - 1) / blockSize
+        let overhead = 12 + blocks * 5
+        guard data.count <= SaveEnvelope.maxFileBytes - overhead else {
+            throw ResourceError.rejected("save_bpe_input_limit")
+        }
+        var result = Data([0x31, 0x50, 0x43, 0xff, 1, 0, 0, 0])
+        result.reserveCapacity(data.count + overhead)
+        withUnsafeBytes(of: UInt32(data.count).littleEndian) { result.append(contentsOf: $0) }
+        for offset in stride(from: 0, to: data.count, by: blockSize) {
+            let length = min(blockSize, data.count - offset)
+            // Skip 128 identities, emit identity 128, then skip the remaining 127.
+            result.append(contentsOf: [255, 128, 254])
+            withUnsafeBytes(of: UInt16(length).littleEndian) { result.append(contentsOf: $0) }
+            let start = data.startIndex + offset
+            result.append(contentsOf: data[start..<(start + length)])
+        }
+        return result
+    }
+
     static func decode(_ data: Data) throws -> Data {
         let input = Data(data)
-        guard input.count >= 12, input.starts(with: [0x31, 0x50, 0x43, 0xff]) else {
+        let hasSignature = input.starts(with: [0x31, 0x50, 0x43, 0xff])
+        guard input.count >= (hasSignature ? 12 : 4) else {
             throw ResourceError.rejected("invalid_save_bpe_header")
         }
-        var cursor = 4
+        var cursor = hasSignature ? 4 : 0
         func number(_ bytes: Int) throws -> Int {
             guard bytes <= input.count - cursor else { throw ResourceError.rejected("truncated_save_bpe") }
             var value = 0
@@ -18,9 +44,14 @@ enum SaveBPE {
             return value
         }
 
-        let flags = try number(4)
+        // The disk reader passes CL = 0 to 0x4e2550. On a missing 1PC
+        // signature, 0x4e1c8d reads the decoded length from the first word
+        // and uses 32-bit block lengths.
+        let flags = hasSignature ? try number(4) : 0
         let expected = try number(4)
-        guard expected <= SaveEnvelope.maxFileBytes else { throw ResourceError.rejected("save_bpe_output_limit") }
+        guard expected <= SaveEnvelope.maxFileBytes else {
+            throw ResourceError.rejected(hasSignature ? "save_bpe_output_limit" : "invalid_save_bpe_header")
+        }
         var output = Data()
         output.reserveCapacity(expected)
         var stack: [UInt8] = []

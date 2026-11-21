@@ -84,7 +84,9 @@ def wide_motion_layers(data, header_end, end):
                 sha256=digest(data[offset:offset+stride]),
                 raw_words={hex(field): struct.unpack_from('<i', data, offset+field)[0]
                            for field in word_offsets})
-            if raw_type == 4:
+            # 0x57f5c4 consumes these four fields while advancing one layer clock.
+            key['time_control_inputs'] = [data[offset+0xd0], *struct.unpack_from('<3i', data, offset+0xd4)]
+            if raw_type in (4, 10):
                 # The first texture evaluator reads the mode byte and signed
                 # input at 0x58c05b and 0x58c096 respectively.
                 # 0x58d82e and 0x58d842 copy the draw modes as bytes.
@@ -95,13 +97,97 @@ def wide_motion_layers(data, header_end, end):
                     anchor_ratio_inputs=list(struct.unpack_from('<2i', data, offset+0x70)),
                     transform_fields={hex(field): struct.unpack_from('<i', data, offset+field)[0]
                                       for field in range(0x84, 0xac, 4)})
+                # 0x58ad83 and 0x58b3af share literal rectangle, anchor and
+                # transform values when the selector is zero. Keep the
+                # nested raster path to the neutral color inputs at 0x58c2b0.
+                additive, multiplier = struct.unpack_from('<2I', data, offset+0xbc)
+                transfer, command = struct.unpack_from('<2I', data, offset+0xc8)
+                basic_draw_state = all(data[offset+field] == 0 for field in (0x14, 0x48, 0xb0))
+                ordinary_texture = raw_type == 4 and (transfer, command) == (255, 0)
+                # 0x584ce0 uses the second texture anchor. The direct
+                # scanner profile uses two complete surfaces without offsets.
+                mask_texture = (raw_type == 10 and transfer <= 255 and command <= 7
+                                and data[offset+0x10] == 0
+                                and struct.unpack_from('<I', data, offset+0x18)[0] == 0
+                                and struct.unpack_from('<2i', data, offset+0x3c) == (0, 0)
+                                and key['geometry_inputs']['source_areas'] == [[0, 0, 0, 0]] * 2)
+                neutral_draw_state = (basic_draw_state and ordinary_texture
+                                      and (additive, multiplier) == (0, 0x00ffffff))
+                transform_mode, color_mode = data[offset+0x7c], data[offset+0xb4]
+                key['literal_draw_state'] = neutral_draw_state and transform_mode == color_mode == 0
+                # These interpolation curves return the current value at zero progress.
+                key['literal_draw_state_at_key'] = (neutral_draw_state and transform_mode in (0, 1, 3, 4)
+                                                     and color_mode in (0, 1, 3, 4))
+                if (basic_draw_state and (ordinary_texture or mask_texture)
+                    and transform_mode == 0 and max(additive, multiplier) <= 0x00ffffff):
+                    # 0x58dae3 normalizes the shared curve strength. Bits 0/1
+                    # of +0x180 independently enable the alpha and RGB modes.
+                    key['nested_color_curve'] = dict(
+                        mode=color_mode if data[offset+0x180] & 2 else 0,
+                        strength=struct.unpack_from('<i', data, offset+0xb8)[0],
+                        additive=additive, multiplier=multiplier, transfer=transfer)
+                    if mask_texture:
+                        key['nested_mask_mode'] = command
                 key['first_texture_input'] = dict(mode=data[offset+0x1c],
                                                   number=key['raw_words']['0x24'])
+                if raw_type == 4:
+                    # The same mode selects the child action at 0x58c0d4.
+                    # 0x58bf43/0x58bf89 evaluate the child's independent clock.
+                    key['first_texture_input']['action'] = key['raw_words']['0x28']
+                    key['child_time_input'] = dict(mode=data[offset+0x2c],
+                                                   value=struct.unpack_from('<i', data, offset+0x34)[0])
+                else:
+                    key['second_texture_number'] = key['raw_words']['0x28']
+            blend = data[offset+8]
+            if (raw_type == 20 and blend in (0, 7)
+                and all(data[offset+f] == 0 for f in (12, 0x10, 0x14, 0x1c, 0x7c, 0xb4))):
+                additive, multiplier = struct.unpack_from('<2I', data, offset+0xbc)
+                if (struct.unpack_from('<I', data, offset+0x18)[0] == 0
+                    and additive == 0 and multiplier <= 0x00ffffff
+                    and (blend == 7 or multiplier == 0x00ffffff)
+                    and data[offset+0x48] in (0, 1) and data[offset+0x2c] in (0, 1)):
+                    key['first_texture_input'] = dict(mode=0, number=key['raw_words']['0x24'])
+                    key['draw_mode_inputs'] = dict(blend=blend, sampling=data[offset+12])
+                    if multiplier != 0x00ffffff:
+                        # 0x587287 passes the evaluated RGB multiplier to the particle draw.
+                        key['nested_color_curve'] = dict(mode=0, strength=0, additive=0, multiplier=multiplier)
+                    # 0x586b3b–0x586c5f uses the seed and two evaluated areas.
+                    # 0x586f7f–0x586fba uses the separately evaluated clock endpoints.
+                    key['type20_input'] = dict(
+                        first_area=struct.unpack_from('<4i', data, offset+0x50),
+                        second_area=struct.unpack_from('<4i', data, offset+0x60),
+                        first_area_interpolates=bool(data[offset+0x48] and data[offset+0x178] & 2),
+                        second_area_interpolates=bool(data[offset+0x48] and data[offset+0x178] & 4),
+                        volume=struct.unpack_from('<3i', data, offset+0x90),
+                        seed=struct.unpack_from('<I', data, offset+0xcc)[0],
+                        clock_interpolates=bool(data[offset+0x2c]),
+                        clock_range=struct.unpack_from('<2i', data, offset+0x34))
+                    key['geometry_inputs'] = dict(
+                        anchor_ratio_inputs=list(struct.unpack_from('<2i', data, offset+0x70)),
+                        transform_fields={hex(field): struct.unpack_from('<i', data, offset+field)[0]
+                                          for field in range(0x84, 0xac, 4)})
+            if (raw_type in (4, 20)
+                and all(data[offset+f] == 0 for f in (8, 12, 0x10, 0x14, 0x1c, 0xb0, 0xb4))
+                and struct.unpack_from('<I', data, offset+0x18)[0] == 0
+                and struct.unpack_from('<2I', data, offset+0xbc) == (0, 0x00ffffff)
+                and struct.unpack_from('<2i', data, offset+0x9c) == (0, 0)
+                and (raw_type == 20 and 'type20_input' in key
+                     or raw_type == 4 and data[offset+0x48] == 0
+                     and key['geometry_inputs']['source_areas'] == [[0, 0, 0, 0]] * 2)
+                and data[offset+0x7c] in (0, 1)):
+                # 0x58c61b gates Z-angle interpolation; 0x58c662 converts to turns.
+                key['particle_raster_mode'] = dict(mode=data[offset+0x7c], flags=data[offset+0x17c])
+            elif (raw_type == 20 and 'type20_input' in key and blend == 7
+                  and data[offset+0x2c] == 0
+                  and struct.unpack_from('<2i', data, offset+0xac) == (100, 0)):
+                # 0x58d86d supplies rotation order; 0x58486c dispatches order zero as X, Y, Z.
+                key['particle_raster_mode'] = dict(mode=0, flags=data[offset+0x17c], rotation_order=0)
             # 0x58c2c3 gates the mode and 0x58c2de reads the next key's value.
             key['opacity_input'] = dict(mode=data[offset+0xb4] if data[offset+0x180] & 1 else 0,
                                         raw_value=key['raw_words']['0xc4'])
             keys.append(key)
-        layers.append(dict(decoded_offset=cursor, length=next_layer-cursor, raw_header_tail=data[body+2], key_stride=stride,
+        layers.append(dict(decoded_offset=cursor, length=next_layer-cursor, raw_layer_flag=data[body],
+                           raw_layer_flag_offset=body, raw_header_tail=data[body+2], key_stride=stride,
                            key_stride_status='verified', keys=keys))
         cursor = next_layer
     return layers if layers and cursor == end else None
@@ -171,6 +257,17 @@ def inspect_container(data, upstream, budget=None, chain=None, depth=0, include_
             if fields + 13 <= reader.offset:
                 reader.image_offsets = dict(offset=fields + 1, original_type_code=data[fields], raw_words=list(
                     struct.unpack_from('<3I', data, fields + 1)))
+        if include_extended_values and tag == 'abimgdat15' and version == 1:
+            second = start + 6 + 2 * struct.unpack_from('<H', data, start + 4)[0]
+            fields = second + 2 + struct.unpack_from('<H', data, second)[0]
+            # 0x5983e8–0x598412 reads the three offsets before the one-byte
+            # and four-byte fields that precede the payload length.
+            if fields + 18 == reader.offset and data[fields] == type_code:
+                reader.image_offsets = dict(offset=fields + 1, original_type_code=type_code, raw_words=list(
+                    struct.unpack_from('<3I', data, fields + 1)))
+                if type_code == 6:
+                    # 0x598415 reads the byte stored at image-entry +0x104.
+                    reader.image_offsets['nested_surface_flag'] = data[fields + 13]
         return result_name
     def collect(members,name,fallback,raw,type_code,cancel=None):
         expected=budget.claim(raw)
@@ -258,6 +355,8 @@ def inspect_container(data, upstream, budget=None, chain=None, depth=0, include_
                                     body = layer.end() + 2 + name_size
                                     unit = 440 if version == 'ablayer21' else 162
                                     if body + 3 <= layer_end:
+                                        record['raw_layer_flag'] = decoded[body]
+                                        record['raw_layer_flag_offset'] = body
                                         block_count = decoded[body+1]
                                         if block_count and body + 3 + block_count*unit == layer_end:
                                             record.update(block_count_offset=body+1, block_count=block_count,
@@ -401,6 +500,11 @@ def inspect_container(data, upstream, budget=None, chain=None, depth=0, include_
             tag = b'abmotion11' + bytes(6)
             count_offset = 40
             if result['tags'][-1]['tag'] == 'abdata14' and len(decoded) >= 40:
+                # Unlike abdata13, the wide loader reads loop start before duration.
+                version, width, height, loop_start, duration = struct.unpack_from('<5i', decoded, 14)
+                if version == 1:
+                    item['wide_duration_inputs'] = dict(decoded_offset=26, duration=duration, loop_start=loop_start)
+                    item['wide_canvas_inputs'] = dict(decoded_offset=18, width=width, height=height)
                 # Wide metadata has a UTF-16 parameter block before the action count.
                 count_offset += 2 * int.from_bytes(decoded[38:40], 'little')
             first_motion = count_offset + 1
@@ -461,8 +565,12 @@ def inspect_container(data, upstream, budget=None, chain=None, depth=0, include_
         upstream.AbmpReader=base_reader;upstream._add_member=base_add;upstream._resource_name=base_resource
     for item,decoded in decoded_members:
         if upstream.is_abmp(decoded):
+            # A direct embedded child can reuse the bounded wide-motion audit.
+            direct_child = (include_extended_values and not item['compressed']
+                            and item.get('image_anchor_offset_inputs', {}).get('nested_surface_flag') == 0)
             item['nested']=inspect_container(decoded,upstream,budget,chain+[dict(name=item['name'],
-                decoded_parent_sha256=item['decoded_sha256'],parent_raw_reference=item['raw_bytes_reference'])],depth+1)
+                decoded_parent_sha256=item['decoded_sha256'],parent_raw_reference=item['raw_bytes_reference'])],depth+1,
+                include_extended_values=direct_child)
             if item['nested']['status']!='verified':result['status']='unsupported'
         elif decoded.startswith(b'IMOAVI'):
             item['imoavi_status']='not_tested'
